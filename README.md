@@ -1,2 +1,2 @@
 # decentralized-energy-trading
-ISE CP Project Summer 2019
+Repository of ISE CP Project Summer 2019.
