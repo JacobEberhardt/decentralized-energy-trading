@@ -1,0 +1,16 @@
+{
+  "name": "decentralized-energy-trading",
+  "version": "1.0.0",
+  "repository": "git@github.com:cp-ss2019/decentralized-energy-trading.git",
+  "scripts": {
+    "compile-contracts": "truffle compile",
+    "migrate-contracts": "truffle migrate",
+    "test-contracts": "truffle test",
+    "run-server": "node ./household-server/index.js",
+    "run-ui": "node ./household-ui/index.js",
+    "run-sensor": "node ./mock-sensor/index.js"
+  },
+  "devDependencies": {
+    "truffle": "^5.0.13"
+  }
+}
