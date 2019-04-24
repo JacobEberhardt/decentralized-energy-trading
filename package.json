@@ -8,9 +8,20 @@
     "test-contracts": "truffle test",
     "run-server": "node ./household-server/index.js",
     "run-ui": "node ./household-ui/index.js",
-    "run-sensor": "node ./mock-sensor/index.js"
+    "run-sensor": "node ./mock-sensor/index.js",
+    "lint-all": "eslint household-server/ household-ui/ mock-sensor/ test/",
+    "format-all": "eslint household-server/ household-ui/ mock-sensor/ test/ --fix"
   },
   "devDependencies": {
+    "eslint": "^5.16.0",
+    "eslint-config-prettier": "^4.1.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-prettier": "^3.0.1",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "prettier": "^1.17.0",
     "truffle": "^5.0.13"
   }
 }
