@@ -1,5 +1,5 @@
 // TODO
-const MockData = require(`./mock-sensor-data`)(2,4,6);
+const MockData = require('./mock-sensor-data.js');
 
 console.log('household server');
-MockData.createMockData();
+MockData().createMockData(3,6,9);
