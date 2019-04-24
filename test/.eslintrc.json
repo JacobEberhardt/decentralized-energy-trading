@@ -1,0 +1,11 @@
+{
+  "env": {
+    "node": true
+  },
+  "globals": {
+    "artifacts": "readonly",
+    "contract": "readonly",
+    "it": "readonly",
+    "assert": "readonly"
+  }
+}
