@@ -1,12 +1,14 @@
-module.exports = {
-    MockData: createMockData(),
-};
+module.exports = function(samples, min, max) {
 
-function createMockData(samples, min, max) {
-    let mockData = []
-    for (i = 0; i < samples; i++) {
-        let rndm = Math.random()* (max-min) + max;
-        mockData.push(rndm);
+    function createMockData() {
+        let mockData = [];
+        for (i = 0; i < samples; i++) {
+            let rndm = Math.random() * (max - min) + min;
+            mockData.push(rndm);
+        }
+        console.log(mockData);
     }
-    console.log(mockData);
+    return {
+        createMockData: createMockData
+    }
 }
