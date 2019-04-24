@@ -1,0 +1,64 @@
+version: 2.1
+
+commands:
+  container_config: &container_config
+    docker:
+      - image: circleci/node:10.15.3
+    working_directory: ~/repo
+
+  yarn_install:
+    description: "Install or restore cached dependencies and save cache."
+    steps:
+      - restore_cache:
+          name: Restore Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+      - run:
+          name: Install Dependencies
+          command: yarn install --frozen-lockfile
+      - save_cache:
+          name: Save Yarn Package Cache
+          key: yarn-packages-{{ checksum "yarn.lock" }}
+          paths:
+            - ~/.cache/yarn
+
+jobs:
+  compile_contracts:
+    <<: *container_config
+    steps:
+      - checkout
+      - yarn_install
+      - run:
+          name: Compile contracts
+          command: yarn compile-contracts
+      - persist_to_workspace:
+          root: "~"
+          paths:
+            - repo
+
+  lint:
+    <<: *container_config
+    steps:
+      - checkout
+      - yarn_install
+      - run:
+          name: Run linter
+          command: yarn lint-all
+  
+  test_contracts:
+    <<: *container_config
+    steps:
+      - checkout
+      - yarn_install
+      - run:
+          name: Test contracts
+          command: yarn test-contracts
+
+workflows:
+  version: 2
+  default:
+    jobs:
+      - lint
+      - compile_contracts
+      - test_contracts:
+          requires:
+            - compile_contracts
