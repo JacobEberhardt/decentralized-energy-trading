@@ -1,11 +1,11 @@
 version: 2.1
 
-commands:
-  container_config: &container_config
-    docker:
-      - image: circleci/node:10.15.3
-    working_directory: ~/repo
+defaults: &defaults
+  docker:
+    - image: circleci/node:10.15.3
+  working_directory: ~/repo
 
+commands:
   yarn_install:
     description: "Install or restore cached dependencies and save cache."
     steps:
@@ -23,7 +23,7 @@ commands:
 
 jobs:
   compile_contracts:
-    <<: *container_config
+    <<: *defaults
     steps:
       - checkout
       - yarn_install
@@ -36,7 +36,7 @@ jobs:
             - repo
 
   lint:
-    <<: *container_config
+    <<: *defaults
     steps:
       - checkout
       - yarn_install
@@ -45,7 +45,7 @@ jobs:
           command: yarn lint-all
   
   test_contracts:
-    <<: *container_config
+    <<: *defaults
     steps:
       - checkout
       - yarn_install
