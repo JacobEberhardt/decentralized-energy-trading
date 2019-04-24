@@ -9,8 +9,10 @@
     "run-server": "node ./household-server/index.js",
     "run-ui": "node ./household-ui/index.js",
     "run-sensor": "node ./mock-sensor/index.js",
-    "lint-all": "eslint household-server/ household-ui/ mock-sensor/ test/",
-    "format-all": "eslint household-server/ household-ui/ mock-sensor/ test/ --fix"
+    "lint-all": "eslint household-server/ household-ui/ mock-sensor/ test/ && yarn lint-contracts",
+    "lint-contracts": "solium -d contracts/",
+    "format-all": "eslint household-server/ household-ui/ mock-sensor/ test/ --fix && yarn format-contracts",
+    "format-contracts": "solium -d contracts/ --fix"
   },
   "devDependencies": {
     "eslint": "^5.16.0",
@@ -22,6 +24,7 @@
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.0.0",
     "prettier": "^1.17.0",
+    "solium": "^1.2.4",
     "truffle": "^5.0.13"
   }
 }
