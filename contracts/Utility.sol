@@ -5,10 +5,11 @@ import "./IUtility.sol";
 
 /**
  * @title Utility
+ * @notice Tracks production/consumption of energy of all households. Settles energy requests by distributing existing energy as fair as possible (netting).
  * @dev Implements interface IUtility.
  */
 contract Utility is IUtility {
-
+  address owner;
   // total energy in the system
   uint256 totalEnergy;
   // total renewable energy in the system
@@ -31,6 +32,15 @@ contract Utility is IUtility {
   // mapping of all households
   mapping(address => Household) households;
 
+  modifier onlyOwner(address _owner) {
+    require(msg.sender == owner, "Only owner may access this function!");
+    _;
+  }
+
+  constructor (address _owner) public {
+    owner = _owner;
+  }
+
   // modifier such that only some authority can access functions
   modifier onlyEnergyAuthority() {
     // require(msg.sender == );
@@ -46,12 +56,11 @@ contract Utility is IUtility {
     require(households[_household].initialized == false, "Household already exists.");
 
     // add new household to mapping
-    households[_household] = Household(
-      true,
-      0,
-      0,
-      0);
-
+    Household storage hh = households[_household];
+    hh.initialized = true;
+    hh.energy = 0;
+    hh.renewableEnergy = 0;
+    hh.nonRenewableEnergy = 0;
     return true;
   }
 }
