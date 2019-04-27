@@ -1,4 +1,3 @@
-
 // Copyright 2018 Parity Technologies (UK) Ltd.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,15 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// The block reward contract interface.
+// Example block reward contract.
 
 pragma solidity ^0.5.0;
 
+import "./IFakeUtility.sol";
 
-interface BlockReward {
-	// produce rewards for the given benefactors, with corresponding reward codes.
-	// only callable by `SYSTEM_ADDRESS`
-	function reward(address[] calldata benefactors, uint16[] calldata kind)
-		external
-		returns (address[] memory, uint256[] memory);
+
+contract FakeUtility is IFakeUtility {
+  uint8 public counter = 0;
+
+  function netting() external returns (bool) {
+    counter++;
+    return true;
+  }
 }
