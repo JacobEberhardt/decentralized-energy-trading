@@ -43,6 +43,11 @@ contract Utility is IUtility, Mortal {
     _;
   }
 
+  /* solium-disable-next-line */
+  constructor() public Owned() {
+    // Empty
+  }
+
   /**
    * @dev Create a household with address _household to track energy production and consumption
    * @param _household address of the household owner/ parity node ?
@@ -146,5 +151,11 @@ contract Utility is IUtility, Mortal {
       households[_household].renewableEnergy,
       households[_household].nonRenewableEnergy
     );
+  }
+
+  /* solium-disable-next-line */
+  function settle() external returns (bool) {
+    // ToDo
+    return false;
   }
 }

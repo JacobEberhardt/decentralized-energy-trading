@@ -50,11 +50,11 @@ interface IUtility {
 
   function settle() external returns (bool);
 
-  function totalEnergy() external view returns (int256);
+  //function totalEnergy() external view returns (int256);
 
-  function totalRenewableEnergy() external view returns (int256);
+  //function totalRenewableEnergy() external view returns (int256);
 
-  function totalNonRenewableEnergy() external view returns (int256);
+  //function totalNonRenewableEnergy() external view returns (int256);
 
   /**
    * @dev Get energy properties of _household
