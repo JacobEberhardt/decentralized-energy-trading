@@ -5,7 +5,7 @@
   "scripts": {
     "compile-contracts": "truffle compile",
     "migrate-contracts": "truffle migrate",
-    "test-contracts": "truffle test",
+    "test-contracts": "truffle test --network develop",
     "run-server": "node ./household-server/index.js",
     "run-ui": "node ./household-ui/index.js",
     "run-sensor": "node ./mock-sensor/index.js",
