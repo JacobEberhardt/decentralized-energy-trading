@@ -54,7 +54,7 @@ contract Utility is IUtility, Mortal {
    * @return success bool if household does not already exists, should only be called by some authority
    */
   function addHousehold(address _household) external onlyEnergyAuthority returns (bool) {
-    require(households[_household].initialized == false, "Household already exists.");
+    require(!households[_household].initialized, "Household already exists.");
 
     // add new household to mapping
     Household storage hh = households[_household];
@@ -72,7 +72,7 @@ contract Utility is IUtility, Mortal {
    * @return success bool if household exists and _value > 0
    */
   function increaseRenewableEnergy(address _household, int256 _value) external returns (bool) {
-    require(households[_household].initialized == true, "Household does not exist.");
+    require(households[_household].initialized, "Household does not exist.");
     require(_value > 0, "_value is zero or negative");
 
     households[_household].renewableEnergy = households[_household].renewableEnergy + _value;
@@ -90,7 +90,7 @@ contract Utility is IUtility, Mortal {
    * @return success bool if household exists and _value > 0
    */
   function increaseNonRenewableEnergy(address _household, int256 _value) external returns (bool) {
-    require(households[_household].initialized == true, "Household does not exist.");
+    require(households[_household].initialized, "Household does not exist.");
     require(_value > 0, "_value is zero or negative");
 
     households[_household].nonRenewableEnergy = households[_household].nonRenewableEnergy + _value;
@@ -108,7 +108,7 @@ contract Utility is IUtility, Mortal {
    * @return success bool if household exists and _value > 0
    */
   function decreaseRenewableEnergy(address _household, int256 _value) external returns (bool) {
-    require(households[_household].initialized == true, "Household does not exist.");
+    require(households[_household].initialized, "Household does not exist.");
     require(_value > 0, "_value is zero or negative");
 
     households[_household].renewableEnergy = households[_household].renewableEnergy - _value;
@@ -126,7 +126,7 @@ contract Utility is IUtility, Mortal {
    * @return success bool if household exists and _value > 0
    */
   function decreaseNonRenewableEnergy(address _household, int256 _value) external returns (bool) {
-    require(households[_household].initialized == true, "Household does not exist.");
+    require(households[_household].initialized, "Household does not exist.");
     require(_value > 0, "_value is zero or negative");
 
     households[_household].nonRenewableEnergy = households[_household].nonRenewableEnergy - _value;
@@ -143,7 +143,7 @@ contract Utility is IUtility, Mortal {
    * @return properties (initialized, energy, renewableEnergy, nonRenewableEnergy) of _household if _household exists
    */
   function getHousehold(address _household) external view returns (bool, int256, int256, int256) {
-    require(households[_household].initialized == true, "Household does not exist.");
+    require(households[_household].initialized, "Household does not exist.");
 
     return (
       households[_household].initialized,
@@ -151,6 +151,39 @@ contract Utility is IUtility, Mortal {
       households[_household].renewableEnergy,
       households[_household].nonRenewableEnergy
     );
+  }
+
+  /**
+   * @dev Get energy of _household
+   * @param _household address of the household owner/ parity node ?
+   * @return int256 energy of _household if _household exists
+   */
+  function balanceOf(address _household) external view returns (int256) {
+    require(households[_household].initialized, "Household does not exist.");
+
+    return households[_household].energy;
+  }
+
+  /**
+   * @dev Get renewable energy of _household
+   * @param _household address of the household owner/ parity node ?
+   * @return int256 renewable energy of _household if _household exists
+   */
+  function balanceOfRenewableEnergy(address _household) external view returns (int256) {
+    require(households[_household].initialized, "Household does not exist.");
+
+    return households[_household].renewableEnergy;
+  }
+
+  /**
+   * @dev Get non-renewable energy of _household
+   * @param _household address of the household owner/ parity node ?
+   * @return int256 non-renewable energy of _household if _household exists
+   */
+  function balanceOfNonRenewableEnergy(address _household) external view returns (int256) {
+    require(households[_household].initialized, "Household does not exist.");
+
+    return households[_household].nonRenewableEnergy;
   }
 
   /* solium-disable-next-line */
