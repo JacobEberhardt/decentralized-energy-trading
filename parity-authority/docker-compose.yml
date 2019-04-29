@@ -63,55 +63,6 @@ services:
       app_net:
         ipv4_address: 172.16.0.12
 
-  member0:
-    build:
-      context: .
-      dockerfile: docker_member/Dockerfile
-      args:
-        PARITY_VERSION: ${PARITY_VERSION}
-        NETWORK_NAME: ${NETWORK_NAME}
-    command:
-      --config /parity/config/member.toml
-      --ws-interface 0.0.0.0
-      --unsafe-expose
-      --no-persistent-txqueue
-      --fast-unlock
-    networks:
-      app_net:
-        ipv4_address: 172.16.0.20
-
-
-  member1:
-    build:
-      context: .
-      dockerfile: docker_member/Dockerfile
-      args:
-        PARITY_VERSION: ${PARITY_VERSION}
-        NETWORK_NAME: ${NETWORK_NAME}
-    command: 
-        --config /parity/config/member.toml
-        --no-persistent-txqueue
-        --fast-unlock
-    networks:
-      app_net:
-        ipv4_address: 172.16.0.21
-
-
-  member2:
-    build:
-      context: .
-      dockerfile: docker_member/Dockerfile
-      args:
-        PARITY_VERSION: ${PARITY_VERSION}
-        NETWORK_NAME: ${NETWORK_NAME}
-    command: 
-        --config /parity/config/member.toml
-        --no-persistent-txqueue
-        --fast-unlock
-    networks:
-      app_net:
-        ipv4_address: 172.16.0.22
-
 
   monitor:
     image: buythewhale/ethstats_monitor
