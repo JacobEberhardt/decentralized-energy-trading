@@ -66,75 +66,22 @@ contract Utility is IUtility, Mortal {
   }
 
   /**
-   * @dev Increase the amount of renewable energy of _household by _value
+   * @dev Updates a household's energy state
    * @param _household address of the household owner/ parity node ?
-   * @param _value int256 amount of energy
-   * @return success bool if household exists and _value > 0
+   * @param _producedEnergy int of the produced energy
+   * @param _consumedEnergy int of the consumed energy
+   * @return success bool returns true, if function was called successfully
    */
-  function increaseRenewableEnergy(address _household, int256 _value) external returns (bool) {
+  function updateEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy) external returns (int256) {
     require(households[_household].initialized, "Household does not exist.");
-    require(_value > 0, "_value is zero or negative");
+    int256 netProducedEnergy = _producedEnergy - _consumedEnergy;
 
-    households[_household].renewableEnergy = households[_household].renewableEnergy + _value;
-    households[_household].energy = households[_household].renewableEnergy + households[_household].nonRenewableEnergy;
+    // Todo: create/use a library for safe arithmetic
+    require(_producedEnergy >= netProducedEnergy, "Subtraction overflow.");
 
-    totalRenewableEnergy = totalRenewableEnergy + _value;
-    totalEnergy = totalRenewableEnergy + totalNonRenewableEnergy;
-    return true;
-  }
-
-  /**
-   * @dev Increase the amount of non-renewable energy of _household by _value
-   * @param _household address of the household owner/ parity node ?
-   * @param _value int256 amount of energy
-   * @return success bool if household exists and _value > 0
-   */
-  function increaseNonRenewableEnergy(address _household, int256 _value) external returns (bool) {
-    require(households[_household].initialized, "Household does not exist.");
-    require(_value > 0, "_value is zero or negative");
-
-    households[_household].nonRenewableEnergy = households[_household].nonRenewableEnergy + _value;
-    households[_household].energy = households[_household].renewableEnergy + households[_household].nonRenewableEnergy;
-
-    totalNonRenewableEnergy = totalNonRenewableEnergy + _value;
-    totalEnergy = totalRenewableEnergy + totalNonRenewableEnergy;
-    return true;
-  }
-
-  /**
-   * @dev Decrease the amount of renewable energy of _household by _value
-   * @param _household address of the household owner/ parity node ?
-   * @param _value int256 amount of energy
-   * @return success bool if household exists and _value > 0
-   */
-  function decreaseRenewableEnergy(address _household, int256 _value) external returns (bool) {
-    require(households[_household].initialized, "Household does not exist.");
-    require(_value > 0, "_value is zero or negative");
-
-    households[_household].renewableEnergy = households[_household].renewableEnergy - _value;
-    households[_household].energy = households[_household].renewableEnergy + households[_household].nonRenewableEnergy;
-
-    totalRenewableEnergy = totalRenewableEnergy - _value;
-    totalEnergy = totalRenewableEnergy + totalNonRenewableEnergy;
-    return true;
-  }
-
-  /**
-   * @dev Decrease the amount of non-renewable energy of _household by _value
-   * @param _household address of the household owner/ parity node ?
-   * @param _value int256 amount of energy
-   * @return success bool if household exists and _value > 0
-   */
-  function decreaseNonRenewableEnergy(address _household, int256 _value) external returns (bool) {
-    require(households[_household].initialized, "Household does not exist.");
-    require(_value > 0, "_value is zero or negative");
-
-    households[_household].nonRenewableEnergy = households[_household].nonRenewableEnergy - _value;
-    households[_household].energy = households[_household].renewableEnergy + households[_household].nonRenewableEnergy;
-
-    totalNonRenewableEnergy = totalNonRenewableEnergy - _value;
-    totalEnergy = totalRenewableEnergy + totalNonRenewableEnergy;
-    return true;
+    Household storage hh = households[_household];
+    hh.renewableEnergy += netProducedEnergy;
+    return netProducedEnergy;
   }
 
   /**
@@ -182,7 +129,6 @@ contract Utility is IUtility, Mortal {
    */
   function balanceOfNonRenewableEnergy(address _household) external view returns (int256) {
     require(households[_household].initialized, "Household does not exist.");
-
     return households[_household].nonRenewableEnergy;
   }
 

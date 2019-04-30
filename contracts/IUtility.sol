@@ -16,37 +16,7 @@ interface IUtility {
    */
   function addHousehold(address _household) external returns (bool);
 
-  /**
-   * @dev Increase the amount of renewable energy of _household by _value
-   * @param _household address of the household owner/ parity node ?
-   * @param _value int256 amount of energy
-   * @return success bool if household exists and _value > 0
-   */
-  function increaseRenewableEnergy(address _household, int256 _value) external returns (bool);
-
-  /**
-   * @dev Increase the amount of non-renewable energy of _household by _value
-   * @param _household address of the household owner/ parity node ?
-   * @param _value int256 amount of energy
-   * @return success bool if household exists and _value > 0
-   */
-  function increaseNonRenewableEnergy(address _household, int256 _value) external returns (bool);
-
-  /**
-   * @dev Decrease the amount of renewable energy of _household by _value
-   * @param _household address of the household owner/ parity node ?
-   * @param _value int256 amount of energy
-   * @return success bool if household exists and _value > 0
-   */
-  function decreaseRenewableEnergy(address _household, int256 _value) external returns (bool);
-
-  /**
-   * @dev Decrease the amount of non-renewable energy of _household by _value
-   * @param _household address of the household owner/ parity node ?
-   * @param _value int256 amount of energy
-   * @return success bool if household exists and _value > 0
-   */
-  function decreaseNonRenewableEnergy(address _household, int256 _value) external returns (bool);
+    function updateEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy) external returns (int256);
 
   function settle() external returns (bool);
 
