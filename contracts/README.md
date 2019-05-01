@@ -1,6 +1,6 @@
 # Utility Contract(s)
 
-Track energy production/consumption and fairly distribute digital them.
+Track energy production/consumption and distribute them fairly.
 
 ## Overview
 
