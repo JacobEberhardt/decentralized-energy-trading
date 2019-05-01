@@ -15,7 +15,9 @@ interface IUtility {
 
   function settle() external returns (bool);
 
-  function getHousehold(address _household) external view returns (bool, int256, int256, int256);
+  function getHousehold(address _household) external view returns (bool, int256, int256);
+
+  function totalEnergy() external view returns (int256);
 
   function balanceOf(address _household) external view returns (int256);
 

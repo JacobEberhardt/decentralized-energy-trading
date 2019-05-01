@@ -15,8 +15,6 @@ contract Utility is IUtility, Mortal {
    * (int256) 1 means 1 Ws?
    */
 
-  // total energy in the system
-  int256 public totalEnergy;
   // total renewable energy in the system
   int256 public totalRenewableEnergy;
   // total non-renewable energy in the system
@@ -26,9 +24,6 @@ contract Utility is IUtility, Mortal {
     // for checks if household exists
     bool initialized;
 
-    // total energy household
-    int256 energy;
-
     // total renewable/ non-renewable energy household
     int256 renewableEnergy;
     int256 nonRenewableEnergy;
@@ -36,6 +31,11 @@ contract Utility is IUtility, Mortal {
 
   // mapping of all households
   mapping(address => Household) households;
+
+  modifier onlyHousehold(address _household) {
+    require(msg.sender == _household, "No permission to access. Only household can access itself.");
+    _;
+  }
 
   // modifier such that only some authority can access functions
   modifier onlyEnergyAuthority() {
@@ -64,7 +64,6 @@ contract Utility is IUtility, Mortal {
     // add new household to mapping
     Household storage hh = households[_household];
     hh.initialized = true;
-    hh.energy = 0;
     hh.renewableEnergy = 0;
     hh.nonRenewableEnergy = 0;
     return true;
@@ -78,14 +77,16 @@ contract Utility is IUtility, Mortal {
    * @return success bool returns true, if function was called successfully
    */
   function updateEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy)
-  external
-  householdExists(_household)
-  returns (bool)
+    external
+    onlyHousehold(_household)
+    householdExists(_household)
+    returns (bool)
   {
+    require(_producedEnergy >= 0 && _consumedEnergy >= 0, "Produced and consumed energy amount must be positive.");
     int256 netProducedEnergy = _producedEnergy - _consumedEnergy;
 
     // Todo: create/use a library for safe arithmetic
-    require(_producedEnergy >= netProducedEnergy, "Subtraction overflow.");
+    require(netProducedEnergy <= _producedEnergy, "Subtraction overflow.");
 
     Household storage hh = households[_household];
     hh.renewableEnergy += netProducedEnergy;
@@ -97,14 +98,20 @@ contract Utility is IUtility, Mortal {
    * @param _household address of the household owner/ parity node ?
    * @return properties (initialized, energy, renewableEnergy, nonRenewableEnergy) of _household if _household exists
    */
-  function getHousehold(address _household) external view householdExists(_household) returns (bool, int256, int256, int256) {
-
+  function getHousehold(address _household) external view householdExists(_household) returns (bool, int256, int256) {
     return (
       households[_household].initialized,
-      households[_household].energy,
       households[_household].renewableEnergy,
       households[_household].nonRenewableEnergy
     );
+  }
+
+  /**
+   * @dev Get total energy
+   * @return int256 total energy
+   */
+  function totalEnergy() external view returns (int256) {
+    return totalRenewableEnergy + totalNonRenewableEnergy;
   }
 
   /**
@@ -113,8 +120,7 @@ contract Utility is IUtility, Mortal {
    * @return int256 energy of _household if _household exists
    */
   function balanceOf(address _household) external view householdExists(_household) returns (int256) {
-
-    return households[_household].energy;
+    return households[_household].renewableEnergy + households[_household].nonRenewableEnergy;
   }
 
   /**
@@ -123,7 +129,6 @@ contract Utility is IUtility, Mortal {
    * @return int256 renewable energy of _household if _household exists
    */
   function balanceOfRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
-
     return households[_household].renewableEnergy;
   }
 

@@ -17,10 +17,9 @@ contract("Utility", async ([owner, household]) => {
 
       let hh = await this.instance.getHousehold(household);
 
-      expect(hh[0]).to.be.true;
-      expect(hh[1]).to.be.bignumber.that.is.zero;
-      expect(hh[2]).to.be.bignumber.that.is.zero;
-      expect(hh[3]).to.bignumber.that.is.zero;
+      expect(hh[0]).to.be.true; // initialized
+      expect(hh[1]).to.be.bignumber.that.is.zero; // renewableEnergy
+      expect(hh[2]).to.bignumber.that.is.zero; // nonRenewableEnergy
     });
 
     it("should revert when household exists", async () => {
@@ -35,7 +34,7 @@ contract("Utility", async ([owner, household]) => {
     });
 
     it("should record the net amount of energy produced correctly", async () => {
-      await this.instance.updateEnergy(household, 10, 5);
+      await this.instance.updateEnergy(household, 10, 5, { from: household });
       let netEnergy = await this.instance.balanceOfRenewableEnergy(household);
       expect(netEnergy).to.be.bignumber.equal("5");
     });
