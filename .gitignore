@@ -62,3 +62,9 @@ typings/
 
 # truffle build
 build
+.idea/decentralized-energy-trading.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/workspace.xml
+package-lock.json
