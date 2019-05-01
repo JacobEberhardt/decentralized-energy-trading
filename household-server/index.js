@@ -1,7 +1,7 @@
 const http = require("http");
 const events = require("events");
 const dbhandler = require("./db-handler");
-const txhandler  = require("./transaction-handler");
+const txhandler = require("./transaction-handler");
 const MockData = require("./mock-sensor-data");
 
 // Config of server
@@ -12,11 +12,12 @@ const port = 3000;
 const EVENTS = {
     SENSOR_INPUT: "sensor_input",
     UI_REQUEST: "ui_request"
-}
+};
+
 // Adding Event Listener
-var em = new events.EventEmitter(); 
-em.on(EVENTS.SENSOR_INPUT, dbhandler)
-em.on(EVENTS.SENSOR_INPUT, txhandler)
+var em = new events.EventEmitter();
+em.on(EVENTS.SENSOR_INPUT, dbhandler);
+em.on(EVENTS.SENSOR_INPUT, txhandler);
 
 /**
  * Creating the http server waiting for incoming requests
@@ -24,9 +25,9 @@ em.on(EVENTS.SENSOR_INPUT, txhandler)
  * At last a response is sended to the requester
  */
 const server = http.createServer((req, res) => {
-    console.log(req.method, "Request received")
+    console.log(req.method, "Request received");
     var statusmsg= "";
-
+    
     switch(req.method){
         // Get requests from the UI
         case "GET":
