@@ -4,14 +4,14 @@ const Utility = artifacts.require("Utility");
 const { BN, constants, shouldFail } = require("openzeppelin-test-helpers");
 const expect = require("chai").use(require("chai-bn")(BN)).expect;
 
-contract("Utility", async ([owner, household]) => {
+contract("Utility", ([owner, household]) => {
   beforeEach(async () => {
     this.instance = await Utility.new({
       from: owner
     });
   });
 
-  describe("Households", async () => {
+  describe("Households", () => {
     it("should add a new household, if it does not exist yet", async () => {
       await this.instance.addHousehold(household);
 
@@ -23,13 +23,13 @@ contract("Utility", async ([owner, household]) => {
       expect(hh[3]).to.bignumber.that.is.zero;
     });
 
-    it("should revert when household exists", async () => {
+    it("reverts when attempting to add an existing household", async () => {
       await this.instance.addHousehold(household);
       await shouldFail.reverting(this.instance.addHousehold(household));
     });
   });
 
-  describe("Record energy production/consumption", async () => {
+  describe("Record energy production/consumption", () => {
     beforeEach(async () => {
       await this.instance.addHousehold(household); // Add dummy household
     });
