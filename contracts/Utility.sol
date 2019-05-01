@@ -97,7 +97,7 @@ contract Utility is IUtility, Mortal {
    * @param _household address of the household owner/ parity node ?
    * @return properties (initialized, energy, renewableEnergy, nonRenewableEnergy) of _household if _household exists
    */
-  function getHousehold(address _household) external view householdExists(_household) returns (bool, int256, int256, int256) { //
+  function getHousehold(address _household) external view householdExists(_household) returns (bool, int256, int256, int256) {
 
     return (
       households[_household].initialized,
@@ -112,7 +112,7 @@ contract Utility is IUtility, Mortal {
    * @param _household address of the household owner/ parity node ?
    * @return int256 energy of _household if _household exists
    */
-  function balanceOf(address _household) external view householdExists(_household) returns (int256) { //
+  function balanceOf(address _household) external view householdExists(_household) returns (int256) {
 
     return households[_household].energy;
   }
@@ -122,7 +122,7 @@ contract Utility is IUtility, Mortal {
    * @param _household address of the household owner/ parity node ?
    * @return int256 renewable energy of _household if _household exists
    */
-  function balanceOfRenewableEnergy(address _household) external view householdExists(_household) returns (int256) { //
+  function balanceOfRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
 
     return households[_household].renewableEnergy;
   }
@@ -132,7 +132,7 @@ contract Utility is IUtility, Mortal {
    * @param _household address of the household owner/ parity node ?
    * @return int256 non-renewable energy of _household if _household exists
    */
-  function balanceOfNonRenewableEnergy(address _household) external view householdExists(_household) returns (int256) { //
+  function balanceOfNonRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
     return households[_household].nonRenewableEnergy;
   }
 
