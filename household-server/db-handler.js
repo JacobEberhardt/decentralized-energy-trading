@@ -1,20 +1,41 @@
-// This Handler processes the input from the smart meters
-module.exports = (req, res) => {
-  console.log("DataBase Handler received: ", req);
-  const MongoClient = require("mongodb").MongoClient;
-  var url = "mongodb://localhost:27017/";
+const MongoClient = require("mongodb").MongoClient;
 
-  MongoClient.connect(url, function(err, db) {
-    if (err) throw err;
-    var dbo = db.db("mydb");
-    var query = { address: "Park Lane 38" };
-    dbo
-      .collection("customers")
-      .find(query)
-      .toArray(function(err, result) {
+module.exports = {
+  createDB: url => {
+    MongoClient.connect(url, { useNewUrlParser: true }, function(err, db) {
+      if (err) throw err;
+      console.log("Database created!");
+      db.close();
+    });
+  },
+
+  writetoDB: (req, url) => {
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+
+      console.log(req.data);
+      var myobj = { name: "Company Inc", address: "Highway 37" };
+      dbo.collection("customers").insertOne(myobj, function(err, res) {
         if (err) throw err;
-        console.log(result);
+        console.log("1 document inserted");
         db.close();
       });
-  });
+    });
+  },
+
+  readall: url => {
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var dbo = db.db("mydb");
+      dbo
+        .collection("customers")
+        .find({})
+        .toArray(function(err, result) {
+          if (err) throw err;
+          console.log(result);
+          db.close();
+        });
+    });
+  }
 };
