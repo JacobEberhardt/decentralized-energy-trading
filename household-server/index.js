@@ -10,8 +10,8 @@ const port = 3000;
 
 // Defining Events
 const EVENTS = {
-    SENSOR_INPUT: "sensor_input",
-    UI_REQUEST: "ui_request"
+  SENSOR_INPUT: "sensor_input",
+  UI_REQUEST: "ui_request"
 };
 
 // Adding Event Listener
@@ -25,43 +25,42 @@ em.on(EVENTS.SENSOR_INPUT, txhandler);
  * At last a response is sended to the requester
  */
 const server = http.createServer((req, res) => {
-    console.log(req.method, "Request received");
-    var statusmsg= "";
-    
-    switch(req.method){
-        // Get requests from the UI
-        case "GET":
-            em.emit(EVENTS.UI_REQUEST, req, res );  // Currently Mocked within the household server
-            res.statusCode = 200;
-            statusmsg = "Success";
-            break;
+  console.log(req.method, "Request received");
+  var statusmsg = "";
 
-        // PUT Requests from the Sensors
-        case "PUT": 
-            em.emit(EVENTS.SENSOR_INPUT, MockData.createMockData(3, 0, 10), res);
-            res.statusCode = 200;
-            statusmsg = "Success";
-            break;
+  switch (req.method) {
+    // Get requests from the UI
+    case "GET":
+      em.emit(EVENTS.UI_REQUEST, req, res); // Currently Mocked within the household server
+      res.statusCode = 200;
+      statusmsg = "Success";
+      break;
 
-        // Default for any other
-        default: 
-            res.statusCode = 400;
-            statusmsg = req.method + " is not supported. Try GET for UI Requests or PUT for Sensor data\n";
-            break;
+    // PUT Requests from the Sensors
+    case "PUT":
+      em.emit(EVENTS.SENSOR_INPUT, MockData.createMockData(3, 0, 10), res);
+      res.statusCode = 200;
+      statusmsg = "Success";
+      break;
 
-        }
-    
-   
-    // Sending Response
-    console.log("Sending response")
-    res.setHeader("Content-Type", "text/plain");
-    res.end(statusmsg);
+    // Default for any other
+    default:
+      res.statusCode = 400;
+      statusmsg =
+        req.method +
+        " is not supported. Try GET for UI Requests or PUT for Sensor data\n";
+      break;
+  }
 
+  // Sending Response
+  console.log("Sending response");
+  res.setHeader("Content-Type", "text/plain");
+  res.end(statusmsg);
 });
 
 /**
  * Let the server listen to incoming requests on the given IP:Port
  */
 server.listen(port, hostname, () => {
-    console.log(`Household Server running at http://${hostname}:${port}/`);
+  console.log(`Household Server running at http://${hostname}:${port}/`);
 });
