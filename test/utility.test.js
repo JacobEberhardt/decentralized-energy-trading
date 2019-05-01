@@ -1,7 +1,12 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */
 const Utility = artifacts.require("Utility");
-const { BN, constants, shouldFail } = require("openzeppelin-test-helpers");
+const {
+  BN,
+  constants,
+  expectEvent,
+  shouldFail
+} = require("openzeppelin-test-helpers");
 const expect = require("chai").use(require("chai-bn")(BN)).expect;
 
 contract("Utility", ([owner, household]) => {
@@ -12,20 +17,29 @@ contract("Utility", ([owner, household]) => {
   });
 
   describe("Households", () => {
-    it("should add a new household, if it does not exist yet", async () => {
-      await this.instance.addHousehold(household);
+    context("with a new household", async () => {
+      beforeEach(async () => {
+        ({ logs: this.logs } = await this.instance.addHousehold(household));
+      });
 
-      let hh = await this.instance.getHousehold(household);
+      it("should create a new household", async () => {
+        let hh = await this.instance.getHousehold(household);
 
-      expect(hh[0]).to.be.true;
-      expect(hh[1]).to.be.bignumber.that.is.zero;
-      expect(hh[2]).to.be.bignumber.that.is.zero;
-      expect(hh[3]).to.bignumber.that.is.zero;
-    });
+        expect(hh[0]).to.be.true;
+        expect(hh[1]).to.be.bignumber.that.is.zero;
+        expect(hh[2]).to.be.bignumber.that.is.zero;
+        expect(hh[3]).to.bignumber.that.is.zero;
+      });
 
-    it("reverts when attempting to add an existing household", async () => {
-      await this.instance.addHousehold(household);
-      await shouldFail.reverting(this.instance.addHousehold(household));
+      it("emits event NewHousehold", async () => {
+        expectEvent.inLogs(this.logs, "NewHousehold", {
+          household: household
+        });
+      });
+
+      it("reverts when attempting to add an existing household", async () => {
+        await shouldFail.reverting(this.instance.addHousehold(household));
+      });
     });
   });
 

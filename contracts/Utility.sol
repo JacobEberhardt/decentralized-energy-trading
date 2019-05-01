@@ -54,7 +54,8 @@ contract Utility is IUtility, Mortal {
   }
 
   /**
-   * @dev Create a household with address _household to track energy production and consumption
+   * @dev Create a household with address _household to track energy production and consumption.
+   * Emits NewHousehold when household was added successfully.
    * @param _household address of the household owner/ parity node ?
    * @return success bool if household does not already exists, should only be called by some authority
    */
@@ -67,6 +68,8 @@ contract Utility is IUtility, Mortal {
     hh.energy = 0;
     hh.renewableEnergy = 0;
     hh.nonRenewableEnergy = 0;
+
+    emit NewHousehold(_household);
     return true;
   }
 

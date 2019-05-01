@@ -9,6 +9,8 @@ interface IUtility {
   // event for energy transfer triggered by settlement (netting)
   event EnergyTransfer(address indexed household, uint updatedBalance);
 
+  event NewHousehold(address indexed household);
+
   function addHousehold(address _household) external returns (bool);
 
   function updateEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy) external returns (bool);
