@@ -8,13 +8,13 @@ module.exports = {
      */
         createMockData: function (samples, min, max) {
             let mockData = [];
-            for (i = 0; i < samples; i++) {
-                let rndm = Math.random() * (max - min) + min 
+            for (let i = 0; i < samples; i++) {
+                let rndm = Math.random() * (max - min) + min;
                 // rounding the samples
-                rndm = Math.round(rndm * 100) / 100 
+                rndm = Math.round(rndm * 100) / 100;
                 mockData.push(rndm);
             }
             return mockData;
         
     }
-}
+};
