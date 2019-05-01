@@ -43,6 +43,11 @@ contract Utility is IUtility, Mortal {
     _;
   }
 
+  modifier householdExists(address _household) {
+    require(households[_household].initialized, "Household does not exist.");
+    _;
+  }
+
   /* solium-disable-next-line */
   constructor() public Owned() {
     // Empty
@@ -72,8 +77,11 @@ contract Utility is IUtility, Mortal {
    * @param _consumedEnergy int of the consumed energy
    * @return success bool returns true, if function was called successfully
    */
-  function updateEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy) external returns (int256) {
-    require(households[_household].initialized, "Household does not exist.");
+  function updateEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy)
+  external
+  householdExists(_household)
+  returns (int256)
+  {
     int256 netProducedEnergy = _producedEnergy - _consumedEnergy;
 
     // Todo: create/use a library for safe arithmetic
@@ -89,8 +97,7 @@ contract Utility is IUtility, Mortal {
    * @param _household address of the household owner/ parity node ?
    * @return properties (initialized, energy, renewableEnergy, nonRenewableEnergy) of _household if _household exists
    */
-  function getHousehold(address _household) external view returns (bool, int256, int256, int256) {
-    require(households[_household].initialized, "Household does not exist.");
+  function getHousehold(address _household) external view householdExists(_household) returns (bool, int256, int256, int256) { //
 
     return (
       households[_household].initialized,
@@ -105,8 +112,7 @@ contract Utility is IUtility, Mortal {
    * @param _household address of the household owner/ parity node ?
    * @return int256 energy of _household if _household exists
    */
-  function balanceOf(address _household) external view returns (int256) {
-    require(households[_household].initialized, "Household does not exist.");
+  function balanceOf(address _household) external view householdExists(_household) returns (int256) { //
 
     return households[_household].energy;
   }
@@ -116,8 +122,7 @@ contract Utility is IUtility, Mortal {
    * @param _household address of the household owner/ parity node ?
    * @return int256 renewable energy of _household if _household exists
    */
-  function balanceOfRenewableEnergy(address _household) external view returns (int256) {
-    require(households[_household].initialized, "Household does not exist.");
+  function balanceOfRenewableEnergy(address _household) external view householdExists(_household) returns (int256) { //
 
     return households[_household].renewableEnergy;
   }
@@ -127,8 +132,7 @@ contract Utility is IUtility, Mortal {
    * @param _household address of the household owner/ parity node ?
    * @return int256 non-renewable energy of _household if _household exists
    */
-  function balanceOfNonRenewableEnergy(address _household) external view returns (int256) {
-    require(households[_household].initialized, "Household does not exist.");
+  function balanceOfNonRenewableEnergy(address _household) external view householdExists(_household) returns (int256) { //
     return households[_household].nonRenewableEnergy;
   }
 
