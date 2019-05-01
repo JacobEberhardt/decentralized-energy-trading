@@ -1,17 +1,17 @@
-const http = require('http');
-const events = require('events');
-const dbhandler = require('./db-handler')
-const txhandler  = require('./transaction-handler')
-const MockData = require('./mock-sensor-data');
+const http = require("http");
+const events = require("events");
+const dbhandler = require("./db-handler");
+const txhandler  = require("./transaction-handler");
+const MockData = require("./mock-sensor-data");
 
-//Config of server
-const hostname = '127.0.0.1';
+// Config of server
+const hostname = "127.0.0.1";
 const port = 3000;
 
 // Defining Events
 const EVENTS = {
-    SENSOR_INPUT: 'sensor_input',
-    UI_REQUEST: 'ui_request'
+    SENSOR_INPUT: "sensor_input",
+    UI_REQUEST: "ui_request"
 }
 // Adding Event Listener
 var em = new events.EventEmitter(); 
@@ -24,33 +24,36 @@ em.on(EVENTS.SENSOR_INPUT, txhandler)
  * At last a response is sended to the requester
  */
 const server = http.createServer((req, res) => {
-    console.log(req.method, 'Request received')
-    var statusmsg= '';
+    console.log(req.method, "Request received")
+    var statusmsg= "";
 
     switch(req.method){
         // Get requests from the UI
-        case 'GET':
+        case "GET":
             em.emit(EVENTS.UI_REQUEST, req, res );  // Currently Mocked within the household server
             res.statusCode = 200;
-            statusmsg = 'Success'; break;
+            statusmsg = "Success";
+            break;
 
         // PUT Requests from the Sensors
-        case 'PUT': 
-            em.emit(EVENTS.SENSOR_INPUT, MockData.createMockData(3,0,10), res);
+        case "PUT": 
+            em.emit(EVENTS.SENSOR_INPUT, MockData.createMockData(3, 0, 10), res);
             res.statusCode = 200;
-            statusmsg = 'Success';  break;
+            statusmsg = "Success";
+            break;
 
         // Default for any other
         default: 
             res.statusCode = 400;
-            statusmsg = req.method + ' is not supported. Try GET for UI Requests or PUT for Sensor data\n'; break;
+            statusmsg = req.method + " is not supported. Try GET for UI Requests or PUT for Sensor data\n";
+            break;
 
         }
     
    
     // Sending Response
-    console.log('Sending response')
-    res.setHeader('Content-Type', 'text/plain');
+    console.log("Sending response")
+    res.setHeader("Content-Type", "text/plain");
     res.end(statusmsg);
 
 });
