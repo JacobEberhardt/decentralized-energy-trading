@@ -47,15 +47,37 @@ contract("Utility", ([owner, household]) => {
       await this.instance.addHousehold(household); // Add dummy household
     });
 
-    it("should record the net amount of energy produced correctly", async () => {
-      await this.instance.updateEnergy(household, 10, 5, { from: household });
-      let netEnergy = await this.instance.balanceOfRenewableEnergy(household);
-      expect(netEnergy).to.be.bignumber.equal("5");
+    context("Renewable energy", async () => {
+      it("should record the net amount of energy produced correctly", async () => {
+        await this.instance.updateRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        let netRenewableEnergy = await this.instance.balanceOfRenewableEnergy(
+          household
+        );
+        expect(netRenewableEnergy).to.be.bignumber.equal("5");
+      });
+    });
+
+    context("Non-renewable energy", async () => {
+      it("should record the net amount of energy produced correctly", async () => {
+        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        let netNonRenewableEnergy = await this.instance.balanceOfNonRenewableEnergy(
+          household
+        );
+        expect(netNonRenewableEnergy).to.be.bignumber.equal("5");
+      });
     });
 
     it("should revert on overflow", async () => {
       await shouldFail.reverting(
-        this.instance.updateEnergy(household, 0, constants.MAX_UINT256)
+        this.instance.updateNonRenewableEnergy(
+          household,
+          0,
+          constants.MAX_UINT256
+        )
       );
     });
   });

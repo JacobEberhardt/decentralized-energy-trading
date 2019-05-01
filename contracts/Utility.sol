@@ -73,33 +73,47 @@ contract Utility is IUtility, Mortal {
   }
 
   /**
-   * @dev Updates a household's energy state
+   * @dev Updates a household's renewable energy state calling _updateEnergy
    * @param _household address of the household owner/ parity node ?
-   * @param _producedEnergy int of the produced energy
-   * @param _consumedEnergy int of the consumed energy
+   * @param _producedEnergy int256 of the produced energy
+   * @param _consumedEnergy int256 of the consumed energy
    * @return success bool returns true, if function was called successfully
    */
-  function updateEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy)
+  function updateRenewableEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy)
     external
-    onlyHousehold(_household)
-    householdExists(_household)
     returns (bool)
   {
-    require(_producedEnergy >= 0 && _consumedEnergy >= 0, "Produced and consumed energy amount must be positive.");
-    int256 netProducedEnergy = _producedEnergy - _consumedEnergy;
+    return _updateEnergy(
+      _household,
+      _producedEnergy,
+      _consumedEnergy,
+      true
+    );
+  }
 
-    // Todo: create/use a library for safe arithmetic
-    require(netProducedEnergy <= _producedEnergy, "Subtraction overflow.");
-
-    Household storage hh = households[_household];
-    hh.renewableEnergy += netProducedEnergy;
-    return true;
+  /**
+   * @dev Updates a household's non-renewable energy state calling _updateEnergy
+   * @param _household address of the household owner/ parity node ?
+   * @param _producedEnergy int256 of the produced energy
+   * @param _consumedEnergy int256 of the consumed energy
+   * @return success bool returns true, if function was called successfully
+   */
+  function updateNonRenewableEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy)
+    external
+    returns (bool)
+  {
+    return _updateEnergy(
+      _household,
+      _producedEnergy,
+      _consumedEnergy,
+      false
+    );
   }
 
   /**
    * @dev Get energy properties of _household
    * @param _household address of the household owner/ parity node ?
-   * @return properties (initialized, energy, renewableEnergy, nonRenewableEnergy) of _household if _household exists
+   * @return properties (initialized, renewableEnergy, nonRenewableEnergy) of _household if _household exists
    */
   function getHousehold(address _household) external view householdExists(_household) returns (bool, int256, int256) {
     return (
@@ -148,5 +162,44 @@ contract Utility is IUtility, Mortal {
   function settle() external returns (bool) {
     // ToDo
     return false;
+  }
+
+  /**
+   * @dev Updates a household's energy state
+   * @param _household address of the household owner/ parity node ?
+   * @param _producedEnergy int256 of the produced energy
+   * @param _consumedEnergy int256 of the consumed energy
+   * @param _isRenewable bool indicates whether said energy is renewable or non-renewable
+   * @return success bool returns true, if function was called successfully
+   */
+  function _updateEnergy(
+    address _household,
+    int256 _producedEnergy,
+    int256 _consumedEnergy,
+    bool _isRenewable
+    )
+    private
+    onlyHousehold(_household)
+    householdExists(_household)
+    returns (bool)
+  {
+    require(_producedEnergy >= 0 && _consumedEnergy >= 0, "Produced and consumed energy amount must be positive.");
+    int256 netProducedEnergy = _producedEnergy - _consumedEnergy;
+
+    // Todo: create/use a library for safe arithmetic
+    require(netProducedEnergy <= _producedEnergy, "Subtraction overflow.");
+
+    Household storage hh = households[_household];
+    if (_isRenewable) {
+      hh.renewableEnergy += netProducedEnergy;
+      totalRenewableEnergy += netProducedEnergy;
+      emit RenewableEnergyChanged(_household, netProducedEnergy);
+    } else {
+      hh.nonRenewableEnergy += netProducedEnergy;
+      totalNonRenewableEnergy += netProducedEnergy;
+      emit NonRenewableEnergyChanged(_household, netProducedEnergy);
+    }
+
+    return true;
   }
 }
