@@ -1,7 +1,7 @@
 const http = require("http");
 const events = require("events");
 const dbhandler = require("./db-handler");
-const txhandler = require("./transaction-handler");
+// const txhandler = require("./transaction-handler");
 const MockData = require("./mock-sensor-data");
 
 // Setting up the DB
@@ -21,7 +21,8 @@ const EVENTS = {
 // Adding Event Listener
 var em = new events.EventEmitter();
 em.on(EVENTS.SENSOR_INPUT, dbhandler.writetoDB);
-em.on(EVENTS.SENSOR_INPUT, txhandler);
+em.on(EVENTS.UI_REQUEST, dbhandler.readall);
+// em.on(EVENTS.SENSOR_INPUT, txhandler);
 
 /**
  * Creating the http server waiting for incoming requests
@@ -35,7 +36,7 @@ const server = http.createServer((req, res) => {
   switch (req.method) {
     // Get requests from the UI
     case "GET":
-      em.emit(EVENTS.UI_REQUEST, req, url); // Currently Mocked within the household server
+      em.emit(EVENTS.UI_REQUEST, url);
       res.statusCode = 200;
       statusmsg = "Success";
       break;
