@@ -80,7 +80,7 @@ contract Utility is IUtility, Mortal {
   function updateEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy)
   external
   householdExists(_household)
-  returns (int256)
+  returns (bool)
   {
     int256 netProducedEnergy = _producedEnergy - _consumedEnergy;
 
@@ -89,7 +89,7 @@ contract Utility is IUtility, Mortal {
 
     Household storage hh = households[_household];
     hh.renewableEnergy += netProducedEnergy;
-    return netProducedEnergy;
+    return true;
   }
 
   /**

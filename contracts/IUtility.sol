@@ -11,7 +11,7 @@ interface IUtility {
 
   function addHousehold(address _household) external returns (bool);
 
-  function updateEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy) external returns (int256);
+  function updateEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy) external returns (bool);
 
   function settle() external returns (bool);
 
