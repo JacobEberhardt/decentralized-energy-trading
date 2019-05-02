@@ -37,21 +37,13 @@ contract Utility is IUtility, Mortal {
     _;
   }
 
-  // modifier such that only some authority can access functions
-  modifier onlyEnergyAuthority() {
-    // require(msg.sender == , "Only some authority may access this function.");
-    _;
-  }
-
   modifier householdExists(address _household) {
     require(households[_household].initialized, "Household does not exist.");
     _;
   }
 
   /* solium-disable-next-line */
-  constructor() public Owned() {
-    // Empty
-  }
+  constructor() public Owned() { }
 
   /**
    * @dev Create a household with address _household to track energy production and consumption.
@@ -59,7 +51,7 @@ contract Utility is IUtility, Mortal {
    * @param _household address of the household owner/ parity node ?
    * @return success bool if household does not already exists, should only be called by some authority
    */
-  function addHousehold(address _household) external onlyEnergyAuthority returns (bool) {
+  function addHousehold(address _household) external onlyOwner returns (bool) {
     require(!households[_household].initialized, "Household already exists.");
 
     // add new household to mapping

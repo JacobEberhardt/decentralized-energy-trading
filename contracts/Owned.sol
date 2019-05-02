@@ -9,9 +9,8 @@ pragma solidity >=0.5.0 <0.6.0;
 contract Owned {
   address payable owner;
 
-  constructor (/*address _owner*/) public {
+  constructor () public {
     owner = msg.sender;
-    //owner = _owner;
   }
 
   modifier onlyOwner() {
