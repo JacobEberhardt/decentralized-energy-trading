@@ -29,6 +29,5 @@
     "mongodb": "^3.2.3"
   },
   "dependencies": {
-    "mongodb": "^3.2.3"
   }
 }

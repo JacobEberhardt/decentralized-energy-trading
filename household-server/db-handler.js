@@ -6,11 +6,11 @@ module.exports = {
    * @param url URL/URI of the DB
    */
   createDB: url => {
-    MongoClient.connect(url, { useNewUrlParser: true }, function(err, db) {
+    MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
       if (err) throw err;
       console.log("Database created!");
-      var dbo = db.db("sensordata");
-      dbo.createCollection("data", function(err, res) {
+      const dbo = db.db("sensordata");
+      dbo.createCollection("data", (err, res) => {
         if (err) throw err;
         console.log("Collection created!");
         db.close();
@@ -20,17 +20,17 @@ module.exports = {
 
   /**
    * Method to write data to the database. Should be added as Eventlistener to incoming PUT requests of the Sensors
-   * @param req the data to add to the DB
+   * @param data the data to add to the DB
    * @param url URL/URI of the DB
    */
-  writetoDB: (req, url) => {
+  writeToDB: (data, url) => {
     console.log(url);
-    MongoClient.connect(url, { useNewUrlParser: true }, function(err, db) {
+    MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
       if (err) throw err;
-      var dbo = db.db("sensordata");
-      console.log(req);
-      var myobj = req;
-      dbo.collection("data").insertOne(myobj, function(err, res) {
+      const dbo = db.db("sensordata");
+      console.log(data);
+      let myobj = data;
+      dbo.collection("data").insertOne(myobj, (err, res) => {
         if (err) throw err;
         console.log("1 document inserted: ", myobj);
         db.close();
@@ -44,13 +44,13 @@ module.exports = {
    * @param url URL/URI of the DB
    */
   readall: url => {
-    MongoClient.connect(url, { useNewUrlParser: true }, function(err, db) {
+    MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
       if (err) throw err;
-      var dbo = db.db("sensordata");
+      const dbo = db.db("sensordata");
       dbo
         .collection("data")
         .find({})
-        .toArray(function(err, result) {
+        .toArray((err, result) => {
           if (err) throw err;
           console.log(result);
           db.close();

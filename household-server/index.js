@@ -5,7 +5,7 @@ const dbhandler = require("./db-handler");
 const MockData = require("./mock-sensor-data");
 
 // Setting up the DB
-var url = "mongodb://localhost:27017/sensordata/";
+const url = "mongodb://localhost:27017/sensordata/";
 dbhandler.createDB(url);
 
 // Config of server
@@ -19,9 +19,9 @@ const EVENTS = {
 };
 
 // Adding Event Listener
-var em = new events.EventEmitter();
-em.on(EVENTS.SENSOR_INPUT, dbhandler.writetoDB);
-em.on(EVENTS.UI_REQUEST, dbhandler.readall);
+const eventEmitter = new events.EventEmitter();
+eventEmitter.on(EVENTS.SENSOR_INPUT, dbhandler.writetoDB);
+eventEmitter.on(EVENTS.UI_REQUEST, dbhandler.readall);
 // em.on(EVENTS.SENSOR_INPUT, txhandler);
 
 /**
@@ -31,12 +31,12 @@ em.on(EVENTS.UI_REQUEST, dbhandler.readall);
  */
 const server = http.createServer((req, res) => {
   console.log(req.method, "Request received");
-  var statusmsg = "";
+  let statusmsg = "";
 
   switch (req.method) {
     // Get requests from the UI
     case "GET":
-      em.emit(EVENTS.UI_REQUEST, url);
+      eventEmitter.emit(EVENTS.UI_REQUEST, url);
       res.statusCode = 200;
       statusmsg = "Success";
       break;
@@ -50,7 +50,7 @@ const server = http.createServer((req, res) => {
         produce: data[1]
       };
 
-      em.emit(EVENTS.SENSOR_INPUT, mockobj, url);
+      eventEmitter.emit(EVENTS.SENSOR_INPUT, mockobj, url);
       res.statusCode = 200;
       statusmsg = "Success";
       break;
