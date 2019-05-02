@@ -52,16 +52,7 @@ contract Utility is IUtility, Mortal {
    * @return success bool if household does not already exists, should only be called by some authority
    */
   function addHousehold(address _household) external onlyOwner returns (bool) {
-    require(!households[_household].initialized, "Household already exists.");
-
-    // add new household to mapping
-    Household storage hh = households[_household];
-    hh.initialized = true;
-    hh.renewableEnergy = 0;
-    hh.nonRenewableEnergy = 0;
-
-    emit NewHousehold(_household);
-    return true;
+    return _addHousehold(_household);
   }
 
   /**
@@ -154,6 +145,24 @@ contract Utility is IUtility, Mortal {
   function settle() external returns (bool) {
     // ToDo
     return false;
+  }
+
+  /**
+   * @dev see Utility.addHousehold
+   * @param _household address of household
+   * @return bool success
+   */
+  function _addHousehold(address _household) internal returns (bool) {
+    require(!households[_household].initialized, "Household already exists.");
+
+    // add new household to mapping
+    Household storage hh = households[_household];
+    hh.initialized = true;
+    hh.renewableEnergy = 0;
+    hh.nonRenewableEnergy = 0;
+
+    emit NewHousehold(_household);
+    return true;
   }
 
   /**
