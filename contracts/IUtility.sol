@@ -7,7 +7,7 @@ pragma solidity >=0.5.0 <0.6.0;
 interface IUtility {
 
   // event for energy transfer triggered by settlement (netting)
-  event EnergyTransfer(address indexed household, int256 energy);
+  event EnergyTransfer(address indexed from, address indexed to, uint256 energy, bool isRenewable);
 
   event NewHousehold(address indexed household);
 
