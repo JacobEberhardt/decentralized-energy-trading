@@ -23,7 +23,7 @@ contract("Utility", ([owner, household, other]) => {
       });
 
       it("should create a new household", async () => {
-        let hh = await this.instance.getHousehold(household);
+        const hh = await this.instance.getHousehold(household);
 
         expect(hh[0]).to.be.true; // initialized
         expect(hh[1]).to.be.bignumber.that.is.zero; // renewableEnergy
@@ -52,7 +52,7 @@ contract("Utility", ([owner, household, other]) => {
         await this.instance.updateRenewableEnergy(household, 10, 5, {
           from: household
         });
-        let netRenewableEnergy = await this.instance.balanceOfRenewableEnergy(
+        const netRenewableEnergy = await this.instance.balanceOfRenewableEnergy(
           household
         );
         expect(netRenewableEnergy).to.be.bignumber.equal("5");
@@ -64,7 +64,7 @@ contract("Utility", ([owner, household, other]) => {
         await this.instance.updateNonRenewableEnergy(household, 10, 5, {
           from: household
         });
-        let netNonRenewableEnergy = await this.instance.balanceOfNonRenewableEnergy(
+        const netNonRenewableEnergy = await this.instance.balanceOfNonRenewableEnergy(
           household
         );
         expect(netNonRenewableEnergy).to.be.bignumber.equal("5");
@@ -116,7 +116,7 @@ contract("Utility", ([owner, household, other]) => {
         await this.instance.updateRenewableEnergy(household, 10, 5, {
           from: household
         });
-        let totalRenewableEnergy = await this.instance.totalRenewableEnergy();
+        const totalRenewableEnergy = await this.instance.totalRenewableEnergy();
         expect(totalRenewableEnergy).to.be.bignumber.equal("5");
       });
     });
@@ -126,7 +126,7 @@ contract("Utility", ([owner, household, other]) => {
         await this.instance.updateNonRenewableEnergy(household, 10, 5, {
           from: household
         });
-        let totalNonRenewableEnergy = await this.instance.totalNonRenewableEnergy();
+        const totalNonRenewableEnergy = await this.instance.totalNonRenewableEnergy();
         expect(totalNonRenewableEnergy).to.be.bignumber.equal("5");
       });
     });
@@ -139,7 +139,7 @@ contract("Utility", ([owner, household, other]) => {
         await this.instance.updateRenewableEnergy(household, 10, 5, {
           from: household
         });
-        let totalEnergy = await this.instance.totalEnergy();
+        const totalEnergy = await this.instance.totalEnergy();
         expect(totalEnergy).to.be.bignumber.equal("10");
       });
     });
