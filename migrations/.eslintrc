@@ -1,0 +1,9 @@
+{
+  "env": {
+    "node": true
+  },
+  "globals": {
+    "artifacts": "readonly",
+    "contract": "readonly"
+  }
+}
