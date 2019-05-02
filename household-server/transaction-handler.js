@@ -19,5 +19,7 @@ module.exports = (req, res) => {
   // to be done as we don't have a key yet
 
   // send transaction
-  contract.methods.updateEnergy(HouseholdAdress, produced, consumed).send();
+  contract.methods
+    .updateRenewableEnergy(HouseholdAdress, produced, consumed)
+    .send();
 };
