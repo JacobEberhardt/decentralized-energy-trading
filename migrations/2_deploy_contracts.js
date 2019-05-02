@@ -1,5 +1,5 @@
-const Utility = artifacts.require("Utility");
+const FifsUtility = artifacts.require("FifsUtility");
 
 module.exports = function(deployer) {
-  deployer.deploy(Utility);
+  deployer.deploy(FifsUtility);
 };
