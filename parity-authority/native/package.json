@@ -1,0 +1,16 @@
+{
+  "name": "partity-poa",
+  "version": "1.0.0",
+  "description": "Setup an ethrerum based PoA blockchain locally",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mocha": "^6.1.4",
+    "request": "^2.88.0",
+    "sync-request": "^6.1.0"
+  }
+}
