@@ -1,6 +1,9 @@
-// This Handler processes the input from the smart meters
-module.exports = (req, res) => {
-  console.log("Transaction Handler received: ", req);
+/**
+ * This handler creates, signes and sends transactions to the Smart Contract (IUtility.sol)
+ * @param data Object containing the produced and consumed energy
+ */
+module.exports = data => {
+  console.log("Transaction Handler received: ", data);
   const Web3 = require("web3");
   const RpcURL = "";
   const ContractAdress = "";
@@ -9,11 +12,11 @@ module.exports = (req, res) => {
 
   // instantiate contract and web3
   const web3 = new Web3(RpcURL);
-  var contract = new web3.eth.Contract(ABI, ContractAdress);
+  const contract = new web3.eth.Contract(ABI, ContractAdress);
 
   // prepare transactions
-  var produced = req.produce;
-  var consumed = req.consume;
+  const produced = data.produce;
+  const consumed = data.consume;
 
   // sign transactions
   // to be done as we don't have a key yet
