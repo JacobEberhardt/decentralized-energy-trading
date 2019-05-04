@@ -30,10 +30,15 @@ describe("Test Network Properties", function() {
   for (let i = 0; i < 2; i++) {
     title = util.format("Test Node #%d", i);
     describe(title, function() {
-      this.retries(30);
-      // it("Return response code 200", function() {
-      //   assert.equal(res.statusCode, 200);
-      // });
+      // delay in each retry after first failure
+      beforeEach(function(done) {
+        if (this.currentTest.currentRetry() > 0) {
+          setTimeout(done, this.currentTest.currentRetry() * 500);
+        } else {
+          done();
+        }
+      });
+      this.retries(10);
 
       it("Node have one peer", function() {
         var res = request("POST", "http://localhost:854" + i, {
