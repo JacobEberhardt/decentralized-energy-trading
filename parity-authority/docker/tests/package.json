@@ -1,0 +1,16 @@
+{
+  "name": "partity-poa-docker-tests",
+  "version": "1.0.0",
+  "description": "Test a parity PoA docker based network",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mocha": "^6.1.4",
+    "request": "^2.88.0",
+    "sync-request": "^6.1.0"
+  }
+}
