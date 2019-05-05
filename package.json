@@ -12,7 +12,9 @@
     "lint-all": "eslint household-server/ household-ui/ mock-sensor/ test/ && yarn lint-contracts",
     "lint-contracts": "solium -d contracts/",
     "format-all": "eslint household-server/ household-ui/ mock-sensor/ test/ --fix && yarn format-contracts",
-    "format-contracts": "solium -d contracts/ --fix"
+    "format-contracts": "solium -d contracts/ --fix",
+    "test-parity-native": "./scripts/run_native_parity_tests.sh",
+    "test-parity-docker": "./scripts/run_docker_parity_tests.sh"
   },
   "devDependencies": {
     "bn.js": "^4.11.8",

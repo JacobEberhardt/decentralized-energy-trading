@@ -1,15 +1,18 @@
+#!/bin/bash
 export NETWORK_NAME=decentralized-energy-trading
 export PARITY_VERSION=v2.4.5
+export PROJECT_ROOT=$(git rev-parse --show-toplevel)
 
-echo "Sarting test network ..."
+echo "Starting test network using docker ..."
+cd $PROJECT_ROOT/parity-authority/docker
+docker-compose up -d &> /dev/null
 
-docker-compose up -d  &> /dev/null
 export NODE_0="http://$(docker-compose port authority0 8545)"
 export NODE_1="http://$(docker-compose port authority1 8545)"
 export NODE_2="http://$(docker-compose port authority2 8545)"
 
-echo "Sarting tests ..."
-npm test
+echo "Starting tests ..."
+$PROJECT_ROOT/node_modules/.bin/mocha $PROJECT_ROOT/test/parity-authority/docker.test.js
 echo "Tests done!"
 
 echo "Cleaning up ..."
