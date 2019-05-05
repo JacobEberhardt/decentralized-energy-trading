@@ -9,11 +9,11 @@ contract FifsUtility is Utility {
   uint256 public checkpoint;
 
   // iterable list of all households
-  address[] householdList;
+  address[] public householdList;
   // iterable list of all current households with positive amount of renewable energy
-  address[] householdListWithEnergy;
+  address[] public householdListWithEnergy;
   // iterable list of all current households with negative amount of renewable energy
-  address[] householdListNoEnergy;
+  address[] public householdListNoEnergy;
 
   struct Deed {
     bool active;
