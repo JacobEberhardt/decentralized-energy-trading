@@ -2,12 +2,13 @@ const assert = require("assert");
 const request = require("sync-request");
 const util = require("util");
 
+const nodes = [0, 1];
 let title;
 
-describe("Test Node Properties", function() {
-  for (let i = 0; i < 2; i++) {
+describe("Test Node Properties", () => {
+  nodes.forEach(i => {
     title = util.format("Test Node #%d", i);
-    describe(title, function() {
+    describe(title, () => {
       const res = request("POST", "http://localhost:854" + i, {
         json: {
           jsonrpc: "2.0",
@@ -17,19 +18,19 @@ describe("Test Node Properties", function() {
         }
       });
       const body = JSON.parse(res.getBody("utf8"));
-      it("Return response code 200", function() {
+      it("Return response code 200", () => {
         assert.strictEqual(res.statusCode, 200);
       });
 
-      it("Node should have one account", function() {
+      it("Node should have one account", () => {
         assert.strictEqual(body["result"].length, 1);
       });
     });
-  }
+  });
 });
 
-describe.only("Test Network Properties", function() {
-  for (let i = 0; i < 2; i++) {
+describe("Test Network Properties", () => {
+  nodes.forEach(i => {
     title = util.format("Test Node #%d", i);
     describe(title, () => {
       it("Node have one peer", async () => {
@@ -46,7 +47,7 @@ describe.only("Test Network Properties", function() {
         assert.strictEqual(body["result"], "0x1");
       });
 
-      it.skip("Block number is higher than 0", function() {
+      it.skip("Block number is higher than 0", () => {
         const res = request("POST", "http://localhost:854" + i, {
           json: {
             jsonrpc: "2.0",
@@ -60,5 +61,5 @@ describe.only("Test Network Properties", function() {
         assert.ok(body["result"] > 0);
       });
     });
-  }
+  });
 });
