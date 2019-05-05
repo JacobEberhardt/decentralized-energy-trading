@@ -4,16 +4,15 @@ import "./Utility.sol";
 
 
 contract FifsUtility is Utility {
-
   // number of successful settlements done
   // used for backtracking
   uint256 public checkpoint;
 
   // iterable list of all households
   address[] householdList;
-  // iterable list of all current households with positive amount of energy
+  // iterable list of all current households with positive amount of renewable energy
   address[] householdListWithEnergy;
-  // iterable list of all current households with negative amount of energy
+  // iterable list of all current households with negative amount of renewable energy
   address[] householdListNoEnergy;
 
   struct Deed {
@@ -30,18 +29,24 @@ contract FifsUtility is Utility {
     checkpoint = 0;
   }
 
+  /**
+   * @dev Overrides addHousehold of Utility.sol
+   */
   function addHousehold(address _household) external onlyOwner returns (bool) {
     if (super._addHousehold(_household)) {
       householdList.push(_household);
     }
   }
 
+  /**
+   * @dev Settlement function for netting (focus on renewable energy only)
+   * @return success bool if settlement was successful
+   */
   function settle() external returns (bool) {
-    // restructure this in seperate function ?
-    // total amount of renewable energy for settlement
-    // totalRenewableEnergy = availableRenewableEnergy + neededRenewableEnergy = -100
-    int256 availableRenewableEnergy; // 100
-    int256 neededRenewableEnergy; // -200
+    // amount of available renewable energy for settlement
+    int256 availableRenewableEnergy;
+    // amount of needed renewable energy
+    int256 neededRenewableEnergy;
 
     // group households into households sending renewable energy and households recievin renewable energy
     for (uint256 i = 0; i < householdList.length; i++) {
@@ -64,13 +69,14 @@ contract FifsUtility is Utility {
       }
     }
 
+    // remember: totalRenewableEnergy = availableRenewableEnergy + neededRenewableEnergy
     neededRenewableEnergy = totalRenewableEnergy - availableRenewableEnergy;
 
     for (uint256 i = 0; i < householdListNoEnergy.length; i++) {
       Household storage hhNeeded = households[householdListNoEnergy[i]];
-      // calculate % of energy on neededRenewableEnergy
+      // calculate % of energy on neededRenewableEnergy by household i
       int256 proportionNeedRenewableEnergy = 100 * (-1) * hhNeeded.renewableEnergy / (-1) * neededRenewableEnergy;
-      // calculate amount of energy on availableRenewableEnergy
+      // calculate amount of energy on availableRenewableEnergy by household i
       int256 amountAvailableRenewableEnergy = availableRenewableEnergy * proportionNeedRenewableEnergy / 100;
       for (uint256 j = 0; j < householdListWithEnergy.length; j++) {
         // settle energy
@@ -117,9 +123,9 @@ contract FifsUtility is Utility {
 
   /**
    * @dev 'Finalizes' an energy transfer by emitting event EnergyTransfer
-   * @param _household address of the household owner
+   * @param _household address of the household owner/ parity node ?
    * @param _checkpoint uint256 the settlement number the sender wants to retrieve the reward
-   * @return uint256 the amount of energy transferred
+   * @return int256 the total amount of energy transferred by _household in settlement _checkpoint
    */
   function retrieveReward(address _household, uint256 _checkpoint)
     external
