@@ -48,24 +48,16 @@ contract FifsUtility is Utility {
     // amount of needed renewable energy
     int256 neededRenewableEnergy;
 
-    // group households into households sending renewable energy and households recievin renewable energy
+    // group households into households with positive amount of renewable energy
+    // and negative amount of renewable energy
     for (uint256 i = 0; i < householdList.length; i++) {
-      if (households[householdList[i]].renewableEnergy + households[householdList[i]].nonRenewableEnergy <= 0) {
-        // sum of renewable and non-renewable energy is negative or zero; no energy for settlement
+      if (households[householdList[i]].renewableEnergy < 0) {
+        // households with negative amount of renewable energy
         householdListNoEnergy.push(householdList[i]);
-      } else {
-        // sum of renewable and non-renewable energy is positive
-        if (households[householdList[i]].renewableEnergy > 0 && households[householdList[i]].nonRenewableEnergy > 0) {
-          // both amounts of renewable and non-renewable energy are positive
-          householdListWithEnergy.push(householdList[i]);
-          // add amount of renewable energy to available energy for settlement
-          availableRenewableEnergy = (households[householdList[i]].renewableEnergy);
-        } else if (households[householdList[i]].renewableEnergy > 0 && households[householdList[i]].nonRenewableEnergy < 0) {
-          // amount of renewable energy is positive
-          householdListWithEnergy.push(householdList[i]);
-          // add gap between renewable and non-renewable energy to available energy for settlement
-          availableRenewableEnergy = (households[householdList[i]].renewableEnergy - households[householdList[i]].nonRenewableEnergy);
-        }
+      } else if (households[householdList[i]].renewableEnergy > 0) {
+        // households with positive amount of renewable energy
+        householdListWithEnergy.push(householdList[i]);
+        availableRenewableEnergy += households[householdList[i]].renewableEnergy;
       }
     }
 
