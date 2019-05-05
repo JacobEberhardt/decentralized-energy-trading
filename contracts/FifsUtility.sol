@@ -19,12 +19,12 @@ contract FifsUtility is Utility {
   struct Deed {
     bool active;
     address to;
-    uint256 energyTransferred;
+    int256 energyTransferred;
     bool isRenewable;
   }
 
-  // (household, checkpoint) -> Deed
-  mapping(address => mapping(uint256 => Deed)) deeds;
+  // (household, checkpoint) -> Deed[]
+  mapping(address => mapping(uint256 => Deed[])) deeds;
 
   constructor() public Utility() {
     checkpoint = 0;
@@ -37,11 +37,11 @@ contract FifsUtility is Utility {
   }
 
   function settle() external returns (bool) {
-    require(totalRenewableEnergy > 0, "No renewable energy available for settlement.");
-
     // restructure this in seperate function ?
     // total amount of renewable energy for settlement
-    uint256 availableRenewableEnergy;
+    // totalRenewableEnergy = availableRenewableEnergy + neededRenewableEnergy = -100
+    int256 availableRenewableEnergy; // 100
+    int256 neededRenewableEnergy; // -200
 
     // group households into households sending renewable energy and households recievin renewable energy
     for (uint256 i = 0; i < householdList.length; i++) {
@@ -54,18 +54,60 @@ contract FifsUtility is Utility {
           // both amounts of renewable and non-renewable energy are positive
           householdListWithEnergy.push(householdList[i]);
           // add amount of renewable energy to available energy for settlement
-          availableRenewableEnergy = uint256(households[householdList[i]].renewableEnergy);
+          availableRenewableEnergy = (households[householdList[i]].renewableEnergy);
         } else if (households[householdList[i]].renewableEnergy > 0 && households[householdList[i]].nonRenewableEnergy < 0) {
           // amount of renewable energy is positive
           householdListWithEnergy.push(householdList[i]);
           // add gap between renewable and non-renewable energy to available energy for settlement
-          availableRenewableEnergy = uint256(households[householdList[i]].renewableEnergy - households[householdList[i]].nonRenewableEnergy);
+          availableRenewableEnergy = (households[householdList[i]].renewableEnergy - households[householdList[i]].nonRenewableEnergy);
+        }
+      }
+    }
+
+    neededRenewableEnergy = totalRenewableEnergy - availableRenewableEnergy;
+
+    for (uint256 i = 0; i < householdListNoEnergy.length; i++) {
+      Household storage hhNeeded = households[householdListNoEnergy[i]];
+      // calculate % of energy on neededRenewableEnergy
+      int256 proportionNeedRenewableEnergy = 100 * (-1) * hhNeeded.renewableEnergy / (-1) * neededRenewableEnergy;
+      // calculate amount of energy on availableRenewableEnergy
+      int256 amountAvailableRenewableEnergy = availableRenewableEnergy * proportionNeedRenewableEnergy / 100;
+      for (uint256 j = 0; j < householdListWithEnergy.length; j++) {
+        // settle energy
+        if (households[householdListWithEnergy[j]].renewableEnergy >= amountAvailableRenewableEnergy) {
+          households[householdListWithEnergy[j]].renewableEnergy -= amountAvailableRenewableEnergy;
+          households[householdListWithEnergy[i]].renewableEnergy += amountAvailableRenewableEnergy;
+
+          // create deed
+          Deed[] storage deed = deeds[householdListWithEnergy[j]][checkpoint];
+          Deed memory newDeed;
+          newDeed.active = true;
+          newDeed.to = householdListWithEnergy[i];
+          newDeed.energyTransferred = amountAvailableRenewableEnergy;
+          newDeed.isRenewable = true;
+          deed.push(newDeed);
+
+          break;
+        } else {
+          int256 energyTransferred = households[householdListWithEnergy[j]].renewableEnergy;
+
+          households[householdListWithEnergy[i]].renewableEnergy += energyTransferred;
+          amountAvailableRenewableEnergy -= energyTransferred;
+          households[householdListWithEnergy[j]].renewableEnergy = 0;
+
+          // create deed
+          Deed[] storage deed = deeds[householdListWithEnergy[j]][checkpoint];
+          Deed memory newDeed;
+          newDeed.active = true;
+          newDeed.to = householdListWithEnergy[i];
+          newDeed.energyTransferred = energyTransferred;
+          newDeed.isRenewable = true;
+          deed.push(newDeed);
         }
       }
     }
 
     // clean setup for next settlement
-    delete availableRenewableEnergy;
     delete householdListNoEnergy;
     delete householdListWithEnergy;
 
@@ -79,17 +121,25 @@ contract FifsUtility is Utility {
    * @param _checkpoint uint256 the settlement number the sender wants to retrieve the reward
    * @return uint256 the amount of energy transferred
    */
-  function retrieveReward(address _household, uint256 _checkpoint) external onlyHousehold(_household) returns (uint256 energyTransferred) {
-    Deed storage deed = deeds[_household][_checkpoint];
-    require(deed.active, "Deed does not exist");
+  function retrieveReward(address _household, uint256 _checkpoint)
+    external
+    onlyHousehold(_household)
+    returns (int256 sumEnergyTransferred)
+  {
+    sumEnergyTransferred = 0;
+    Deed[] storage deed = deeds[_household][_checkpoint];
 
-    emit EnergyTransfer(
-      _household,
-      deed.to,
-      deed.energyTransferred,
-      deed.isRenewable);
+    for (uint256 i = 0; i < deed.length; i++) {
+      require(deed[i].active, "Deed does not exist");
 
-    energyTransferred = deed.energyTransferred;
-    delete deeds[_household][_checkpoint];
+      emit EnergyTransfer(
+        _household,
+        deed[i].to,
+        deed[i].energyTransferred,
+        deed[i].isRenewable);
+
+      sumEnergyTransferred += deed[i].energyTransferred;
+    }
+    delete deeds[_household][checkpoint];
   }
 }
