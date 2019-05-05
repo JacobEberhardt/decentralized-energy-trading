@@ -1,4 +1,5 @@
 # decentralized-energy-trading
+
 Repository of ISE CP Project Summer 2019.
 
 ## Running the Household Server:
@@ -28,3 +29,19 @@ The console should print all the entries in the DB like:
   ...
   { _id: 5cc9a7cdf711d435d4bca084, consume: 31.04, produce: 94.8 } ]
   ```
+## Utility contract
+
+Network configurations are stored `./truffle-config.js`.
+
+Execute
+
+```shell
+  # Install dependecies
+  $ yarn install
+  # Compile contracts
+  $ truffle compile
+  # Migrate contracts
+  $ truffle migrate
+  # Test contracts
+  $ truffle test
+```
