@@ -70,7 +70,7 @@ contract FifsUtility is Utility {
       for (uint256 i = 0; i < householdListNoEnergy.length; i++) {
         Household storage hhNeeded = households[householdListNoEnergy[i]];
         // calculate % of energy on neededRenewableEnergy by household i
-        int256 proportionNeedRenewableEnergy = 100 * (-1) * hhNeeded.renewableEnergy / (-1) * neededRenewableEnergy;
+        int256 proportionNeedRenewableEnergy = 100 * (-1) * hhNeeded.renewableEnergy / ((-1) * neededRenewableEnergy);
         // calculate amount of energy on availableRenewableEnergy by household i
         int256 amountAvailableRenewableEnergy = availableRenewableEnergy * proportionNeedRenewableEnergy / 100;
         for (uint256 j = 0; j < householdListWithEnergy.length; j++) {
@@ -110,19 +110,19 @@ contract FifsUtility is Utility {
         }
       }
     } else {
-      // totalRenewableEnergy > 0
+      // totalRenewableEnergy >= 0
       // enough renewable energy for settlement; availableRenewableEnergy >= neededRenewableEnergy
       for (uint256 i = 0; i < householdListWithEnergy.length; i++) {
         Household storage hhAvailable = households[householdListWithEnergy[i]];
         // calculate % of energy on availableRenewableEnergy by household i
         int256 proportionAvailableRenewableEnergy = 100 * hhAvailable.renewableEnergy / availableRenewableEnergy;
         // calculate amount of energy on neededRenewableEnergy by household i
-        int256 amountNeededRenewableEnergy = neededRenewableEnergy * proportionAvailableRenewableEnergy / 100;
+        int256 amountNeededRenewableEnergy = (-1) * neededRenewableEnergy * proportionAvailableRenewableEnergy / 100;
         for (uint256 j = 0; j < householdListNoEnergy.length; j++) {
           // settle energy
           if (amountNeededRenewableEnergy > (-1) * households[householdListNoEnergy[j]].renewableEnergy) {
             // energy for settlement by household i is > needed by household j; household i can serve more households
-            int256 energyTransferred = households[householdListNoEnergy[j]].renewableEnergy;
+            int256 energyTransferred = (-1) * households[householdListNoEnergy[j]].renewableEnergy;
 
             households[householdListWithEnergy[i]].renewableEnergy -= energyTransferred;
             amountNeededRenewableEnergy -= energyTransferred;
