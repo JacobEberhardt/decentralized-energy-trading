@@ -9,7 +9,7 @@ const {
 } = require("openzeppelin-test-helpers");
 const expect = require("chai").use(require("chai-bn")(BN)).expect;
 
-contract("FifsUtility", ([owner, household, other]) => {
+contract("FifsUtility", ([owner, hh1, hh2, hh3, hh4]) => {
   beforeEach(async () => {
     this.instance = await FifsUtility.new({
       from: owner
@@ -25,11 +25,11 @@ contract("FifsUtility", ([owner, household, other]) => {
   describe("Households", () => {
     context("with a new household", async () => {
       beforeEach(async () => {
-        ({ logs: this.logs } = await this.instance.addHousehold(household));
+        ({ logs: this.logs } = await this.instance.addHousehold(hh1));
       });
 
       it("should create a new household", async () => {
-        const hh = await this.instance.getHousehold(household);
+        const hh = await this.instance.getHousehold(hh1);
 
         expect(hh[0]).to.be.true; // initialized
         expect(hh[1]).to.be.bignumber.that.is.zero; // renewableEnergy
@@ -37,20 +37,305 @@ contract("FifsUtility", ([owner, household, other]) => {
       });
 
       it("should store addresses in householdList", async () => {
-        expect((await this.instance.householdList(0)) == household);
+        expect((await this.instance.householdList(0)) === hh1);
 
-        await this.instance.addHousehold(other);
-        expect((await this.instance.householdList(1)) == other);
+        await this.instance.addHousehold(hh2);
+        expect((await this.instance.householdList(1)) === hh2);
       });
 
       it("emits event NewHousehold", async () => {
         expectEvent.inLogs(this.logs, "NewHousehold", {
-          household: household
+          household: hh1
         });
       });
 
       it("reverts when attempting to add an existing household", async () => {
-        await shouldFail.reverting(this.instance.addHousehold(household));
+        await shouldFail.reverting(this.instance.addHousehold(hh1));
+      });
+    });
+  });
+
+  describe("Settlement", () => {
+    beforeEach(async () => {
+      await this.instance.addHousehold(hh1);
+      await this.instance.addHousehold(hh2);
+      await this.instance.addHousehold(hh3);
+      await this.instance.addHousehold(hh4);
+    });
+
+    context("totalRenewableEnergy = 0", async () => {
+      it("availableRenewableEnergy = 200, neededRenewableEnergy = -200; households do not need to split energy", async () => {
+        await this.instance.updateRenewableEnergy(hh1, 100, 0, {
+          from: hh1
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("100");
+
+        await this.instance.updateRenewableEnergy(hh2, 100, 0, {
+          from: hh2
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("200");
+
+        await this.instance.updateRenewableEnergy(hh3, 0, 100, {
+          from: hh3
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("100");
+
+        await this.instance.updateRenewableEnergy(hh4, 0, 100, {
+          from: hh4
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("0");
+
+        await this.instance.settle();
+
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh1)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh2)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh3)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh4)
+        ).to.be.bignumber.equal("0");
+      });
+
+      it("availableRenewableEnergy = 200, neededRenewableEnergy = -200; households need to split energy", async () => {
+        await this.instance.updateRenewableEnergy(hh1, 40, 0, {
+          from: hh1
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("40");
+
+        await this.instance.updateRenewableEnergy(hh2, 160, 0, {
+          from: hh2
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("200");
+
+        await this.instance.updateRenewableEnergy(hh3, 0, 160, {
+          from: hh3
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("40");
+
+        await this.instance.updateRenewableEnergy(hh4, 0, 40, {
+          from: hh4
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("0");
+
+        await this.instance.settle();
+
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh1)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh2)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh3)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh4)
+        ).to.be.bignumber.equal("0");
+      });
+    });
+
+    context("totalRenewableEnergy > 0", async () => {
+      it("availableRenewableEnergy = 400, neededRenewableEnergy = -200; households need to split energy", async () => {
+        await this.instance.updateRenewableEnergy(hh1, 200, 0, {
+          from: hh1
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("200");
+
+        await this.instance.updateRenewableEnergy(hh2, 200, 0, {
+          from: hh2
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("400");
+
+        await this.instance.updateRenewableEnergy(hh3, 0, 100, {
+          from: hh3
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("300");
+
+        await this.instance.updateRenewableEnergy(hh4, 0, 100, {
+          from: hh4
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("200");
+
+        await this.instance.settle();
+
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh1)
+        ).to.be.bignumber.equal("100");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh2)
+        ).to.be.bignumber.equal("100");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh3)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh4)
+        ).to.be.bignumber.equal("0");
+      });
+
+      it("availableRenewableEnergy = 300, neededRenewableEnergy = -200; households need to split energy; rounded values therefore FIFS", async () => {
+        await this.instance.updateRenewableEnergy(hh1, 200, 0, {
+          from: hh1
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("200");
+
+        await this.instance.updateRenewableEnergy(hh2, 100, 0, {
+          from: hh2
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("300");
+
+        await this.instance.updateRenewableEnergy(hh3, 0, 100, {
+          from: hh3
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("200");
+
+        await this.instance.updateRenewableEnergy(hh4, 0, 100, {
+          from: hh4
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("100");
+
+        await this.instance.settle();
+
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh1)
+        ).to.be.bignumber.equal("68");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh2)
+        ).to.be.bignumber.equal("34");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh3)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh4)
+        ).to.be.bignumber.equal("-2");
+      });
+    });
+
+    context("totalRenewableEnergy < 0", async () => {
+      it("availableRenewableEnergy = 200, neededRenewableEnergy = -400; households need to split energy", async () => {
+        await this.instance.updateRenewableEnergy(hh1, 100, 0, {
+          from: hh1
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("100");
+
+        await this.instance.updateRenewableEnergy(hh2, 100, 0, {
+          from: hh2
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("200");
+
+        await this.instance.updateRenewableEnergy(hh3, 0, 200, {
+          from: hh3
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("0");
+
+        await this.instance.updateRenewableEnergy(hh4, 0, 200, {
+          from: hh4
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("-200");
+
+        await this.instance.settle();
+
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh1)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh2)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh3)
+        ).to.be.bignumber.equal("-100");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh4)
+        ).to.be.bignumber.equal("-100");
+      });
+
+      it("availableRenewableEnergy = 200, neededRenewableEnergy = -300; households need to split energy, round values therefore FIFS", async () => {
+        await this.instance.updateRenewableEnergy(hh1, 100, 0, {
+          from: hh1
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("100");
+
+        await this.instance.updateRenewableEnergy(hh2, 100, 0, {
+          from: hh2
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("200");
+
+        await this.instance.updateRenewableEnergy(hh3, 0, 200, {
+          from: hh3
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("0");
+
+        await this.instance.updateRenewableEnergy(hh4, 0, 100, {
+          from: hh4
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("-100");
+
+        await this.instance.settle();
+
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh1)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh2)
+        ).to.be.bignumber.equal("2");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh3)
+        ).to.be.bignumber.equal("-68");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh4)
+        ).to.be.bignumber.equal("-34");
       });
     });
   });
