@@ -1,28 +1,49 @@
+const Web3 = require("web3");
+
+const authorityHelper = require("../helpers/authority");
+const contractHelper = require("../helpers/contract");
+const conversionHelper = require("../helpers/conversion");
+
+const truffleConfig = require("../truffle-config");
+
 /**
- * This handler creates, signes and sends transactions to the Smart Contract (IUtility.sol)
- * @param data Object containing the produced and consumed energy
+ * This handler creates, signs and sends transactions to the Utility contract.
  */
-module.exports = data => {
-  console.log("Transaction Handler received: ", data);
-  const Web3 = require("web3");
-  const RpcURL = "";
-  const ContractAdress = "";
-  const ABI = "";
-  const HouseholdAdress = "";
-
-  // instantiate contract and web3
-  const web3 = new Web3(RpcURL);
-  const contract = new web3.eth.Contract(ABI, ContractAdress);
-
-  // prepare transactions
-  const produced = data.produce;
-  const consumed = data.consume;
-
-  // sign transactions
-  // to be done as we don't have a key yet
-
-  // send transaction
-  contract.methods
-    .updateRenewableEnergy(HouseholdAdress, produced, consumed)
-    .send();
+module.exports = {
+  /**
+   * Initialize web3 instance based truffle config.
+   * @param {string} network Name of network for JSON RPC.
+   */
+  initWeb3: (network = "ganache") => {
+    const { host, port } = truffleConfig.networks[network];
+    return new Web3(`http://${host}:${port}`);
+  },
+  /**
+   * Call `updateRenewableEnergy` contract method.
+   * @param {Object} web3
+   * @param {Object} payload
+   */
+  updateRenewableEnergy: async (web3, payload) => {
+    const { produce, consume } = payload;
+    const { address, password } = authorityHelper.getAddressAndPassword();
+    try {
+      const contract = new web3.eth.Contract(
+        contractHelper.getAbi(),
+        contractHelper.getDeployedAddress()
+      );
+      await web3.eth.personal.unlockAccount(address, password, 600);
+      const txReceipt = await contract.methods
+        .updateRenewableEnergy(
+          address,
+          conversionHelper.kWhToWs(produce),
+          conversionHelper.kWhToWs(consume)
+        )
+        .send({ from: address });
+      return txReceipt;
+    } catch (error) {
+      throw error;
+    } finally {
+      await web3.eth.personal.lockAccount(address);
+    }
+  }
 };

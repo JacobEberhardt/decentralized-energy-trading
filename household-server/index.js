@@ -1,13 +1,17 @@
 const http = require("http");
 const events = require("events");
+
 const dbHandler = require("./db-handler");
-// const txHandler = require("./transaction-handler");
+const txHandler = require("./transaction-handler");
 const mockSensor = require("./mock-sensor-data");
 
 const { host, port, dbUrl } = require("./config");
 
 // Set up the DB
 dbHandler.createDB(dbUrl);
+
+// Set up web3
+const web3 = txHandler.initWeb3();
 
 // Defining Events
 const EVENTS = {
@@ -20,6 +24,9 @@ const eventEmitter = new events.EventEmitter();
 eventEmitter.on(EVENTS.UI_REQUEST, () => dbHandler.readAll(dbUrl));
 eventEmitter.on(EVENTS.SENSOR_INPUT, payload =>
   dbHandler.writeToDB(payload, dbUrl)
+);
+eventEmitter.on(EVENTS.SENSOR_INPUT, payload =>
+  txHandler.updateRenewableEnergy(web3, payload)
 );
 
 /**
