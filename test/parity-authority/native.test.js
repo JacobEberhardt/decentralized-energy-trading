@@ -8,8 +8,8 @@ let title;
 describe("Test Node Properties", () => {
   nodes.forEach(i => {
     title = util.format("Test Node #%d", i);
-    describe(title, () => {
-      const res = request("POST", "http://localhost:854" + i, {
+    describe(title, async () => {
+      const res = await request("POST", "http://localhost:854" + i, {
         json: {
           jsonrpc: "2.0",
           method: "personal_listAccounts",
@@ -47,8 +47,8 @@ describe("Test Network Properties", () => {
         assert.strictEqual(body["result"], "0x1");
       });
 
-      it.skip("Block number is higher than 0", () => {
-        const res = request("POST", "http://localhost:854" + i, {
+      it.skip("Block number is higher than 0", async () => {
+        const res = await request("POST", "http://localhost:854" + i, {
           json: {
             jsonrpc: "2.0",
             method: "eth_blockNumber",
