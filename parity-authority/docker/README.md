@@ -28,3 +28,6 @@ There is already an account with an empty password that has enough ether:
 
 ### Access JSON RPC 
 Talk to JSON RPC at [http://127.0.0.1:8545](http://127.0.0.1:8545) with your favorite client.
+
+### Run tests
+Make sure to have dependencies installed via `yarn install`. Now you can run the tests in `${PROJECT_ROOT}/test/parity-authority/docker.test.js` via `yarn test-parity-docker`.
