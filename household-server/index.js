@@ -4,13 +4,10 @@ const dbHandler = require("./db-handler");
 // const txHandler = require("./transaction-handler");
 const mockSensor = require("./mock-sensor-data");
 
-// Setting up the DB
-const url = "mongodb://localhost:27017/sensordata/";
-dbHandler.createDB(url);
+const { host, port, dbUrl } = require("./config");
 
-// Config of server
-const hostname = "127.0.0.1";
-const port = 3000;
+// Set up the DB
+dbHandler.createDB(dbUrl);
 
 // Defining Events
 const EVENTS = {
@@ -20,9 +17,10 @@ const EVENTS = {
 
 // Adding Event Listener
 const eventEmitter = new events.EventEmitter();
-eventEmitter.on(EVENTS.SENSOR_INPUT, dbHandler.writeToDB);
-eventEmitter.on(EVENTS.UI_REQUEST, dbHandler.readAll);
-// em.on(EVENTS.SENSOR_INPUT, txHandler);
+eventEmitter.on(EVENTS.UI_REQUEST, () => dbHandler.readAll(dbUrl));
+eventEmitter.on(EVENTS.SENSOR_INPUT, payload =>
+  dbHandler.writeToDB(payload, dbUrl)
+);
 
 /**
  * Creating the http server waiting for incoming requests
@@ -36,21 +34,21 @@ const server = http.createServer((req, res) => {
   switch (req.method) {
     // Get requests from the UI
     case "GET":
-      eventEmitter.emit(EVENTS.UI_REQUEST, url);
+      eventEmitter.emit(EVENTS.UI_REQUEST, dbUrl);
       res.statusCode = 200;
       statusMsg = "Success";
       break;
 
     // PUT Requests from the Sensors
     case "PUT":
-      let data = mockSensor.createMockData(2, 0, 100);
+      const data = mockSensor.createMockData(2, 0, 100);
       // preparing mock data
-      let mockobj = {
+      const payload = {
         consume: data[0],
         produce: data[1]
       };
 
-      eventEmitter.emit(EVENTS.SENSOR_INPUT, mockobj, url);
+      eventEmitter.emit(EVENTS.SENSOR_INPUT, payload);
       res.statusCode = 200;
       statusMsg = "Success";
       break;
@@ -73,6 +71,6 @@ const server = http.createServer((req, res) => {
 /**
  * Let the server listen to incoming requests on the given IP:Port
  */
-server.listen(port, hostname, () => {
-  console.log(`Household Server running at http://${hostname}:${port}/`);
+server.listen(port, host, () => {
+  console.log(`Household Server running at http://${host}:${port}/`);
 });
