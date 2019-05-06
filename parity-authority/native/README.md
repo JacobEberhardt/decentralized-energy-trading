@@ -4,6 +4,7 @@ The Proof-of-Authority nodes used in our private network.
 ### Requirements
 
 - [Parity](https://www.parity.io/)
+- [Ethereum go Client](https://github.com/ethereum/go-ethereum)
 - [Node.js](https://nodejs.org/en/)
 
 ## Nodes
