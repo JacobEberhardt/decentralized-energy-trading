@@ -33,10 +33,11 @@
     "openzeppelin-solidity": "^2.2.0",
     "openzeppelin-test-helpers": "^0.3.2",
     "prettier": "^1.17.0",
-    "request": "^2.88.0",
     "solium": "^1.2.4",
-    "sync-request": "^6.1.0",
     "truffle": "^5.0.13"
   },
-  "dependencies": {}
+  "dependencies": {
+    "request": "^2.88.0",
+    "request-promise": "^4.2.4"
+  }
 }
