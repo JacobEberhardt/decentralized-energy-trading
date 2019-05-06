@@ -23,7 +23,7 @@ contract FifsUtility is Utility {
   }
 
   // (household, checkpoint) -> Deed[]
-  mapping(address => mapping(uint256 => Deed[])) deeds;
+  mapping(address => mapping(uint256 => Deed[])) public deeds;
 
   constructor() public Utility() {
     checkpoint = 0;
@@ -120,37 +120,40 @@ contract FifsUtility is Utility {
         int256 amountNeededRenewableEnergy = (-1) * neededRenewableEnergy * proportionAvailableRenewableEnergy / 100;
         for (uint256 j = 0; j < householdListNoEnergy.length; j++) {
           // settle energy
-          if (amountNeededRenewableEnergy > (-1) * households[householdListNoEnergy[j]].renewableEnergy) {
-            // energy for settlement by household i is > needed by household j; household i can serve more households
-            int256 energyTransferred = (-1) * households[householdListNoEnergy[j]].renewableEnergy;
+          if (households[householdListNoEnergy[j]].renewableEnergy < 0) {
+            // check if household j is already done with settlement
+            if (amountNeededRenewableEnergy > (-1) * households[householdListNoEnergy[j]].renewableEnergy) {
+              // energy for settlement by household i is > needed by household j; household i can serve more households
+              int256 energyTransferred = (-1) * households[householdListNoEnergy[j]].renewableEnergy;
 
-            households[householdListWithEnergy[i]].renewableEnergy -= energyTransferred;
-            amountNeededRenewableEnergy -= energyTransferred;
-            households[householdListNoEnergy[j]].renewableEnergy += energyTransferred;
+              households[householdListWithEnergy[i]].renewableEnergy -= energyTransferred;
+              amountNeededRenewableEnergy -= energyTransferred;
+              households[householdListNoEnergy[j]].renewableEnergy += energyTransferred;
 
-            // create deed
-            Deed[] storage deed = deeds[householdListWithEnergy[i]][checkpoint];
-            Deed memory newDeed;
-            newDeed.active = true;
-            newDeed.to = householdListNoEnergy[j];
-            newDeed.energyTransferred = energyTransferred;
-            newDeed.isRenewable = true;
-            deed.push(newDeed);
-          } else {
-            // energy for settlement by household i is <= needed by household j
-            households[householdListWithEnergy[i]].renewableEnergy -= amountNeededRenewableEnergy;
-            households[householdListNoEnergy[j]].renewableEnergy += amountNeededRenewableEnergy;
+              // create deed
+              Deed[] storage deed = deeds[householdListWithEnergy[i]][checkpoint];
+              Deed memory newDeed;
+              newDeed.active = true;
+              newDeed.to = householdListNoEnergy[j];
+              newDeed.energyTransferred = energyTransferred;
+              newDeed.isRenewable = true;
+              deed.push(newDeed);
+            } else {
+              // energy for settlement by household i is <= needed by household j
+              households[householdListWithEnergy[i]].renewableEnergy -= amountNeededRenewableEnergy;
+              households[householdListNoEnergy[j]].renewableEnergy += amountNeededRenewableEnergy;
 
-            // create deed
-            Deed[] storage deed = deeds[householdListWithEnergy[i]][checkpoint];
-            Deed memory newDeed;
-            newDeed.active = true;
-            newDeed.to = householdListNoEnergy[j];
-            newDeed.energyTransferred = amountNeededRenewableEnergy;
-            newDeed.isRenewable = true;
-            deed.push(newDeed);
+              // create deed
+              Deed[] storage deed = deeds[householdListWithEnergy[i]][checkpoint];
+              Deed memory newDeed;
+              newDeed.active = true;
+              newDeed.to = householdListNoEnergy[j];
+              newDeed.energyTransferred = amountNeededRenewableEnergy;
+              newDeed.isRenewable = true;
+              deed.push(newDeed);
 
-            break;
+              break;
+            }
           }
         }
       }
