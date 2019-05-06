@@ -28,11 +28,9 @@ module.exports = {
     MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
       if (err) throw err;
       const dbo = db.db("sensordata");
-      console.log(data);
-      let myobj = data;
-      dbo.collection("data").insertOne(myobj, (err, res) => {
+      dbo.collection("data").insertOne(data, (err, res) => {
         if (err) throw err;
-        console.log("1 document inserted: ", myobj);
+        console.log("1 document inserted: ", data);
         db.close();
       });
     });
@@ -43,7 +41,7 @@ module.exports = {
    * Should be added as an Eventlistener for incoming GET Requests from the UI
    * @param url URL/URI of the DB
    */
-  readall: url => {
+  readAll: url => {
     MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
       if (err) throw err;
       const dbo = db.db("sensordata");
