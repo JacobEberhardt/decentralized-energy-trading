@@ -12,10 +12,10 @@
     "lint-all": "eslint household-server/ household-ui/ mock-sensor/ test/ && yarn lint-contracts",
     "lint-contracts": "solium -d contracts/",
     "format-all": "eslint household-server/ household-ui/ mock-sensor/ test/ --fix && yarn format-contracts",
-    "format-contracts": "solium -d contracts/ --fix"
+    "format-contracts": "solium -d contracts/ --fix",
+    "run-ganache": "ganache-cli -i 123456 -d edge wage lab clever gap defense lend broken lumber tumble cousin blush"
   },
   "devDependencies": {
-    "bn.js": "^4.11.8",
     "chai": "^4.2.0",
     "chai-bignumber": "^3.0.0",
     "chai-bn": "^0.1.1",
@@ -27,6 +27,7 @@
     "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.0.0",
+    "ganache-cli": "^6.4.3",
     "openzeppelin-solidity": "^2.2.0",
     "openzeppelin-test-helpers": "^0.3.2",
     "prettier": "^1.17.0",
@@ -34,6 +35,7 @@
     "truffle": "^5.0.13"
   },
   "dependencies": {
+    "bn.js": "^4.11.8",
     "mongodb": "^3.2.3",
     "web3": "^1.0.0-beta.54"
   }
