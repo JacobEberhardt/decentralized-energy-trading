@@ -16,7 +16,7 @@ contract("FifsUtility", ([owner, hh1, hh2, hh3, hh4]) => {
     });
   });
 
-  describe.only("Checkpoint", () => {
+  describe("Checkpoint", () => {
     beforeEach(async () => {
       await this.instance.addHousehold(hh1);
       await this.instance.addHousehold(hh2);
@@ -358,6 +358,99 @@ contract("FifsUtility", ([owner, hh1, hh2, hh3, hh4]) => {
         expect(
           await this.instance.balanceOfRenewableEnergy(hh4)
         ).to.be.bignumber.equal("-34");
+      });
+    });
+  });
+
+  describe("Retrieve reward", () => {
+    beforeEach(async () => {
+      await this.instance.addHousehold(hh1);
+      await this.instance.addHousehold(hh2);
+      await this.instance.addHousehold(hh3);
+      await this.instance.addHousehold(hh4);
+    });
+
+    context("Finalize settlement", async () => {
+      beforeEach(async () => {
+        await this.instance.updateRenewableEnergy(hh1, 200, 0, {
+          from: hh1
+        });
+        await this.instance.updateRenewableEnergy(hh2, 100, 0, {
+          from: hh2
+        });
+        await this.instance.updateRenewableEnergy(hh3, 0, 100, {
+          from: hh3
+        });
+        await this.instance.updateRenewableEnergy(hh4, 0, 100, {
+          from: hh4
+        });
+
+        await this.instance.settle();
+      });
+
+      it("check Deeds in deeds mapping", async () => {
+        let deedsHH1 = [];
+        let deedsHH2 = [];
+        const checkpoint = await this.instance.checkpoint();
+
+        // how to get the length of the deeds array ?
+        // currently hardcoded: 2
+        for (let i = 0; i < 2; i++) {
+          deedsHH1.push(await this.instance.deeds(hh1, checkpoint - 1, i));
+        }
+        for (let i = 0; i < 1; i++) {
+          deedsHH2.push(await this.instance.deeds(hh2, checkpoint - 1, i));
+        }
+
+        // hardcoded entries in array
+        expect(deedsHH1[0].active).to.be.true; // active
+        expect(deedsHH1[0].to === hh3); // to
+        expect(deedsHH1[0].energyTransferred).to.be.bignumber.equal("100"); // energyTransferred
+        expect(deedsHH1[0].isRenewable).to.be.true; // isRenewable
+
+        expect(deedsHH1[1].active).to.be.true; // active
+        expect(deedsHH1[1].to === hh4); // to
+        expect(deedsHH1[1].energyTransferred).to.be.bignumber.equal("32"); // energyTransferred
+        expect(deedsHH1[1].isRenewable).to.be.true; // isRenewable
+
+        expect(deedsHH2[0].active).to.be.true; // active
+        expect(deedsHH2[0].to === hh4); // to
+        expect(deedsHH2[0].energyTransferred).to.be.bignumber.equal("66"); // energyTransferred
+        expect(deedsHH2[0].isRenewable).to.be.true; // isRenewable
+      });
+
+      it("retrieve reward for (hh1, 0); should be 132", async () => {
+        const checkpoint = await this.instance.checkpoint();
+        expect(
+          await this.instance.retrieveReward.call(hh1, checkpoint - 1, {
+            from: hh1
+          })
+        ).to.be.bignumber.equal("132");
+      });
+
+      it("emits EnergyTransfer events", async () => {
+        const checkpoint = await this.instance.checkpoint();
+        ({ logs: this.logs } = await this.instance.retrieveReward(
+          hh1,
+          checkpoint - 1,
+          {
+            from: hh1
+          }
+        ));
+
+        expectEvent.inLogs(this.logs, "EnergyTransfer", {
+          from: hh1,
+          to: hh3,
+          energy: new BN(100),
+          isRenewable: true
+        });
+
+        expectEvent.inLogs(this.logs, "EnergyTransfer", {
+          from: hh1,
+          to: hh4,
+          energy: new BN(32),
+          isRenewable: true
+        });
       });
     });
   });
