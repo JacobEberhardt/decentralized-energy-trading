@@ -16,9 +16,31 @@ contract("FifsUtility", ([owner, hh1, hh2, hh3, hh4]) => {
     });
   });
 
-  describe("Checkpoint", () => {
+  describe.only("Checkpoint", () => {
+    beforeEach(async () => {
+      await this.instance.addHousehold(hh1);
+      await this.instance.addHousehold(hh2);
+      await this.instance.addHousehold(hh3);
+      await this.instance.addHousehold(hh4);
+    });
+
     it("should be initialized with 0", async () => {
       expect(await this.instance.checkpoint()).to.be.bignumber.that.is.zero;
+    });
+
+    context("After settlement", async () => {
+      beforeEach(async () => {
+        await this.instance.settle();
+      });
+
+      it("first settlement; should be 1", async () => {
+        expect(await this.instance.checkpoint()).to.be.bignumber.equal("1");
+      });
+
+      it("second settlement; should be 2", async () => {
+        await this.instance.settle();
+        expect(await this.instance.checkpoint()).to.be.bignumber.equal("2");
+      });
     });
   });
 
