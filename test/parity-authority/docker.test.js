@@ -1,29 +1,37 @@
-const assert = require("assert");
-const request = require("sync-request");
+const chai = require("chai");
+const request = require("request-promise");
 const util = require("util");
 
+const { assert } = chai;
+
 const nodes = [process.env.NODE_0, process.env.NODE_1, process.env.NODE_2];
-let testTitle;
+const options = { resolveWithFullResponse: true };
 
 describe("Test Node Properties", () => {
   nodes.forEach((node, i) => {
-    testTitle = util.format("Test Node #%d", i);
-    describe(testTitle, async () => {
-      const res = await request("POST", nodes[i], {
-        json: {
-          jsonrpc: "2.0",
-          method: "personal_listAccounts",
-          params: [],
-          id: 0
-        }
-      });
-      const body = JSON.parse(res.getBody("utf8"));
-      it("Return response code 200", function() {
-        assert.strictEqual(res.statusCode, 200);
+    describe(util.format("Test Node #%d", i), () => {
+      let response;
+
+      before(async () => {
+        response = await request(nodes[i], {
+          ...options,
+          method: "POST",
+          json: {
+            jsonrpc: "2.0",
+            method: "personal_listAccounts",
+            params: [],
+            id: 0
+          }
+        });
       });
 
-      it.skip("Node should have one account", function() {
-        assert.strictEqual(body["result"].length, 1);
+      it("Return response code 200", () => {
+        assert.strictEqual(response.statusCode, 200);
+      });
+
+      it("Node should have two accounts (authority + test account)", () => {
+        // NOTE: Including test account with a lot of ETH which is not a authority.
+        assert.strictEqual(response.body.result.length, 2);
       });
     });
   });
@@ -31,10 +39,20 @@ describe("Test Node Properties", () => {
 
 describe("Test Network Properties", () => {
   nodes.forEach((node, i) => {
-    testTitle = util.format("Test Node #%d", i);
-    describe(testTitle, () => {
+    describe(util.format("Test Node #%d", i), function() {
+      beforeEach(function(done) {
+        if (this.currentTest.currentRetry() > 0) {
+          setTimeout(done, this.currentTest.currentRetry() * 500);
+        } else {
+          done();
+        }
+      });
+      this.retries(10);
+
       it("Node have two peers", async () => {
-        const res = await request("POST", nodes[i], {
+        const { statusCode, body } = await request(nodes[i], {
+          ...options,
+          method: "POST",
           json: {
             jsonrpc: "2.0",
             method: "net_peerCount",
@@ -42,13 +60,14 @@ describe("Test Network Properties", () => {
             id: 0
           }
         });
-        const body = JSON.parse(res.getBody("utf8"));
-        assert.strictEqual(res.statusCode, 200);
-        assert.strictEqual(body["result"], "0x2");
+        assert.strictEqual(statusCode, 200);
+        assert.strictEqual(body.result, "0x2");
       });
 
       it("Block number is higher than 0", async () => {
-        const res = await request("POST", nodes[i], {
+        const { statusCode, body } = await request(nodes[i], {
+          ...options,
+          method: "POST",
           json: {
             jsonrpc: "2.0",
             method: "eth_blockNumber",
@@ -56,9 +75,8 @@ describe("Test Network Properties", () => {
             id: 0
           }
         });
-        const body = JSON.parse(res.getBody("utf8"));
-        assert.strictEqual(res.statusCode, 200);
-        assert.ok(body["result"] > 0);
+        assert.strictEqual(statusCode, 200);
+        assert.ok(body.result > 0);
       });
     });
   });

@@ -15,10 +15,8 @@ echo "Starting node #1 ..."
 export NODE_ID=1
 source ./setup_node.sh --test &> /dev/null
 
-sleep 5
-
 echo "Starting tests ..."
-$PROJECT_ROOT/node_modules/.bin/mocha $PROJECT_ROOT/test/parity-authority/native.test.js
+$PROJECT_ROOT/node_modules/.bin/mocha $PROJECT_ROOT/test/parity-authority/native.test.js --timeout 5000
 echo "Tests finished!"
 
 echo "Clean up ..."

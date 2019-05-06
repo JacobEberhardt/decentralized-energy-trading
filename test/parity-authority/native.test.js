@@ -1,64 +1,83 @@
-const assert = require("assert");
-const request = require("sync-request");
+const chai = require("chai");
+const request = require("request-promise");
 const util = require("util");
 
+const { assert } = chai;
+
 const nodes = [0, 1];
-let title;
+
+const options = { resolveWithFullResponse: true };
 
 describe("Test Node Properties", () => {
   nodes.forEach(i => {
-    title = util.format("Test Node #%d", i);
-    describe(title, async () => {
-      const res = await request("POST", "http://localhost:854" + i, {
-        json: {
-          jsonrpc: "2.0",
-          method: "personal_listAccounts",
-          params: [],
-          id: 0
-        }
+    let response;
+
+    describe(util.format("Test Node #%d", i), () => {
+      before(async () => {
+        response = await request("http://localhost:854" + i, {
+          method: "POST",
+          json: {
+            jsonrpc: "2.0",
+            method: "personal_listAccounts",
+            params: [],
+            id: 0
+          },
+          ...options
+        });
       });
-      const body = JSON.parse(res.getBody("utf8"));
+
       it("Return response code 200", () => {
-        assert.strictEqual(res.statusCode, 200);
+        assert.strictEqual(response.statusCode, 200);
       });
 
       it("Node should have one account", () => {
-        assert.strictEqual(body["result"].length, 1);
+        assert.strictEqual(response.body.result.length, 1);
       });
     });
   });
 });
 
-describe("Test Network Properties", () => {
+describe.only("Test Network Properties", () => {
   nodes.forEach(i => {
-    title = util.format("Test Node #%d", i);
-    describe(title, () => {
+    describe(util.format("Test Node #%d", i), function() {
+      // delay in each retry after first failure
+      beforeEach(function(done) {
+        if (this.currentTest.currentRetry() > 0) {
+          setTimeout(done, this.currentTest.currentRetry() * 500);
+        } else {
+          done();
+        }
+      });
+      this.retries(10);
+
       it("Node have one peer", async () => {
-        const res = await request("POST", "http://localhost:854" + i, {
+        const { statusCode, body } = await request("http://localhost:854" + i, {
+          method: "POST",
           json: {
             jsonrpc: "2.0",
             method: "net_peerCount",
             params: [],
             id: 0
-          }
+          },
+          ...options
         });
-        const body = JSON.parse(res.getBody("utf8"));
-        assert.strictEqual(res.statusCode, 200);
-        assert.strictEqual(body["result"], "0x1");
+        assert.strictEqual(statusCode, 200);
+        assert.strictEqual(body.result, "0x1");
       });
 
-      it.skip("Block number is higher than 0", async () => {
-        const res = await request("POST", "http://localhost:854" + i, {
+      it.skip("Block number is higher than 0", async function() {
+        const { statusCode, body } = await request("http://localhost:854" + i, {
+          method: "POST",
           json: {
             jsonrpc: "2.0",
             method: "eth_blockNumber",
             params: [],
             id: 0
-          }
+          },
+          ...options
         });
-        const body = JSON.parse(res.getBody("utf8"));
-        assert.strictEqual(res.statusCode, 200);
-        assert.ok(body["result"] > 0);
+        assert.strictEqual(statusCode, 200);
+        assert.ok(body.result > 0);
       });
     });
   });
