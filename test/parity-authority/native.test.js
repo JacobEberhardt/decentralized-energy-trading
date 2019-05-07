@@ -8,30 +8,22 @@ const nodes = [0, 1];
 
 const options = { resolveWithFullResponse: true };
 
-describe("Test Node Properties", () => {
+describe.only("Test Node Properties", () => {
   nodes.forEach(i => {
-    let response;
-
     describe(util.format("Test Node #%d", i), () => {
-      before(async () => {
-        response = await request("http://localhost:854" + i, {
+      it("Node should have one account", async () => {
+        const { statusCode, body } = await request("http://localhost:854" + i, {
           method: "POST",
           json: {
             jsonrpc: "2.0",
             method: "personal_listAccounts",
             params: [],
-            id: 0
+            id: 0,
           },
-          ...options
+          ...options,
         });
-      });
-
-      it("Return response code 200", () => {
-        assert.strictEqual(response.statusCode, 200);
-      });
-
-      it("Node should have one account", () => {
-        assert.strictEqual(response.body.result.length, 1);
+        assert.strictEqual(statusCode, 200);
+        assert.strictEqual(body.result.length, 1);
       });
     });
   });
@@ -57,9 +49,9 @@ describe.only("Test Network Properties", () => {
             jsonrpc: "2.0",
             method: "net_peerCount",
             params: [],
-            id: 0
+            id: 0,
           },
-          ...options
+          ...options,
         });
         assert.strictEqual(statusCode, 200);
         assert.strictEqual(body.result, "0x1");
@@ -72,9 +64,9 @@ describe.only("Test Network Properties", () => {
             jsonrpc: "2.0",
             method: "eth_blockNumber",
             params: [],
-            id: 0
+            id: 0,
           },
-          ...options
+          ...options,
         });
         assert.strictEqual(statusCode, 200);
         assert.ok(body.result > 0);

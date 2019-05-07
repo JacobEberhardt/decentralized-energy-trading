@@ -10,28 +10,21 @@ const options = { resolveWithFullResponse: true };
 describe("Test Node Properties", () => {
   nodes.forEach((node, i) => {
     describe(util.format("Test Node #%d", i), () => {
-      let response;
 
-      before(async () => {
-        response = await request(nodes[i], {
-          ...options,
+      it("Node should have two accounts (authority + test account)", async () => {
+        const { statusCode, body } = await request(nodes[i], {
           method: "POST",
           json: {
             jsonrpc: "2.0",
             method: "personal_listAccounts",
             params: [],
-            id: 0
-          }
+            id: 0,
+          },
+          ...options,
         });
-      });
-
-      it("Return response code 200", () => {
-        assert.strictEqual(response.statusCode, 200);
-      });
-
-      it("Node should have two accounts (authority + test account)", () => {
         // NOTE: Including test account with a lot of ETH which is not a authority.
-        assert.strictEqual(response.body.result.length, 2);
+        assert.strictEqual(statusCode, 200);
+        assert.strictEqual(body.result.length, 2);
       });
     });
   });
@@ -57,8 +50,8 @@ describe("Test Network Properties", () => {
             jsonrpc: "2.0",
             method: "net_peerCount",
             params: [],
-            id: 0
-          }
+            id: 0,
+          },
         });
         assert.strictEqual(statusCode, 200);
         assert.strictEqual(body.result, "0x2");
@@ -72,8 +65,8 @@ describe("Test Network Properties", () => {
             jsonrpc: "2.0",
             method: "eth_blockNumber",
             params: [],
-            id: 0
-          }
+            id: 0,
+          },
         });
         assert.strictEqual(statusCode, 200);
         assert.ok(body.result > 0);
