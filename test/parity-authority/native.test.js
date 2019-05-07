@@ -18,9 +18,9 @@ describe.only("Test Node Properties", () => {
             jsonrpc: "2.0",
             method: "personal_listAccounts",
             params: [],
-            id: 0,
+            id: 0
           },
-          ...options,
+          ...options
         });
         assert.strictEqual(statusCode, 200);
         assert.strictEqual(body.result.length, 1);
@@ -49,9 +49,9 @@ describe.only("Test Network Properties", () => {
             jsonrpc: "2.0",
             method: "net_peerCount",
             params: [],
-            id: 0,
+            id: 0
           },
-          ...options,
+          ...options
         });
         assert.strictEqual(statusCode, 200);
         assert.strictEqual(body.result, "0x1");
@@ -64,9 +64,9 @@ describe.only("Test Network Properties", () => {
             jsonrpc: "2.0",
             method: "eth_blockNumber",
             params: [],
-            id: 0,
+            id: 0
           },
-          ...options,
+          ...options
         });
         assert.strictEqual(statusCode, 200);
         assert.ok(body.result > 0);
