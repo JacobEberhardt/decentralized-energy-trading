@@ -42,7 +42,7 @@ contract("Utility", ([owner, household, other]) => {
     });
   });
 
-  describe("Record household energy production/consumption", () => {
+  describe("Record household energy production and consumption", () => {
     beforeEach(async () => {
       await this.instance.addHousehold(household); // Add dummy household
     });
@@ -57,6 +57,22 @@ contract("Utility", ([owner, household, other]) => {
         );
         expect(netRenewableEnergy).to.be.bignumber.equal("5");
       });
+
+      it("emits event RenewableEnergyChanged", async () => {
+        ({ logs: this.logs } = await this.instance.updateRenewableEnergy(
+          household,
+          10,
+          5,
+          {
+            from: household
+          }
+        ));
+
+        expectEvent.inLogs(this.logs, "RenewableEnergyChanged", {
+          household: household,
+          energy: new BN(5)
+        });
+      });
     });
 
     context("Non-renewable energy", async () => {
@@ -68,6 +84,22 @@ contract("Utility", ([owner, household, other]) => {
           household
         );
         expect(netNonRenewableEnergy).to.be.bignumber.equal("5");
+      });
+
+      it("emits event NonRenewableEnergyChanged", async () => {
+        ({ logs: this.logs } = await this.instance.updateNonRenewableEnergy(
+          household,
+          10,
+          5,
+          {
+            from: household
+          }
+        ));
+
+        expectEvent.inLogs(this.logs, "NonRenewableEnergyChanged", {
+          household: household,
+          energy: new BN(5)
+        });
       });
     });
 
@@ -106,7 +138,7 @@ contract("Utility", ([owner, household, other]) => {
     });
   });
 
-  describe("Record total energy production/consumption", () => {
+  describe("Record total energy production and consumption", () => {
     beforeEach(async () => {
       await this.instance.addHousehold(household); // Add dummy household
     });

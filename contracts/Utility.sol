@@ -179,7 +179,14 @@ contract Utility is IUtility, Mortal {
     int256 netProducedEnergy = _producedEnergy - _consumedEnergy;
 
     // Todo: create/use a library for safe arithmetic
-    require(netProducedEnergy <= _producedEnergy, "Subtraction overflow.");
+    /*
+     * If _producedEnergy and _consumedEnergy are positive, there cant be any subtraction overflow. Consider the following:
+     * MAX_int256 - MAX_int256; no overflow,
+     * 0 - MAX_int256; because MAX_int256 = 2**256/2 -1 = 2**255 -1 no overflow,
+     * MAX_int256 - 0; no overflow.
+     * Library for safe arithmetic need to handle MAX_int256 +1, etc. but with respect to int256 its pretty unusual to overflow int256
+     */
+    //require(netProducedEnergy <= _producedEnergy, "Subtraction overflow.");
 
     Household storage hh = households[_household];
     if (_isRenewable) {
