@@ -1,6 +1,4 @@
-# decentralized-energy-trading
-
-Repository of ISE CP Project Summer 2019.
+# Household Server  
 
 ## Running the Household Server:
 Requirements:

@@ -59,6 +59,22 @@ typings/
 
 # truffle build
 build
+.idea/decentralized-energy-trading.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
+.idea/workspace.xml
+package-lock.json
+.idea/codeStyles/codeStyleConfig.xml
+.idea/codeStyles/codeStyleConfig.xml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/jsLinters/jslint.xml
 
 # vscode
 .vscode/*
+
+# macOS files
+.DS_Store
+
+# Parity
+**/bootnode.key
