@@ -11,7 +11,7 @@ Our contract is structured in the following way:
 
 ## Getting started
 
-Execute
+Run Ethereum client of your choice. Execute the following commands.
 
 ```shell
   # Install dependecies
@@ -23,6 +23,8 @@ Execute
   # Test contracts
   $ truffle test
 ```
+
+You can run the tests with `yarn test-contracts` without running a local Ethereum client.
 
 ## Common functions
 
