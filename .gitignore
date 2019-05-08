@@ -72,3 +72,9 @@ package-lock.json
 
 # vscode
 .vscode/*
+
+# macOS files
+.DS_Store
+
+# Parity
+**/bootnode.key

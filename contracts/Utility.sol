@@ -52,16 +52,7 @@ contract Utility is IUtility, Mortal {
    * @return success bool if household does not already exists, should only be called by some authority
    */
   function addHousehold(address _household) external onlyOwner returns (bool) {
-    require(!households[_household].initialized, "Household already exists.");
-
-    // add new household to mapping
-    Household storage hh = households[_household];
-    hh.initialized = true;
-    hh.renewableEnergy = 0;
-    hh.nonRenewableEnergy = 0;
-
-    emit NewHousehold(_household);
-    return true;
+    return _addHousehold(_household);
   }
 
   /**
@@ -157,6 +148,24 @@ contract Utility is IUtility, Mortal {
   }
 
   /**
+   * @dev see Utility.addHousehold
+   * @param _household address of household
+   * @return bool success
+   */
+  function _addHousehold(address _household) internal returns (bool) {
+    require(!households[_household].initialized, "Household already exists.");
+
+    // add new household to mapping
+    Household storage hh = households[_household];
+    hh.initialized = true;
+    hh.renewableEnergy = 0;
+    hh.nonRenewableEnergy = 0;
+
+    emit NewHousehold(_household);
+    return true;
+  }
+
+  /**
    * @dev Updates a household's energy state
    * @param _household address of the household owner/ parity node ?
    * @param _producedEnergy int256 of the produced energy
@@ -179,7 +188,14 @@ contract Utility is IUtility, Mortal {
     int256 netProducedEnergy = _producedEnergy - _consumedEnergy;
 
     // Todo: create/use a library for safe arithmetic
-    require(netProducedEnergy <= _producedEnergy, "Subtraction overflow.");
+    /*
+     * If _producedEnergy and _consumedEnergy are positive, there cant be any subtraction overflow. Consider the following:
+     * MAX_int256 - MAX_int256; no overflow,
+     * 0 - MAX_int256; because MAX_int256 = 2**256/2 -1 = 2**255 -1 no overflow,
+     * MAX_int256 - 0; no overflow.
+     * Library for safe arithmetic need to handle MAX_int256 +1, etc. but with respect to int256 its pretty unusual to overflow int256
+     */
+    //require(netProducedEnergy <= _producedEnergy, "Subtraction overflow.");
 
     Household storage hh = households[_household];
     if (_isRenewable) {
