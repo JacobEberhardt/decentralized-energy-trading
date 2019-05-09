@@ -2,7 +2,7 @@ const { MongoClient } = require("mongodb");
 
 module.exports = {
   /**
-   * Method to create the DB and Initialize it with a Collection
+   * Method to create the DB and initialize it with a collection
    * @param url URL/URI of the DB
    */
   createDB: url => {
@@ -19,7 +19,7 @@ module.exports = {
   },
 
   /**
-   * Method to write data to the database. Should be added as Eventlistener to incoming PUT requests of the Sensors
+   * Method to write data to the database. Should be added as an event listener to incoming PUT requests of the Sensors
    * @param data the data to add to the DB
    * @param url URL/URI of the DB
    */
@@ -38,7 +38,7 @@ module.exports = {
 
   /**
    * Method to read data from the database
-   * Should be added as an Eventlistener for incoming GET Requests from the UI
+   * Should be added as an event listener for incoming GET requests from the UI
    * @param url URL/URI of the DB
    */
   readAll: url => {

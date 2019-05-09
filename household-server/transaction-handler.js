@@ -11,8 +11,9 @@ const truffleConfig = require("../truffle-config");
  */
 module.exports = {
   /**
-   * Initialize web3 instance based truffle config.
+   * Initialize web3 instance based on truffle config.
    * @param {string} network Name of network for JSON RPC.
+   * @returns {Object} New web3 instance.
    */
   initWeb3: (network = "ganache") => {
     const { host, port } = truffleConfig.networks[network];
@@ -20,8 +21,10 @@ module.exports = {
   },
   /**
    * Call `updateRenewableEnergy` contract method.
-   * @param {Object} web3
-   * @param {Object} payload
+   * @param {Object} web3 Web3 instance.
+   * @param {{ produce: number, consume: number }} payload The parameters for calling
+   * `updateRenewableEnergy` function.
+   * @returns {Promise<Object>} Promise containing the transaction receipt.
    */
   updateRenewableEnergy: async (web3, payload) => {
     const { produce, consume } = payload;

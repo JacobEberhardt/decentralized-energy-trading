@@ -14,6 +14,7 @@
     "format-all": "eslint household-server/ household-ui/ mock-sensor/ test/ --fix && yarn format-contracts",
     "format-contracts": "solium -d contracts/ --fix",
     "run-ganache": "ganache-cli -i 123456 -d edge wage lab clever gap defense lend broken lumber tumble cousin blush",
+    "migrate-contracts-ganache": "truffle migrate --reset hard --network ganache",
     "test-parity-native": "./scripts/run_native_parity_tests.sh",
     "test-parity-docker": "./scripts/run_docker_parity_tests.sh"
   },

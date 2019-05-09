@@ -17,7 +17,7 @@ yarn install
   port: 3002,
   // Path to the parity key file json of the authority node that is connected to the household server
   authKeyPath: "parity-authority/docker/parity/authorities/authority0.json",
-  // Path to the password file to unlock above key file
+  // Path to the password file to unlock above authority node
   authPasswordPath: "parity-authority/docker/parity/authorities/authority0.pwd",
   // Name of JSON RPC interface specified in `truffle-config.js`
   network: "authority"
@@ -30,7 +30,7 @@ yarn install
 yarn run-server
 
 # The console now should print
-Household Server running at http://127.0.0.1:3000/
+Household Server running at http://127.0.0.1:3002/
 Database created!
 Collection created!
 ``` 
