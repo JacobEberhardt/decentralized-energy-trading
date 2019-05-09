@@ -5,8 +5,9 @@
   "scripts": {
     "compile-contracts": "truffle compile",
     "migrate-contracts": "truffle migrate",
-    "test-contracts": "truffle test ./test/contracts/* --network develop",
-    "test-contracts:win32:win64": "truffle test ./test/contracts/utility.test.js --network develop && truffle test ./test/contracts/fifsUtility.test.js --network develop",
+    "test-contracts": "run-script-os",
+    "test-contracts:linux:darwin": "truffle test './test/contracts/*' --network develop",
+    "test-contracts:win32": "truffle test ./test/contracts/utility.test.js --network develop && truffle test ./test/contracts/fifsUtility.test.js --network develop",
     "run-server": "node ./household-server/index.js",
     "run-ui": "node ./household-ui/index.js",
     "run-sensor": "node ./mock-sensor/index.js",
@@ -34,6 +35,7 @@
     "openzeppelin-solidity": "^2.2.0",
     "openzeppelin-test-helpers": "^0.3.2",
     "prettier": "^1.17.0",
+    "run-script-os": "^1.0.5",
     "solium": "^1.2.4",
     "truffle": "^5.0.13"
   },
