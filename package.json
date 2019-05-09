@@ -7,7 +7,7 @@
     "migrate-contracts": "truffle migrate",
     "test-contracts": "run-script-os",
     "test-contracts:linux:darwin": "truffle test './test/contracts/*' --network develop",
-    "test-contracts:win32": "truffle test ./test/contracts/utility.test.js --network develop && truffle test ./test/contracts/fifsUtility.test.js --network develop",
+    "test-contracts:win32": ".\\test-contracts.bat",
     "run-server": "node ./household-server/index.js",
     "run-ui": "node ./household-ui/index.js",
     "run-sensor": "node ./mock-sensor/index.js",
