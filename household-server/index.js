@@ -1,6 +1,5 @@
-const http = require("http");
+const express = require("express");
 const events = require("events");
-
 const dbHandler = require("./db-handler");
 // const txHandler = require("./transaction-handler");
 const mockSensor = require("./mock-sensor-data");
@@ -31,54 +30,62 @@ eventEmitter.on(EVENTS.UI_REQUEST, () => dbHandler.findByID(dbUrl, 1));
 // );
 
 /**
- * Creating the http server waiting for incoming requests
+ * Creating the express server waiting for incoming requests
  * When a request comes in, a corresponding event is emitted
- * At last a response is sended to the requester
+ * At last a response is sent to the requester
  */
-const server = http.createServer((req, res) => {
-  console.log(req.method, "Request received");
-  let statusMsg = "";
+const app = express();
 
-  switch (req.method) {
-    // Get requests from the UI
-    case "GET":
-      eventEmitter.emit(EVENTS.UI_REQUEST, dbUrl);
-      res.statusCode = 200;
-      statusMsg = "Success";
-      break;
+/**
+ * GET request for the UI
+ */
+app.get("/", function(req, res, next) {
+  eventEmitter.emit(EVENTS.UI_REQUEST, dbUrl);
+  res.statusCode = 200;
+  res.end("Success");
+});
 
-    // PUT Requests from the Sensors
-    case "PUT":
-      const data = mockSensor.createMockData(2, 0, 100);
-      // preparing mock data
-      const payload = {
-        consume: data[0],
-        produce: data[1]
-      };
+/**
+ * PUT request from the sensors
+ */
+app.put("/", function(req, res, next) {
+  const data = mockSensor.createMockData(2, 0, 100);
+  // preparing mock data
+  const payload = {
+    consume: data[0],
+    produce: data[1]
+  };
 
-      eventEmitter.emit(EVENTS.SENSOR_INPUT, payload);
-      res.statusCode = 200;
-      statusMsg = "Success";
-      break;
+  eventEmitter.emit(EVENTS.SENSOR_INPUT, payload);
+  res.statusCode = 200;
+  res.end("Success");
+});
 
-    // Default for any other
-    default:
-      res.statusCode = 400;
-      statusMsg =
-        req.method +
-        " is not supported. Try GET for UI Requests or PUT for Sensor data\n";
-      break;
-  }
+/**
+ * POST request not supported
+ */
+app.post("/", function(req, res, next) {
+  res.statusCode = 400;
+  res.end(
+    req.method +
+      " is not supported. Try GET for UI Requests or PUT for Sensor data!\n"
+  );
+});
 
-  // Sending Response
-  console.log("Sending response");
-  res.setHeader("Content-Type", "text/plain");
-  res.end(statusMsg);
+/**
+ * DELETE request not supported
+ */
+app.delete("/", function(req, res, next) {
+  res.statusCode = 400;
+  res.end(
+    req.method +
+      " is not supported. Try GET for UI Requests or PUT for Sensor data\n"
+  );
 });
 
 /**
  * Let the server listen to incoming requests on the given IP:Port
  */
-server.listen(port, host, () => {
+app.listen(port, () => {
   console.log(`Household Server running at http://${host}:${port}/`);
 });
