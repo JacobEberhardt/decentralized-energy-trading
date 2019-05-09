@@ -1,15 +1,18 @@
+const { readFileSync } = require("./file");
+const { authKeyPath, authPasswordPath } = require("../household-server-config");
+
 module.exports = {
   /**
    * Returns address and password of household / authority from respective parity files.
-   * NOTE: Hardcoded until setup ready.
+   * The paths are specified in `household-server-config.js`.
    */
   getAddressAndPassword: () => {
-    // TODO: Read address and password from `./parity-authority once properly setup`
-    const address = "0x90f8bf6a479f320ead074411a4b0e7944ea8c9c1";
-    const password = "";
+    const password = readFileSync(`./${authPasswordPath}`);
+    const keyFileJson = readFileSync(`./${authKeyPath}`);
+    const { address } = JSON.parse(keyFileJson);
     return {
-      address,
-      password
+      address: `0x${address}`,
+      password: password.split("\n")[0]
     };
   }
 };
