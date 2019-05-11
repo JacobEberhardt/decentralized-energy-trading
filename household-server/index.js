@@ -1,16 +1,17 @@
 const http = require("http");
 const events = require("events");
-const dbhandler = require("./db-handler");
-// const txhandler = require("./transaction-handler");
-const MockData = require("./mock-sensor-data");
 
-// Setting up the DB
-const url = "mongodb://localhost:27017/sensordata/";
-dbhandler.createDB(url);
+const dbHandler = require("./db-handler");
+const txHandler = require("./transaction-handler");
+const mockSensor = require("./mock-sensor-data");
 
-// Config of server
-const hostname = "127.0.0.1";
-const port = 3000;
+const { host, port, dbUrl, network } = require("../household-server-config");
+
+// Set up the DB
+dbHandler.createDB(dbUrl);
+
+// Set up web3
+const web3 = txHandler.initWeb3(network);
 
 // Defining Events
 const EVENTS = {
@@ -20,9 +21,13 @@ const EVENTS = {
 
 // Adding Event Listener
 const eventEmitter = new events.EventEmitter();
-eventEmitter.on(EVENTS.SENSOR_INPUT, dbhandler.writetoDB);
-eventEmitter.on(EVENTS.UI_REQUEST, dbhandler.readall);
-// em.on(EVENTS.SENSOR_INPUT, txhandler);
+eventEmitter.on(EVENTS.UI_REQUEST, () => dbHandler.readAll(dbUrl));
+eventEmitter.on(EVENTS.SENSOR_INPUT, payload =>
+  dbHandler.writeToDB(payload, dbUrl)
+);
+eventEmitter.on(EVENTS.SENSOR_INPUT, payload =>
+  txHandler.updateRenewableEnergy(web3, payload)
+);
 
 /**
  * Creating the http server waiting for incoming requests
@@ -31,34 +36,34 @@ eventEmitter.on(EVENTS.UI_REQUEST, dbhandler.readall);
  */
 const server = http.createServer((req, res) => {
   console.log(req.method, "Request received");
-  let statusmsg = "";
+  let statusMsg = "";
 
   switch (req.method) {
     // Get requests from the UI
     case "GET":
-      eventEmitter.emit(EVENTS.UI_REQUEST, url);
+      eventEmitter.emit(EVENTS.UI_REQUEST, dbUrl);
       res.statusCode = 200;
-      statusmsg = "Success";
+      statusMsg = "Success";
       break;
 
     // PUT Requests from the Sensors
     case "PUT":
-      let data = MockData.createMockData(2, 0, 100);
+      const data = mockSensor.createMockData(2, 0, 100);
       // preparing mock data
-      let mockobj = {
+      const payload = {
         consume: data[0],
         produce: data[1]
       };
 
-      eventEmitter.emit(EVENTS.SENSOR_INPUT, mockobj, url);
+      eventEmitter.emit(EVENTS.SENSOR_INPUT, payload);
       res.statusCode = 200;
-      statusmsg = "Success";
+      statusMsg = "Success";
       break;
 
     // Default for any other
     default:
       res.statusCode = 400;
-      statusmsg =
+      statusMsg =
         req.method +
         " is not supported. Try GET for UI Requests or PUT for Sensor data\n";
       break;
@@ -67,12 +72,12 @@ const server = http.createServer((req, res) => {
   // Sending Response
   console.log("Sending response");
   res.setHeader("Content-Type", "text/plain");
-  res.end(statusmsg);
+  res.end(statusMsg);
 });
 
 /**
  * Let the server listen to incoming requests on the given IP:Port
  */
-server.listen(port, hostname, () => {
-  console.log(`Household Server running at http://${hostname}:${port}/`);
+server.listen(port, host, () => {
+  console.log(`Household Server running at http://${host}:${port}/`);
 });

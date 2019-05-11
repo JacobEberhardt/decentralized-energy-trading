@@ -15,11 +15,14 @@
     "lint-contracts": "solium -d contracts/",
     "format-all": "eslint household-server/ household-ui/ mock-sensor/ test/ --fix && yarn format-contracts",
     "format-contracts": "solium -d contracts/ --fix",
+    "run-ganache": "ganache-cli -i 123456 -d edge wage lab clever gap defense lend broken lumber tumble cousin blush",
+    "migrate-contracts-ganache": "truffle migrate --reset hard --network ganache",
+    "migrate-contracts-authority": "truffle migrate --reset hard --network authority",
     "test-parity-native": "./scripts/run_native_parity_tests.sh",
-    "test-parity-docker": "./scripts/run_docker_parity_tests.sh"
+    "test-parity-docker": "./scripts/run_docker_parity_tests.sh",
+    "test-helpers": "mocha ./test/helpers/*.js"
   },
   "devDependencies": {
-    "bn.js": "^4.11.8",
     "chai": "^4.2.0",
     "chai-bignumber": "^3.0.0",
     "chai-bn": "^0.1.1",
@@ -31,6 +34,7 @@
     "eslint-plugin-prettier": "^3.0.1",
     "eslint-plugin-promise": "^4.1.1",
     "eslint-plugin-standard": "^4.0.0",
+    "ganache-cli": "^6.4.3",
     "mocha": "^6.1.4",
     "openzeppelin-solidity": "^2.2.0",
     "openzeppelin-test-helpers": "^0.3.2",
@@ -40,6 +44,9 @@
     "truffle": "^5.0.13"
   },
   "dependencies": {
+    "bn.js": "^4.11.8",
+    "mongodb": "^3.2.3",
+    "web3": "^1.0.0-beta.54",
     "request": "^2.88.0",
     "request-promise": "^4.2.4"
   }
