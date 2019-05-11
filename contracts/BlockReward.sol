@@ -39,7 +39,7 @@ contract BlockReward is IBlockReward {
   /**
    * @dev Produce reward for given benefectors with corresponding reward codes.
    *      Only callable by `SYSTEM_ADDRESS`.
-   * @param benefectors Validator addresses
+   * @param benefactors Validator addresses
    * @param kind Reward codes
    * @return Validator addresses with respective rewards.
    */

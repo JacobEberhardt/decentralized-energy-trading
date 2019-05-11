@@ -24,7 +24,7 @@ The JSON key and password files of the authority nodes are under `./parity/autho
 Talk to JSON RPC at [http://127.0.0.1:8545](http://127.0.0.1:8545) with your favorite client.
 
 ## Run tests
-Make sure to have dependencies installed via `yarn install`. Now you can run the tests in `${PROJECT_ROOT}/test/parity-authority/docker.test.js` via `yarn test-parity-docker`.
+Make sure to have dependencies installed via `yarn install`. Now you can run the tests in `<PROJECT_ROOT>/test/parity-authority/docker.test.js` via `yarn test-parity-docker`.
 
 ## Update Contracts
 To update the `BlockReward`, `Utility` or `ValidatorSet` contract you have to update the respective byte code of the contract in chain spec file under `./parity/config/chain.json`.
@@ -63,4 +63,4 @@ This will generate / update the contract artifacts in `<PROJECT_ROOT>/build/cont
   }
 }
 ```
-4. Make sure cleanup the chain via `docker-compose down -v` before starting it with the new chain spec.
+4. Make sure to cleanup the chain via `docker-compose down -v` before starting it with the new chain spec.
