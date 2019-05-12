@@ -43,7 +43,7 @@ contract Utility is IUtility, Mortal {
   }
 
   /* solium-disable-next-line */
-  constructor() public Owned() { }
+  constructor() public Ownable() { }
 
   /**
    * @dev Create a household with address _household to track energy production and consumption.
