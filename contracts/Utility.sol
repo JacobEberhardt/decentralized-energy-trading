@@ -6,7 +6,7 @@ import "./Mortal.sol";
 
 /**
  * @title Utility
- * @notice Tracks production/consumption of energy of all households. Settles energy requests by distributing existing energy as fair as possible (netting).
+ * @notice Tracks energy production andconsumption of all households. Settles energy requests by distributing existing energy as fair as possible (netting).
  * @dev Implements interface IUtility.
  */
 contract Utility is IUtility, Mortal {
@@ -17,17 +17,25 @@ contract Utility is IUtility, Mortal {
 
   // total renewable energy in the system
   int256 public totalRenewableEnergy;
+  // total produced and consumed renewable energy
+  int256 public totalConsumedRenewableEnergy;
+  int256 public totalProducedRenewableEnergy;
+
   // total non-renewable energy in the system
   int256 public totalNonRenewableEnergy;
+  // total produced and consumed non-renewable energy
+  int256 public totalConsumedNonRenewableEnergy;
+  int256 public totalProducedNonRenewableEnergy;
 
   struct Household {
     // for checks if household exists
     bool initialized;
 
-    // total renewable/ non-renewable energy household
+    // total renewable and non-renewable energy household
     int256 renewableEnergy;
     int256 nonRenewableEnergy;
 
+    // produced and consumed renewable and non-renewable energy
     int256 producedRenewableEnergy;
     int256 consumedRenewableEnergy;
     int256 producedNonRenewableEnergy;
@@ -120,12 +128,46 @@ contract Utility is IUtility, Mortal {
   }
 
   /**
+   * @dev Get total consumed energy
+   * @return int256 total consumed energy
+   */
+  function totalConsumedEnergy() external view returns (int256) {
+    return totalConsumedRenewableEnergy + totalConsumedNonRenewableEnergy;
+  }
+
+  /**
+   * @dev Get total produced energy
+   * @return int256 total produced energy
+   */
+  function totalProducedEnergy() external view returns (int256) {
+    return totalProducedRenewableEnergy + totalProducedNonRenewableEnergy;
+  }
+
+  /**
    * @dev Get energy of _household
    * @param _household address of the household owner/ parity node ?
    * @return int256 energy of _household if _household exists
    */
   function balanceOf(address _household) external view householdExists(_household) returns (int256) {
     return households[_household].renewableEnergy + households[_household].nonRenewableEnergy;
+  }
+
+  /**
+   * @dev Get consumed energy of _household
+   * @param _household address of the household owner/ parity node ?
+   * @return int256 consumed energy of _household if _household exists
+   */
+  function balanceOfConsumedEnergy(address _household) external view householdExists(_household) returns (int256) {
+    return households[_household].consumedRenewableEnergy + households[_household].consumedNonRenewableEnergy;
+  }
+
+  /**
+   * @dev Get produced energy of _household
+   * @param _household address of the household owner/ parity node ?
+   * @return int256 produced energy of _household if _household exists
+   */
+  function balanceOfProducedEnergy(address _household) external view householdExists(_household) returns (int256) {
+    return households[_household].producedRenewableEnergy + households[_household].producedNonRenewableEnergy;
   }
 
   /**
@@ -138,12 +180,48 @@ contract Utility is IUtility, Mortal {
   }
 
   /**
+   * @dev Get consumed renewable energy of _household
+   * @param _household address of the household owner/ parity node ?
+   * @return int256 consumed renewable energy of _household if _household exists
+   */
+  function balanceOfConsumedRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
+    return households[_household].consumedRenewableEnergy;
+  }
+
+  /**
+   * @dev Get produced renewable energy of _household
+   * @param _household address of the household owner/ parity node ?
+   * @return int256 produced renewable energy of _household if _household exists
+   */
+  function balanceOfProducedRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
+    return households[_household].producedRenewableEnergy;
+  }
+
+  /**
    * @dev Get non-renewable energy of _household
    * @param _household address of the household owner/ parity node ?
    * @return int256 non-renewable energy of _household if _household exists
    */
   function balanceOfNonRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
     return households[_household].nonRenewableEnergy;
+  }
+
+  /**
+   * @dev Get consumed non-renewable energy of _household
+   * @param _household address of the household owner/ parity node ?
+   * @return int256 consumed non-renewable energy of _household if _household exists
+   */
+  function balanceOfConsumedNonRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
+    return households[_household].consumedNonRenewableEnergy;
+  }
+
+  /**
+   * @dev Get produced non-renewable energy of _household
+   * @param _household address of the household owner/ parity node ?
+   * @return int256 produced non-renewable energy of _household if _household exists
+   */
+  function balanceOfProducedNonRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
+    return households[_household].producedNonRenewableEnergy;
   }
 
   /* solium-disable-next-line */
@@ -207,12 +285,18 @@ contract Utility is IUtility, Mortal {
       hh.consumedRenewableEnergy += _consumedEnergy;
       hh.producedRenewableEnergy += _producedEnergy;
       hh.renewableEnergy += netProducedEnergy;
+
+      totalConsumedRenewableEnergy += _consumedEnergy;
+      totalProducedRenewableEnergy += _producedEnergy;
       totalRenewableEnergy += netProducedEnergy;
       emit RenewableEnergyChanged(_household, netProducedEnergy);
     } else {
       hh.consumedNonRenewableEnergy += _consumedEnergy;
       hh.producedNonRenewableEnergy += _producedEnergy;
       hh.nonRenewableEnergy += netProducedEnergy;
+
+      totalConsumedNonRenewableEnergy += _consumedEnergy;
+      totalProducedNonRenewableEnergy += _producedEnergy;
       totalNonRenewableEnergy += netProducedEnergy;
       emit NonRenewableEnergyChanged(_household, netProducedEnergy);
     }
