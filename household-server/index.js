@@ -1,7 +1,7 @@
 const express = require("express");
 const events = require("events");
 const dbHandler = require("./db-handler");
-// const txHandler = require("./transaction-handler");
+const txHandler = require("./transaction-handler");
 const mockSensor = require("./mock-sensor-data");
 
 const { host, port, dbUrl } = require("./config");
@@ -10,7 +10,7 @@ const { host, port, dbUrl } = require("./config");
 dbHandler.createDB(dbUrl);
 
 // Set up web3
-// const web3 = txHandler.initWeb3();
+const web3 = txHandler.initWeb3();
 
 // Defining Events
 const EVENTS = {
@@ -25,9 +25,9 @@ eventEmitter.on(EVENTS.SENSOR_INPUT, payload =>
   dbHandler.writeToDB(payload, dbUrl)
 );
 eventEmitter.on(EVENTS.UI_REQUEST, () => dbHandler.findByID(dbUrl, 1));
-// eventEmitter.on(EVENTS.SENSOR_INPUT, payload =>
-//   txHandler.updateRenewableEnergy(web3, payload)
-// );
+eventEmitter.on(EVENTS.SENSOR_INPUT, payload =>
+  txHandler.updateRenewableEnergy(web3, payload)
+);
 
 /**
  * Creating the express server waiting for incoming requests
