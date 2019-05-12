@@ -61,7 +61,7 @@ contract Utility is IUtility, Mortal {
   /**
    * @dev Create a household with address _household to track energy production and consumption.
    * Emits NewHousehold when household was added successfully.
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @return success bool if household does not already exists, should only be called by some authority
    */
   function addHousehold(address _household) external onlyOwner returns (bool) {
@@ -70,7 +70,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Updates a household's renewable energy state calling _updateEnergy
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @param _producedEnergy int256 of the produced energy
    * @param _consumedEnergy int256 of the consumed energy
    * @return success bool returns true, if function was called successfully
@@ -89,7 +89,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Updates a household's non-renewable energy state calling _updateEnergy
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @param _producedEnergy int256 of the produced energy
    * @param _consumedEnergy int256 of the consumed energy
    * @return success bool returns true, if function was called successfully
@@ -108,7 +108,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Get energy properties of _household
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @return properties (initialized, renewableEnergy, nonRenewableEnergy) of _household if _household exists
    */
   function getHousehold(address _household) external view householdExists(_household) returns (bool, int256, int256) {
@@ -145,7 +145,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Get energy of _household
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @return int256 energy of _household if _household exists
    */
   function balanceOf(address _household) external view householdExists(_household) returns (int256) {
@@ -154,7 +154,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Get consumed energy of _household
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @return int256 consumed energy of _household if _household exists
    */
   function balanceOfConsumedEnergy(address _household) external view householdExists(_household) returns (int256) {
@@ -163,7 +163,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Get produced energy of _household
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @return int256 produced energy of _household if _household exists
    */
   function balanceOfProducedEnergy(address _household) external view householdExists(_household) returns (int256) {
@@ -172,7 +172,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Get renewable energy of _household
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @return int256 renewable energy of _household if _household exists
    */
   function balanceOfRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
@@ -181,7 +181,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Get consumed renewable energy of _household
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @return int256 consumed renewable energy of _household if _household exists
    */
   function balanceOfConsumedRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
@@ -190,7 +190,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Get produced renewable energy of _household
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @return int256 produced renewable energy of _household if _household exists
    */
   function balanceOfProducedRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
@@ -199,7 +199,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Get non-renewable energy of _household
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @return int256 non-renewable energy of _household if _household exists
    */
   function balanceOfNonRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
@@ -208,7 +208,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Get consumed non-renewable energy of _household
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @return int256 consumed non-renewable energy of _household if _household exists
    */
   function balanceOfConsumedNonRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
@@ -217,7 +217,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Get produced non-renewable energy of _household
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @return int256 produced non-renewable energy of _household if _household exists
    */
   function balanceOfProducedNonRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
@@ -250,7 +250,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Updates a household's energy state
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @param _producedEnergy int256 of the produced energy
    * @param _consumedEnergy int256 of the consumed energy
    * @param _isRenewable bool indicates whether said energy is renewable or non-renewable
