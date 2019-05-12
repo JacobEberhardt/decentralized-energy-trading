@@ -27,6 +27,11 @@ contract Utility is IUtility, Mortal {
     // total renewable/ non-renewable energy household
     int256 renewableEnergy;
     int256 nonRenewableEnergy;
+
+    int256 producedRenewableEnergy;
+    int256 consumedRenewableEnergy;
+    int256 producedNonRenewableEnergy;
+    int256 consumedNonRenewableEnergy;
   }
 
   // mapping of all households
@@ -199,10 +204,14 @@ contract Utility is IUtility, Mortal {
 
     Household storage hh = households[_household];
     if (_isRenewable) {
+      hh.consumedRenewableEnergy += _consumedEnergy;
+      hh.producedRenewableEnergy += _producedEnergy;
       hh.renewableEnergy += netProducedEnergy;
       totalRenewableEnergy += netProducedEnergy;
       emit RenewableEnergyChanged(_household, netProducedEnergy);
     } else {
+      hh.consumedNonRenewableEnergy += _consumedEnergy;
+      hh.producedNonRenewableEnergy += _producedEnergy;
       hh.nonRenewableEnergy += netProducedEnergy;
       totalNonRenewableEnergy += netProducedEnergy;
       emit NonRenewableEnergyChanged(_household, netProducedEnergy);
