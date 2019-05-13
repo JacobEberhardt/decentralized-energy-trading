@@ -5,7 +5,8 @@ const {
   BN,
   constants,
   expectEvent,
-  shouldFail
+  shouldFail,
+  time
 } = require("openzeppelin-test-helpers");
 const expect = require("chai").use(require("chai-bn")(BN)).expect;
 
@@ -13,34 +14,6 @@ contract("FifsUtility", ([owner, hh1, hh2, hh3, hh4]) => {
   beforeEach(async () => {
     this.instance = await FifsUtility.new({
       from: owner
-    });
-  });
-
-  describe("Checkpoint", () => {
-    beforeEach(async () => {
-      await this.instance.addHousehold(hh1);
-      await this.instance.addHousehold(hh2);
-      await this.instance.addHousehold(hh3);
-      await this.instance.addHousehold(hh4);
-    });
-
-    it("should be initialized with 0", async () => {
-      expect(await this.instance.checkpoint()).to.be.bignumber.that.is.zero;
-    });
-
-    context("After settlement", async () => {
-      beforeEach(async () => {
-        await this.instance.settle();
-      });
-
-      it("first settlement; should be 1", async () => {
-        expect(await this.instance.checkpoint()).to.be.bignumber.equal("1");
-      });
-
-      it("second settlement; should be 2", async () => {
-        await this.instance.settle();
-        expect(await this.instance.checkpoint()).to.be.bignumber.equal("2");
-      });
     });
   });
 
@@ -381,19 +354,18 @@ contract("FifsUtility", ([owner, hh1, hh2, hh3, hh4]) => {
       await this.instance.updateRenewableEnergy(hh4, 0, 100, {
         from: hh4
       });
-
-      await this.instance.settle();
     });
 
     it("check deeds in deeds mapping", async () => {
-      const checkpoint = await this.instance.checkpoint();
+      await this.instance.settle();
+      const settleBlockNumber = await time.latestBlock();
       const deedsArrayLength = await this.instance
-        .deedsLength(checkpoint - 1)
+        .deedsLength(settleBlockNumber)
         .then(result => result.toNumber());
 
       const deeds = [];
       for (let i = 0; i < deedsArrayLength; i++) {
-        deeds.push(await this.instance.deeds(checkpoint - 1, i));
+        deeds.push(await this.instance.deeds(settleBlockNumber, i));
       }
 
       expect(deeds[0].active).to.be.true; // active
