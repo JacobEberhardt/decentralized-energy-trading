@@ -169,7 +169,7 @@ contract FifsUtility is Utility {
 
   /**
    * @dev 'Finalizes' an energy transfer by emitting event EnergyTransfer
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @param _checkpoint uint256 the settlement number the sender wants to retrieve the reward
    * @return int256 the total amount of energy transferred by _household in settlement _checkpoint
    */
