@@ -1,10 +1,25 @@
 const express = require("express");
 const events = require("events");
+const commander = require("commander");
+
 const dbHandler = require("./db-handler");
 const txHandler = require("./transaction-handler");
 const mockSensor = require("./mock-sensor-data");
 
-const { host, port, dbUrl, network } = require("../household-server-config");
+const serverConfig = require("../household-server-config");
+
+// Specify cli options
+commander
+  .option("-h, --host", "ip of household server")
+  .option("-p, --port", "port of household server")
+  .option("-d, --dbUrl", "url of mongodb")
+  .option("-n, --network", "network name specified in truffle-config.js");
+commander.parse(process.argv);
+
+const host = commander.host || serverConfig.host;
+const port = commander.port || serverConfig.port;
+const dbUrl = commander.dbUrl || serverConfig.dbUrl;
+const network = commander.network || serverConfig.network;
 
 // Set up the DB
 dbHandler.createDB(dbUrl);
