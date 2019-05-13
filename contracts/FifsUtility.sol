@@ -3,6 +3,11 @@ pragma solidity >=0.5.0 <0.6.0;
 import "./Utility.sol";
 
 
+/**
+ * @title FifsUtility
+ * @notice Implements FIFS settle algorithm.
+ * @dev Inherits from Utility.
+ */
 contract FifsUtility is Utility {
   // number of successful settlements done
   // used for backtracking
@@ -23,8 +28,7 @@ contract FifsUtility is Utility {
     int256 nonRenewbaleEnergyTransferred;
   }
 
-  // (household, checkpoint) -> Deed[]
-  // mapping(address => mapping(uint256 => Deed[])) public deeds;
+  // checkpoint -> Deed[]
   mapping(uint256 => Deed[]) public deeds;
 
   constructor() public Utility() {
@@ -167,5 +171,14 @@ contract FifsUtility is Utility {
 
     checkpoint += 1;
     return true;
+  }
+
+  /**
+   * @dev Get length of deeds array
+   * @param _checkpoint uint256
+   * @return uint256 length of deeds array at _checkpoint
+   */
+  function deedsLength(uint256 _checkpoint) public view returns (uint256) {
+    return deeds[_checkpoint].length;
   }
 }
