@@ -1,7 +1,11 @@
 const Utility = artifacts.require("Utility");
-const UtilityBase = artifacts.require("UtilityBase");
 
-module.exports = function(deployer) {
-  deployer.deploy(Utility);
-  deployer.deploy(UtilityBase);
+module.exports = async (deployer, network, [authority]) => {
+  if (network === "ganache") {
+    await deployer.deploy(Utility);
+    const utilityInstance = await Utility.deployed();
+    await utilityInstance.addHousehold(authority);
+  } else {
+    deployer.deploy(Utility);
+  }
 };

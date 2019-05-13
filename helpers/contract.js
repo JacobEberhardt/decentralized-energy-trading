@@ -12,7 +12,7 @@ module.exports = {
    */
   getDeployedAddress: (networkId = "8995") => {
     const networkIds = Object.keys(UtilityArtifact.networks);
-    if (networkIds.indexOf(networkId) === -1) {
+    if (networkIds.indexOf(`${networkId}`) === -1) {
       throw new Error("No deployed contract for given network id.");
     }
     return UtilityArtifact.networks[networkId].address;

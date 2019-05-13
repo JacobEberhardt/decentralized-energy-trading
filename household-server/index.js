@@ -10,10 +10,13 @@ const serverConfig = require("../household-server-config");
 
 // Specify cli options
 commander
-  .option("-h, --host", "ip of household server")
-  .option("-p, --port", "port of household server")
-  .option("-d, --dbUrl", "url of mongodb")
-  .option("-n, --network", "network name specified in truffle-config.js");
+  .option("-h, --host <type>", "ip of household server")
+  .option("-p, --port <type>", "port of household server")
+  .option("-d, --dbUrl <type>", "url of mongodb")
+  .option(
+    "-n, --network <type>",
+    "network name specified in truffle-config.js"
+  );
 commander.parse(process.argv);
 
 const host = commander.host || serverConfig.host;

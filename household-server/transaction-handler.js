@@ -32,7 +32,7 @@ module.exports = {
     try {
       const contract = new web3.eth.Contract(
         contractHelper.getAbi(),
-        contractHelper.getDeployedAddress()
+        contractHelper.getDeployedAddress(await web3.eth.net.getId())
       );
       await web3.eth.personal.unlockAccount(address, password, 600);
       const txReceipt = await contract.methods

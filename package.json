@@ -15,7 +15,7 @@
     "lint-contracts": "solium -d contracts/",
     "format-all": "eslint household-server/ household-ui/ mock-sensor/ test/ --fix && yarn format-contracts",
     "format-contracts": "solium -d contracts/ --fix",
-    "run-ganache": "ganache-cli -i 123456 -d edge wage lab clever gap defense lend broken lumber tumble cousin blush",
+    "run-ganache": "ganache-cli --account '0xdcb15ba5d2caf586c22f0414f527201d2fb2424c92ced3efacd742a34e5b0db2,100000000000000000000' -i 1234",
     "migrate-contracts-ganache": "truffle migrate --reset hard --network ganache",
     "migrate-contracts-authority": "truffle migrate --reset hard --network authority",
     "test-parity-native": "./scripts/run_native_parity_tests.sh",
