@@ -198,12 +198,6 @@ contract("Utility", ([owner, household, other]) => {
       );
     });
 
-    it("should revert on overflow", async () => {
-      await shouldFail.reverting(
-        this.instance.updateRenewableEnergy(household, 0, constants.MAX_UINT256)
-      );
-    });
-
     it("should revert on negative _producedEnergy value", async () => {
       await shouldFail.reverting(
         this.instance.updateRenewableEnergy(household, -10, 10)
