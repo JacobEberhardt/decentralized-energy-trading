@@ -362,7 +362,7 @@ contract("FifsUtility", ([owner, hh1, hh2, hh3, hh4]) => {
     });
   });
 
-  describe.only("Deeds", () => {
+  describe("Deeds", () => {
     beforeEach(async () => {
       await this.instance.addHousehold(hh1);
       await this.instance.addHousehold(hh2);
@@ -387,9 +387,9 @@ contract("FifsUtility", ([owner, hh1, hh2, hh3, hh4]) => {
 
     it("check deeds in deeds mapping", async () => {
       const checkpoint = await this.instance.checkpoint();
-      const deedsArrayLength = new Number(
-        await this.instance.deedsLength(checkpoint - 1)
-      );
+      const deedsArrayLength = await this.instance
+        .deedsLength(checkpoint - 1)
+        .then(result => result.toNumber());
 
       const deeds = [];
       for (let i = 0; i < deedsArrayLength; i++) {
