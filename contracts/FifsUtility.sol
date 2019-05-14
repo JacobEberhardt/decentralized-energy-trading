@@ -1,14 +1,14 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "./Utility.sol";
+import "./UtilityBase.sol";
 
 
 /**
  * @title FifsUtility
  * @notice Implements FIFS settle algorithm.
- * @dev Inherits from Utility.
+ * @dev Inherits from UtilityBase.
  */
-contract FifsUtility is Utility {
+contract FifsUtility is UtilityBase {
   // iterable list of all households
   address[] public householdList;
   // iterable list of all current households with positive amount of renewable energy
@@ -28,7 +28,7 @@ contract FifsUtility is Utility {
   mapping(uint256 => Deed[]) public deeds;
 
   /**
-   * @dev Overrides addHousehold of Utility.sol
+   * @dev Overrides addHousehold of UtilityBase.sol
    */
   function addHousehold(address _household) external onlyOwner returns (bool) {
     if (super._addHousehold(_household)) {

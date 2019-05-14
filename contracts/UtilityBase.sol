@@ -3,16 +3,16 @@ pragma solidity >=0.5.0 <0.6.0;
 import "openzeppelin-solidity/contracts/drafts/SignedSafeMath.sol";
 
 
-import "./IUtility.sol";
+import "./interfaces/IUtility.sol";
 import "./Mortal.sol";
 
 
 /**
- * @title Utility
+ * @title UtilityBase
  * @notice Tracks energy production andconsumption of all households. Settles energy requests by distributing existing energy as fair as possible (netting).
  * @dev Implements interface IUtility.
  */
-contract Utility is IUtility, Mortal {
+contract UtilityBase is IUtility, Mortal {
   using SignedSafeMath for int256;
 
   /*

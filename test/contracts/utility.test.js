@@ -1,6 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */
-const Utility = artifacts.require("Utility");
+const UtilityBase = artifacts.require("UtilityBase");
 const {
   BN,
   constants,
@@ -9,9 +9,9 @@ const {
 } = require("openzeppelin-test-helpers");
 const expect = require("chai").use(require("chai-bn")(BN)).expect;
 
-contract("Utility", ([owner, household, other]) => {
+contract("UtilityBase", ([owner, household, other]) => {
   beforeEach(async () => {
-    this.instance = await Utility.new({
+    this.instance = await UtilityBase.new({
       from: owner
     });
   });
