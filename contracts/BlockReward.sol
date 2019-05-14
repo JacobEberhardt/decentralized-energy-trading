@@ -14,8 +14,8 @@
 
 pragma solidity ^0.5.0;
 
-import "./IBlockReward.sol";
-import "./IUtility.sol";
+import "./interfaces/IBlockReward.sol";
+import "./interfaces/IUtility.sol";
 
 
 contract BlockReward is IBlockReward {
