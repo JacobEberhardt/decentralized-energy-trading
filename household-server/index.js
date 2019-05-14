@@ -6,6 +6,8 @@ const dbHandler = require("./db-handler");
 const txHandler = require("./transaction-handler");
 const mockSensor = require("./mock-sensor-data");
 
+const web3Helper = require("../helpers/web3");
+
 const serverConfig = require("../household-server-config");
 
 // Specify cli options
@@ -28,8 +30,7 @@ const network = commander.network || serverConfig.network;
 dbHandler.createDB(dbUrl);
 
 // Set up web3
-
-const web3 = txHandler.initWeb3(network);
+const web3 = web3Helper.initWeb3(network);
 
 // Defining Events
 const EVENTS = {
