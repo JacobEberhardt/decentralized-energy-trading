@@ -14,7 +14,12 @@ module.exports = {
       const dbo = db.db("sensordata");
       dbo.createCollection("data", (err, res) => {
         if (err) throw err;
-        console.log("Collection created!");
+        console.log("Collection 'data' created!");
+        return true;
+      });
+      dbo.createCollection("uc-data", (err, res) => {
+        if (err) throw err;
+        console.log("Collection 'uc-data' created!");
         db.close();
         return true;
       });
@@ -37,7 +42,6 @@ module.exports = {
         if (err) throw err;
         console.log("1 document inserted: ", data);
         db.close();
-
         return true;
       });
     });
