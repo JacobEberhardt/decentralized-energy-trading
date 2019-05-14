@@ -48,6 +48,27 @@ module.exports = {
   },
 
   /**
+   * Method to write data from the blockchain to the database.
+   * @param {JSONObject} data the data to add to the DB
+   * @param {String} url URL/URI of the DB
+   * @returns {boolean} if operation was successful
+
+   */
+  writeUCDataToDB: (data, url) => {
+    console.log(url);
+    MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+      if (err) throw err;
+      const dbo = db.db("sensordata");
+      dbo.collection("uc-data").insertOne(data, (err, res) => {
+        if (err) throw err;
+        console.log("1 document inserted: ", data);
+        db.close();
+        return true;
+      });
+    });
+  },
+
+  /**
    * Method to read data from the database
    * Should be added as an Eventlistener for incoming GET Requests from the UI
    * @param {String} url URL/URI of the DB
