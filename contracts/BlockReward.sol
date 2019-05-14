@@ -12,17 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// Example block reward contract.
-
 pragma solidity ^0.5.0;
 
 import "./IBlockReward.sol";
-import "./IFakeUtility.sol";
+import "./IUtility.sol";
 
 
 contract BlockReward is IBlockReward {
-  uint256 public constant REWARD_AMOUNT = 1 ether;
-  address public constant UTILITY_CONTRACT = 0x0000000000000000000000000000000000000043;
+  // Amount of eth that is rewarded to block producers
+  uint256 public constant REWARD_AMOUNT = 10000000000000000 wei;
+  // Address of utility contract
+  address public constant UTILITY_CONTRACT = 0x0000000000000000000000000000000000000042;
+  // Interval in blocks when netting function should be triggered
   uint8 public constant NETTING_INTERVAL = 5;
 
   uint256 public latestNettingBlockNumber = 0;
@@ -35,8 +36,13 @@ contract BlockReward is IBlockReward {
     _;
   }
 
-  // produce rewards for the given benefactors, with corresponding reward codes.
-  // only callable by `SYSTEM_ADDRESS`
+  /**
+   * @dev Produce reward for given benefectors with corresponding reward codes.
+   *      Only callable by `SYSTEM_ADDRESS`.
+   * @param benefactors Validator addresses
+   * @param kind Reward codes
+   * @return Validator addresses with respective rewards.
+   */
   function reward(address[] calldata benefactors, uint16[] calldata kind)
     external
     onlySystem
@@ -55,8 +61,8 @@ contract BlockReward is IBlockReward {
 
     if (block.number - latestNettingBlockNumber >= NETTING_INTERVAL) {
       latestNettingBlockNumber = block.number;
-      IFakeUtility fakeUtility = IFakeUtility(UTILITY_CONTRACT);
-      fakeUtility.netting();
+      IUtility utility = IUtility(UTILITY_CONTRACT);
+      utility.settle();
     }
 
     return (benefactors, rewards);

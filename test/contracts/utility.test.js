@@ -47,6 +47,45 @@ contract("Utility", ([owner, household, other]) => {
       await this.instance.addHousehold(household); // Add dummy household
     });
 
+    context("Energy", async () => {
+      it("should record the net amount of energy produced correctly", async () => {
+        await this.instance.updateRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        const netEnergy = await this.instance.balanceOf(household);
+        expect(netEnergy).to.be.bignumber.equal("10");
+      });
+
+      it("should record amount of consumed energy correctly", async () => {
+        await this.instance.updateRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        const consumedEnergy = await this.instance.balanceOfConsumedEnergy(
+          household
+        );
+        expect(consumedEnergy).to.be.bignumber.equal("10");
+      });
+
+      it("should record amount of produced energy correctly", async () => {
+        await this.instance.updateRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        const producedEnergy = await this.instance.balanceOfProducedEnergy(
+          household
+        );
+        expect(producedEnergy).to.be.bignumber.equal("20");
+      });
+    });
+
     context("Renewable energy", async () => {
       it("should record the net amount of energy produced correctly", async () => {
         await this.instance.updateRenewableEnergy(household, 10, 5, {
@@ -56,6 +95,26 @@ contract("Utility", ([owner, household, other]) => {
           household
         );
         expect(netRenewableEnergy).to.be.bignumber.equal("5");
+      });
+
+      it("should record amount of consumed energy correctly", async () => {
+        await this.instance.updateRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        const consumedRenewableEnergy = await this.instance.balanceOfConsumedRenewableEnergy(
+          household
+        );
+        expect(consumedRenewableEnergy).to.be.bignumber.equal("5");
+      });
+
+      it("should record amount of produced energy correctly", async () => {
+        await this.instance.updateRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        const producedRenewableEnergy = await this.instance.balanceOfProducedRenewableEnergy(
+          household
+        );
+        expect(producedRenewableEnergy).to.be.bignumber.equal("10");
       });
 
       it("emits event RenewableEnergyChanged", async () => {
@@ -84,6 +143,26 @@ contract("Utility", ([owner, household, other]) => {
           household
         );
         expect(netNonRenewableEnergy).to.be.bignumber.equal("5");
+      });
+
+      it("should record amount of consumed energy correctly", async () => {
+        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        const consumedNonRenewableEnergy = await this.instance.balanceOfConsumedNonRenewableEnergy(
+          household
+        );
+        expect(consumedNonRenewableEnergy).to.be.bignumber.equal("5");
+      });
+
+      it("should record amount of produced energy correctly", async () => {
+        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        const producedNonRenewableEnergy = await this.instance.balanceOfProducedNonRenewableEnergy(
+          household
+        );
+        expect(producedNonRenewableEnergy).to.be.bignumber.equal("10");
       });
 
       it("emits event NonRenewableEnergyChanged", async () => {
@@ -143,6 +222,41 @@ contract("Utility", ([owner, household, other]) => {
       await this.instance.addHousehold(household); // Add dummy household
     });
 
+    context("Total energy", async () => {
+      it("should record the net amount of total energy produced correctly", async () => {
+        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        await this.instance.updateRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        const totalEnergy = await this.instance.totalEnergy();
+        expect(totalEnergy).to.be.bignumber.equal("10");
+      });
+
+      it("should record the total amount of consumed energy correctly", async () => {
+        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        await this.instance.updateRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        const totalEnergy = await this.instance.totalConsumedEnergy();
+        expect(totalEnergy).to.be.bignumber.equal("10");
+      });
+
+      it("should record the total amount of produced energy correctly", async () => {
+        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        await this.instance.updateRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        const totalEnergy = await this.instance.totalProducedEnergy();
+        expect(totalEnergy).to.be.bignumber.equal("20");
+      });
+    });
+
     context("Total renewable energy", async () => {
       it("should record the net amount of total energy produced correctly", async () => {
         await this.instance.updateRenewableEnergy(household, 10, 5, {
@@ -150,6 +264,22 @@ contract("Utility", ([owner, household, other]) => {
         });
         const totalRenewableEnergy = await this.instance.totalRenewableEnergy();
         expect(totalRenewableEnergy).to.be.bignumber.equal("5");
+      });
+
+      it("should record the total amount of consumed energy correctly", async () => {
+        await this.instance.updateRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        const totalRenewableEnergy = await this.instance.totalConsumedRenewableEnergy();
+        expect(totalRenewableEnergy).to.be.bignumber.equal("5");
+      });
+
+      it("should record the total amount of produced energy correctly", async () => {
+        await this.instance.updateRenewableEnergy(household, 10, 5, {
+          from: household
+        });
+        const totalRenewableEnergy = await this.instance.totalProducedRenewableEnergy();
+        expect(totalRenewableEnergy).to.be.bignumber.equal("10");
       });
     });
 
@@ -161,18 +291,21 @@ contract("Utility", ([owner, household, other]) => {
         const totalNonRenewableEnergy = await this.instance.totalNonRenewableEnergy();
         expect(totalNonRenewableEnergy).to.be.bignumber.equal("5");
       });
-    });
 
-    context("Total energy", async () => {
-      it("should record the net amount of total energy produced correctly", async () => {
+      it("should record the total amount of consumed energy correctly", async () => {
         await this.instance.updateNonRenewableEnergy(household, 10, 5, {
           from: household
         });
-        await this.instance.updateRenewableEnergy(household, 10, 5, {
+        const totalRenewableEnergy = await this.instance.totalConsumedNonRenewableEnergy();
+        expect(totalRenewableEnergy).to.be.bignumber.equal("5");
+      });
+
+      it("should record the total amount of produced energy correctly", async () => {
+        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
           from: household
         });
-        const totalEnergy = await this.instance.totalEnergy();
-        expect(totalEnergy).to.be.bignumber.equal("10");
+        const totalRenewableEnergy = await this.instance.totalProducedNonRenewableEnergy();
+        expect(totalRenewableEnergy).to.be.bignumber.equal("10");
       });
     });
   });
