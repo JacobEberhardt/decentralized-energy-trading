@@ -9,10 +9,6 @@ import "./Utility.sol";
  * @dev Inherits from Utility.
  */
 contract FifsUtility is Utility {
-  // number of successful settlements done
-  // used for backtracking
-  uint256 public checkpoint;
-
   // iterable list of all households
   address[] public householdList;
   // iterable list of all current households with positive amount of renewable energy
@@ -28,12 +24,8 @@ contract FifsUtility is Utility {
     int256 nonRenewbaleEnergyTransferred;
   }
 
-  // checkpoint -> Deed[]
+  // block.number -> Deed[]
   mapping(uint256 => Deed[]) public deeds;
-
-  constructor() public Utility() {
-    checkpoint = 0;
-  }
 
   /**
    * @dev Overrides addHousehold of Utility.sol
@@ -87,7 +79,7 @@ contract FifsUtility is Utility {
             households[householdListNoEnergy[i]].renewableEnergy += amountAvailableRenewableEnergy;
 
             // create deed
-            Deed[] storage deed = deeds[checkpoint];
+            Deed[] storage deed = deeds[block.number];
             Deed memory newDeed;
             newDeed.active = true;
             newDeed.from = householdListWithEnergy[j];
@@ -105,7 +97,7 @@ contract FifsUtility is Utility {
             households[householdListWithEnergy[j]].renewableEnergy = 0;
 
             // create deed
-            Deed[] storage deed = deeds[checkpoint];
+            Deed[] storage deed = deeds[block.number];
             Deed memory newDeed;
             newDeed.active = true;
             newDeed.from = householdListWithEnergy[j];
@@ -137,7 +129,7 @@ contract FifsUtility is Utility {
               households[householdListNoEnergy[j]].renewableEnergy += energyTransferred;
 
               // create deed
-              Deed[] storage deed = deeds[checkpoint];
+              Deed[] storage deed = deeds[block.number];
               Deed memory newDeed;
               newDeed.active = true;
               newDeed.from = householdListWithEnergy[i];
@@ -150,7 +142,7 @@ contract FifsUtility is Utility {
               households[householdListNoEnergy[j]].renewableEnergy += amountNeededRenewableEnergy;
 
               // create deed
-              Deed[] storage deed = deeds[checkpoint];
+              Deed[] storage deed = deeds[block.number];
               Deed memory newDeed;
               newDeed.active = true;
               newDeed.from = householdListWithEnergy[i];
@@ -169,16 +161,15 @@ contract FifsUtility is Utility {
     delete householdListNoEnergy;
     delete householdListWithEnergy;
 
-    checkpoint += 1;
     return true;
   }
 
   /**
    * @dev Get length of deeds array
-   * @param _checkpoint uint256
-   * @return uint256 length of deeds array at _checkpoint
+   * @param _blockNumber uint256
+   * @return uint256 length of deeds array at _blockNumber
    */
-  function deedsLength(uint256 _checkpoint) public view returns (uint256) {
-    return deeds[_checkpoint].length;
+  function deedsLength(uint256 _blockNumber) public view returns (uint256) {
+    return deeds[_blockNumber].length;
   }
 }
