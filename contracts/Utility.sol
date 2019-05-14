@@ -1,15 +1,20 @@
 pragma solidity >=0.5.0 <0.6.0;
 
+import "openzeppelin-solidity/contracts/drafts/SignedSafeMath.sol";
+
+
 import "./IUtility.sol";
 import "./Mortal.sol";
 
 
 /**
  * @title Utility
- * @notice Tracks production/consumption of energy of all households. Settles energy requests by distributing existing energy as fair as possible (netting).
+ * @notice Tracks energy production andconsumption of all households. Settles energy requests by distributing existing energy as fair as possible (netting).
  * @dev Implements interface IUtility.
  */
 contract Utility is IUtility, Mortal {
+  using SignedSafeMath for int256;
+
   /*
    * electrical work/energy W, unit 1 kWh = 1000 Wh = 1000 W * 3600 s = 3,6 * 10^6 Ws
    * (int256) 1 means 1 Ws?
@@ -17,16 +22,29 @@ contract Utility is IUtility, Mortal {
 
   // total renewable energy in the system
   int256 public totalRenewableEnergy;
+  // total produced and consumed renewable energy
+  int256 public totalConsumedRenewableEnergy;
+  int256 public totalProducedRenewableEnergy;
+
   // total non-renewable energy in the system
   int256 public totalNonRenewableEnergy;
+  // total produced and consumed non-renewable energy
+  int256 public totalConsumedNonRenewableEnergy;
+  int256 public totalProducedNonRenewableEnergy;
 
   struct Household {
     // for checks if household exists
     bool initialized;
 
-    // total renewable/ non-renewable energy household
+    // total renewable and non-renewable energy household
     int256 renewableEnergy;
     int256 nonRenewableEnergy;
+
+    // produced and consumed renewable and non-renewable energy
+    int256 producedRenewableEnergy;
+    int256 consumedRenewableEnergy;
+    int256 producedNonRenewableEnergy;
+    int256 consumedNonRenewableEnergy;
   }
 
   // mapping of all households
@@ -43,12 +61,12 @@ contract Utility is IUtility, Mortal {
   }
 
   /* solium-disable-next-line */
-  constructor() public Owned() { }
+  constructor() public Ownable() { }
 
   /**
    * @dev Create a household with address _household to track energy production and consumption.
    * Emits NewHousehold when household was added successfully.
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @return success bool if household does not already exists, should only be called by some authority
    */
   function addHousehold(address _household) external onlyOwner returns (bool) {
@@ -57,7 +75,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Updates a household's renewable energy state calling _updateEnergy
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @param _producedEnergy int256 of the produced energy
    * @param _consumedEnergy int256 of the consumed energy
    * @return success bool returns true, if function was called successfully
@@ -76,7 +94,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Updates a household's non-renewable energy state calling _updateEnergy
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @param _producedEnergy int256 of the produced energy
    * @param _consumedEnergy int256 of the consumed energy
    * @return success bool returns true, if function was called successfully
@@ -95,7 +113,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Get energy properties of _household
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @return properties (initialized, renewableEnergy, nonRenewableEnergy) of _household if _household exists
    */
   function getHousehold(address _household) external view householdExists(_household) returns (bool, int256, int256) {
@@ -111,21 +129,55 @@ contract Utility is IUtility, Mortal {
    * @return int256 total energy
    */
   function totalEnergy() external view returns (int256) {
-    return totalRenewableEnergy + totalNonRenewableEnergy;
+    return totalRenewableEnergy.add(totalNonRenewableEnergy);
+  }
+
+  /**
+   * @dev Get total consumed energy
+   * @return int256 total consumed energy
+   */
+  function totalConsumedEnergy() external view returns (int256) {
+    return totalConsumedRenewableEnergy.add(totalConsumedNonRenewableEnergy);
+  }
+
+  /**
+   * @dev Get total produced energy
+   * @return int256 total produced energy
+   */
+  function totalProducedEnergy() external view returns (int256) {
+    return totalProducedRenewableEnergy.add(totalProducedNonRenewableEnergy);
   }
 
   /**
    * @dev Get energy of _household
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @return int256 energy of _household if _household exists
    */
   function balanceOf(address _household) external view householdExists(_household) returns (int256) {
-    return households[_household].renewableEnergy + households[_household].nonRenewableEnergy;
+    return households[_household].renewableEnergy.add(households[_household].nonRenewableEnergy);
+  }
+
+  /**
+   * @dev Get consumed energy of _household
+   * @param _household address of the household
+   * @return int256 consumed energy of _household if _household exists
+   */
+  function balanceOfConsumedEnergy(address _household) external view householdExists(_household) returns (int256) {
+    return households[_household].consumedRenewableEnergy.add(households[_household].consumedNonRenewableEnergy);
+  }
+
+  /**
+   * @dev Get produced energy of _household
+   * @param _household address of the household
+   * @return int256 produced energy of _household if _household exists
+   */
+  function balanceOfProducedEnergy(address _household) external view householdExists(_household) returns (int256) {
+    return households[_household].producedRenewableEnergy.add(households[_household].producedNonRenewableEnergy);
   }
 
   /**
    * @dev Get renewable energy of _household
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @return int256 renewable energy of _household if _household exists
    */
   function balanceOfRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
@@ -133,17 +185,52 @@ contract Utility is IUtility, Mortal {
   }
 
   /**
+   * @dev Get consumed renewable energy of _household
+   * @param _household address of the household
+   * @return int256 consumed renewable energy of _household if _household exists
+   */
+  function balanceOfConsumedRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
+    return households[_household].consumedRenewableEnergy;
+  }
+
+  /**
+   * @dev Get produced renewable energy of _household
+   * @param _household address of the household
+   * @return int256 produced renewable energy of _household if _household exists
+   */
+  function balanceOfProducedRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
+    return households[_household].producedRenewableEnergy;
+  }
+
+  /**
    * @dev Get non-renewable energy of _household
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @return int256 non-renewable energy of _household if _household exists
    */
   function balanceOfNonRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
     return households[_household].nonRenewableEnergy;
   }
 
+  /**
+   * @dev Get consumed non-renewable energy of _household
+   * @param _household address of the household
+   * @return int256 consumed non-renewable energy of _household if _household exists
+   */
+  function balanceOfConsumedNonRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
+    return households[_household].consumedNonRenewableEnergy;
+  }
+
+  /**
+   * @dev Get produced non-renewable energy of _household
+   * @param _household address of the household
+   * @return int256 produced non-renewable energy of _household if _household exists
+   */
+  function balanceOfProducedNonRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
+    return households[_household].producedNonRenewableEnergy;
+  }
+
   /* solium-disable-next-line */
   function settle() external returns (bool) {
-    // ToDo
     return false;
   }
 
@@ -167,7 +254,7 @@ contract Utility is IUtility, Mortal {
 
   /**
    * @dev Updates a household's energy state
-   * @param _household address of the household owner/ parity node ?
+   * @param _household address of the household
    * @param _producedEnergy int256 of the produced energy
    * @param _consumedEnergy int256 of the consumed energy
    * @param _isRenewable bool indicates whether said energy is renewable or non-renewable
@@ -185,26 +272,26 @@ contract Utility is IUtility, Mortal {
     returns (bool)
   {
     require(_producedEnergy >= 0 && _consumedEnergy >= 0, "Produced and consumed energy amount must be positive.");
-    int256 netProducedEnergy = _producedEnergy - _consumedEnergy;
-
-    // Todo: create/use a library for safe arithmetic
-    /*
-     * If _producedEnergy and _consumedEnergy are positive, there cant be any subtraction overflow. Consider the following:
-     * MAX_int256 - MAX_int256; no overflow,
-     * 0 - MAX_int256; because MAX_int256 = 2**256/2 -1 = 2**255 -1 no overflow,
-     * MAX_int256 - 0; no overflow.
-     * Library for safe arithmetic need to handle MAX_int256 +1, etc. but with respect to int256 its pretty unusual to overflow int256
-     */
-    //require(netProducedEnergy <= _producedEnergy, "Subtraction overflow.");
+    int256 netProducedEnergy = _producedEnergy.sub(_consumedEnergy);
 
     Household storage hh = households[_household];
     if (_isRenewable) {
-      hh.renewableEnergy += netProducedEnergy;
-      totalRenewableEnergy += netProducedEnergy;
+      hh.consumedRenewableEnergy = hh.consumedRenewableEnergy.add(_consumedEnergy);
+      hh.producedRenewableEnergy = hh.producedRenewableEnergy.add(_producedEnergy);
+      hh.renewableEnergy = hh.renewableEnergy.add(netProducedEnergy);
+
+      totalConsumedRenewableEnergy = totalConsumedRenewableEnergy.add(_consumedEnergy);
+      totalProducedRenewableEnergy = totalProducedRenewableEnergy.add(_producedEnergy);
+      totalRenewableEnergy = totalRenewableEnergy.add(netProducedEnergy);
       emit RenewableEnergyChanged(_household, netProducedEnergy);
     } else {
-      hh.nonRenewableEnergy += netProducedEnergy;
-      totalNonRenewableEnergy += netProducedEnergy;
+      hh.consumedNonRenewableEnergy = hh.consumedNonRenewableEnergy.add(_consumedEnergy);
+      hh.producedNonRenewableEnergy = hh.producedNonRenewableEnergy.add(_producedEnergy);
+      hh.nonRenewableEnergy = hh.nonRenewableEnergy.add(netProducedEnergy);
+
+      totalConsumedNonRenewableEnergy = totalConsumedNonRenewableEnergy.add(_consumedEnergy);
+      totalProducedNonRenewableEnergy = totalProducedNonRenewableEnergy.add(_producedEnergy);
+      totalNonRenewableEnergy = totalNonRenewableEnergy.add(netProducedEnergy);
       emit NonRenewableEnergyChanged(_household, netProducedEnergy);
     }
 

@@ -3,11 +3,12 @@ pragma solidity >=0.5.0 <0.6.0;
 import "./Utility.sol";
 
 
+/**
+ * @title FifsUtility
+ * @notice Implements FIFS settle algorithm.
+ * @dev Inherits from Utility.
+ */
 contract FifsUtility is Utility {
-  // number of successful settlements done
-  // used for backtracking
-  uint256 public checkpoint;
-
   // iterable list of all households
   address[] public householdList;
   // iterable list of all current households with positive amount of renewable energy
@@ -17,17 +18,14 @@ contract FifsUtility is Utility {
 
   struct Deed {
     bool active;
+    address from;
     address to;
-    int256 energyTransferred;
-    bool isRenewable;
+    int256 renewableEnergyTransferred;
+    int256 nonRenewbaleEnergyTransferred;
   }
 
-  // (household, checkpoint) -> Deed[]
-  mapping(address => mapping(uint256 => Deed[])) public deeds;
-
-  constructor() public Utility() {
-    checkpoint = 0;
-  }
+  // block.number -> Deed[]
+  mapping(uint256 => Deed[]) public deeds;
 
   /**
    * @dev Overrides addHousehold of Utility.sol
@@ -57,36 +55,36 @@ contract FifsUtility is Utility {
       } else if (households[householdList[i]].renewableEnergy > 0) {
         // households with positive amount of renewable energy
         householdListWithEnergy.push(householdList[i]);
-        availableRenewableEnergy += households[householdList[i]].renewableEnergy;
+        availableRenewableEnergy = availableRenewableEnergy.add(households[householdList[i]].renewableEnergy);
       }
     }
 
     // remember: totalRenewableEnergy = availableRenewableEnergy + neededRenewableEnergy
     // remember: availableRenewableEnergy > 0
-    neededRenewableEnergy = totalRenewableEnergy - availableRenewableEnergy;
+    neededRenewableEnergy = totalRenewableEnergy.sub(availableRenewableEnergy);
 
     // not enough renewable energy for settlement; neededRenewableEnergy > availableRenewableEnergy
     if (totalRenewableEnergy < 0) {
       for (uint256 i = 0; i < householdListNoEnergy.length; i++) {
         Household storage hhNeeded = households[householdListNoEnergy[i]];
         // calculate % of energy on neededRenewableEnergy by household i
-        int256 proportionNeedRenewableEnergy = 100 * (-1) * hhNeeded.renewableEnergy / ((-1) * neededRenewableEnergy);
+        int256 proportionNeedRenewableEnergy = ((hhNeeded.renewableEnergy.mul(-1)).mul(100)).div((neededRenewableEnergy).mul(-1));
         // calculate amount of energy on availableRenewableEnergy by household i
-        int256 amountAvailableRenewableEnergy = availableRenewableEnergy * proportionNeedRenewableEnergy / 100;
+        int256 amountAvailableRenewableEnergy = (availableRenewableEnergy.mul(proportionNeedRenewableEnergy)).div(100);
         for (uint256 j = 0; j < householdListWithEnergy.length; j++) {
           // settle energy
           if (households[householdListWithEnergy[j]].renewableEnergy >= amountAvailableRenewableEnergy) {
             // energy for settlement by household j is >= needed by household i; household i can serve more households
-            households[householdListWithEnergy[j]].renewableEnergy -= amountAvailableRenewableEnergy;
-            households[householdListNoEnergy[i]].renewableEnergy += amountAvailableRenewableEnergy;
+            households[householdListWithEnergy[j]].renewableEnergy = households[householdListWithEnergy[j]].renewableEnergy.sub(amountAvailableRenewableEnergy);
+            households[householdListNoEnergy[i]].renewableEnergy = households[householdListNoEnergy[i]].renewableEnergy.add(amountAvailableRenewableEnergy);
 
             // create deed
-            Deed[] storage deed = deeds[householdListWithEnergy[j]][checkpoint];
+            Deed[] storage deed = deeds[block.number];
             Deed memory newDeed;
             newDeed.active = true;
+            newDeed.from = householdListWithEnergy[j];
             newDeed.to = householdListNoEnergy[i];
-            newDeed.energyTransferred = amountAvailableRenewableEnergy;
-            newDeed.isRenewable = true;
+            newDeed.renewableEnergyTransferred = amountAvailableRenewableEnergy;
             deed.push(newDeed);
 
             break;
@@ -94,17 +92,17 @@ contract FifsUtility is Utility {
             // energy for settlement by household j is < needed by household i
             int256 energyTransferred = households[householdListWithEnergy[j]].renewableEnergy;
 
-            households[householdListNoEnergy[i]].renewableEnergy += energyTransferred;
-            amountAvailableRenewableEnergy -= energyTransferred;
+            households[householdListNoEnergy[i]].renewableEnergy = households[householdListNoEnergy[i]].renewableEnergy.add(energyTransferred);
+            amountAvailableRenewableEnergy = amountAvailableRenewableEnergy.sub(energyTransferred);
             households[householdListWithEnergy[j]].renewableEnergy = 0;
 
             // create deed
-            Deed[] storage deed = deeds[householdListWithEnergy[j]][checkpoint];
+            Deed[] storage deed = deeds[block.number];
             Deed memory newDeed;
             newDeed.active = true;
+            newDeed.from = householdListWithEnergy[j];
             newDeed.to = householdListNoEnergy[i];
-            newDeed.energyTransferred = energyTransferred;
-            newDeed.isRenewable = true;
+            newDeed.renewableEnergyTransferred = energyTransferred;
             deed.push(newDeed);
           }
         }
@@ -115,41 +113,41 @@ contract FifsUtility is Utility {
       for (uint256 i = 0; i < householdListWithEnergy.length; i++) {
         Household storage hhAvailable = households[householdListWithEnergy[i]];
         // calculate % of energy on availableRenewableEnergy by household i
-        int256 proportionAvailableRenewableEnergy = 100 * hhAvailable.renewableEnergy / availableRenewableEnergy;
+        int256 proportionAvailableRenewableEnergy = (hhAvailable.renewableEnergy.mul(100)).div(availableRenewableEnergy);
         // calculate amount of energy on neededRenewableEnergy by household i
-        int256 amountNeededRenewableEnergy = (-1) * neededRenewableEnergy * proportionAvailableRenewableEnergy / 100;
+        int256 amountNeededRenewableEnergy = ((neededRenewableEnergy.mul(-1)).mul(proportionAvailableRenewableEnergy)).div(100);
         for (uint256 j = 0; j < householdListNoEnergy.length; j++) {
           // settle energy
           if (households[householdListNoEnergy[j]].renewableEnergy < 0) {
             // check if household j is already done with settlement
-            if (amountNeededRenewableEnergy > (-1) * households[householdListNoEnergy[j]].renewableEnergy) {
+            if (amountNeededRenewableEnergy > households[householdListNoEnergy[j]].renewableEnergy.mul(-1)) {
               // energy for settlement by household i is > needed by household j; household i can serve more households
-              int256 energyTransferred = (-1) * households[householdListNoEnergy[j]].renewableEnergy;
+              int256 energyTransferred = households[householdListNoEnergy[j]].renewableEnergy.mul(-1);
 
-              households[householdListWithEnergy[i]].renewableEnergy -= energyTransferred;
-              amountNeededRenewableEnergy -= energyTransferred;
-              households[householdListNoEnergy[j]].renewableEnergy += energyTransferred;
+              households[householdListWithEnergy[i]].renewableEnergy = households[householdListWithEnergy[i]].renewableEnergy.sub(energyTransferred);
+              amountNeededRenewableEnergy = amountNeededRenewableEnergy.sub(energyTransferred);
+              households[householdListNoEnergy[j]].renewableEnergy = households[householdListNoEnergy[j]].renewableEnergy.add(energyTransferred);
 
               // create deed
-              Deed[] storage deed = deeds[householdListWithEnergy[i]][checkpoint];
+              Deed[] storage deed = deeds[block.number];
               Deed memory newDeed;
               newDeed.active = true;
+              newDeed.from = householdListWithEnergy[i];
               newDeed.to = householdListNoEnergy[j];
-              newDeed.energyTransferred = energyTransferred;
-              newDeed.isRenewable = true;
+              newDeed.renewableEnergyTransferred = energyTransferred;
               deed.push(newDeed);
             } else {
               // energy for settlement by household i is <= needed by household j
-              households[householdListWithEnergy[i]].renewableEnergy -= amountNeededRenewableEnergy;
-              households[householdListNoEnergy[j]].renewableEnergy += amountNeededRenewableEnergy;
+              households[householdListWithEnergy[i]].renewableEnergy = households[householdListWithEnergy[i]].renewableEnergy.sub(amountNeededRenewableEnergy);
+              households[householdListNoEnergy[j]].renewableEnergy = households[householdListNoEnergy[j]].renewableEnergy.add(amountNeededRenewableEnergy);
 
               // create deed
-              Deed[] storage deed = deeds[householdListWithEnergy[i]][checkpoint];
+              Deed[] storage deed = deeds[block.number];
               Deed memory newDeed;
               newDeed.active = true;
+              newDeed.from = householdListWithEnergy[i];
               newDeed.to = householdListNoEnergy[j];
-              newDeed.energyTransferred = amountNeededRenewableEnergy;
-              newDeed.isRenewable = true;
+              newDeed.renewableEnergyTransferred = amountNeededRenewableEnergy;
               deed.push(newDeed);
 
               break;
@@ -163,35 +161,15 @@ contract FifsUtility is Utility {
     delete householdListNoEnergy;
     delete householdListWithEnergy;
 
-    checkpoint += 1;
     return true;
   }
 
   /**
-   * @dev 'Finalizes' an energy transfer by emitting event EnergyTransfer
-   * @param _household address of the household owner/ parity node ?
-   * @param _checkpoint uint256 the settlement number the sender wants to retrieve the reward
-   * @return int256 the total amount of energy transferred by _household in settlement _checkpoint
+   * @dev Get length of deeds array
+   * @param _blockNumber uint256
+   * @return uint256 length of deeds array at _blockNumber
    */
-  function retrieveReward(address _household, uint256 _checkpoint)
-    external
-    onlyHousehold(_household)
-    returns (int256 sumEnergyTransferred)
-  {
-    sumEnergyTransferred = 0;
-    Deed[] storage deed = deeds[_household][_checkpoint];
-
-    for (uint256 i = 0; i < deed.length; i++) {
-      require(deed[i].active, "Deed does not exist");
-
-      emit EnergyTransfer(
-        _household,
-        deed[i].to,
-        deed[i].energyTransferred,
-        deed[i].isRenewable);
-
-      sumEnergyTransferred += deed[i].energyTransferred;
-    }
-    delete deeds[_household][checkpoint];
+  function deedsLength(uint256 _blockNumber) public view returns (uint256) {
+    return deeds[_blockNumber].length;
   }
 }

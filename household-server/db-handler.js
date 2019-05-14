@@ -5,6 +5,7 @@ module.exports = {
    * Method to create the DB and Initialize it with a Collection
    * @param {String} url URL/URI of the DB
    * @returns {boolean} if operation was successful
+
    */
   createDB: url => {
     MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
@@ -25,6 +26,7 @@ module.exports = {
    * @param {JSONObject} data the data to add to the DB
    * @param {String} url URL/URI of the DB
    * @returns {boolean} if operation was successful
+
    */
   writeToDB: (data, url) => {
     console.log(url);
