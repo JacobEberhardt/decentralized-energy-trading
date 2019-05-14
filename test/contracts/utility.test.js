@@ -28,6 +28,10 @@ contract("Utility", ([owner, household, other]) => {
         expect(hh[0]).to.be.true; // initialized
         expect(hh[1]).to.be.bignumber.that.is.zero; // renewableEnergy
         expect(hh[2]).to.be.bignumber.that.is.zero; // nonRenewableEnergy
+        expect(hh[3]).to.be.bignumber.that.is.zero; // producedRenewableEnergy
+        expect(hh[4]).to.be.bignumber.that.is.zero; // consumedRenewableEnergy
+        expect(hh[5]).to.be.bignumber.that.is.zero; // producedNonRenewableEnergy
+        expect(hh[6]).to.be.bignumber.that.is.zero; // consumedNonRenewableEnergy
       });
 
       it("emits event NewHousehold", async () => {

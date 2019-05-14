@@ -60,9 +60,6 @@ contract Utility is IUtility, Mortal {
     _;
   }
 
-  /* solium-disable-next-line */
-  constructor() public Ownable() { }
-
   /**
    * @dev Create a household with address _household to track energy production and consumption.
    * Emits NewHousehold when household was added successfully.
@@ -116,11 +113,21 @@ contract Utility is IUtility, Mortal {
    * @param _household address of the household
    * @return properties (initialized, renewableEnergy, nonRenewableEnergy) of _household if _household exists
    */
-  function getHousehold(address _household) external view householdExists(_household) returns (bool, int256, int256) {
+  function getHousehold(address _household)
+    external
+    view
+    householdExists(_household)
+    returns (bool, int256, int256, int256, int256, int256, int256)
+    {
+    Household memory hh = households[_household];
     return (
-      households[_household].initialized,
-      households[_household].renewableEnergy,
-      households[_household].nonRenewableEnergy
+      hh.initialized,
+      hh.renewableEnergy,
+      hh.nonRenewableEnergy,
+      hh.producedRenewableEnergy,
+      hh.consumedRenewableEnergy,
+      hh.producedNonRenewableEnergy,
+      hh.consumedNonRenewableEnergy
     );
   }
 

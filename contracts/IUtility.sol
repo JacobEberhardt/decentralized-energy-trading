@@ -20,13 +20,29 @@ interface IUtility {
 
   function settle() external returns (bool);
 
-  function getHousehold(address _household) external view returns (bool, int256, int256);
+  function getHousehold(address _household) external view returns (bool, int256, int256, int256, int256, int256, int256);
 
   function totalEnergy() external view returns (int256);
 
+  function totalConsumedEnergy() external view returns (int256);
+
+  function totalProducedEnergy() external view returns (int256);
+
   function balanceOf(address _household) external view returns (int256);
+
+  function balanceOfConsumedEnergy(address _household) external view returns (int256);
+
+  function balanceOfProducedEnergy(address _household) external view returns (int256);
 
   function balanceOfRenewableEnergy(address _household) external view returns (int256);
 
+  function balanceOfConsumedRenewableEnergy(address _household) external view returns (int256);
+
+  function balanceOfProducedRenewableEnergy(address _household) external view returns (int256);
+
   function balanceOfNonRenewableEnergy(address _household) external view returns (int256);
+
+  function balanceOfConsumedNonRenewableEnergy(address _household) external view returns (int256);
+
+  function balanceOfProducedNonRenewableEnergy(address _household) external view returns (int256);
 }
