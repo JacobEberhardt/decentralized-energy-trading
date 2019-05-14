@@ -1,14 +1,15 @@
 pragma solidity >=0.5.0 <0.6.0;
 
+import "./interfaces/IUtility.sol";
 import "./UtilityBase.sol";
 
 
 /**
- * @title FifsUtility
+ * @title Standard Utility contract
  * @notice Implements FIFS settle algorithm.
  * @dev Inherits from UtilityBase.
  */
-contract FifsUtility is UtilityBase {
+contract Utility is UtilityBase, IUtility {
   // iterable list of all households
   address[] public householdList;
   // iterable list of all current households with positive amount of renewable energy

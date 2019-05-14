@@ -2,22 +2,21 @@ pragma solidity >=0.5.0 <0.6.0;
 
 import "openzeppelin-solidity/contracts/drafts/SignedSafeMath.sol";
 
-
-import "./interfaces/IUtility.sol";
+import "./interfaces/IUtilityBase.sol";
 import "./Mortal.sol";
 
 
 /**
  * @title UtilityBase
  * @notice Tracks energy production andconsumption of all households. Settles energy requests by distributing existing energy as fair as possible (netting).
- * @dev Implements interface IUtility.
+ * @dev Implements interface IUtilityBase.
  */
-contract UtilityBase is IUtility, Mortal {
+contract UtilityBase is Mortal, IUtilityBase {
   using SignedSafeMath for int256;
 
   /*
    * electrical work/energy W, unit 1 kWh = 1000 Wh = 1000 W * 3600 s = 3,6 * 10^6 Ws
-   * (int256) 1 means 1 Ws?
+   * 1 (int256) means 1 Ws
    */
 
   // total renewable energy in the system
@@ -236,13 +235,8 @@ contract UtilityBase is IUtility, Mortal {
     return households[_household].producedNonRenewableEnergy;
   }
 
-  /* solium-disable-next-line */
-  function settle() external returns (bool) {
-    return false;
-  }
-
   /**
-   * @dev see Utility.addHousehold
+   * @dev see UtilityBase.addHousehold
    * @param _household address of household
    * @return bool success
    */
