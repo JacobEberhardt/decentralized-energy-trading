@@ -1,6 +1,10 @@
-# Household Server
+
+# Household Server  
 
 ## Running the Household Server
+Requirements:
+- MongoDB installed on the Client -> [Download Link](https://www.mongodb.com/what-is-mongodb)
+- A client like Postman or Rested to submit GET/PUT requests
 
 1. Make sure to have all dependencies installed via
 ```bash
