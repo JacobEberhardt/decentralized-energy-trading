@@ -2,30 +2,25 @@
 
 Repository of ISE CP Project Summer 2019.
 
-## Running the Household Server:
-Requirements:
-- MongoDB installed on the Client -> [Download Link](https://www.mongodb.com/what-is-mongodb)
-- MongoDB Driver installed via Yarn
-- A client like Postman or Rested to submit GET/PUT requests
+## Get started
+1. Install dependencies
+```bash
+yarn install
+```
+2. Start an ethereum client (ganache, parity, truffle develop, etc.) depending on what you want to do
+- If you want to use a **docker parity authority** setup see [./parity-authority/docker/README.md](./parity-authority/docker/README.md)
+- If you want to use a **native parity authority** setup see [./parity-authority/native/README.md](./parity-authority/native/README.md)
+- If you want to use **ganache** run `yarn run-ganache`
+- If you want to use **truffle develop** run `truffle develop`
+3. Adjust config files according to your setup: `./truffle-config.js` and `./household-server-config.js`
+4. Migrate contracts to your setup
+- `yarn migrate-contracts-authority` when using a **parity authority** setup
+- `yarn migrate-contracts-ganache` when using a **ganache** setup
+- `truffle migrate` when using a **truffle develop** setup
+5. Start the `household server` see [./household-server/README.md](./household-server/README.md)
 
-To run the server use the Yarn script `yarn run-server`. 
-The console now should print:
-```
-Household Server running at http://127.0.0.1:3000/
-Database created!
-Collection created!
-```
-To get the Dataflow going, make a PUT request to the address displayed in the console.
-This triggers the DBHandler via an event and writes Mock-Data into the DB.
-The console should print something like this:
-```
-PUT Request received
-1 document inserted:  { consume: 31.04, produce: 94.8, _id: 5cc9a7cdf711d435d4bca084 }
-```
-To see all the entries in the DB, simply send a GET request to the same address.
-The console should print all the entries in the DB like:
-```
-[ { _id: 5cc99e80879ce6108875f6c4, consume: 47.03, produce: 41.49 },
-  ...
-  { _id: 5cc9a7cdf711d435d4bca084, consume: 31.04, produce: 94.8 } ]
-  ```
+## Run tests
+- `yarn test-contracts` to test contracts
+- `yarn test-parity-native` to test native parity authority setup 
+- `yarn test-parity-docker` to test docker parity authority setup
+- `yarn test-helpers` to test helper functions

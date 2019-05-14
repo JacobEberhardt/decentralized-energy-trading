@@ -53,11 +53,21 @@ jobs:
           name: Test contracts
           command: yarn test-contracts
 
+  test_helpers:
+    <<: *defaults
+    steps:
+      - checkout
+      - yarn_install
+      - run:
+          name: Test helper functions
+          command: yarn test-helpers
+
 workflows:
   version: 2
   default:
     jobs:
       - lint
+      - test_helpers
       - compile_contracts
       - test_contracts:
           requires:
