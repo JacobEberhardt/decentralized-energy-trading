@@ -1,300 +1,176 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "openzeppelin-solidity/contracts/drafts/SignedSafeMath.sol";
-
-
-import "./IUtility.sol";
-import "./Mortal.sol";
+import "./interfaces/IUtility.sol";
+import "./UtilityBase.sol";
 
 
 /**
- * @title Utility
- * @notice Tracks energy production andconsumption of all households. Settles energy requests by distributing existing energy as fair as possible (netting).
- * @dev Implements interface IUtility.
+ * @title Standard Utility contract
+ * @notice Implements FIFS settle algorithm.
+ * @dev Inherits from UtilityBase.
  */
-contract Utility is IUtility, Mortal {
-  using SignedSafeMath for int256;
+contract Utility is UtilityBase, IUtility {
+  // iterable list of all households
+  address[] public householdList;
+  // iterable list of all current households with positive amount of renewable energy
+  address[] public householdListWithEnergy;
+  // iterable list of all current households with negative amount of renewable energy
+  address[] public householdListNoEnergy;
 
-  /*
-   * electrical work/energy W, unit 1 kWh = 1000 Wh = 1000 W * 3600 s = 3,6 * 10^6 Ws
-   * (int256) 1 means 1 Ws?
-   */
-
-  // total renewable energy in the system
-  int256 public totalRenewableEnergy;
-  // total produced and consumed renewable energy
-  int256 public totalConsumedRenewableEnergy;
-  int256 public totalProducedRenewableEnergy;
-
-  // total non-renewable energy in the system
-  int256 public totalNonRenewableEnergy;
-  // total produced and consumed non-renewable energy
-  int256 public totalConsumedNonRenewableEnergy;
-  int256 public totalProducedNonRenewableEnergy;
-
-  struct Household {
-    // for checks if household exists
-    bool initialized;
-
-    // total renewable and non-renewable energy household
-    int256 renewableEnergy;
-    int256 nonRenewableEnergy;
-
-    // produced and consumed renewable and non-renewable energy
-    int256 producedRenewableEnergy;
-    int256 consumedRenewableEnergy;
-    int256 producedNonRenewableEnergy;
-    int256 consumedNonRenewableEnergy;
+  struct Deed {
+    bool active;
+    address from;
+    address to;
+    int256 renewableEnergyTransferred;
+    int256 nonRenewbaleEnergyTransferred;
   }
 
-  // mapping of all households
-  mapping(address => Household) households;
-
-  modifier onlyHousehold(address _household) {
-    require(msg.sender == _household, "No permission to access. Only household can access itself.");
-    _;
-  }
-
-  modifier householdExists(address _household) {
-    require(households[_household].initialized, "Household does not exist.");
-    _;
-  }
-
-  /* solium-disable-next-line */
-  constructor() public Ownable() { }
+  // block.number -> Deed[]
+  mapping(uint256 => Deed[]) public deeds;
 
   /**
-   * @dev Create a household with address _household to track energy production and consumption.
-   * Emits NewHousehold when household was added successfully.
-   * @param _household address of the household
-   * @return success bool if household does not already exists, should only be called by some authority
+   * @dev Overrides addHousehold of UtilityBase.sol
    */
   function addHousehold(address _household) external onlyOwner returns (bool) {
-    return _addHousehold(_household);
+    if (super._addHousehold(_household)) {
+      householdList.push(_household);
+    }
   }
 
   /**
-   * @dev Updates a household's renewable energy state calling _updateEnergy
-   * @param _household address of the household
-   * @param _producedEnergy int256 of the produced energy
-   * @param _consumedEnergy int256 of the consumed energy
-   * @return success bool returns true, if function was called successfully
+   * @dev Settlement function for netting (focus on renewable energy only)
+   * @return success bool if settlement was successful
    */
-  function updateRenewableEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy)
-    external
-    returns (bool)
-  {
-    return _updateEnergy(
-      _household,
-      _producedEnergy,
-      _consumedEnergy,
-      true
-    );
-  }
-
-  /**
-   * @dev Updates a household's non-renewable energy state calling _updateEnergy
-   * @param _household address of the household
-   * @param _producedEnergy int256 of the produced energy
-   * @param _consumedEnergy int256 of the consumed energy
-   * @return success bool returns true, if function was called successfully
-   */
-  function updateNonRenewableEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy)
-    external
-    returns (bool)
-  {
-    return _updateEnergy(
-      _household,
-      _producedEnergy,
-      _consumedEnergy,
-      false
-    );
-  }
-
-  /**
-   * @dev Get energy properties of _household
-   * @param _household address of the household
-   * @return properties (initialized, renewableEnergy, nonRenewableEnergy) of _household if _household exists
-   */
-  function getHousehold(address _household) external view householdExists(_household) returns (bool, int256, int256) {
-    return (
-      households[_household].initialized,
-      households[_household].renewableEnergy,
-      households[_household].nonRenewableEnergy
-    );
-  }
-
-  /**
-   * @dev Get total energy
-   * @return int256 total energy
-   */
-  function totalEnergy() external view returns (int256) {
-    return totalRenewableEnergy.add(totalNonRenewableEnergy);
-  }
-
-  /**
-   * @dev Get total consumed energy
-   * @return int256 total consumed energy
-   */
-  function totalConsumedEnergy() external view returns (int256) {
-    return totalConsumedRenewableEnergy.add(totalConsumedNonRenewableEnergy);
-  }
-
-  /**
-   * @dev Get total produced energy
-   * @return int256 total produced energy
-   */
-  function totalProducedEnergy() external view returns (int256) {
-    return totalProducedRenewableEnergy.add(totalProducedNonRenewableEnergy);
-  }
-
-  /**
-   * @dev Get energy of _household
-   * @param _household address of the household
-   * @return int256 energy of _household if _household exists
-   */
-  function balanceOf(address _household) external view householdExists(_household) returns (int256) {
-    return households[_household].renewableEnergy.add(households[_household].nonRenewableEnergy);
-  }
-
-  /**
-   * @dev Get consumed energy of _household
-   * @param _household address of the household
-   * @return int256 consumed energy of _household if _household exists
-   */
-  function balanceOfConsumedEnergy(address _household) external view householdExists(_household) returns (int256) {
-    return households[_household].consumedRenewableEnergy.add(households[_household].consumedNonRenewableEnergy);
-  }
-
-  /**
-   * @dev Get produced energy of _household
-   * @param _household address of the household
-   * @return int256 produced energy of _household if _household exists
-   */
-  function balanceOfProducedEnergy(address _household) external view householdExists(_household) returns (int256) {
-    return households[_household].producedRenewableEnergy.add(households[_household].producedNonRenewableEnergy);
-  }
-
-  /**
-   * @dev Get renewable energy of _household
-   * @param _household address of the household
-   * @return int256 renewable energy of _household if _household exists
-   */
-  function balanceOfRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
-    return households[_household].renewableEnergy;
-  }
-
-  /**
-   * @dev Get consumed renewable energy of _household
-   * @param _household address of the household
-   * @return int256 consumed renewable energy of _household if _household exists
-   */
-  function balanceOfConsumedRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
-    return households[_household].consumedRenewableEnergy;
-  }
-
-  /**
-   * @dev Get produced renewable energy of _household
-   * @param _household address of the household
-   * @return int256 produced renewable energy of _household if _household exists
-   */
-  function balanceOfProducedRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
-    return households[_household].producedRenewableEnergy;
-  }
-
-  /**
-   * @dev Get non-renewable energy of _household
-   * @param _household address of the household
-   * @return int256 non-renewable energy of _household if _household exists
-   */
-  function balanceOfNonRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
-    return households[_household].nonRenewableEnergy;
-  }
-
-  /**
-   * @dev Get consumed non-renewable energy of _household
-   * @param _household address of the household
-   * @return int256 consumed non-renewable energy of _household if _household exists
-   */
-  function balanceOfConsumedNonRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
-    return households[_household].consumedNonRenewableEnergy;
-  }
-
-  /**
-   * @dev Get produced non-renewable energy of _household
-   * @param _household address of the household
-   * @return int256 produced non-renewable energy of _household if _household exists
-   */
-  function balanceOfProducedNonRenewableEnergy(address _household) external view householdExists(_household) returns (int256) {
-    return households[_household].producedNonRenewableEnergy;
-  }
-
-  /* solium-disable-next-line */
   function settle() external returns (bool) {
-    return false;
-  }
+    // amount of available renewable energy for settlement
+    int256 availableRenewableEnergy;
+    // amount of needed renewable energy
+    int256 neededRenewableEnergy;
 
-  /**
-   * @dev see Utility.addHousehold
-   * @param _household address of household
-   * @return bool success
-   */
-  function _addHousehold(address _household) internal returns (bool) {
-    require(!households[_household].initialized, "Household already exists.");
-
-    // add new household to mapping
-    Household storage hh = households[_household];
-    hh.initialized = true;
-    hh.renewableEnergy = 0;
-    hh.nonRenewableEnergy = 0;
-
-    emit NewHousehold(_household);
-    return true;
-  }
-
-  /**
-   * @dev Updates a household's energy state
-   * @param _household address of the household
-   * @param _producedEnergy int256 of the produced energy
-   * @param _consumedEnergy int256 of the consumed energy
-   * @param _isRenewable bool indicates whether said energy is renewable or non-renewable
-   * @return success bool returns true, if function was called successfully
-   */
-  function _updateEnergy(
-    address _household,
-    int256 _producedEnergy,
-    int256 _consumedEnergy,
-    bool _isRenewable
-    )
-    private
-    onlyHousehold(_household)
-    householdExists(_household)
-    returns (bool)
-  {
-    require(_producedEnergy >= 0 && _consumedEnergy >= 0, "Produced and consumed energy amount must be positive.");
-    int256 netProducedEnergy = _producedEnergy.sub(_consumedEnergy);
-
-    Household storage hh = households[_household];
-    if (_isRenewable) {
-      hh.consumedRenewableEnergy = hh.consumedRenewableEnergy.add(_consumedEnergy);
-      hh.producedRenewableEnergy = hh.producedRenewableEnergy.add(_producedEnergy);
-      hh.renewableEnergy = hh.renewableEnergy.add(netProducedEnergy);
-
-      totalConsumedRenewableEnergy = totalConsumedRenewableEnergy.add(_consumedEnergy);
-      totalProducedRenewableEnergy = totalProducedRenewableEnergy.add(_producedEnergy);
-      totalRenewableEnergy = totalRenewableEnergy.add(netProducedEnergy);
-      emit RenewableEnergyChanged(_household, netProducedEnergy);
-    } else {
-      hh.consumedNonRenewableEnergy = hh.consumedNonRenewableEnergy.add(_consumedEnergy);
-      hh.producedNonRenewableEnergy = hh.producedNonRenewableEnergy.add(_producedEnergy);
-      hh.nonRenewableEnergy = hh.nonRenewableEnergy.add(netProducedEnergy);
-
-      totalConsumedNonRenewableEnergy = totalConsumedNonRenewableEnergy.add(_consumedEnergy);
-      totalProducedNonRenewableEnergy = totalProducedNonRenewableEnergy.add(_producedEnergy);
-      totalNonRenewableEnergy = totalNonRenewableEnergy.add(netProducedEnergy);
-      emit NonRenewableEnergyChanged(_household, netProducedEnergy);
+    // group households into households with positive amount of renewable energy
+    // and negative amount of renewable energy
+    for (uint256 i = 0; i < householdList.length; i++) {
+      if (households[householdList[i]].renewableEnergy < 0) {
+        // households with negative amount of renewable energy
+        householdListNoEnergy.push(householdList[i]);
+      } else if (households[householdList[i]].renewableEnergy > 0) {
+        // households with positive amount of renewable energy
+        householdListWithEnergy.push(householdList[i]);
+        availableRenewableEnergy = availableRenewableEnergy.add(households[householdList[i]].renewableEnergy);
+      }
     }
 
+    // remember: totalRenewableEnergy = availableRenewableEnergy + neededRenewableEnergy
+    // remember: availableRenewableEnergy > 0
+    neededRenewableEnergy = totalRenewableEnergy.sub(availableRenewableEnergy);
+
+    // not enough renewable energy for settlement; neededRenewableEnergy > availableRenewableEnergy
+    if (totalRenewableEnergy < 0) {
+      for (uint256 i = 0; i < householdListNoEnergy.length; i++) {
+        Household storage hhNeeded = households[householdListNoEnergy[i]];
+        // calculate % of energy on neededRenewableEnergy by household i
+        int256 proportionNeedRenewableEnergy = ((hhNeeded.renewableEnergy.mul(-1)).mul(100)).div((neededRenewableEnergy).mul(-1));
+        // calculate amount of energy on availableRenewableEnergy by household i
+        int256 amountAvailableRenewableEnergy = (availableRenewableEnergy.mul(proportionNeedRenewableEnergy)).div(100);
+        for (uint256 j = 0; j < householdListWithEnergy.length; j++) {
+          // settle energy
+          if (households[householdListWithEnergy[j]].renewableEnergy >= amountAvailableRenewableEnergy) {
+            // energy for settlement by household j is >= needed by household i; household i can serve more households
+            households[householdListWithEnergy[j]].renewableEnergy = households[householdListWithEnergy[j]].renewableEnergy.sub(amountAvailableRenewableEnergy);
+            households[householdListNoEnergy[i]].renewableEnergy = households[householdListNoEnergy[i]].renewableEnergy.add(amountAvailableRenewableEnergy);
+
+            // create deed
+            Deed[] storage deed = deeds[block.number];
+            Deed memory newDeed;
+            newDeed.active = true;
+            newDeed.from = householdListWithEnergy[j];
+            newDeed.to = householdListNoEnergy[i];
+            newDeed.renewableEnergyTransferred = amountAvailableRenewableEnergy;
+            deed.push(newDeed);
+
+            break;
+          } else if (households[householdListWithEnergy[j]].renewableEnergy < amountAvailableRenewableEnergy && households[householdListWithEnergy[j]].renewableEnergy > 0) {
+            // energy for settlement by household j is < needed by household i
+            int256 energyTransferred = households[householdListWithEnergy[j]].renewableEnergy;
+
+            households[householdListNoEnergy[i]].renewableEnergy = households[householdListNoEnergy[i]].renewableEnergy.add(energyTransferred);
+            amountAvailableRenewableEnergy = amountAvailableRenewableEnergy.sub(energyTransferred);
+            households[householdListWithEnergy[j]].renewableEnergy = 0;
+
+            // create deed
+            Deed[] storage deed = deeds[block.number];
+            Deed memory newDeed;
+            newDeed.active = true;
+            newDeed.from = householdListWithEnergy[j];
+            newDeed.to = householdListNoEnergy[i];
+            newDeed.renewableEnergyTransferred = energyTransferred;
+            deed.push(newDeed);
+          }
+        }
+      }
+    } else {
+      // totalRenewableEnergy >= 0
+      // enough renewable energy for settlement; availableRenewableEnergy >= neededRenewableEnergy
+      for (uint256 i = 0; i < householdListWithEnergy.length; i++) {
+        Household storage hhAvailable = households[householdListWithEnergy[i]];
+        // calculate % of energy on availableRenewableEnergy by household i
+        int256 proportionAvailableRenewableEnergy = (hhAvailable.renewableEnergy.mul(100)).div(availableRenewableEnergy);
+        // calculate amount of energy on neededRenewableEnergy by household i
+        int256 amountNeededRenewableEnergy = ((neededRenewableEnergy.mul(-1)).mul(proportionAvailableRenewableEnergy)).div(100);
+        for (uint256 j = 0; j < householdListNoEnergy.length; j++) {
+          // settle energy
+          if (households[householdListNoEnergy[j]].renewableEnergy < 0) {
+            // check if household j is already done with settlement
+            if (amountNeededRenewableEnergy > households[householdListNoEnergy[j]].renewableEnergy.mul(-1)) {
+              // energy for settlement by household i is > needed by household j; household i can serve more households
+              int256 energyTransferred = households[householdListNoEnergy[j]].renewableEnergy.mul(-1);
+
+              households[householdListWithEnergy[i]].renewableEnergy = households[householdListWithEnergy[i]].renewableEnergy.sub(energyTransferred);
+              amountNeededRenewableEnergy = amountNeededRenewableEnergy.sub(energyTransferred);
+              households[householdListNoEnergy[j]].renewableEnergy = households[householdListNoEnergy[j]].renewableEnergy.add(energyTransferred);
+
+              // create deed
+              Deed[] storage deed = deeds[block.number];
+              Deed memory newDeed;
+              newDeed.active = true;
+              newDeed.from = householdListWithEnergy[i];
+              newDeed.to = householdListNoEnergy[j];
+              newDeed.renewableEnergyTransferred = energyTransferred;
+              deed.push(newDeed);
+            } else {
+              // energy for settlement by household i is <= needed by household j
+              households[householdListWithEnergy[i]].renewableEnergy = households[householdListWithEnergy[i]].renewableEnergy.sub(amountNeededRenewableEnergy);
+              households[householdListNoEnergy[j]].renewableEnergy = households[householdListNoEnergy[j]].renewableEnergy.add(amountNeededRenewableEnergy);
+
+              // create deed
+              Deed[] storage deed = deeds[block.number];
+              Deed memory newDeed;
+              newDeed.active = true;
+              newDeed.from = householdListWithEnergy[i];
+              newDeed.to = householdListNoEnergy[j];
+              newDeed.renewableEnergyTransferred = amountNeededRenewableEnergy;
+              deed.push(newDeed);
+
+              break;
+            }
+          }
+        }
+      }
+    }
+
+    // clean setup for next settlement
+    delete householdListNoEnergy;
+    delete householdListWithEnergy;
+
     return true;
+  }
+
+  /**
+   * @dev Get length of deeds array
+   * @param _blockNumber uint256
+   * @return uint256 length of deeds array at _blockNumber
+   */
+  function deedsLength(uint256 _blockNumber) public view returns (uint256) {
+    return deeds[_blockNumber].length;
   }
 }

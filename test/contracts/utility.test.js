@@ -5,11 +5,12 @@ const {
   BN,
   constants,
   expectEvent,
-  shouldFail
+  shouldFail,
+  time
 } = require("openzeppelin-test-helpers");
 const expect = require("chai").use(require("chai-bn")(BN)).expect;
 
-contract("Utility", ([owner, household, other]) => {
+contract("Utility", ([owner, hh1, hh2, hh3, hh4]) => {
   beforeEach(async () => {
     this.instance = await Utility.new({
       from: owner
@@ -19,288 +20,371 @@ contract("Utility", ([owner, household, other]) => {
   describe("Households", () => {
     context("with a new household", async () => {
       beforeEach(async () => {
-        ({ logs: this.logs } = await this.instance.addHousehold(household));
+        ({ logs: this.logs } = await this.instance.addHousehold(hh1));
       });
 
       it("should create a new household", async () => {
-        const hh = await this.instance.getHousehold(household);
+        const hh = await this.instance.getHousehold(hh1);
 
         expect(hh[0]).to.be.true; // initialized
         expect(hh[1]).to.be.bignumber.that.is.zero; // renewableEnergy
         expect(hh[2]).to.be.bignumber.that.is.zero; // nonRenewableEnergy
       });
 
+      it("should store addresses in householdList", async () => {
+        expect((await this.instance.householdList(0)) === hh1);
+
+        await this.instance.addHousehold(hh2);
+        expect((await this.instance.householdList(1)) === hh2);
+      });
+
       it("emits event NewHousehold", async () => {
         expectEvent.inLogs(this.logs, "NewHousehold", {
-          household: household
+          household: hh1
         });
       });
 
       it("reverts when attempting to add an existing household", async () => {
-        await shouldFail.reverting(this.instance.addHousehold(household));
+        await shouldFail.reverting(this.instance.addHousehold(hh1));
       });
     });
   });
 
-  describe("Record household energy production and consumption", () => {
+  describe("Settlement", () => {
     beforeEach(async () => {
-      await this.instance.addHousehold(household); // Add dummy household
+      await this.instance.addHousehold(hh1);
+      await this.instance.addHousehold(hh2);
+      await this.instance.addHousehold(hh3);
+      await this.instance.addHousehold(hh4);
     });
 
-    context("Energy", async () => {
-      it("should record the net amount of energy produced correctly", async () => {
-        await this.instance.updateRenewableEnergy(household, 10, 5, {
-          from: household
+    context("totalRenewableEnergy = 0", async () => {
+      it("availableRenewableEnergy = 200, neededRenewableEnergy = -200; households do not need to split energy", async () => {
+        await this.instance.updateRenewableEnergy(hh1, 100, 0, {
+          from: hh1
         });
-        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
-          from: household
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("100");
+
+        await this.instance.updateRenewableEnergy(hh2, 100, 0, {
+          from: hh2
         });
-        const netEnergy = await this.instance.balanceOf(household);
-        expect(netEnergy).to.be.bignumber.equal("10");
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("200");
+
+        await this.instance.updateRenewableEnergy(hh3, 0, 100, {
+          from: hh3
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("100");
+
+        await this.instance.updateRenewableEnergy(hh4, 0, 100, {
+          from: hh4
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("0");
+
+        await this.instance.settle();
+
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh1)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh2)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh3)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh4)
+        ).to.be.bignumber.equal("0");
       });
 
-      it("should record amount of consumed energy correctly", async () => {
-        await this.instance.updateRenewableEnergy(household, 10, 5, {
-          from: household
+      it("availableRenewableEnergy = 200, neededRenewableEnergy = -200; households need to split energy", async () => {
+        await this.instance.updateRenewableEnergy(hh1, 40, 0, {
+          from: hh1
         });
-        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        const consumedEnergy = await this.instance.balanceOfConsumedEnergy(
-          household
-        );
-        expect(consumedEnergy).to.be.bignumber.equal("10");
-      });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("40");
 
-      it("should record amount of produced energy correctly", async () => {
-        await this.instance.updateRenewableEnergy(household, 10, 5, {
-          from: household
+        await this.instance.updateRenewableEnergy(hh2, 160, 0, {
+          from: hh2
         });
-        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
-          from: household
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("200");
+
+        await this.instance.updateRenewableEnergy(hh3, 0, 160, {
+          from: hh3
         });
-        const producedEnergy = await this.instance.balanceOfProducedEnergy(
-          household
-        );
-        expect(producedEnergy).to.be.bignumber.equal("20");
-      });
-    });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("40");
 
-    context("Renewable energy", async () => {
-      it("should record the net amount of energy produced correctly", async () => {
-        await this.instance.updateRenewableEnergy(household, 10, 5, {
-          from: household
+        await this.instance.updateRenewableEnergy(hh4, 0, 40, {
+          from: hh4
         });
-        const netRenewableEnergy = await this.instance.balanceOfRenewableEnergy(
-          household
-        );
-        expect(netRenewableEnergy).to.be.bignumber.equal("5");
-      });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("0");
 
-      it("should record amount of consumed energy correctly", async () => {
-        await this.instance.updateRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        const consumedRenewableEnergy = await this.instance.balanceOfConsumedRenewableEnergy(
-          household
-        );
-        expect(consumedRenewableEnergy).to.be.bignumber.equal("5");
-      });
+        await this.instance.settle();
 
-      it("should record amount of produced energy correctly", async () => {
-        await this.instance.updateRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        const producedRenewableEnergy = await this.instance.balanceOfProducedRenewableEnergy(
-          household
-        );
-        expect(producedRenewableEnergy).to.be.bignumber.equal("10");
-      });
-
-      it("emits event RenewableEnergyChanged", async () => {
-        ({ logs: this.logs } = await this.instance.updateRenewableEnergy(
-          household,
-          10,
-          5,
-          {
-            from: household
-          }
-        ));
-
-        expectEvent.inLogs(this.logs, "RenewableEnergyChanged", {
-          household: household,
-          energy: new BN(5)
-        });
-      });
-    });
-
-    context("Non-renewable energy", async () => {
-      it("should record the net amount of energy produced correctly", async () => {
-        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        const netNonRenewableEnergy = await this.instance.balanceOfNonRenewableEnergy(
-          household
-        );
-        expect(netNonRenewableEnergy).to.be.bignumber.equal("5");
-      });
-
-      it("should record amount of consumed energy correctly", async () => {
-        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        const consumedNonRenewableEnergy = await this.instance.balanceOfConsumedNonRenewableEnergy(
-          household
-        );
-        expect(consumedNonRenewableEnergy).to.be.bignumber.equal("5");
-      });
-
-      it("should record amount of produced energy correctly", async () => {
-        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        const producedNonRenewableEnergy = await this.instance.balanceOfProducedNonRenewableEnergy(
-          household
-        );
-        expect(producedNonRenewableEnergy).to.be.bignumber.equal("10");
-      });
-
-      it("emits event NonRenewableEnergyChanged", async () => {
-        ({ logs: this.logs } = await this.instance.updateNonRenewableEnergy(
-          household,
-          10,
-          5,
-          {
-            from: household
-          }
-        ));
-
-        expectEvent.inLogs(this.logs, "NonRenewableEnergyChanged", {
-          household: household,
-          energy: new BN(5)
-        });
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh1)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh2)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh3)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh4)
+        ).to.be.bignumber.equal("0");
       });
     });
 
-    it("should revert, onlyHousehold required", async () => {
-      await shouldFail.reverting(
-        this.instance.updateRenewableEnergy(household, 0, 0, {
-          from: other
-        })
-      );
+    context("totalRenewableEnergy > 0", async () => {
+      it("availableRenewableEnergy = 400, neededRenewableEnergy = -200; households need to split energy", async () => {
+        await this.instance.updateRenewableEnergy(hh1, 200, 0, {
+          from: hh1
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("200");
+
+        await this.instance.updateRenewableEnergy(hh2, 200, 0, {
+          from: hh2
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("400");
+
+        await this.instance.updateRenewableEnergy(hh3, 0, 100, {
+          from: hh3
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("300");
+
+        await this.instance.updateRenewableEnergy(hh4, 0, 100, {
+          from: hh4
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("200");
+
+        await this.instance.settle();
+
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh1)
+        ).to.be.bignumber.equal("100");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh2)
+        ).to.be.bignumber.equal("100");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh3)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh4)
+        ).to.be.bignumber.equal("0");
+      });
+
+      it("availableRenewableEnergy = 300, neededRenewableEnergy = -200; households need to split energy; rounded values therefore FIFS", async () => {
+        await this.instance.updateRenewableEnergy(hh1, 200, 0, {
+          from: hh1
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("200");
+
+        await this.instance.updateRenewableEnergy(hh2, 100, 0, {
+          from: hh2
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("300");
+
+        await this.instance.updateRenewableEnergy(hh3, 0, 100, {
+          from: hh3
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("200");
+
+        await this.instance.updateRenewableEnergy(hh4, 0, 100, {
+          from: hh4
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("100");
+
+        await this.instance.settle();
+
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh1)
+        ).to.be.bignumber.equal("68");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh2)
+        ).to.be.bignumber.equal("34");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh3)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh4)
+        ).to.be.bignumber.equal("-2");
+      });
     });
 
-    it("should revert, householdExists required", async () => {
-      await shouldFail.reverting(
-        this.instance.updateRenewableEnergy(other, 0, 0, {
-          from: other
-        })
-      );
-    });
+    context("totalRenewableEnergy < 0", async () => {
+      it("availableRenewableEnergy = 200, neededRenewableEnergy = -400; households need to split energy", async () => {
+        await this.instance.updateRenewableEnergy(hh1, 100, 0, {
+          from: hh1
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("100");
 
-    it("should revert on negative _producedEnergy value", async () => {
-      await shouldFail.reverting(
-        this.instance.updateRenewableEnergy(household, -10, 10)
-      );
-    });
+        await this.instance.updateRenewableEnergy(hh2, 100, 0, {
+          from: hh2
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("200");
 
-    it("should revert on negative _consumedEnergy value", async () => {
-      await shouldFail.reverting(
-        this.instance.updateRenewableEnergy(household, 10, -10)
-      );
+        await this.instance.updateRenewableEnergy(hh3, 0, 200, {
+          from: hh3
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("0");
+
+        await this.instance.updateRenewableEnergy(hh4, 0, 200, {
+          from: hh4
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("-200");
+
+        await this.instance.settle();
+
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh1)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh2)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh3)
+        ).to.be.bignumber.equal("-100");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh4)
+        ).to.be.bignumber.equal("-100");
+      });
+
+      it("availableRenewableEnergy = 200, neededRenewableEnergy = -300; households need to split energy, round values therefore FIFS", async () => {
+        await this.instance.updateRenewableEnergy(hh1, 100, 0, {
+          from: hh1
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("100");
+
+        await this.instance.updateRenewableEnergy(hh2, 100, 0, {
+          from: hh2
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("200");
+
+        await this.instance.updateRenewableEnergy(hh3, 0, 200, {
+          from: hh3
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("0");
+
+        await this.instance.updateRenewableEnergy(hh4, 0, 100, {
+          from: hh4
+        });
+        expect(
+          await this.instance.totalRenewableEnergy()
+        ).to.be.bignumber.equal("-100");
+
+        await this.instance.settle();
+
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh1)
+        ).to.be.bignumber.equal("0");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh2)
+        ).to.be.bignumber.equal("2");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh3)
+        ).to.be.bignumber.equal("-68");
+        expect(
+          await this.instance.balanceOfRenewableEnergy(hh4)
+        ).to.be.bignumber.equal("-34");
+      });
     });
   });
 
-  describe("Record total energy production and consumption", () => {
+  describe("Deeds", () => {
     beforeEach(async () => {
-      await this.instance.addHousehold(household); // Add dummy household
-    });
+      await this.instance.addHousehold(hh1);
+      await this.instance.addHousehold(hh2);
+      await this.instance.addHousehold(hh3);
+      await this.instance.addHousehold(hh4);
 
-    context("Total energy", async () => {
-      it("should record the net amount of total energy produced correctly", async () => {
-        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        await this.instance.updateRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        const totalEnergy = await this.instance.totalEnergy();
-        expect(totalEnergy).to.be.bignumber.equal("10");
+      await this.instance.updateRenewableEnergy(hh1, 200, 0, {
+        from: hh1
       });
-
-      it("should record the total amount of consumed energy correctly", async () => {
-        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        await this.instance.updateRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        const totalEnergy = await this.instance.totalConsumedEnergy();
-        expect(totalEnergy).to.be.bignumber.equal("10");
+      await this.instance.updateRenewableEnergy(hh2, 100, 0, {
+        from: hh2
       });
-
-      it("should record the total amount of produced energy correctly", async () => {
-        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        await this.instance.updateRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        const totalEnergy = await this.instance.totalProducedEnergy();
-        expect(totalEnergy).to.be.bignumber.equal("20");
+      await this.instance.updateRenewableEnergy(hh3, 0, 100, {
+        from: hh3
+      });
+      await this.instance.updateRenewableEnergy(hh4, 0, 100, {
+        from: hh4
       });
     });
 
-    context("Total renewable energy", async () => {
-      it("should record the net amount of total energy produced correctly", async () => {
-        await this.instance.updateRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        const totalRenewableEnergy = await this.instance.totalRenewableEnergy();
-        expect(totalRenewableEnergy).to.be.bignumber.equal("5");
-      });
+    it("check deeds in deeds mapping", async () => {
+      await this.instance.settle();
+      const settleBlockNumber = await time.latestBlock();
+      const deedsArrayLength = await this.instance
+        .deedsLength(settleBlockNumber)
+        .then(result => result.toNumber());
 
-      it("should record the total amount of consumed energy correctly", async () => {
-        await this.instance.updateRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        const totalRenewableEnergy = await this.instance.totalConsumedRenewableEnergy();
-        expect(totalRenewableEnergy).to.be.bignumber.equal("5");
-      });
+      const deeds = [];
+      for (let i = 0; i < deedsArrayLength; i++) {
+        deeds.push(await this.instance.deeds(settleBlockNumber, i));
+      }
 
-      it("should record the total amount of produced energy correctly", async () => {
-        await this.instance.updateRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        const totalRenewableEnergy = await this.instance.totalProducedRenewableEnergy();
-        expect(totalRenewableEnergy).to.be.bignumber.equal("10");
-      });
-    });
+      expect(deeds[0].active).to.be.true; // active
+      expect(deeds[0].from === hh1); // from
+      expect(deeds[0].to === hh3); // to
+      expect(deeds[0].renewableEnergyTransferred).to.be.bignumber.equal("100"); // renewableEnergyTransferred
+      expect(deeds[0].nonRenewableEnergyTransferred).to.be.undefined; // nonRenewableEnergyTransferred
 
-    context("Total non-renewable energy", async () => {
-      it("should record the net amount of total energy produced correctly", async () => {
-        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        const totalNonRenewableEnergy = await this.instance.totalNonRenewableEnergy();
-        expect(totalNonRenewableEnergy).to.be.bignumber.equal("5");
-      });
+      expect(deeds[1].active).to.be.true; // active
+      expect(deeds[1].from === hh1); // from
+      expect(deeds[1].to === hh4); // to
+      expect(deeds[1].renewableEnergyTransferred).to.be.bignumber.equal("32"); // renewableEnergyTransferred
+      expect(deeds[1].nonRenewableEnergyTransferred).to.be.undefined; // nonRenewableEnergyTransferred
 
-      it("should record the total amount of consumed energy correctly", async () => {
-        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        const totalRenewableEnergy = await this.instance.totalConsumedNonRenewableEnergy();
-        expect(totalRenewableEnergy).to.be.bignumber.equal("5");
-      });
-
-      it("should record the total amount of produced energy correctly", async () => {
-        await this.instance.updateNonRenewableEnergy(household, 10, 5, {
-          from: household
-        });
-        const totalRenewableEnergy = await this.instance.totalProducedNonRenewableEnergy();
-        expect(totalRenewableEnergy).to.be.bignumber.equal("10");
-      });
+      expect(deeds[2].active).to.be.true; // active
+      expect(deeds[2].from === hh2); // from
+      expect(deeds[2].to === hh4); // to
+      expect(deeds[2].renewableEnergyTransferred).to.be.bignumber.equal("66"); // renewableEnergyTransferred
+      expect(deeds[2].nonRenewableEnergyTransferred).to.be.undefined; // nonRenewableEnergyTransferred
     });
   });
 });
