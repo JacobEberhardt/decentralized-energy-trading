@@ -78,3 +78,4 @@ package-lock.json
 
 # Parity
 **/bootnode.key
+.idea/codeStyles/Project.xml

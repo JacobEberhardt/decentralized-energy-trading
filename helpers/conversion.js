@@ -1,5 +1,6 @@
 const BN = require("bn.js");
 
+
 /**
  * This module contains helper functions that convert values.
  */
