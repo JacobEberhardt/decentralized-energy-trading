@@ -8,15 +8,17 @@ module.exports = {
 
    */
   createDB: url => {
-    MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-      if (err) throw err;
-      console.log("Database created!");
-      const dbo = db.db("sensordata");
-      dbo.createCollection("data", (err, res) => {
-        if (err) throw err;
-        console.log("Collection created!");
-        db.close();
-        return true;
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+        if (err) reject(err);
+        console.log("Database created!");
+        const dbo = db.db("sensordata");
+        dbo.createCollection("data", (err, res) => {
+          if (err) reject(err);
+          console.log("Collection created!");
+          db.close();
+          return true;
+        });
       });
     });
   },
@@ -29,16 +31,16 @@ module.exports = {
 
    */
   writeToDB: (data, url) => {
-    console.log(url);
-    MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-      if (err) throw err;
-      const dbo = db.db("sensordata");
-      dbo.collection("data").insertOne(data, (err, res) => {
-        if (err) throw err;
-        console.log("1 document inserted: ", data);
-        db.close();
-
-        return true;
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+        if (err) reject(err);
+        const dbo = db.db("sensordata");
+        dbo.collection("data").insertOne(data, (err, res) => {
+          if (err) reject(err);
+          console.log("1 document inserted: ", data);
+          db.close();
+          resolve(true);
+        });
       });
     });
   },
@@ -71,28 +73,24 @@ module.exports = {
    * @returns {JSONObject} Result as JSONObject
    */
   findByID: (url, id) => {
-    MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-      if (err) throw err;
-      const dbo = db.db("sensordata");
-      dbo
-        .collection("data")
-        .findOne({ _id: id })
-        .then(result => {
-          console.log(
-            result.produce,
-            result.consume,
-            result._id,
-            result._id.getTimestamp().toString()
-          );
-          db.close();
-
-          return result;
-        })
-        .catch(err => {
-          if (err) {
-          }
-          console.log("Entry with id: ", id, "not found");
-        });
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+        if (err) throw err;
+        const dbo = db.db("sensordata");
+        dbo
+          .collection("data")
+          .findOne({ _id: id })
+          .then(result => {
+            db.close();
+            resolve(result);
+          })
+          .catch(err => {
+            if (err) {
+              reject(err);
+            }
+            console.log("Entry with id: ", id, "not found");
+          });
+      });
     });
   }
 };
