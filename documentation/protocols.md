@@ -37,7 +37,6 @@ You can find the agenda [here](https://docs.google.com/document/d/1OA26rjkMOh78u
   - Utility contracts and BlockReward
   - HHS and Parity
 - Update wiki
-- Still need to integrate JSDoc
 - Work-log is important
 
 **Remark:**
