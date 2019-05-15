@@ -6,7 +6,7 @@
     "compile-contracts": "truffle compile",
     "migrate-contracts": "truffle migrate",
     "test-contracts": "run-script-os",
-    "test-contracts:linux:darwin": "truffle test './test/contracts/*' --network develop",
+    "test-contracts:linux:darwin": "truffle test ./test/contracts/* --network develop",
     "test-contracts:win32": ".\\test-contracts.bat --network develop",
     "run-server": "node ./household-server/index.js",
     "run-ui": "node ./household-ui/index.js",
