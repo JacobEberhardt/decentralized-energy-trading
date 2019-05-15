@@ -12,7 +12,7 @@ dbHandler.createDB(dbUrl).catch(err => {
 
 // Set up web3
 
-const web3 = txHandler.initWeb3(network);
+// const web3 = txHandler.initWeb3(network);
 
 /**
  * Creating the express server waiting for incoming requests
