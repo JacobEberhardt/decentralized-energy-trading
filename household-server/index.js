@@ -1,9 +1,9 @@
 const express = require("express");
 const dbHandler = require("./db-handler");
-const txHandler = require("./transaction-handler");
+// const txHandler = require("./transaction-handler");
 const mockSensor = require("./mock-sensor-data");
 
-const { host, port, dbUrl, network } = require("../household-server-config");
+const { host, port, dbUrl } = require("../household-server-config");
 
 // Set up the DB
 dbHandler.createDB(dbUrl).catch(err => {
