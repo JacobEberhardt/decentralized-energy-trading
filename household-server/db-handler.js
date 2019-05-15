@@ -25,15 +25,15 @@ module.exports = {
           db.close();
           return true;
         });
+      });
     });
   },
 
   /**
-   * Method to write data to the database. Should be added as Eventlistener to incoming PUT requests of the Sensors
+   * Method to write data to the database.
    * @param {JSONObject} data the data to add to the DB
    * @param {String} url URL/URI of the DB
    * @returns {boolean} if operation was successful
-
    */
   writeToDB: (data, url) => {
     return new Promise((resolve, reject) => {
@@ -41,6 +41,27 @@ module.exports = {
         if (err) reject(err);
         const dbo = db.db("sensordata");
         dbo.collection("data").insertOne(data, (err, res) => {
+          if (err) reject(err);
+          console.log("1 document inserted: ", data);
+          db.close();
+          resolve(true);
+        });
+      });
+    });
+  },
+
+  /**
+   * Method to write data from the blockchain to the database.
+   * @param {JSONObject} data the uc-data to add to the DB
+   * @param {String} url URL/URI of the DB
+   * @returns {boolean} if operation was successful
+   */
+  writeUCDataToDB: (data, url) => {
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+        if (err) reject(err);
+        const dbo = db.db("sensordata");
+        dbo.collection("uc-data").insertOne(data, (err, res) => {
           if (err) reject(err);
           console.log("1 document inserted: ", data);
           db.close();

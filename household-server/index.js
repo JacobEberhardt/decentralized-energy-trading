@@ -1,6 +1,6 @@
 const express = require("express");
 const dbHandler = require("./db-handler");
-//const txHandler = require("./transaction-handler");
+// const txHandler = require("./transaction-handler");
 const mockSensor = require("./mock-sensor-data");
 
 const { host, port, dbUrl, network } = require("../household-server-config");
@@ -12,7 +12,7 @@ dbHandler.createDB(dbUrl).catch(err => {
 
 // Set up web3
 
-//const web3 = txHandler.initWeb3(network);
+// const web3 = txHandler.initWeb3(network);
 
 /**
  * Creating the express server waiting for incoming requests
