@@ -1,7 +1,7 @@
 const express = require("express");
 const events = require("events");
 const dbHandler = require("./db-handler");
-const txHandler = require("./transaction-handler");
+//const txHandler = require("./transaction-handler");
 const mockSensor = require("./mock-sensor-data");
 
 const { host, port, dbUrl, network } = require("../household-server-config");
@@ -11,23 +11,13 @@ dbHandler.createDB(dbUrl);
 
 // Set up web3
 
-const web3 = txHandler.initWeb3(network);
+//const web3 = txHandler.initWeb3(network);
 
 // Defining Events
 const EVENTS = {
   SENSOR_INPUT: "sensor_input",
   UI_REQUEST: "ui_request"
 };
-
-// Adding Event Listener
-const eventEmitter = new events.EventEmitter();
-eventEmitter.on(EVENTS.UI_REQUEST, () => dbHandler.readAll(dbUrl));
-eventEmitter.on(EVENTS.SENSOR_INPUT, payload =>
-  dbHandler.writeToDB(payload, dbUrl)
-);
-eventEmitter.on(EVENTS.SENSOR_INPUT, payload =>
-  txHandler.updateRenewableEnergy(web3, payload)
-);
 
 /**
  * Creating the express server waiting for incoming requests
@@ -40,9 +30,18 @@ const app = express();
  * GET request for the UI
  */
 app.get("/", function(req, res, next) {
-  eventEmitter.emit(EVENTS.UI_REQUEST, dbUrl);
-  res.statusCode = 200;
-  res.end("Success");
+  dbHandler
+    .readAll(dbUrl)
+    .then(result => {
+      console.log("Sending data to Client:\n", result);
+      res.setHeader("Content-Type", "application/json");
+      res.end(JSON.stringify(result));
+    })
+    .catch(err => {
+      console.log(err);
+      res.statusCode = 400;
+      res.end("Error occurred:\n", err);
+    });
 });
 
 /**

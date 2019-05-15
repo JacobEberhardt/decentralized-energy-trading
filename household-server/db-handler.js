@@ -45,24 +45,23 @@ module.exports = {
 
   /**
    * Method to read data from the database
-   * Should be added as an Eventlistener for incoming GET Requests from the UI
    * @param {String} url URL/URI of the DB
-   * @returns {Array} Result as Array of JSONObjects
+   * @returns {Promise} Which either resolves into an Array of objects or rejects an error
    */
   readAll: url => {
-    MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-      if (err) throw err;
-      const dbo = db.db("sensordata");
-      dbo
-        .collection("data")
-        .find({})
-        .toArray((err, result) => {
-          if (err) throw err;
-          console.log(result);
-          db.close();
-
-          return result;
-        });
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+        if (err) reject(err);
+        const dbo = db.db("sensordata");
+        dbo
+          .collection("data")
+          .find({})
+          .toArray((err, result) => {
+            if (err) reject(err);
+            db.close();
+            resolve(result);
+          });
+      });
     });
   },
   /**
