@@ -17,7 +17,7 @@ module.exports = {
           if (err) reject(err);
           console.log("Collection created!");
           db.close();
-          return true;
+          resolve(true);
         });
       });
     });
