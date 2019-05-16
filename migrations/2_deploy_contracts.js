@@ -17,13 +17,13 @@ module.exports = async (deployer, network, [authority]) => {
       break;
     }
     case "authority": {
-      const fifsUtilityInstanceInAuthority = await FifsUtility.at(
+      const utilityInstanceInAuthority = await Utility.at(
         UTILITY_ADDRESS_IN_AUTHORITY
       );
       const web3 = web3Helper.initWeb3("authority");
       const { address, password } = authorityHelper.getAddressAndPassword();
       await web3.eth.personal.unlockAccount(address, password, null);
-      await fifsUtilityInstanceInAuthority.addHousehold(AUTHORITY_ADDRESS, {
+      await utilityInstanceInAuthority.addHousehold(AUTHORITY_ADDRESS, {
         from: AUTHORITY_ADDRESS
       });
       break;
