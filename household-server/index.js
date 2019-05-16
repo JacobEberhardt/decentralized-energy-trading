@@ -1,5 +1,4 @@
 const express = require("express");
-const events = require("events");
 const commander = require("commander");
 
 const dbHandler = require("./db-handler");
@@ -27,26 +26,12 @@ const dbUrl = commander.dbUrl || serverConfig.dbUrl;
 const network = commander.network || serverConfig.network;
 
 // Set up the DB
-dbHandler.createDB(dbUrl);
+dbHandler.createDB(dbUrl).catch(err => {
+  console.log("Error while creating DB", err);
+});
 
 // Set up web3
-const web3 = web3Helper.initWeb3(network);
-
-// Defining Events
-const EVENTS = {
-  SENSOR_INPUT: "sensor_input",
-  UI_REQUEST: "ui_request"
-};
-
-// Adding Event Listener
-const eventEmitter = new events.EventEmitter();
-eventEmitter.on(EVENTS.UI_REQUEST, () => dbHandler.readAll(dbUrl));
-eventEmitter.on(EVENTS.SENSOR_INPUT, payload =>
-  dbHandler.writeToDB(payload, dbUrl)
-);
-eventEmitter.on(EVENTS.SENSOR_INPUT, payload =>
-  txHandler.updateRenewableEnergy(web3, payload)
-);
+const web3 = txHandler.initWeb3(network);
 
 /**
  * Creating the express server waiting for incoming requests
@@ -59,9 +44,18 @@ const app = express();
  * GET request for the UI
  */
 app.get("/", function(req, res, next) {
-  eventEmitter.emit(EVENTS.UI_REQUEST, dbUrl);
-  res.statusCode = 200;
-  res.end("Success");
+  dbHandler
+    .readAll(dbUrl)
+    .then(result => {
+      console.log("Sending data to Client:\n", result);
+      res.setHeader("Content-Type", "application/json");
+      res.end(JSON.stringify(result));
+    })
+    .catch(err => {
+      console.log(err);
+      res.statusCode = 400;
+      res.end("Error occurred:\n", err);
+    });
 });
 
 /**
@@ -74,10 +68,11 @@ app.put("/", function(req, res, next) {
     consume: data[0],
     produce: data[1]
   };
-
-  eventEmitter.emit(EVENTS.SENSOR_INPUT, payload);
-  res.statusCode = 200;
-  res.end("Success");
+  dbHandler.writeToDB(payload, dbUrl).then(result => {
+    console.log("Sending Response");
+    res.statusCode = 200;
+    res.end("Transaction Successfull");
+  });
 });
 
 /**

@@ -2,6 +2,47 @@
 
 All meeting protocols are listed below ordered by date (descending).
 
+### 05/014/19, 12-4pm: Team meeting
+
+You can find the agenda [here](https://docs.google.com/document/d/1OA26rjkMOh78uuaZQKDz5ICljEee16qwS9beG49Gu3w/edit).
+
+**Done:**
+
+- Emo round
+  - Reminder for work-log
+  - Integration issues (long-term integration)
+- Code walkthrough: AN, UC and HHS
+
+**ToDo:**
+
+- HHS
+  - Event-based system to promise-based system
+  - `GET` request returns DB data
+  - `PUT` sends transaction and stores `deeds` in DB
+- UC
+  - Adjust `Ownable` contract to match with AN
+  - Refactor names and migration
+  - Rounding bug
+  - Improve settlement (high gas costs, for-loops), off-chain solution
+- AN
+  - Finally finish `ValidatorSet` contract to finish integration
+  - Deploy all contracts within genesis block
+  - Fix `Ownable` contract issues
+- UI
+  - Create simple SPA UI with React
+  - Mock UI is [here](https://cloudprototypingss19.slack.com/files/UHXH0AHHB/FJNUQE8P2/img_20190514_142501.jpg)
+- Still need to finalize integration
+  - Validator contracts and parity
+  - Utility contracts and parity
+  - Utility contracts and BlockReward
+  - HHS and Parity
+- Update wiki
+- Work-log is important
+
+**Remark:**
+
+- Meeting Tue 05/21/19, 2-4pm with Jacob working version with basic UI.
+
 ### 05/07/19, 12-4pm: Team meeting and presentation of first prototype to Jacob
 
 with Jacob from 2-4pm
