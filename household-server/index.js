@@ -3,12 +3,22 @@ const dbHandler = require("./db-handler");
 const txHandler = require("./transaction-handler");
 const mockSensor = require("./mock-sensor-data");
 
-const { host, port, dbUrl, network } = require("../household-server-config");
+const {
+  host,
+  port,
+  dbUrl,
+  network,
+  dbName,
+  sensorDataCollection,
+  utilityDataCollection
+} = require("../household-server-config");
 
 // Set up the DB
-dbHandler.createDB(dbUrl).catch(err => {
-  console.log("Error while creating DB", err);
-});
+dbHandler
+  .createDB(dbUrl, dbName, [sensorDataCollection, utilityDataCollection])
+  .catch(err => {
+    console.log("Error while creating DB", err);
+  });
 
 // Set up web3
 const web3 = txHandler.initWeb3(network);
@@ -49,10 +59,17 @@ app.put("/", function(req, res, next) {
     consume: data[0],
     produce: data[1]
   };
+  const blocknumber = 1;
   dbHandler.writeToDB(payload, dbUrl).then(result => {
     console.log("Sending Response");
     res.statusCode = 200;
     res.end("Transaction Successfull");
+  });
+  txHandler.updateRenewableEnergy(web3, payload).then(() => {
+    console.log("Payload sent to the chain");
+  });
+  txHandler.collectDeeds(web3, blocknumber).then(deeds => {
+    dbHandler.writeUCDataToDB(deeds, dbUrl);
   });
 });
 

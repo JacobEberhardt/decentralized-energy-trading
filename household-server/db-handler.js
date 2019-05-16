@@ -5,26 +5,21 @@ module.exports = {
    * Method to create the DB and Initialize it with a Collection
    * @param {String} url URL/URI of the DB
    * @returns {boolean} if operation was successful
-
    */
-  createDB: url => {
+  createDB: (url, dbName, collectionList) => {
     return new Promise((resolve, reject) => {
       MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
         if (err) reject(err);
         console.log("Database created!");
-        const dbo = db.db("sensordata");
-        dbo.createCollection("data", (err, res) => {
-          if (err) reject(err);
-          console.log("Collection created!");
-          db.close();
-          return true;
+        const dbo = db.db(dbName);
+        collectionList.forEach(collection => {
+          dbo.createCollection(collection, (err, res) => {
+            if (err) reject(err);
+            console.log("Collection", collection, "created!");
+            db.close();
+          });
         });
-        dbo.createCollection("uc-data", (err, res) => {
-          if (err) throw err;
-          console.log("Collection 'uc-data' created!");
-          db.close();
-          return true;
-        });
+        resolve(true);
       });
     });
   },
@@ -65,7 +60,7 @@ module.exports = {
           if (err) reject(err);
           console.log("1 document inserted: ", data);
           db.close();
-          resolve(true);
+          resolve(data);
         });
       });
     });
