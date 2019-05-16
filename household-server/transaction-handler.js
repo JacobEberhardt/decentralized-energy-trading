@@ -3,7 +3,6 @@ const Web3 = require("web3");
 const authorityHelper = require("../helpers/authority");
 const contractHelper = require("../helpers/contract");
 const conversionHelper = require("../helpers/conversion");
-
 const truffleConfig = require("../truffle-config");
 
 /**
@@ -43,6 +42,26 @@ module.exports = {
         )
         .send({ from: address });
       return txReceipt;
+    } catch (error) {
+      throw error;
+    } finally {
+      await web3.eth.personal.lockAccount(address);
+    }
+  },
+
+  collectDeeds: async (web3, blockNumber) => {
+    const { address, password } = authorityHelper.getAddressAndPassword();
+    try {
+      const contract = new web3.eth.Contract(
+        contractHelper.getAbi(),
+        contractHelper.getDeployedAddress()
+      );
+      await web3.eth.personal.unlockAccount(address, password, 600);
+      const deedsLength = await contract.methods
+        .deedsLenght(blockNumber)
+        .send({ from: address });
+      // const deeds = await contract.methods.deeds().send({ from: address });
+      return deedsLength;
     } catch (error) {
       throw error;
     } finally {
