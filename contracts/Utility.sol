@@ -37,6 +37,44 @@ contract Utility is UtilityBase, IUtility {
     }
   }
 
+  function settle2() external returns (bool) {
+    // amount of available renewable energy for settlement
+    int256 availableRenewableEnergy;
+    // amount of needed renewable energy
+    int256 neededRenewableEnergy;
+
+    // group households into households with positive amount of renewable energy
+    // and negative amount of renewable energy
+    for (uint256 i = 0; i < householdList.length; i++) {
+      if (households[householdList[i]].renewableEnergy < 0) {
+        // households with negative amount of renewable energy
+        householdListNoEnergy.push(householdList[i]);
+      } else if (households[householdList[i]].renewableEnergy > 0) {
+        // households with positive amount of renewable energy
+        householdListWithEnergy.push(householdList[i]);
+        availableRenewableEnergy = availableRenewableEnergy.add(households[householdList[i]].renewableEnergy);
+      }
+    }
+
+    // remember: totalRenewableEnergy = availableRenewableEnergy + neededRenewableEnergy
+    // remember: availableRenewableEnergy > 0
+    neededRenewableEnergy = totalRenewableEnergy.sub(availableRenewableEnergy);
+
+    if (totalRenewableEnergy <= 0) {
+      return _proportionalDistribution(
+        neededRenewableEnergy,
+        availableRenewableEnergy,
+        householdListNoEnergy,
+        householdListWithEnergy);
+    } else {
+      return _proportionalDistribution(
+        neededRenewableEnergy,
+        availableRenewableEnergy,
+        householdListWithEnergy,
+        householdListNoEnergy);
+    }
+  }
+
   /**
    * @dev Settlement function for netting (focus on renewable energy only)
    * @return success bool if settlement was successful
@@ -172,5 +210,57 @@ contract Utility is UtilityBase, IUtility {
    */
   function deedsLength(uint256 _blockNumber) public view returns (uint256) {
     return deeds[_blockNumber].length;
+  }
+
+  function _proportionalDistribution(
+    int256 _neededRenewableEnergy,
+    int256 _availableRenewableEnergy,
+    address[] storage _hhParty1,
+    address[] storage _hhparty2)
+    private
+    returns (bool)
+  {
+
+    bool isMoreAvailableThanDemanded = _availableRenewableEnergy + _neededRenewableEnergy > 0 ? true : false;
+
+    int256 energyReference = isMoreAvailableThanDemanded ?
+      _availableRenewableEnergy : _neededRenewableEnergy;
+
+    int256 energyToShare = isMoreAvailableThanDemanded ?
+      _neededRenewableEnergy : _availableRenewableEnergy;
+
+    uint256 needle = 0;
+
+    for (uint256 i = 0; i < _hhParty1.length; ++i) {
+      Household storage hh = households[_hhParty1[i]];
+      int256 proportionalFactor = (_abs(hh.renewableEnergy).mul(100)).div(_abs(energyReference));
+      int256 proportionalShare = (_abs(energyToShare).mul(proportionalFactor)).div(100);
+
+      for (uint256 j = needle; j < _hhparty2.length; ++j) {
+        Household storage hh2 = households[_hhparty2[j]];
+        int256 toClaim = isMoreAvailableThanDemanded ? proportionalShare.mul(-1) : proportionalShare;
+        int256 renewableEnergy = isMoreAvailableThanDemanded ? hh2.renewableEnergy.mul(-1) : hh2.renewableEnergy;
+
+        if (renewableEnergy > proportionalShare) {
+          hh2.renewableEnergy -= toClaim;
+          hh.renewableEnergy += toClaim;
+          if (hh2.renewableEnergy == 0) {
+            needle++;
+          }
+          break;
+        } else {
+          int256 energyTransferred = hh2.renewableEnergy;
+          hh2.renewableEnergy -= energyTransferred;
+          hh.renewableEnergy += energyTransferred;
+          proportionalShare = proportionalShare.sub(_abs(energyTransferred));
+          needle++;
+        }
+      }
+    }
+    return false;
+  }
+
+  function _abs(int256 _number) private pure returns (int256) {
+    return _number < 0 ? _number.mul(-1) : _number;
   }
 }
