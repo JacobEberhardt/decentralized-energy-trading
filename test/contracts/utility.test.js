@@ -88,7 +88,7 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4]) => {
           await this.instance.totalRenewableEnergy()
         ).to.be.bignumber.equal("0");
 
-        await this.instance.settle2();
+        await this.instance.settle();
 
         expect(
           await this.instance.balanceOfRenewableEnergy(hh1)
@@ -133,7 +133,7 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4]) => {
           await this.instance.totalRenewableEnergy()
         ).to.be.bignumber.equal("0");
 
-        await this.instance.settle2();
+        await this.instance.settle();
 
         expect(
           await this.instance.balanceOfRenewableEnergy(hh1)
@@ -180,7 +180,7 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4]) => {
           await this.instance.totalRenewableEnergy()
         ).to.be.bignumber.equal("200");
 
-        await this.instance.settle2();
+        await this.instance.settle();
 
         expect(
           await this.instance.balanceOfRenewableEnergy(hh1)
@@ -225,7 +225,7 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4]) => {
           await this.instance.totalRenewableEnergy()
         ).to.be.bignumber.equal("100");
 
-        await this.instance.settle2();
+        await this.instance.settle();
 
         expect(
           await this.instance.balanceOfRenewableEnergy(hh1)
@@ -272,7 +272,7 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4]) => {
           await this.instance.totalRenewableEnergy()
         ).to.be.bignumber.equal("-200");
 
-        await this.instance.settle2();
+        await this.instance.settle();
 
         expect(
           await this.instance.balanceOfRenewableEnergy(hh1)
@@ -317,7 +317,7 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4]) => {
           await this.instance.totalRenewableEnergy()
         ).to.be.bignumber.equal("-100");
 
-        await this.instance.settle2();
+        await this.instance.settle();
 
         expect(
           await this.instance.balanceOfRenewableEnergy(hh1)
