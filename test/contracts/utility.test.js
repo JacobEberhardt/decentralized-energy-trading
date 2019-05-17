@@ -50,7 +50,7 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4]) => {
     });
   });
 
-  describe.only("Settlement", () => {
+  describe("Settlement", () => {
     beforeEach(async () => {
       await this.instance.addHousehold(hh1);
       await this.instance.addHousehold(hh2);

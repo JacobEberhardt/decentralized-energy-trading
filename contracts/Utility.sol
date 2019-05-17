@@ -216,7 +216,7 @@ contract Utility is UtilityBase, IUtility {
     int256 _neededRenewableEnergy,
     int256 _availableRenewableEnergy,
     address[] storage _hhParty1,
-    address[] storage _hhparty2)
+    address[] storage _hhParty2)
     private
     returns (bool)
   {
@@ -230,34 +230,63 @@ contract Utility is UtilityBase, IUtility {
       _neededRenewableEnergy : _availableRenewableEnergy;
 
     uint256 needle = 0;
+    address addressFrom;
+    address addressTo;
 
     for (uint256 i = 0; i < _hhParty1.length; ++i) {
-      Household storage hh = households[_hhParty1[i]];
+      addressTo = _hhParty1[i];
+      Household storage hh = households[addressTo];
+
       int256 proportionalFactor = (_abs(hh.renewableEnergy).mul(100)).div(_abs(energyReference));
       int256 proportionalShare = (_abs(energyToShare).mul(proportionalFactor)).div(100);
 
-      for (uint256 j = needle; j < _hhparty2.length; ++j) {
-        Household storage hh2 = households[_hhparty2[j]];
+      for (uint256 j = needle; j < _hhParty2.length; ++j) {
+        addressFrom = _hhParty2[j];
+        Household storage hh2 = households[addressFrom];
+
         int256 toClaim = isMoreAvailableThanDemanded ? proportionalShare.mul(-1) : proportionalShare;
         int256 renewableEnergy = isMoreAvailableThanDemanded ? hh2.renewableEnergy.mul(-1) : hh2.renewableEnergy;
 
         if (renewableEnergy > proportionalShare) {
-          hh2.renewableEnergy -= toClaim;
-          hh.renewableEnergy += toClaim;
+          _transfer(addressFrom, addressTo, toClaim);
           if (hh2.renewableEnergy == 0) {
             needle++;
           }
           break;
         } else {
           int256 energyTransferred = hh2.renewableEnergy;
-          hh2.renewableEnergy -= energyTransferred;
-          hh.renewableEnergy += energyTransferred;
+          _transfer(addressFrom, addressTo, energyTransferred);
           proportionalShare = proportionalShare.sub(_abs(energyTransferred));
           needle++;
         }
       }
     }
     return false;
+  }
+
+  function _addDeed(address _from, address _to, int256 _amount) private returns (bool) {
+    address from = _from;
+    address to = _to;
+    if (_amount < 0) {
+      from = _to;
+      to = _from;
+    }
+
+    Deed[] storage deed = deeds[block.number];
+    Deed memory newDeed;
+    newDeed.active = true;
+    newDeed.from = from;
+    newDeed.to = to;
+    newDeed.renewableEnergyTransferred = _amount;
+    deed.push(newDeed);
+  }
+
+  function _transfer(address _from, address _to, int256 _amount) private returns (bool) {
+    Household storage hhFrom = households[_from];
+    Household storage hhTo = households[_to];
+    hhFrom.renewableEnergy = hhFrom.renewableEnergy.sub(_amount);
+    hhTo.renewableEnergy = hhTo.renewableEnergy.add(_amount);
+    _addDeed(_from, _to, _amount);
   }
 
   function _abs(int256 _number) private pure returns (int256) {
