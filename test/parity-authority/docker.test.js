@@ -22,9 +22,9 @@ describe("Test Node Properties", () => {
             jsonrpc: "2.0",
             method: "personal_listAccounts",
             params: [],
-            id: 0,
+            id: 0
           },
-          ...options,
+          ...options
         });
         // NOTE: Including test account with a lot of ETH which is not a authority.
         assert.strictEqual(statusCode, 200);
@@ -54,8 +54,8 @@ describe("Test Network Properties", () => {
             jsonrpc: "2.0",
             method: "net_peerCount",
             params: [],
-            id: 0,
-          },
+            id: 0
+          }
         });
         assert.strictEqual(statusCode, 200);
         assert.strictEqual(body.result, "0x2");
@@ -69,8 +69,8 @@ describe("Test Network Properties", () => {
             jsonrpc: "2.0",
             method: "eth_blockNumber",
             params: [],
-            id: 0,
-          },
+            id: 0
+          }
         });
         assert.strictEqual(statusCode, 200);
         assert.ok(body.result > 0);
@@ -81,8 +81,13 @@ describe("Test Network Properties", () => {
         const web3 = web3Helper.initWeb3("authority");
         const { address, password } = authorityHelper.getAddressAndPassword();
         await web3.eth.personal.unlockAccount(address, password, null);
-        const contract = new web3.eth.Contract(contractData.abi, OWNED_SET_ADDRESS);
-        const validators = await contract.methods.getValidators().call({ from: address });
+        const contract = new web3.eth.Contract(
+          contractData.abi,
+          OWNED_SET_ADDRESS
+        );
+        const validators = await contract.methods
+          .getValidators()
+          .call({ from: address });
 
         assert.ok(validators.length >= 1);
       });
