@@ -15,7 +15,8 @@
                 "0x00Aa39d30F0D20FF03a22cCfc30B7EfbFca597C2",
                 "0x002e28950558fbede1a9675cb113f0bd20912019"
               ]
-            }
+            },
+            "5": { "contract": "0x8886F0F21042e73cc1C7d2c48a3135666492981F" }
           }
         },
         "blockRewardContractAddress": "0x0000000000000000000000000000000000000043"
