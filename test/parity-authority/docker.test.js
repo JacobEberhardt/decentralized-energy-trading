@@ -1,7 +1,6 @@
 const chai = require("chai");
 const request = require("request-promise");
 const util = require("util");
-const Web3 = require("web3");
 const { assert } = chai;
 
 const root = process.env.PROJECT_ROOT;
