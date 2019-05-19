@@ -43,7 +43,8 @@ module.exports = {
         .send({ from: address });
       return txReceipt;
     } catch (error) {
-      throw error;
+      // throw error;
+      console.log(error.message);
     } finally {
       await web3.eth.personal.lockAccount(address);
     }
@@ -58,12 +59,13 @@ module.exports = {
       );
       await web3.eth.personal.unlockAccount(address, password, 600);
       const deedsLength = await contract.methods
-        .deedsLenght(blockNumber)
+        .deedsLength(blockNumber)
         .send({ from: address });
       // const deeds = await contract.methods.deeds().send({ from: address });
       return deedsLength;
     } catch (error) {
-      throw error;
+      // throw error;
+      console.log(error.message);
     } finally {
       await web3.eth.personal.lockAccount(address);
     }
