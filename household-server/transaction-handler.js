@@ -62,7 +62,11 @@ module.exports = {
         .deedsLength(blockNumber)
         .send({ from: address });
       // const deeds = await contract.methods.deeds().send({ from: address });
-      return deedsLength;
+      const deeds = [];
+      for (let i = 0; i < deedsLength; i++) {
+        deeds.push(await this.instance.deeds(blockNumber, i));
+      }
+      return deeds;
     } catch (error) {
       // throw error;
       console.log(error.message);
