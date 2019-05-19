@@ -1,7 +1,7 @@
 const express = require("express");
 const dbHandler = require("./db-handler");
 const txHandler = require("./transaction-handler");
-const mockSensor = require("./mock-sensor-data");
+// const mockSensor = require("./mock-sensor-data");
 
 const { host, port, dbUrl, network } = require("../household-server-config");
 
@@ -20,6 +20,8 @@ console.log(web3.version); // for testing
  * At last a response is sent to the requester
  */
 const app = express();
+
+app.use(express.json());
 
 /**
  * GET request for the UI
@@ -43,13 +45,21 @@ app.get("/", function(req, res, next) {
  * PUT request from the sensors
  */
 app.put("/", function(req, res, next) {
-  const data = mockSensor.createMockData(2, 0, 100);
-  // preparing mock data
+  // ------ For Testing purposes with a REST Client -------
+  // const data = mockSensor.createMockData(2, 0, 100);
+  // const payload = {
+  //   consume: data.body[0],
+  //   produce: data.body[1]
+  // };
+  // ------------------------------------------------------
+
   const payload = {
-    consume: data[0],
-    produce: data[1]
+    consume: req.body[0],
+    produce: req.body[1]
   };
-  dbHandler.writeToDB(payload, dbUrl).then(result => {
+
+  console.log(payload);
+  dbHandler.writeToDB(payload, dbUrl).then(() => {
     console.log("Sending Response");
     res.statusCode = 200;
     res.end("Transaction Successfull");
