@@ -38,6 +38,12 @@ Household Server running at http://127.0.0.1:3002/
 Database created!
 Collection created!
 ``` 
+4. You can also overwrite the `household-server-config` values in the CLI
+```bash
+yarn run-server -h <HOST> -p <PORT> -d <DB_URL> -n <NETWORK>
+# OR
+yarn run-server --host <HOST> --port <PORT> --dbUrl <DB_URL> --network <NETWORK>
+```
 
 ## Interact with the household-server
 To get the Dataflow going, make a PUT request to the address displayed in the console.
