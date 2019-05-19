@@ -65,19 +65,20 @@ app.put("/", function(req, res, next) {
     txHandler.updateRenewableEnergy(web3, payload).then(() => {
       console.log("Payload sent to the chain");
     });
+
     txHandler.collectDeeds(web3, blocknumber).then(deeds => {
-      dbHandler.writeUCDataToDB(deeds, dbUrl);
+      dbHandler.writeToDB(deeds, dbUrl, "utility_data");
       console.log("Collected Deeds");
+    });
+
+    dbHandler.writeToDB(payload, dbUrl, "sensor_data").then(result => {
+      console.log("Sending Response");
+      res.statusCode = 200;
+      res.end("Transaction Successful");
     });
   } catch (err) {
     throw err;
   }
-
-  dbHandler.writeToDB(payload, dbUrl).then(result => {
-    console.log("Sending Response");
-    res.statusCode = 200;
-    res.end("Transaction Successful");
-  });
 });
 
 /**

@@ -4,6 +4,8 @@ module.exports = {
   /**
    * Method to create the DB and Initialize it with a Collection
    * @param {String} url URL/URI of the DB
+   * @param {String} dbName name of the created database
+   * @param {List} collectionList list of all data-collections that are created
    * @returns {boolean} if operation was successful
    */
   createDB: (url, dbName, collectionList) => {
@@ -28,39 +30,19 @@ module.exports = {
    * Method to write data to the database.
    * @param {JSONObject} data the data to add to the DB
    * @param {String} url URL/URI of the DB
+   * @param {String} collection the used collection of the inserted data
    * @returns {boolean} if operation was successful
    */
-  writeToDB: (data, url) => {
+  writeToDB: (data, url, collection) => {
     return new Promise((resolve, reject) => {
       MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
         if (err) reject(err);
         const dbo = db.db("sensordata");
-        dbo.collection("data").insertOne(data, (err, res) => {
+        dbo.collection(collection).insertOne(data, (err, res) => {
           if (err) reject(err);
           console.log("1 document inserted: ", data);
           db.close();
-          resolve(true);
-        });
-      });
-    });
-  },
-
-  /**
-   * Method to write data from the blockchain to the database.
-   * @param {JSONObject} data the uc-data to add to the DB
-   * @param {String} url URL/URI of the DB
-   * @returns {boolean} if operation was successful
-   */
-  writeUCDataToDB: (data, url) => {
-    return new Promise((resolve, reject) => {
-      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-        if (err) reject(err);
-        const dbo = db.db("sensordata");
-        dbo.collection("uc-data").insertOne(data, (err, res) => {
-          if (err) reject(err);
-          console.log("1 document inserted: ", data);
-          db.close();
-          resolve(data);
+          resolve(true); // or resolve(data)
         });
       });
     });
