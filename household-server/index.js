@@ -3,7 +3,6 @@ const commander = require("commander");
 
 const dbHandler = require("./db-handler");
 const txHandler = require("./transaction-handler");
-const mockSensor = require("./mock-sensor-data");
 
 const web3Helper = require("../helpers/web3");
 
@@ -40,6 +39,8 @@ const web3 = web3Helper.initWeb3(network);
  */
 const app = express();
 
+app.use(express.json());
+
 /**
  * GET request for the UI
  */
@@ -62,13 +63,13 @@ app.get("/", function(req, res, next) {
  * PUT request from the sensors
  */
 app.put("/", function(req, res, next) {
-  const data = mockSensor.createMockData(2, 0, 100);
-  // preparing mock data
   const payload = {
-    consume: data[0],
-    produce: data[1]
+    consume: req.body[0],
+    produce: req.body[1]
   };
-  dbHandler.writeToDB(payload, dbUrl).then(result => {
+
+  console.log(payload);
+  dbHandler.writeToDB(payload, dbUrl).then(() => {
     console.log("Sending Response");
     res.statusCode = 200;
     res.end("Transaction Successfull");
