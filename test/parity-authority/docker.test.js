@@ -5,7 +5,6 @@ const { assert } = chai;
 
 const root = process.env.PROJECT_ROOT;
 const web3Helper = require(`${root}/helpers/web3`);
-const authorityHelper = require(`${root}/helpers/authority`);
 
 const { OWNED_SET_ADDRESS } = require(`${root}/helpers/constants`);
 
@@ -79,15 +78,11 @@ describe("Test Network Properties", () => {
       it("has at least 1 validators", async () => {
         const contractData = require(`${root}/build/contracts/OwnedSet.json`);
         const web3 = web3Helper.initWeb3("authority");
-        const { address, password } = authorityHelper.getAddressAndPassword();
-        await web3.eth.personal.unlockAccount(address, password, null);
         const contract = new web3.eth.Contract(
           contractData.abi,
           OWNED_SET_ADDRESS
         );
-        const validators = await contract.methods
-          .getValidators()
-          .call({ from: address });
+        const validators = await contract.methods.getValidators().call();
 
         assert.ok(validators.length >= 1);
       });

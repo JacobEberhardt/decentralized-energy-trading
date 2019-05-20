@@ -1,48 +1,38 @@
-pragma solidity ^0.5;
+pragma solidity ^0.5.0;
 
 import "./BaseOwnedSet.sol";
-import "./ValidatorSet.sol";
+
+
 
 // An owned validator set contract where the owner can add or remove validators.
+contract OwnedSet is BaseOwnedSet {
+  // solium-disable-next-line
+  constructor(address[] memory _initial) BaseOwnedSet(_initial) public {}
 
-contract OwnedSet is ValidatorSet, BaseOwnedSet {
+  // Called when an initiated change reaches finality and is activated.
+  function finalizeChange()
+    external
+    onlyOwner
+  {
+    baseFinalizeChange();
+  }
 
-	constructor(address _owner, address[] memory _initial) BaseOwnedSet(_initial)
-	public {}
+  // MISBEHAVIOUR HANDLING
 
-	// Called when an initiated change reaches finality and is activated.
-	function finalizeChange()
-		external
-		onlyOwner
-	{
-		baseFinalizeChange();
-	}
+  function reportBenign(address _validator, uint256 _blockNumber)
+    external
+  {
+    baseReportBenign(msg.sender, _validator, _blockNumber);
+  }
 
-	// MISBEHAVIOUR HANDLING
-
-	function reportBenign(address _validator, uint256 _blockNumber)
-		external
-	{
-		baseReportBenign(msg.sender, _validator, _blockNumber);
-	}
-
-	function reportMalicious(address _validator, uint256 _blockNumber, bytes calldata _proof)
-		external
-	{
-		baseReportMalicious(
-			msg.sender,
-			_validator,
-			_blockNumber,
-			_proof
-		);
-	}
-
-	// PRIVATE
-
-	// Log desire to change the current list.
-	function initiateChange()
-		private
-	{
-		emit InitiateChange(blockhash(block.number - 1), pending);
-	}
+  function reportMalicious(address _validator, uint256 _blockNumber, bytes calldata _proof)
+    external
+  {
+    baseReportMalicious(
+      msg.sender,
+      _validator,
+      _blockNumber,
+      _proof
+    );
+  }
 }
