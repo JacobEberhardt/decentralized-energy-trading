@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const commander = require("commander");
 
 const dbHandler = require("./db-handler");
@@ -40,6 +41,7 @@ const web3 = web3Helper.initWeb3(network);
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
 /**
  * GET request for the UI
@@ -57,6 +59,23 @@ app.get("/", function(req, res, next) {
       res.statusCode = 400;
       res.end("Error occurred:\n", err);
     });
+});
+
+/**
+ * GET request for the UI
+ */
+app.get("/household-stats", async (req, res, next) => {
+  try {
+    const { from, to } = req.query;
+    const data = await dbHandler.readAll(dbUrl, "data", { from, to });
+    res.setHeader("Content-Type", "application/json");
+    res.status(200);
+    res.end(JSON.stringify(data));
+  } catch (error) {
+    console.log(error);
+    res.statusCode = 500;
+    res.end("Error occurred:\n", error);
+  }
 });
 
 /**
