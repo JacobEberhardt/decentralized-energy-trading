@@ -37,16 +37,16 @@ const HouseholdStats = () => {
 
   useEffect(() => {
     const fetchHouseholdData = async () => {
+      // TODO: Use query params
       const data = await fetchFromEndpoint("/household-stats");
       setProducedEnergy(formatProduceData(data));
       setConsumedEnergy(formatConsumeData(data));
     };
     fetchHouseholdData();
-    // TODO: Do polling
-    // const interval = setInterval(() => {
-    //   fetchHouseholdData();
-    // }, 1000);
-    // return () => clearInterval(interval);
+    const interval = setInterval(() => {
+      fetchHouseholdData();
+    }, 30000);
+    return () => clearInterval(interval);
   }, []);
 
   return (
