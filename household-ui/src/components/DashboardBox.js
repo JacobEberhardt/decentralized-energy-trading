@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 import { Box, Text } from "grommet";
 
 const DashboardBox = ({ title, children }) => {
@@ -16,6 +17,11 @@ const DashboardBox = ({ title, children }) => {
       </Box>
     </Box>
   );
+};
+
+DashboardBox.propTypes = {
+  title: PropTypes.string,
+  children: PropTypes.React.children
 };
 
 export default DashboardBox;
