@@ -6,16 +6,16 @@
     "compile-contracts": "truffle compile",
     "migrate-contracts": "truffle migrate",
     "test-contracts": "run-script-os",
-    "test-contracts:linux:darwin": "truffle test ./test/contracts/* --network develop",
+    "test-contracts:linux:darwin": "truffle test './test/contracts/*' --network develop",
     "test-contracts:win32": ".\\test-contracts.bat --network develop",
     "run-server": "node ./household-server/index.js",
     "run-ui": "node ./household-ui/index.js",
     "run-sensor": "node ./mock-sensor/index.js",
-    "lint-all": "eslint household-server/ household-ui/ mock-sensor/ test/ && yarn lint-contracts",
+    "lint-all": "eslint household-server/ household-ui/ mock-sensor/ test/ helpers/ && yarn lint-contracts",
     "lint-contracts": "solium -d contracts/",
-    "format-all": "eslint household-server/ household-ui/ mock-sensor/ test/ --fix && yarn format-contracts",
+    "format-all": "eslint household-server/ household-ui/ mock-sensor/ test/ helpers/ --fix && yarn format-contracts",
     "format-contracts": "solium -d contracts/ --fix",
-    "run-ganache": "ganache-cli -i 123456 -d edge wage lab clever gap defense lend broken lumber tumble cousin blush",
+    "run-ganache": "ganache-cli --account '0xdcb15ba5d2caf586c22f0414f527201d2fb2424c92ced3efacd742a34e5b0db2,100000000000000000000' -i 1234 -l 0x1fffffffffffff",
     "migrate-contracts-ganache": "truffle migrate --reset hard --network ganache",
     "migrate-contracts-authority": "truffle migrate --reset hard --network authority",
     "test-parity-native": "./scripts/run_native_parity_tests.sh",
@@ -45,9 +45,11 @@
   },
   "dependencies": {
     "bn.js": "^4.11.8",
+    "commander": "^2.20.0",
+    "express": "^4.16.4",
     "mongodb": "^3.2.3",
-    "web3": "^1.0.0-beta.54",
     "request": "^2.88.0",
-    "request-promise": "^4.2.4"
+    "request-promise": "^4.2.4",
+    "web3": "^1.0.0-beta.54"
   }
 }

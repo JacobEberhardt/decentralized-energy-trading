@@ -1,8 +1,28 @@
 const express = require("express");
+const commander = require("commander");
+
 const dbHandler = require("./db-handler");
 const txHandler = require("./transaction-handler");
 
-const { host, port, dbUrl, network } = require("../household-server-config");
+const web3Helper = require("../helpers/web3");
+
+const serverConfig = require("../household-server-config");
+
+// Specify cli options
+commander
+  .option("-h, --host <type>", "ip of household server")
+  .option("-p, --port <type>", "port of household server")
+  .option("-d, --dbUrl <type>", "url of mongodb")
+  .option(
+    "-n, --network <type>",
+    "network name specified in truffle-config.js"
+  );
+commander.parse(process.argv);
+
+const host = commander.host || serverConfig.host;
+const port = commander.port || serverConfig.port;
+const dbUrl = commander.dbUrl || serverConfig.dbUrl;
+const network = commander.network || serverConfig.network;
 
 // Set up the DB
 dbHandler.createDB(dbUrl).catch(err => {
@@ -10,8 +30,7 @@ dbHandler.createDB(dbUrl).catch(err => {
 });
 
 // Set up web3
-const web3 = txHandler.initWeb3(network);
-console.log(web3.version); // for testing
+const web3 = web3Helper.initWeb3(network);
 
 /**
  * Creating the express server waiting for incoming requests
@@ -55,6 +74,7 @@ app.put("/", function(req, res, next) {
     res.statusCode = 200;
     res.end("Transaction Successfull");
   });
+  txHandler.updateRenewableEnergy(web3, payload);
 });
 
 /**
