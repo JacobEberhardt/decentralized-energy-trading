@@ -1,7 +1,6 @@
 const authorityHelper = require("../helpers/authority");
 const contractHelper = require("../helpers/contract");
 const conversionHelper = require("../helpers/conversion");
-const truffleConfig = require("../truffle-config");
 
 /**
  * This handler creates, signs and sends transactions to the Utility contract.
