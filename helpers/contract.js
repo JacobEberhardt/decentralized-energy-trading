@@ -30,5 +30,5 @@ module.exports = {
    * Helper function to retrieve the ABI of the Utility contract.
    * @returns {Array} ABI of Utility contract.
    */
-  getAbi: () => UtilityArtifact.abi,
+  getAbi: () => UtilityArtifact.abi
 };
