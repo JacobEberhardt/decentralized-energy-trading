@@ -11,10 +11,16 @@ export NODE_0="http://$(docker-compose port authority0 8545)"
 export NODE_1="http://$(docker-compose port authority1 8545)"
 export NODE_2="http://$(docker-compose port authority2 8545)"
 
+echo "Running migrations ..."
+yarn migrate-contracts-authority
+echo "Migrations completed!"
+
 echo "Starting tests ..."
+cd $PROJECT_ROOT
 $PROJECT_ROOT/node_modules/.bin/mocha $PROJECT_ROOT/test/parity-authority/docker.test.js --timeout 5000
 echo "Tests done!"
 
 echo "Cleaning up ..."
-docker-compose down -v &> /dev/null
+cd $PROJECT_ROOT/parity-authority/docker
+docker-compose -f $PROJECT_ROOT/parity-authority/docker/docker-compose.yml down -v &> /dev/null
 echo "Done!"

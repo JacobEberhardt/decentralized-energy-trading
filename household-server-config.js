@@ -16,5 +16,7 @@ module.exports = {
   // Path to the password file to unlock above authority node
   authPasswordPath: "parity-authority/docker/parity/authorities/authority0.pwd",
   // Name of JSON RPC interface specified in `truffle-config.js`
-  network: "authority"
+  network: "authority",
+  // Time Interval of the Mock-Sensor sending Data to the Household Server in ms
+  sensorInterval: 30000
 };

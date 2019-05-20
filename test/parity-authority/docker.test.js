@@ -1,8 +1,12 @@
 const chai = require("chai");
 const request = require("request-promise");
 const util = require("util");
-
 const { assert } = chai;
+
+const root = process.env.PROJECT_ROOT;
+const web3Helper = require(`${root}/helpers/web3`);
+
+const { OWNED_SET_ADDRESS } = require(`${root}/helpers/constants`);
 
 const nodes = [process.env.NODE_0, process.env.NODE_1, process.env.NODE_2];
 const options = { resolveWithFullResponse: true };
@@ -32,14 +36,14 @@ describe("Test Node Properties", () => {
 describe("Test Network Properties", () => {
   nodes.forEach((node, i) => {
     describe(util.format("Test Node #%d", i), function() {
-      beforeEach(function(done) {
-        if (this.currentTest.currentRetry() > 0) {
-          setTimeout(done, this.currentTest.currentRetry() * 500);
-        } else {
-          done();
-        }
-      });
-      this.retries(10);
+      // beforeEach(function(done) {
+      //   if (this.currentTest.currentRetry() > 0) {
+      //     setTimeout(done, this.currentTest.currentRetry() * 500);
+      //   } else {
+      //     done();
+      //   }
+      // });
+      // this.retries(10);
 
       it("Node have two peers", async () => {
         const { statusCode, body } = await request(nodes[i], {
@@ -69,6 +73,18 @@ describe("Test Network Properties", () => {
         });
         assert.strictEqual(statusCode, 200);
         assert.ok(body.result > 0);
+      });
+
+      it("has at least 1 validators", async () => {
+        const contractData = require(`${root}/build/contracts/OwnedSet.json`);
+        const web3 = web3Helper.initWeb3("authority");
+        const contract = new web3.eth.Contract(
+          contractData.abi,
+          OWNED_SET_ADDRESS
+        );
+        const validators = await contract.methods.getValidators().call();
+
+        assert.ok(validators.length >= 1);
       });
     });
   });
