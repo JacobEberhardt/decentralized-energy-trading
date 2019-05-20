@@ -1,4 +1,4 @@
-const UtilityArtifact = require("../build/contracts/FifsUtility.json");
+const UtilityArtifact = require("../build/contracts/Utility.json");
 
 /**
  * This module contains helper functions to interface with the contract artifacts created
@@ -21,5 +21,5 @@ module.exports = {
    * Helper function to retrieve the ABI of the Utility contract.
    * @returns {Array} ABI of Utility contract.
    */
-  getAbi: () => UtilityArtifact.abi
+  getAbi: () => UtilityArtifact.abi,
 };
