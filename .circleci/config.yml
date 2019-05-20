@@ -46,11 +46,9 @@ jobs:
 
   lint_ui:
     <<: *defaults
+    working_directory: ~/repo/household-ui
     steps:
       - checkout
-      - run:
-          name: Enter ui directory
-          command: cd household-ui
       - run:
           name: Install ui dependencies
           command: yarn install
