@@ -1,7 +1,6 @@
 const express = require("express");
 const dbHandler = require("./db-handler");
 const txHandler = require("./transaction-handler");
-// const mockSensor = require("./mock-sensor-data");
 
 const { host, port, dbUrl, network } = require("../household-server-config");
 
@@ -45,14 +44,6 @@ app.get("/", function(req, res, next) {
  * PUT request from the sensors
  */
 app.put("/", function(req, res, next) {
-  // ------ For Testing purposes with a REST Client -------
-  // const data = mockSensor.createMockData(2, 0, 100);
-  // const payload = {
-  //   consume: data.body[0],
-  //   produce: data.body[1]
-  // };
-  // ------------------------------------------------------
-
   const payload = {
     consume: req.body[0],
     produce: req.body[1]
