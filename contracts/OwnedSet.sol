@@ -1,12 +1,13 @@
-pragma solidity ^0.5;
+pragma solidity ^0.5.0;
 
 import "./BaseOwnedSet.sol";
-import "./ValidatorSet.sol";
 
 
 
 // An owned validator set contract where the owner can add or remove validators.
-contract OwnedSet is ValidatorSet, BaseOwnedSet {
+contract OwnedSet is BaseOwnedSet {
+  // solium-disable-next-line
+  constructor(address[] memory _initial) BaseOwnedSet(_initial) public {}
 
   // Called when an initiated change reaches finality and is activated.
   function finalizeChange()
@@ -33,14 +34,5 @@ contract OwnedSet is ValidatorSet, BaseOwnedSet {
       _blockNumber,
       _proof
     );
-  }
-
-  // PRIVATE
-
-  // Log desire to change the current list.
-  function initiateChange()
-    private
-  {
-    emit InitiateChange(blockhash(block.number - 1), pending);
   }
 }

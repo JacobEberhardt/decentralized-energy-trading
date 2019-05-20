@@ -1,6 +1,7 @@
-pragma solidity ^0.5;
+pragma solidity ^0.5.0;
 
 import "./Ownable.sol";
+import "./interfaces/IValidatorSet.sol";
 
 
 // An owned validator set contract where the owner can add or remove validators.
@@ -11,7 +12,7 @@ import "./Ownable.sol";
 // currently active validator set. The base implementation of `finalizeChange`
 // validates that there are existing unfinalized changes.
 
-contract BaseOwnedSet is Ownable {
+contract BaseOwnedSet is Ownable, IValidatorSet {
   // EVENTS
   event ChangeFinalized(address[] currentSet);
 
@@ -86,7 +87,7 @@ contract BaseOwnedSet is Ownable {
     _;
   }
 
-  constructor( address[] memory _initial) Ownable()
+  constructor(address[] memory _initial) Ownable()
     public
   {
     pending = _initial;
