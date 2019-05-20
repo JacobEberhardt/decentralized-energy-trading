@@ -131,8 +131,12 @@ contract Utility is UtilityBase, IUtility {
       addressTo = _hhFrom[i];
       Household storage hh = households[addressTo];
 
-      int256 proportionalFactor = (_abs(hh.renewableEnergy).mul(100)).div(_abs(energyReference));
-      int256 proportionalShare = (_abs(energyToShare).mul(proportionalFactor)).div(100);
+      int256 proportionalFactor = (_abs(hh.renewableEnergy)
+        .mul(100))
+        .div(_abs(energyReference));
+      int256 proportionalShare = (_abs(energyToShare)
+        .mul(proportionalFactor))
+        .div(100);
 
       for (uint256 j = needle; j < _hhTo.length; ++j) {
         addressFrom = _hhTo[j];
