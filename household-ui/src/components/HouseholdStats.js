@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Box } from "grommet";
 import {
   XYPlot,
@@ -11,28 +11,63 @@ import {
 
 import DashboardBox from "./DashboardBox";
 
-const data = [
-  {x: 0, y: 8},
-  {x: 1, y: 5},
-  {x: 2, y: 4},
-];
+import { fetchFromEndpoint } from "../helpers/fetch";
 
-const data2 = [
-  {x: 0, y: 7},
-  {x: 1, y: 8},
-  {x: 2, y: 1},
-];
+const formatProduceData = rawData => {
+  return rawData.map(({ produce, timestamp }) => {
+    return {
+      y: produce,
+      x: timestamp
+    };
+  });
+};
+
+const formatConsumeData = rawData => {
+  return rawData.map(({ consume, timestamp }) => {
+    return {
+      y: consume,
+      x: timestamp
+    };
+  });
+};
 
 const HouseholdStats = () => {
+  const [producedEnergy, setProducedEnergy] = useState([]);
+  const [consumedEnergy, setConsumedEnergy] = useState([]);
+
+  useEffect(() => {
+    const fetchHouseholdData = async () => {
+      const data = await fetchFromEndpoint("/household-stats");
+      setProducedEnergy(formatProduceData(data));
+      setConsumedEnergy(formatConsumeData(data));
+    };
+    fetchHouseholdData();
+    // TODO: Do polling
+    // const interval = setInterval(() => {
+    //   fetchHouseholdData();
+    // }, 1000);
+    // return () => clearInterval(interval);
+  }, []);
+
   return (
     <DashboardBox title={"Household Stats"}>
-      <Box alignContent={"center"}>
-        <XYPlot height={400} width={600}>
-          <LineSeries data={data} color={"green"} />
-          <LineSeries data={data2} color={"red"} />
+      <Box>
+        <XYPlot height={400} width={700}>
           <VerticalGridLines />
           <HorizontalGridLines />
-          <XAxis title={"time"} />
+          <LineSeries
+            data={producedEnergy}
+            color={"green"}
+            strokeStyle="solid"
+          />
+          <LineSeries data={consumedEnergy} color={"red"} strokeStyle="solid" />
+          <XAxis
+            title={"time"}
+            attr="x"
+            attrAxis="y"
+            orientation="bottom"
+            tickFormat={d => new Date(d).toLocaleDateString()}
+          />
           <YAxis title={"kWh"} />
         </XYPlot>
       </Box>
