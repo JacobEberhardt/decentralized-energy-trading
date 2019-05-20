@@ -21,7 +21,7 @@ const DashboardBox = ({ title, children }) => {
 
 DashboardBox.propTypes = {
   title: PropTypes.string,
-  children: PropTypes.React.children
+  children: PropTypes.any
 };
 
 export default DashboardBox;
