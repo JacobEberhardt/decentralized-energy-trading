@@ -48,10 +48,15 @@ jobs:
     <<: *defaults
     steps:
       - checkout
-      - yarn_install
+      - run:
+          name: Enter ui directory
+          command: cd household-ui
+      - run:
+          name: Install ui dependencies
+          command: yarn install
       - run:
           name: Run linter on UI
-          command: cd household-ui && yarn lint
+          command: yarn lint
   
   test_contracts:
     <<: *defaults
