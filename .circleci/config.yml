@@ -43,6 +43,15 @@ jobs:
       - run:
           name: Run linter
           command: yarn lint-all
+
+  lint_ui:
+    <<: *defaults
+    steps:
+      - checkout
+      - yarn_install
+      - run:
+          name: Run linter on UI
+          command: cd household-ui && yarn lint
   
   test_contracts:
     <<: *defaults
@@ -67,6 +76,7 @@ workflows:
   default:
     jobs:
       - lint
+      - lint_ui
       - test_helpers
       - compile_contracts
       - test_contracts:
