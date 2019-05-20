@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const commander = require("commander");
 
 const dbHandler = require("./db-handler");
@@ -40,6 +41,7 @@ const web3 = web3Helper.initWeb3(network);
 const app = express();
 
 app.use(express.json());
+app.use(cors());
 
 /**
  * GET request for the UI
