@@ -1,4 +1,4 @@
-const UtilityArtifact = require("../build/contracts/FifsUtility.json");
+const UtilityArtifact = require("../build/contracts/Utility.json");
 const { UTILITY_ADDRESS_IN_AUTHORITY } = require("../helpers/constants");
 
 /**
