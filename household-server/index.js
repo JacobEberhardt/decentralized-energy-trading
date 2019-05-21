@@ -91,7 +91,7 @@ app.put("/", function(req, res, next) {
   dbHandler.writeToDB(payload, dbUrl).then(() => {
     console.log("Sending Response");
     res.statusCode = 200;
-    res.end("Transaction Successfull");
+    res.end("Transaction successful");
   });
   txHandler.updateRenewableEnergy(web3, payload);
 });

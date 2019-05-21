@@ -16,22 +16,18 @@ module.exports = {
   updateRenewableEnergy: async (web3, payload) => {
     const { produce, consume } = payload;
     const { address, password } = authorityHelper.getAddressAndPassword();
-    try {
-      const contract = new web3.eth.Contract(
-        contractHelper.getAbi(),
-        contractHelper.getDeployedAddress(await web3.eth.net.getId())
-      );
-      await web3.eth.personal.unlockAccount(address, password, null);
-      const txReceipt = await contract.methods
-        .updateRenewableEnergy(
-          address,
-          conversionHelper.kWhToWs(produce),
-          conversionHelper.kWhToWs(consume)
-        )
-        .send({ from: address, gasLimit: 16179379 });
-      return txReceipt;
-    } catch (error) {
-      throw error;
-    }
+    const contract = new web3.eth.Contract(
+      contractHelper.getAbi(),
+      contractHelper.getDeployedAddress(await web3.eth.net.getId())
+    );
+    await web3.eth.personal.unlockAccount(address, password, null);
+    const txReceipt = await contract.methods
+      .updateRenewableEnergy(
+        address,
+        conversionHelper.kWhToWs(produce),
+        conversionHelper.kWhToWs(consume)
+      )
+      .send({ from: address });
+    return txReceipt;
   }
 };
