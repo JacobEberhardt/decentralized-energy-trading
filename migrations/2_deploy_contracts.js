@@ -5,7 +5,8 @@ const authorityHelper = require("../helpers/authority");
 
 const {
   UTILITY_ADDRESS_IN_AUTHORITY,
-  AUTHORITY_ADDRESS
+  AUTHORITY_ADDRESS,
+  OTHER_AUTHORITY_ADDRESS
 } = require("../helpers/constants");
 
 module.exports = async (deployer, network, [authority]) => {
@@ -24,6 +25,10 @@ module.exports = async (deployer, network, [authority]) => {
       const { address, password } = authorityHelper.getAddressAndPassword();
       await web3.eth.personal.unlockAccount(address, password, null);
       await utilityInstanceInAuthority.addHousehold(AUTHORITY_ADDRESS, {
+        from: AUTHORITY_ADDRESS
+      });
+      await web3.eth.personal.unlockAccount(address, password, null);
+      await utilityInstanceInAuthority.addHousehold(OTHER_AUTHORITY_ADDRESS, {
         from: AUTHORITY_ADDRESS
       });
       break;
