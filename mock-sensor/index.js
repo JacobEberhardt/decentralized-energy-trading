@@ -1,6 +1,7 @@
 const serverConfig = require("../household-server-config");
 const http = require("http");
 const commander = require("commander");
+const dataGenerator = require("./dataGenerator")
 
 commander
   .option("-h, --host <type>", "ip of household server")
@@ -23,16 +24,7 @@ console.log(
  * @param {Number} max Maximum value of the random distribution
  * @returns {Object}
  */
-const getMockData = (samples, min, max) => {
-  let mockData = {};
-  for (let i = 0; i < samples; i++) {
-    let rndm = Math.random() * (max - min) + min;
-    // rounding the samples
-    rndm = Math.round(rndm * 100) / 100;
-    mockData[i] = rndm;
-  }
-  return mockData;
-};
+
 
 /**
  * Options for the Mock-Sensor. Should use the PUT method, as POST is not supported by the Household Server
@@ -63,7 +55,7 @@ setInterval(() => {
   req.on("error", error => {
     console.error(error);
   });
-  const payload = getMockData(2, 0, 100);
+  const payload = dataGenerator.getGaussianMockData(2, 50, 5);
   console.log("Sending data:", payload);
   req.end(JSON.stringify(payload));
 }, sensorInterval);
