@@ -1,5 +1,16 @@
-const { host, port, sensorInterval } = require("../household-server-config");
+const serverConfig = require("../household-server-config");
 const http = require("http");
+const commander = require("commander");
+
+commander
+  .option("-h, --host <type>", "ip of household server")
+  .option("-p, --port <type>", "port of household server")
+  .option("-i, --interval <type>", "time interval of the of the sensor in ms");
+commander.parse(process.argv);
+
+const host = commander.host || serverConfig.host;
+const port = commander.port || serverConfig.port;
+const sensorInterval = commander.interval || serverConfig.sensorInterval;
 
 console.log(
   `Starting Mock-Sensor\nSending to http://${host}:${port} with an interval of ${sensorInterval}ms`
