@@ -31,5 +31,17 @@ module.exports = {
     mockData["consume"] =
       Math.round(consumeDistribution.ppf(Math.random()) * 100) / 100;
     return mockData;
+  },
+
+  getEnergyFactor: energyBalance => {
+    if (energyBalance === "+") {
+      return { consumeFactor: 0.75, produceFactor: 1.25 };
+    }
+    if (energyBalance === "=") {
+      return { consumeFactor: 1, produceFactor: 1 };
+    }
+    if (energyBalance === "-") {
+      return { consumeFactor: 1.25, produceFactor: 0.75 };
+    }
   }
 };

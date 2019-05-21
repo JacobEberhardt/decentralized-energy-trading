@@ -17,7 +17,11 @@ commander.parse(process.argv);
 const host = commander.host || serverConfig.host;
 const port = commander.port || serverConfig.port;
 const sensorInterval = commander.interval || serverConfig.sensorInterval;
-const consumption = commander.energybalance || "=";
+const energyBalance = commander.energybalance || "=";
+
+const { consumeFactor, produceFactor } = dataGenerator.getEnergyFactor(
+  energyBalance
+);
 
 console.log(
   `Starting Mock-Sensor\nSending to http://${host}:${port} with an interval of ${sensorInterval}ms`
@@ -59,32 +63,32 @@ setInterval(() => {
 
   if (currentHour < 6) {
     payload = dataGenerator.getGaussianMockData(
-      energyConsumption.low,
-      energyProduction.low
+      energyConsumption.low * consumeFactor,
+      energyProduction.low * produceFactor
     );
   }
   if (currentHour >= 6 && currentHour < 10) {
     payload = dataGenerator.getGaussianMockData(
-      energyConsumption.normal,
-      energyProduction.normal
+      energyConsumption.normal * consumeFactor,
+      energyProduction.normal * produceFactor
     );
   }
   if (currentHour >= 10 && currentHour < 17) {
     payload = dataGenerator.getGaussianMockData(
-      energyConsumption.normal,
-      energyProduction.high
+      energyConsumption.normal * consumeFactor,
+      energyProduction.high * produceFactor
     );
   }
   if (currentHour >= 17 && currentHour < 22) {
     payload = dataGenerator.getGaussianMockData(
-      energyConsumption.high,
-      energyProduction.normal
+      energyConsumption.high * consumeFactor,
+      energyProduction.normal * produceFactor
     );
   }
   if (currentHour >= 22 && currentHour < 24) {
     payload = dataGenerator.getGaussianMockData(
-      energyConsumption.normal,
-      energyProduction.low
+      energyConsumption.normal * consumeFactor,
+      energyProduction.low * produceFactor
     );
   }
 
