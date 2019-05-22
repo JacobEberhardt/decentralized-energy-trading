@@ -18,30 +18,57 @@ module.exports = {
     return mockData;
   },
 
-  getGaussianMockData: (consumption, production, variance = 2) => {
-    console.log(production, consumption);
+  /**
+   * @param {Number} consumption mean of the energy consumption
+   * @param {Number} production mean of the energy production
+   * @returns {Object} mock data within an object
+   */
+  getGaussianMockData: (consumption, production, variance = 5) => {
     const gaussian = require("gaussian");
     let mockData = {};
     const produceDistribution = gaussian(production, variance);
     const consumeDistribution = gaussian(consumption, variance);
 
-    // rounding the samples and writing it into the mockData Object
-    mockData["produce"] =
+    // Sampling the data from the gaussian distribution and rounding it to two decimals
+    let produce =
       Math.round(produceDistribution.ppf(Math.random()) * 100) / 100;
-    mockData["consume"] =
+    let consume =
       Math.round(consumeDistribution.ppf(Math.random()) * 100) / 100;
+
+    // Setting all negative values to 0 and writing values to mockData object
+    mockData["produce"] = produce < 0 ? 0 : produce;
+    mockData["consume"] = consume < 0 ? 0 : consume;
+
     return mockData;
   },
 
+  /**
+   * Retrieves the regular consume and produce from the sensor-config data based on the energybalance given by the user
+   * @returns {Object<Number>} consume and produce factors
+   */
   getEnergyFactor: energyBalance => {
+    const {
+      regularProductionFactor,
+      regularConsumptionFactor
+    } = require("./sensor-config");
+
     if (energyBalance === "+") {
-      return { consumeFactor: 0.75, produceFactor: 1.25 };
+      return {
+        regularConsumeFactor: regularConsumptionFactor.pos,
+        regularProduceFactor: regularProductionFactor.pos
+      };
     }
     if (energyBalance === "=") {
-      return { consumeFactor: 1, produceFactor: 1 };
+      return {
+        regularConsumeFactor: regularConsumptionFactor.eq,
+        regularProduceFactor: regularProductionFactor.eq
+      };
     }
     if (energyBalance === "-") {
-      return { consumeFactor: 1.25, produceFactor: 0.75 };
+      return {
+        regularConsumeFactor: regularConsumptionFactor.neg,
+        regularProduceFactor: regularProductionFactor.neg
+      };
     }
   }
 };
