@@ -25,16 +25,17 @@ You can find the agenda [here](https://docs.google.com/document/d/1mzuIg_V27iKG_
   - Benchmarking of gas costs and scalability
   - Integration with VS
 - AN
-  - Move from docker to parity
+  - Move from docker to Parity
 - UI
   - Include data from blockchain
   - Rename categories ('network stats', 'deeds ticker')
 - Mock Sensor
   - Include flag for focus on consume/ produce
   - More realistic data
-- Research privacy in blockchain
-- Update architecture and workflow diagram
+- Update architecture
 - Prepare Midterm presentation
+  - Add new slide set
+  - research privacy in blockchain
 
 **Remark:**
 
