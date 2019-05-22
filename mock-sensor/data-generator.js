@@ -1,9 +1,9 @@
 module.exports = {
   /**
-   * This function draws random samples from an uniform distribution.
-   * @param {Number} samples Amount of Samples to draw from the random distribution
-   * @param {Number} min Minimum value of the random distribution
-   * @param {Number} max Maximum value of the random distribution
+   * Deprecated. This function draws random samples from an uniform distribution. 
+   * @param {number} samples Amount of Samples to draw from the random distribution
+   * @param {number} min Minimum value of the random distribution
+   * @param {number} max Maximum value of the random distribution
    * @returns {Object} mock data within an object
    */
 
@@ -19,9 +19,9 @@ module.exports = {
   },
 
   /**
-   * @param {Number} consumption mean of the energy consumption
-   * @param {Number} production mean of the energy production
-   * @returns {Object} mock data within an object
+   * @param {number} consumption mean of the energy consumption
+   * @param {number} production mean of the energy production
+   * @returns {{produce: number, consume: number}} mock data within an object
    */
   getGaussianMockData: (consumption, production, variance = 5) => {
     const gaussian = require("gaussian");
@@ -44,7 +44,7 @@ module.exports = {
 
   /**
    * Retrieves the regular consume and produce from the sensor-config data based on the energybalance given by the user
-   * @returns {Object<Number>} consume and produce factors
+   * @returns {{ regularConsumeFactor: number, regularProduceFactor: number }} consume and produce factors
    */
   getEnergyFactor: energyBalance => {
     const {
