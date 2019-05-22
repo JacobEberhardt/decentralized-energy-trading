@@ -49,6 +49,7 @@
     "commander": "^2.20.0",
     "cors": "^2.8.5",
     "express": "^4.16.4",
+    "gaussian": "^1.1.0",
     "mongodb": "^3.2.3",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
