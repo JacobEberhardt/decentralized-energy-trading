@@ -15,8 +15,9 @@ yarn install
 3. Adjust config files according to your setup: `./truffle-config.js` and `./household-server-config.js`
 4. Migrate contracts to your setup
 - `yarn migrate-contracts-authority` when using a **parity authority** setup
+  - This will not actually deploy any contracts as they are specified in the chain spec but will add the address of the authority / owner (0x00bd138abd70e2f00903268f3db08f2d25677c9e) as a household
 - `yarn migrate-contracts-ganache` when using a **ganache** setup
-- `truffle migrate` when using a **truffle develop** setup
+  - This will deploy a `FifsUtility` contract with the address `0x00bd138abd70e2f00903268f3db08f2d25677c9e` which is then the owner and also add this address as a household. Note that in this setup no `BlockReward` nor a `ValidatorSet` is included.
 5. Start the `household server` see [./household-server/README.md](./household-server/README.md)
 
 ## Run tests
