@@ -2,7 +2,57 @@
 
 All meeting protocols are listed below ordered by date (descending).
 
-### 05/014/19, 12-4pm: Team meeting
+### 05/21/19, 12-4pm: Team meeting and presentation of prototype to Jacob
+
+with Jacob from 2-4pm
+
+You can find the agenda [here](https://docs.google.com/document/d/1mzuIg_V27iKG_0W1YkTX4yXUFj7ehvbZZdBTr2EM-Ww/edit#).
+
+**Done:**
+
+- Emo round
+  - Improve communication (via Slack, especially on problems)
+  - When someone has free capacity: write in Slack
+  - Clear prioritization of issues (together)
+- Presented current state of the different components and integration
+
+**ToDo:**
+
+- HHS
+  - Collect deeds
+  - `findLatestBlock` in DB (find and eliminate possible inconsistencies)
+- UC
+  - Benchmarking of gas costs and scalability
+  - Integration with VS
+- AN
+  - Move from docker to parity
+- UI
+  - Include data from blockchain
+  - Rename categories ('network stats', 'deeds ticker')
+- Mock Sensor
+  - Include flag for focus on consume/ produce
+  - More realistic data
+- Research privacy in blockchain
+- Update architecture and workflow diagram
+- Prepare Midterm presentation
+
+**Remark:**
+
+- Midterm presentation Tue 05/28/19, 2-4pm with complete prototype
+- Info on Smart Meter
+  - Generally as assumed
+  - Smart meter contains only the sensors and limited computational power, household processing unit is separate
+  - Sensor data should be signed by smart meter component
+  - Key management: node.js component either belonging to the ethereum client or key management separate from blockchain (less complex)
+- Info on Midterm presentation
+  - 20 - max. 30 min
+  - Content
+    - Goal of project
+    - What have we achieved until now?
+    - What do we still have to achieve and how?
+  - By default: same amount of portfolio points for every team member
+
+### 05/14/19, 12-4pm: Team meeting
 
 You can find the agenda [here](https://docs.google.com/document/d/1OA26rjkMOh78uuaZQKDz5ICljEee16qwS9beG49Gu3w/edit).
 
