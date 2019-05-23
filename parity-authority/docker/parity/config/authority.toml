@@ -21,7 +21,6 @@ password = ["/parity/authority.pwd"]
 reseal_on_txs = "none"
 reseal_min_period = 1000
 reseal_max_period = 5000
-gas_floor_target = "0x165A0BC00"
 tx_queue_size = 16384
 tx_queue_mem_limit = 4096
 tx_queue_per_sender = 16384
