@@ -50,21 +50,30 @@ module.exports = {
 
   /**
    * Method to read data from the database
-   * @param {String} url URL/URI of the DB
+   * @param {string} url URL/URI of the DB
+   * @param {string} collection Name of collection to read from
+   * @param {Object} filter
    * @returns {Promise} Which either resolves into an Array of objects or rejects an error
    */
-  readAll: url => {
+  readAll: (url, collection, filter = {}) => {
     return new Promise((resolve, reject) => {
       MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
         if (err) reject(err);
         const dbo = db.db("sensordata");
         dbo
-          .collection("data")
-          .find({})
-          .toArray((err, result) => {
-            if (err) reject(err);
+          .collection(collection)
+          // TODO: Use filter as query
+          .find({}, { produce: 1, consume: 1, _id: 1 })
+          .toArray((err, results) => {
+            if (err) {
+              reject(err);
+            }
             db.close();
-            resolve(result);
+            const resultsWithTimestamp = results.map(doc => ({
+              ...doc,
+              timestamp: new Date(doc._id.getTimestamp()).getTime()
+            }));
+            resolve(resultsWithTimestamp);
           });
       });
     });
