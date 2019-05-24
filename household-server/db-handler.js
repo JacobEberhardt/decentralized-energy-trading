@@ -3,9 +3,9 @@ const { MongoClient } = require("mongodb");
 module.exports = {
   /**
    * Method to create the DB and Initialize it with a Collection
-   * @param {String} url URL/URI of the DB
-   * @param {String} dbName name of the created database
-   * @param {List} collectionList list of all data-collections that are created
+   * @param {string} url URL/URI of the DB
+   * @param {string} dbName name of the created database
+   * @param {string[]} collectionList list of all data-collections that are created
    * @returns {boolean} if operation was successful
    */
   createDB: (url, dbName, collectionList) => {
@@ -28,22 +28,68 @@ module.exports = {
 
   /**
    * Method to write data to the database.
-   * @param {JSONObject} data the data to add to the DB
-   * @param {String} url URL/URI of the DB
-   * @param {String} collection the used collection of the inserted data
-   * @returns {boolean} if operation was successful
+   * @param {string} url URL/URI of the DB
+   * @param {string} dbName Name of db
+   * @param {string} collection the used collection of the inserted data
+   * @param {Object} data the data to add to the DB
+   * @returns {Object} data that was written
    */
-  writeToDB: (data, url, collection) => {
+  writeToDB: (url, dbName, collection, data) => {
     return new Promise((resolve, reject) => {
       MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
         if (err) reject(err);
-        const dbo = db.db("sensordata");
-        dbo.collection(collection).insertOne(data, (err, res) => {
-          if (err) reject(err);
-          console.log("1 document inserted: ", data);
-          db.close();
-          resolve(true); // or resolve(data)
-        });
+        const dbo = db.db(dbName);
+        dbo.collection(collection).insertOne(
+          {
+            ...data,
+            timestamp: new Date().getTime()
+          },
+          err => {
+            if (err) reject(err);
+            console.log(
+              `1 document inserted to collection ${collection}:`,
+              data
+            );
+            db.close();
+            resolve(data);
+          }
+        );
+      });
+    });
+  },
+
+  /**
+   * Method to bulk write data to the database.
+   * @param {string} url URL/URI of the DB
+   * @param {string} dbName Name of db
+   * @param {string} collection the used collection of the inserted data
+   * @param {Object[]} data the data to add to the DB
+   * @returns {Object[]} data that was written
+   */
+  bulkWriteToDB: (url, dbName, collection, data) => {
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+        if (err) {
+          reject(err);
+        }
+        const dbo = db.db(dbName);
+        dbo.collection(collection).insertMany(
+          data.map(entry => ({
+            ...entry,
+            timestamp: new Date().getTime()
+          })),
+          err => {
+            if (err) {
+              reject(err);
+            }
+            console.log(
+              `${data.length} documents inserted to collection ${collection}:`,
+              data
+            );
+            db.close();
+            resolve(data);
+          }
+        );
       });
     });
   },
@@ -51,46 +97,71 @@ module.exports = {
   /**
    * Method to read data from the database
    * @param {string} url URL/URI of the DB
+   * @param {string} dbName Name of db
    * @param {string} collection Name of collection to read from
    * @param {Object} filter
    * @returns {Promise} Which either resolves into an Array of objects or rejects an error
    */
-  readAll: (url, collection, filter = {}) => {
+  readAll: (url, dbName, collection, filter = {}) => {
     return new Promise((resolve, reject) => {
       MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-        if (err) reject(err);
-        const dbo = db.db("sensordata");
+        if (err) {
+          reject(err);
+        }
+        const dbo = db.db(dbName);
         dbo
           .collection(collection)
           // TODO: Use filter as query
-          .find({}, { produce: 1, consume: 1, _id: 1 })
+          .find({}, { produce: 1, consume: 1, timestamp: 1 })
+          .sort("timestamp", -1)
           .toArray((err, results) => {
             if (err) {
               reject(err);
             }
             db.close();
-            const resultsWithTimestamp = results.map(doc => ({
-              ...doc,
-              timestamp: new Date(doc._id.getTimestamp()).getTime()
-            }));
-            resolve(resultsWithTimestamp);
+            resolve(results);
           });
       });
     });
   },
+
+  getLatestBlockNumber: (url, dbName, collection) => {
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+        if (err) {
+          reject(err);
+        }
+        const dbo = db.db(dbName);
+        dbo
+          .collection(collection)
+          .find({}, { blockNumber: 1 })
+          .sort("blockNumber", -1)
+          .toArray((err, results) => {
+            if (err) {
+              reject(err);
+            }
+            db.close();
+            resolve(results[0].blockNumber);
+          });
+      });
+    });
+  },
+
   /**
    * Method to read data from the database filtered by ID
-   * @param {String} url URL/URI of the DB
-   * @param {Number} id id of the Document
-   * @returns {JSONObject} Result as JSONObject
+   * @param {string} url URL/URI of the DB
+   * @param {string} dbName Name of db
+   * @param {string} collection Name of collection to read from
+   * @param {number} id id of the Document
+   * @returns {Object} Result as JSONObject
    */
-  findByID: (url, id) => {
+  findByID: (url, dbName, collection, id) => {
     return new Promise((resolve, reject) => {
       MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
         if (err) throw err;
-        const dbo = db.db("sensordata");
+        const dbo = db.db(dbName);
         dbo
-          .collection("data")
+          .collection(collection)
           .findOne({ _id: id })
           .then(result => {
             db.close();
