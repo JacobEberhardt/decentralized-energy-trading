@@ -64,15 +64,14 @@ contract Utility is UtilityBase, IUtility {
     // remember: availableRenewableEnergy > 0
     neededRenewableEnergy = totalRenewableEnergy.sub(availableRenewableEnergy);
 
-    // not enough renewable energy for settlement; neededRenewableEnergy > availableRenewableEnergy
     if (totalRenewableEnergy <= 0) {
-      return _proportionalDistribution(
+      _proportionalDistribution(
         neededRenewableEnergy,
         availableRenewableEnergy,
         householdListNoEnergy,
         householdListWithEnergy);
     } else {
-      return _proportionalDistribution(
+      _proportionalDistribution(
         neededRenewableEnergy,
         availableRenewableEnergy,
         householdListWithEnergy,
@@ -102,6 +101,7 @@ contract Utility is UtilityBase, IUtility {
    * @param _availableRenewableEnergy int256 total available energy. Assumed to be positive.
    * @param _hhFrom address[] storage
    * @param _hhTo address[] storage
+   * @return success bool
    */
   function _proportionalDistribution(
     int256 _neededRenewableEnergy,
@@ -159,7 +159,7 @@ contract Utility is UtilityBase, IUtility {
         }
       }
     }
-    return false;
+    return true;
   }
 
   /**
@@ -169,6 +169,7 @@ contract Utility is UtilityBase, IUtility {
    * @param _to address to adress
    * @param _amount int256 amount of renewable energy.
    * Note that it is intended that _amount might be a negative value.
+   * @return success bool
    */
   function _addDeed(address _from, address _to, int256 _amount) private returns (bool) {
     address from = _from;
@@ -196,6 +197,7 @@ contract Utility is UtilityBase, IUtility {
    * Note that this function also creates a new Deed (see _addDeed()).
    * @param _from address from address
    * @param _to address to adress
+   * @return success bool
    */
   function _transfer(address _from, address _to, int256 _amount) private returns (bool) {
     Household storage hhFrom = households[_from];
