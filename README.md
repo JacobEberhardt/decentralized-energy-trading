@@ -2,6 +2,10 @@
 
 Repository of ISE CP Project Summer 2019.
 
+## Requirements
+- [NodeJS](https://nodejs.org/en/download/) >= v10.15.3
+- [yarn](https://yarnpkg.com/lang/en/docs/install) >= v1.16 
+
 ## Get started
 1. Install dependencies
 ```bash
