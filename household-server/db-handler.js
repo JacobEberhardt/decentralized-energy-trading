@@ -3,14 +3,14 @@ const { MongoClient } = require("mongodb");
 module.exports = {
   /**
    * Method to create the DB and Initialize it with a Collection
-   * @param {string} url URL/URI of the DB
+   * @param {string} dbUrl URL/URI of the DB
    * @param {string} dbName name of the created database
    * @param {string[]} collectionList list of all data-collections that are created
    * @returns {boolean} if operation was successful
    */
-  createDB: (url, dbName, collectionList) => {
+  createDB: (dbUrl, dbName, collectionList) => {
     return new Promise((resolve, reject) => {
-      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
         if (err) reject(err);
         console.log("Database created!");
         const dbo = db.db(dbName);
@@ -28,15 +28,15 @@ module.exports = {
 
   /**
    * Method to write data to the database.
-   * @param {string} url URL/URI of the DB
+   * @param {string} dbUrl URL/URI of the DB
    * @param {string} dbName Name of db
    * @param {string} collection the used collection of the inserted data
    * @param {Object} data the data to add to the DB
    * @returns {Object} data that was written
    */
-  writeToDB: (url, dbName, collection, data) => {
+  writeToDB: (dbUrl, dbName, collection, data) => {
     return new Promise((resolve, reject) => {
-      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
         if (err) reject(err);
         const dbo = db.db(dbName);
         dbo.collection(collection).insertOne(
@@ -60,15 +60,15 @@ module.exports = {
 
   /**
    * Method to bulk write data to the database.
-   * @param {string} url URL/URI of the DB
+   * @param {string} dbUrl URL/URI of the DB
    * @param {string} dbName Name of db
    * @param {string} collection the used collection of the inserted data
    * @param {Object[]} data the data to add to the DB
    * @returns {Object[]} data that was written
    */
-  bulkWriteToDB: (url, dbName, collection, data) => {
+  bulkWriteToDB: (dbUrl, dbName, collection, data) => {
     return new Promise((resolve, reject) => {
-      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
         if (err) {
           reject(err);
         }
@@ -96,15 +96,15 @@ module.exports = {
 
   /**
    * Method to read data from the database
-   * @param {string} url URL/URI of the DB
+   * @param {string} dbUrl URL/URI of the DB
    * @param {string} dbName Name of db
    * @param {string} collection Name of collection to read from
    * @param {Object} filter
    * @returns {Promise} Which either resolves into an Array of objects or rejects an error
    */
-  readAll: (url, dbName, collection, filter = {}) => {
+  readAll: (dbUrl, dbName, collection, filter = {}) => {
     return new Promise((resolve, reject) => {
-      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
         if (err) {
           reject(err);
         }
@@ -125,9 +125,16 @@ module.exports = {
     });
   },
 
-  getLatestBlockNumber: (url, dbName, collection) => {
+  /**
+   * Returns latest saved block number
+   * @param {string} dbUrl URL/URI of the DB
+   * @param {string} dbName Name of db
+   * @param {string} collection Name of collection to read from
+   * @returns {Promise<number>} Latest saved block number.
+   */
+  getLatestBlockNumber: (dbUrl, dbName, collection) => {
     return new Promise((resolve, reject) => {
-      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
         if (err) {
           reject(err);
         }
@@ -149,15 +156,15 @@ module.exports = {
 
   /**
    * Method to read data from the database filtered by ID
-   * @param {string} url URL/URI of the DB
+   * @param {string} dbUrl URL/URI of the DB
    * @param {string} dbName Name of db
    * @param {string} collection Name of collection to read from
    * @param {number} id id of the Document
    * @returns {Object} Result as JSONObject
    */
-  findByID: (url, dbName, collection, id) => {
+  findByID: (dbUrl, dbName, collection, id) => {
     return new Promise((resolve, reject) => {
-      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
         if (err) throw err;
         const dbo = db.db(dbName);
         dbo
