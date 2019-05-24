@@ -51,65 +51,66 @@ app.use(cors());
 /**
  * GET request for the UI
  */
-app.get("/", function(req, res, next) {
-  dbHandler
-    .readAll(dbUrl)
-    .then(result => {
-      console.log("Sending data to Client:\n", result);
-      res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify(result));
-    })
-    .catch(err => {
-      console.log(err);
-      res.statusCode = 400;
-      res.end("Error occurred:\n", err);
-    });
-});
-
-/**
- * GET request for the UI
- */
-app.get("/household-stats", async (req, res, next) => {
+app.get("/household-stats", async (req, res) => {
   try {
     const { from, to } = req.query;
-    const data = await dbHandler.readAll(dbUrl, "data", { from, to });
+    const data = await dbHandler.readAll(dbUrl, dbName, sensorDataCollection, {
+      from,
+      to
+    });
     res.setHeader("Content-Type", "application/json");
     res.status(200);
     res.end(JSON.stringify(data));
   } catch (error) {
     console.log(error);
-    res.statusCode = 500;
-    res.end("Error occurred:\n", error);
+    res.status(500);
+    res.end(error);
   }
 });
 
 /**
  * PUT request from the sensors
  */
-app.put("/", function(req, res, next) {
-  const payload = {
-    consume: req.body[0],
-    produce: req.body[1]
-  };
-  const blocknumber = 1;
-
+app.put("/", async (req, res) => {
+  const { produce, consume } = req.body;
   try {
-    txHandler.updateRenewableEnergy(web3, payload).then(() => {
-      console.log("Payload sent to the chain");
-    });
+    if (typeof produce !== "number" || typeof consume !== "number") {
+      throw new Error("Invalid payload");
+    }
 
-    txHandler.collectDeeds(web3, blocknumber).then(deeds => {
-      dbHandler.writeToDB(deeds, dbUrl, "utility_data");
-      console.log("Collected Deeds");
-    });
+    // TODO: Source out in separate handler file
+    const handleDeeds = async () => {
+      const latestSavedBlockNumber = await dbHandler.getLatestBlockNumber(
+        dbUrl,
+        dbName,
+        utilityDataCollection
+      );
+      const deeds = await txHandler.collectDeeds(
+        web3,
+        latestSavedBlockNumber + 1
+      );
+      return deeds.length > 0
+        ? dbHandler.bulkWriteToDB(dbUrl, dbName, utilityDataCollection, deeds)
+        : [];
+    };
 
-    dbHandler.writeToDB(payload, dbUrl, "sensor_data").then(result => {
-      console.log("Sending Response");
-      res.statusCode = 200;
-      res.end("Transaction Successful");
-    });
+    // TODO: Handle case where one promise rejects (i.e. tx fails)
+    await Promise.all([
+      handleDeeds(),
+      txHandler.updateRenewableEnergy(web3, {
+        produce,
+        consume
+      }),
+      dbHandler.writeToDB(dbUrl, dbName, sensorDataCollection, {
+        produce,
+        consume
+      })
+    ]);
+    res.status(200);
+    res.send();
   } catch (err) {
-    throw err;
+    res.status = 400;
+    res.send(err);
   }
 });
 
