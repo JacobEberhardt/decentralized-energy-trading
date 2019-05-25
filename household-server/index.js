@@ -64,10 +64,26 @@ app.get("/", function(req, res, next) {
 /**
  * GET request for the UI
  */
+// app.get("/household-stats", async (req, res, next) => {
+//   try {
+//     const { from, to } = req.query;
+//     const data = await dbHandler.readAll(dbUrl, "data", { from, to });
+//     res.setHeader("Content-Type", "application/json");
+//     res.status(200);
+//     res.end(JSON.stringify(data));
+//   } catch (error) {
+//     console.log(error);
+//     res.statusCode = 500;
+//     res.end("Error occurred:\n", error);
+//   }
+// });
+
+/**
+ * GET request for the UI
+ */
 app.get("/household-stats", async (req, res, next) => {
   try {
-    const { from, to } = req.query;
-    const data = await dbHandler.readAll(dbUrl, "data", { from, to });
+    const data = await txHandler.getHousehold(web3);
     res.setHeader("Content-Type", "application/json");
     res.status(200);
     res.end(JSON.stringify(data));
