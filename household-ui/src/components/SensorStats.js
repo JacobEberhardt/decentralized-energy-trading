@@ -36,7 +36,7 @@ const SensorStats = () => {
   const [consumedEnergy, setConsumedEnergy] = useState([]);
 
   useEffect(() => {
-    const fetchSensordData = async () => {
+    const fetchSensorData = async () => {
       const date = new Date();
       date.setDate(date.getDate() - 1);
       const data = await fetchFromEndpoint(
@@ -45,9 +45,9 @@ const SensorStats = () => {
       setProducedEnergy(formatProduceData(data));
       setConsumedEnergy(formatConsumeData(data));
     };
-    fetchSensordData();
+    fetchSensorData();
     const interval = setInterval(() => {
-      fetchSensordData();
+      fetchSensorData();
     }, 10000);
     return () => clearInterval(interval);
   }, []);
