@@ -97,5 +97,31 @@ module.exports = {
     );
 
     return deeds;
+  },
+
+  /**
+   * Call `getHousehold` contract method.
+   * @param {Object} web3 Web3 instance.
+   * @returns {Object} Object containing household stats.
+   */
+  getHousehold: async web3 => {
+    const { address, password } = authorityHelper.getAddressAndPassword();
+    const contract = new web3.eth.Contract(
+      contractHelper.getAbi(),
+      contractHelper.getDeployedAddress(await web3.eth.net.getId())
+    );
+    await web3.eth.personal.unlockAccount(address, password, null);
+
+    const txReceipt = await contract.methods.getHousehold(address).call();
+    let hhStats = {};
+    for (var key in txReceipt) {
+      if (typeof txReceipt[key] === "boolean") {
+        hhStats[key] = txReceipt[key];
+      } else {
+        hhStats[key] = conversionHelper.wsToKWh(txReceipt[key].toNumber());
+      }
+    }
+
+    return hhStats;
   }
 };
