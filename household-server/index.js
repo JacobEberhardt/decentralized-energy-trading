@@ -89,8 +89,8 @@ app.get("/household-stats", async (req, res, next) => {
     res.end(JSON.stringify(data));
   } catch (error) {
     console.log(error);
-    res.statusCode = 500;
-    res.end("Error occurred:\n", error);
+    res.status(500);
+    res.end(error);
   }
 });
 
