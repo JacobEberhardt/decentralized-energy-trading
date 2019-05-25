@@ -37,15 +37,18 @@ const HouseholdStats = () => {
 
   useEffect(() => {
     const fetchHouseholdData = async () => {
-      // TODO: Use query params
-      const data = await fetchFromEndpoint("/household-stats");
+      const date = new Date();
+      date.setDate(date.getDate() - 1);
+      const data = await fetchFromEndpoint(
+        `/sensor-stats?from=${date.getTime()}`
+      );
       setProducedEnergy(formatProduceData(data));
       setConsumedEnergy(formatConsumeData(data));
     };
     fetchHouseholdData();
     const interval = setInterval(() => {
       fetchHouseholdData();
-    }, 30000);
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
