@@ -100,25 +100,40 @@ module.exports = {
   },
 
   /**
-   * Call `getHousehold` contract method.
+   * Call `getHousehold` constant method.
    * @param {Object} web3 Web3 instance.
-   * @returns {Object} Object containing household stats.
+   * @returns {
+   *  '0': boolean,
+   *  '1': number,
+   *  '2': number,
+   *  '3': number,
+   *  '4': number,
+   *  '5': number,
+   *  '6': number,
+   *  initialized: boolean,
+   *  renewableEnergy: number,
+   *  nonRenewableEnergy: number,
+   *  producedRenewableEnergy: number,
+   *  consumedRenewableEnergy: number,
+   *  producedNonRenewableEnergy: number,
+   *  consumedNonRenewableEnergy: number
+   *  }
+   * Note '0' till '6' can be ignored.
    */
   getHousehold: async web3 => {
-    const { address, password } = authorityHelper.getAddressAndPassword();
+    const { address } = authorityHelper.getAddressAndPassword();
     const contract = new web3.eth.Contract(
       contractHelper.getAbi(),
       contractHelper.getDeployedAddress(await web3.eth.net.getId())
     );
-    await web3.eth.personal.unlockAccount(address, password, null);
 
-    const txReceipt = await contract.methods.getHousehold(address).call();
+    const householdData = await contract.methods.getHousehold(address).call();
     let hhStats = {};
-    for (const key in txReceipt) {
-      if (typeof txReceipt[key] === "boolean") {
-        hhStats[key] = txReceipt[key];
+    for (const key in householdData) {
+      if (typeof householdData[key] === "boolean") {
+        hhStats[key] = householdData[key];
       } else {
-        hhStats[key] = conversionHelper.wsToKWh(txReceipt[key].toNumber());
+        hhStats[key] = conversionHelper.wsToKWh(householdData[key].toNumber());
       }
     }
 
