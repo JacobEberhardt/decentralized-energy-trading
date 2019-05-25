@@ -99,7 +99,7 @@ module.exports = {
    * @param {string} dbUrl URL/URI of the DB
    * @param {string} dbName Name of db
    * @param {string} collection Name of collection to read from
-   * @param {Object} filter
+   * @param {Object} filter MongoDB query
    * @returns {Promise} Which either resolves into an Array of objects or rejects an error
    */
   readAll: (dbUrl, dbName, collection, filter = {}) => {
@@ -111,8 +111,7 @@ module.exports = {
         const dbo = db.db(dbName);
         dbo
           .collection(collection)
-          // TODO: Use filter as query
-          .find({}, { produce: 1, consume: 1, timestamp: 1 })
+          .find(filter)
           .sort("timestamp", -1)
           .toArray((err, results) => {
             if (err) {

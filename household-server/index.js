@@ -51,12 +51,14 @@ app.use(cors());
 /**
  * GET request for the UI
  */
-app.get("/household-stats", async (req, res) => {
+app.get("/sensor-stats", async (req, res) => {
   try {
     const { from, to } = req.query;
+    const fromQuery = from ? { timestamp: { $gte: parseInt(from) } } : {};
+    const toQuery = to ? { timestamp: { $lte: parseInt(to) } } : {};
     const data = await dbHandler.readAll(dbUrl, dbName, sensorDataCollection, {
-      from,
-      to
+      ...fromQuery,
+      ...toQuery
     });
     res.setHeader("Content-Type", "application/json");
     res.status(200);
