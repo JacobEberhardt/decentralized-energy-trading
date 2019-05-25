@@ -69,7 +69,8 @@ const SensorStats = () => {
             attr="x"
             attrAxis="y"
             orientation="bottom"
-            tickFormat={d => new Date(d).toLocaleDateString()}
+            tickFormat={d => new Date(d).toLocaleTimeString()}
+            tickTotal={5}
           />
           <YAxis title={"kWh"} />
         </XYPlot>
