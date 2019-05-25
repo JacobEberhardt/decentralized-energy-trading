@@ -71,6 +71,28 @@ app.get("/sensor-stats", async (req, res) => {
 });
 
 /**
+ * GET request for the UI
+ */
+app.get("/deeds", async (req, res) => {
+  try {
+    const { from, to } = req.query;
+    const fromQuery = from ? { timestamp: { $gte: parseInt(from) } } : {};
+    const toQuery = to ? { timestamp: { $lte: parseInt(to) } } : {};
+    const data = await dbHandler.readAll(dbUrl, dbName, utilityDataCollection, {
+      ...fromQuery,
+      ...toQuery
+    });
+    res.setHeader("Content-Type", "application/json");
+    res.status(200);
+    res.end(JSON.stringify(data));
+  } catch (error) {
+    console.log(error);
+    res.status(500);
+    res.end(error);
+  }
+});
+
+/**
  * PUT request from the sensors
  */
 app.put("/", async (req, res) => {
