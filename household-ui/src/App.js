@@ -3,7 +3,7 @@ import { Grommet, Box } from "grommet";
 import { grommet } from "grommet/themes";
 
 import TopNav from "./components/TopNav";
-import HouseholdStats from "./components/HouseholdStats";
+import SensorStats from "./components/SensorStats";
 import NetworkStats from "./components/NetworkStats";
 import DeedsTicker from "./components/DeedsTicker";
 import Savings from "./components/Savings";
@@ -13,7 +13,7 @@ function App() {
     <Grommet theme={grommet}>
       <TopNav />
       <Box pad={"medium"} direction={"row"} wrap justify={"around"}>
-        <HouseholdStats />
+        <SensorStats />
         <NetworkStats />
         <DeedsTicker />
         <Savings />

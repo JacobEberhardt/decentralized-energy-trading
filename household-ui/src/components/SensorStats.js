@@ -31,26 +31,29 @@ const formatConsumeData = rawData => {
   });
 };
 
-const HouseholdStats = () => {
+const SensorStats = () => {
   const [producedEnergy, setProducedEnergy] = useState([]);
   const [consumedEnergy, setConsumedEnergy] = useState([]);
 
   useEffect(() => {
-    const fetchHouseholdData = async () => {
-      // TODO: Use query params
-      const data = await fetchFromEndpoint("/household-stats");
+    const fetchSensorData = async () => {
+      const date = new Date();
+      date.setDate(date.getDate() - 1);
+      const data = await fetchFromEndpoint(
+        `/sensor-stats?from=${date.getTime()}`
+      );
       setProducedEnergy(formatProduceData(data));
       setConsumedEnergy(formatConsumeData(data));
     };
-    fetchHouseholdData();
+    fetchSensorData();
     const interval = setInterval(() => {
-      fetchHouseholdData();
-    }, 30000);
+      fetchSensorData();
+    }, 10000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <DashboardBox title={"Household Stats"}>
+    <DashboardBox title={"Sensor Data"}>
       <Box>
         <XYPlot height={400} width={700}>
           <VerticalGridLines />
@@ -66,7 +69,8 @@ const HouseholdStats = () => {
             attr="x"
             attrAxis="y"
             orientation="bottom"
-            tickFormat={d => new Date(d).toLocaleDateString()}
+            tickFormat={d => new Date(d).toLocaleTimeString()}
+            tickTotal={5}
           />
           <YAxis title={"kWh"} />
         </XYPlot>
@@ -75,4 +79,4 @@ const HouseholdStats = () => {
   );
 };
 
-export default HouseholdStats;
+export default SensorStats;
