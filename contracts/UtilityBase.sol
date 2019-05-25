@@ -110,13 +110,26 @@ contract UtilityBase is Mortal, IUtilityBase {
   /**
    * @dev Get energy properties of _household
    * @param _household address of the household
-   * @return properties (initialized, renewableEnergy, nonRenewableEnergy) of _household if _household exists
+   * @return Household stats (initialized,
+   *                          renewableEnergy,
+   *                          nonRenewableEnergy,
+   *                          producedRenewableEnergy,
+   *                          consumedRenewableEnergy,
+   *                          producedNonRenewableEnergy,
+   *                          consumedNonRenewableEnergy)
+   *          of _household if _household exists
    */
   function getHousehold(address _household)
     external
     view
     householdExists(_household)
-    returns (bool, int256, int256, int256, int256, int256, int256)
+    returns (bool initialized,
+             int256 renewableEnergy,
+             int256 nonRenewableEnergy,
+             int256 producedRenewableEnergy,
+             int256 consumedRenewableEnergy,
+             int256 producedNonRenewableEnergy,
+             int256 consumedNonRenewableEnergy)
     {
     Household memory hh = households[_household];
     return (
