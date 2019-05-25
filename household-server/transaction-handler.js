@@ -114,7 +114,7 @@ module.exports = {
 
     const txReceipt = await contract.methods.getHousehold(address).call();
     let hhStats = {};
-    for (var key in txReceipt) {
+    for (const key in txReceipt) {
       if (typeof txReceipt[key] === "boolean") {
         hhStats[key] = txReceipt[key];
       } else {
