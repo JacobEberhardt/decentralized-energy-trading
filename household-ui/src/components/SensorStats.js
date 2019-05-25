@@ -31,12 +31,12 @@ const formatConsumeData = rawData => {
   });
 };
 
-const HouseholdStats = () => {
+const SensorStats = () => {
   const [producedEnergy, setProducedEnergy] = useState([]);
   const [consumedEnergy, setConsumedEnergy] = useState([]);
 
   useEffect(() => {
-    const fetchHouseholdData = async () => {
+    const fetchSensordData = async () => {
       const date = new Date();
       date.setDate(date.getDate() - 1);
       const data = await fetchFromEndpoint(
@@ -45,15 +45,15 @@ const HouseholdStats = () => {
       setProducedEnergy(formatProduceData(data));
       setConsumedEnergy(formatConsumeData(data));
     };
-    fetchHouseholdData();
+    fetchSensordData();
     const interval = setInterval(() => {
-      fetchHouseholdData();
+      fetchSensordData();
     }, 10000);
     return () => clearInterval(interval);
   }, []);
 
   return (
-    <DashboardBox title={"Household Stats"}>
+    <DashboardBox title={"Sensor Data"}>
       <Box>
         <XYPlot height={400} width={700}>
           <VerticalGridLines />
@@ -78,4 +78,4 @@ const HouseholdStats = () => {
   );
 };
 
-export default HouseholdStats;
+export default SensorStats;
