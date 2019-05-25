@@ -5,6 +5,12 @@ module.exports = {
   host: "127.0.0.1",
   // Port on which the household server should listen
   port: 3002,
+  // Name of the DB
+  dbName: "decentralized_energy",
+  // Name of the Collection where the sensor data is saved
+  sensorDataCollection: "sensor_data",
+  // Name of the Collection where the deeds from the utility contract is saved
+  utilityDataCollection: "utility_data",
   // Path to the parity key file json of the authority node that is connected to the household server
   authKeyPath: "parity-authority/docker/parity/authorities/authority0.json",
   // Path to the password file to unlock above authority node

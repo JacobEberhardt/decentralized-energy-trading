@@ -24,11 +24,16 @@ const host = commander.host || serverConfig.host;
 const port = commander.port || serverConfig.port;
 const dbUrl = commander.dbUrl || serverConfig.dbUrl;
 const network = commander.network || serverConfig.network;
+const dbName = serverConfig.dbName;
+const sensorDataCollection = serverConfig.sensorDataCollection;
+const utilityDataCollection = serverConfig.utilityDataCollection;
 
 // Set up the DB
-dbHandler.createDB(dbUrl).catch(err => {
-  console.log("Error while creating DB", err);
-});
+dbHandler
+  .createDB(dbUrl, dbName, [sensorDataCollection, utilityDataCollection])
+  .catch(err => {
+    console.log("Error while creating DB", err);
+  });
 
 // Set up web3
 const web3 = web3Helper.initWeb3(network);
@@ -46,54 +51,67 @@ app.use(cors());
 /**
  * GET request for the UI
  */
-app.get("/", function(req, res, next) {
-  dbHandler
-    .readAll(dbUrl)
-    .then(result => {
-      console.log("Sending data to Client:\n", result);
-      res.setHeader("Content-Type", "application/json");
-      res.end(JSON.stringify(result));
-    })
-    .catch(err => {
-      console.log(err);
-      res.statusCode = 400;
-      res.end("Error occurred:\n", err);
-    });
-});
-
-/**
- * GET request for the UI
- */
-app.get("/household-stats", async (req, res, next) => {
+app.get("/household-stats", async (req, res) => {
   try {
     const { from, to } = req.query;
-    const data = await dbHandler.readAll(dbUrl, "data", { from, to });
+    const data = await dbHandler.readAll(dbUrl, dbName, sensorDataCollection, {
+      from,
+      to
+    });
     res.setHeader("Content-Type", "application/json");
     res.status(200);
     res.end(JSON.stringify(data));
   } catch (error) {
     console.log(error);
-    res.statusCode = 500;
-    res.end("Error occurred:\n", error);
+    res.status(500);
+    res.end(error);
   }
 });
 
 /**
  * PUT request from the sensors
  */
-app.put("/", function(req, res, next) {
-  const payload = {
-    consume: req.body[0],
-    produce: req.body[1]
-  };
+app.put("/", async (req, res) => {
+  const { produce, consume } = req.body;
+  try {
+    if (typeof produce !== "number" || typeof consume !== "number") {
+      throw new Error("Invalid payload");
+    }
 
-  console.log(payload);
-  dbHandler.writeToDB(payload, dbUrl).then(() => {
-    console.log("Sending Response");
-    res.statusCode = 200;
-    res.end("Transaction successful");
-  });
-  txHandler.updateRenewableEnergy(web3, payload);
+    // TODO: Source out in separate handler file
+    const handleDeeds = async () => {
+      const latestSavedBlockNumber = await dbHandler.getLatestBlockNumber(
+        dbUrl,
+        dbName,
+        utilityDataCollection
+      );
+      const deeds = await txHandler.collectDeeds(
+        web3,
+        latestSavedBlockNumber + 1
+      );
+      return deeds.length > 0
+        ? dbHandler.bulkWriteToDB(dbUrl, dbName, utilityDataCollection, deeds)
+        : [];
+    };
+
+    // TODO: Handle case where one promise rejects (i.e. tx fails)
+    await Promise.all([
+      handleDeeds(),
+      txHandler.updateRenewableEnergy(web3, {
+        produce,
+        consume
+      }),
+      dbHandler.writeToDB(dbUrl, dbName, sensorDataCollection, {
+        produce,
+        consume
+      })
+    ]);
+    res.status(200);
+    res.send();
+  } catch (err) {
+    res.status = 400;
+    res.send(err);
+  }
 });
 
 /**
