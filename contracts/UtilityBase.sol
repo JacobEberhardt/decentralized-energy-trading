@@ -122,6 +122,7 @@ contract UtilityBase is Mortal, IUtilityBase {
   function getHousehold(address _household)
     external
     view
+    onlyHousehold(_household)
     householdExists(_household)
     returns (bool initialized,
              int256 renewableEnergy,
