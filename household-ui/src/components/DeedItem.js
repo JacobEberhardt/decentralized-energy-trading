@@ -9,8 +9,9 @@ const DeedItem = props => {
       direction={"row"}
       align={"center"}
       justify={"evenly"}
-      margin={{ vertical: "small" }}
-      style={{ minHeight: "40px" }}
+      pad={"small"}
+      style={{ minHeight: "75px" }}
+      border={"top"}
     >
       <Box width={"small"}>
         <Text truncate size={"small"}>
