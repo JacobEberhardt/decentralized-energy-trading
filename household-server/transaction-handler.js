@@ -117,7 +117,7 @@ module.exports = {
    *  consumedRenewableEnergy: number,
    *  producedNonRenewableEnergy: number,
    *  consumedNonRenewableEnergy: number
-   *  }
+   * }
    * Note '0' till '6' can be ignored.
    */
   getHousehold: async web3 => {
@@ -138,5 +138,72 @@ module.exports = {
     }
 
     return hhStats;
+  },
+
+  /**
+   * Call constant methods:
+   *  `totalEnergy`,
+   *  `totalConsumedEnergy`,
+   *  `totalProducedEnergy`,
+   *  `totalRenewableEnergy`,
+   *  `totalConsumedRenewableEnergy`,
+   *  `totalProducedRenewableEnergy`,
+   *  `totalNonRenewableEnergy`,
+   *  `totalConsumedNonRenewableEnergy` and
+   *  `totalProducedNonRenewableEnergy`.
+   * @param {Object} web3 Web3 instance.
+   * @returns {
+   *  totalEnergy: number,
+   *  totalConsumedEnergy: number,
+   *  totalProducedEnergy: number,
+   *  totalRenewableEnergy: number,
+   *  totalConsumedRenewableEnergy: number,
+   *  totalProducedRenewableEnergy: number,
+   *  totalNonRenewableEnergy: number,
+   *  totalConsumedNonRenewableEnergy: number,
+   *  totalProducedNonRenewableEnergy: number
+   * }
+   */
+  getNetworkStats: async web3 => {
+    const contract = new web3.eth.Contract(
+      contractHelper.getAbi(),
+      contractHelper.getDeployedAddress(await web3.eth.net.getId())
+    );
+
+    const [
+      totalEnergy,
+      totalConsumedEnergy,
+      totalProducedEnergy,
+      totalRenewableEnergy,
+      totalConsumedRenewableEnergy,
+      totalProducedRenewableEnergy,
+      totalNonRenewableEnergy,
+      totalConsumedNonRenewableEnergy,
+      totalProducedNonRenewableEnergy
+    ] = await Promise.all([
+      contract.methods.totalEnergy().call(),
+      contract.methods.totalConsumedEnergy().call(),
+      contract.methods.totalProducedEnergy().call(),
+      contract.methods.totalRenewableEnergy().call(),
+      contract.methods.totalConsumedRenewableEnergy().call(),
+      contract.methods.totalProducedRenewableEnergy().call(),
+      contract.methods.totalNonRenewableEnergy().call(),
+      contract.methods.totalConsumedNonRenewableEnergy().call(),
+      contract.methods.totalProducedNonRenewableEnergy().call()
+    ]);
+
+    const networkStats = {
+      totalEnergy: totalEnergy.toNumber(),
+      totalConsumedEnergy: totalConsumedEnergy.toNumber(),
+      totalProducedEnergy: totalProducedEnergy.toNumber(),
+      totalRenewableEnergy: totalRenewableEnergy.toNumber(),
+      totalConsumedRenewableEnergy: totalConsumedRenewableEnergy.toNumber(),
+      totalProducedRenewableEnergy: totalProducedRenewableEnergy.toNumber(),
+      totalNonRenewableEnergy: totalNonRenewableEnergy.toNumber(),
+      totalConsumedNonRenewableEnergy: totalConsumedNonRenewableEnergy.toNumber(),
+      totalProducedNonRenewableEnergy: totalProducedNonRenewableEnergy.toNumber()
+    };
+
+    return networkStats;
   }
 };
