@@ -1,4 +1,4 @@
-const { MongoClient } = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
 
 module.exports = {
   /**
@@ -158,7 +158,7 @@ module.exports = {
    * @param {string} dbUrl URL/URI of the DB
    * @param {string} dbName Name of db
    * @param {string} collection Name of collection to read from
-   * @param {number} id id of the Document
+   * @param {number} id id of the document
    * @returns {Object} Result as JSONObject
    */
   findByID: (dbUrl, dbName, collection, id) => {
@@ -168,7 +168,7 @@ module.exports = {
         const dbo = db.db(dbName);
         dbo
           .collection(collection)
-          .findOne({ _id: id })
+          .findOne({ _id: ObjectId(id.toString()) })
           .then(result => {
             db.close();
             resolve(result);
