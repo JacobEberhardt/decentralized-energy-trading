@@ -170,31 +170,27 @@ module.exports = {
       contractHelper.getDeployedAddress(await web3.eth.net.getId())
     );
 
-    const totalEnergy = await contract.methods.totalEnergy().call();
-    const totalConsumedEnergy = await contract.methods
-      .totalConsumedEnergy()
-      .call();
-    const totalProducedEnergy = await contract.methods
-      .totalProducedEnergy()
-      .call();
-    const totalRenewableEnergy = await contract.methods
-      .totalRenewableEnergy()
-      .call();
-    const totalConsumedRenewableEnergy = await contract.methods
-      .totalConsumedRenewableEnergy()
-      .call();
-    const totalProducedRenewableEnergy = await contract.methods
-      .totalProducedRenewableEnergy()
-      .call();
-    const totalNonRenewableEnergy = await contract.methods
-      .totalNonRenewableEnergy()
-      .call();
-    const totalConsumedNonRenewableEnergy = await contract.methods
-      .totalConsumedNonRenewableEnergy()
-      .call();
-    const totalProducedNonRenewableEnergy = await contract.methods
-      .totalProducedNonRenewableEnergy()
-      .call();
+    const [
+      totalEnergy,
+      totalConsumedEnergy,
+      totalProducedEnergy,
+      totalRenewableEnergy,
+      totalConsumedRenewableEnergy,
+      totalProducedRenewableEnergy,
+      totalNonRenewableEnergy,
+      totalConsumedNonRenewableEnergy,
+      totalProducedNonRenewableEnergy
+    ] = await Promise.all([
+      contract.methods.totalEnergy().call(),
+      contract.methods.totalConsumedEnergy().call(),
+      contract.methods.totalProducedEnergy().call(),
+      contract.methods.totalRenewableEnergy().call(),
+      contract.methods.totalConsumedRenewableEnergy().call(),
+      contract.methods.totalProducedRenewableEnergy().call(),
+      contract.methods.totalNonRenewableEnergy().call(),
+      contract.methods.totalConsumedNonRenewableEnergy().call(),
+      contract.methods.totalProducedNonRenewableEnergy().call()
+    ]);
 
     const networkStats = {
       totalEnergy: totalEnergy.toNumber(),
