@@ -110,6 +110,7 @@ module.exports = {
    *  '4': number,
    *  '5': number,
    *  '6': number,
+   *  address: address,
    *  initialized: boolean,
    *  renewableEnergy: number,
    *  nonRenewableEnergy: number,
@@ -128,7 +129,9 @@ module.exports = {
     );
 
     const householdData = await contract.methods.getHousehold(address).call();
-    let hhStats = {};
+    let hhStats = {
+      address
+    };
     for (const key in householdData) {
       if (typeof householdData[key] === "boolean") {
         hhStats[key] = householdData[key];
