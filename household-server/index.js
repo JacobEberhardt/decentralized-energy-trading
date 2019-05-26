@@ -103,9 +103,9 @@ app.get("/network-stats", async (req, res, next) => {
 });
 
 /**
- * PUT /
+ * PUT /sensor-stats
  */
-app.put("/", async (req, res) => {
+app.put("/sensor-stats", async (req, res) => {
   const { produce, consume } = req.body;
   try {
     if (typeof produce !== "number" || typeof consume !== "number") {

@@ -46,6 +46,7 @@ const options = {
   hostname: host,
   port: port,
   method: "PUT",
+  path: "/sensor-stats",
   headers: {
     "Content-Type": "application/json"
   }
