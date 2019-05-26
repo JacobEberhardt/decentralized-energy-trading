@@ -1,6 +1,6 @@
 module.exports = {
   /**
-   * Deprecated. This function draws random samples from an uniform distribution. 
+   * Deprecated. This function draws random samples from an uniform distribution.
    * @param {number} samples Amount of Samples to draw from the random distribution
    * @param {number} min Minimum value of the random distribution
    * @param {number} max Maximum value of the random distribution

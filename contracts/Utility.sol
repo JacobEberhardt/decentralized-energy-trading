@@ -64,98 +64,18 @@ contract Utility is UtilityBase, IUtility {
     // remember: availableRenewableEnergy > 0
     neededRenewableEnergy = totalRenewableEnergy.sub(availableRenewableEnergy);
 
-    // not enough renewable energy for settlement; neededRenewableEnergy > availableRenewableEnergy
-    if (totalRenewableEnergy < 0) {
-      for (uint256 i = 0; i < householdListNoEnergy.length; i++) {
-        Household storage hhNeeded = households[householdListNoEnergy[i]];
-        // calculate % of energy on neededRenewableEnergy by household i
-        int256 proportionNeedRenewableEnergy = ((hhNeeded.renewableEnergy.mul(-1)).mul(100)).div((neededRenewableEnergy).mul(-1));
-        // calculate amount of energy on availableRenewableEnergy by household i
-        int256 amountAvailableRenewableEnergy = (availableRenewableEnergy.mul(proportionNeedRenewableEnergy)).div(100);
-        for (uint256 j = 0; j < householdListWithEnergy.length; j++) {
-          // settle energy
-          if (households[householdListWithEnergy[j]].renewableEnergy >= amountAvailableRenewableEnergy) {
-            // energy for settlement by household j is >= needed by household i; household i can serve more households
-            households[householdListWithEnergy[j]].renewableEnergy = households[householdListWithEnergy[j]].renewableEnergy.sub(amountAvailableRenewableEnergy);
-            households[householdListNoEnergy[i]].renewableEnergy = households[householdListNoEnergy[i]].renewableEnergy.add(amountAvailableRenewableEnergy);
-
-            // create deed
-            Deed[] storage deed = deeds[block.number];
-            Deed memory newDeed;
-            newDeed.active = true;
-            newDeed.from = householdListWithEnergy[j];
-            newDeed.to = householdListNoEnergy[i];
-            newDeed.renewableEnergyTransferred = amountAvailableRenewableEnergy;
-            deed.push(newDeed);
-
-            break;
-          } else if (households[householdListWithEnergy[j]].renewableEnergy < amountAvailableRenewableEnergy && households[householdListWithEnergy[j]].renewableEnergy > 0) {
-            // energy for settlement by household j is < needed by household i
-            int256 energyTransferred = households[householdListWithEnergy[j]].renewableEnergy;
-
-            households[householdListNoEnergy[i]].renewableEnergy = households[householdListNoEnergy[i]].renewableEnergy.add(energyTransferred);
-            amountAvailableRenewableEnergy = amountAvailableRenewableEnergy.sub(energyTransferred);
-            households[householdListWithEnergy[j]].renewableEnergy = 0;
-
-            // create deed
-            Deed[] storage deed = deeds[block.number];
-            Deed memory newDeed;
-            newDeed.active = true;
-            newDeed.from = householdListWithEnergy[j];
-            newDeed.to = householdListNoEnergy[i];
-            newDeed.renewableEnergyTransferred = energyTransferred;
-            deed.push(newDeed);
-          }
-        }
-      }
+    if (totalRenewableEnergy <= 0) {
+      _proportionalDistribution(
+        neededRenewableEnergy,
+        availableRenewableEnergy,
+        householdListNoEnergy,
+        householdListWithEnergy);
     } else {
-      // totalRenewableEnergy >= 0
-      // enough renewable energy for settlement; availableRenewableEnergy >= neededRenewableEnergy
-      for (uint256 i = 0; i < householdListWithEnergy.length; i++) {
-        Household storage hhAvailable = households[householdListWithEnergy[i]];
-        // calculate % of energy on availableRenewableEnergy by household i
-        int256 proportionAvailableRenewableEnergy = (hhAvailable.renewableEnergy.mul(100)).div(availableRenewableEnergy);
-        // calculate amount of energy on neededRenewableEnergy by household i
-        int256 amountNeededRenewableEnergy = ((neededRenewableEnergy.mul(-1)).mul(proportionAvailableRenewableEnergy)).div(100);
-        for (uint256 j = 0; j < householdListNoEnergy.length; j++) {
-          // settle energy
-          if (households[householdListNoEnergy[j]].renewableEnergy < 0) {
-            // check if household j is already done with settlement
-            if (amountNeededRenewableEnergy > households[householdListNoEnergy[j]].renewableEnergy.mul(-1)) {
-              // energy for settlement by household i is > needed by household j; household i can serve more households
-              int256 energyTransferred = households[householdListNoEnergy[j]].renewableEnergy.mul(-1);
-
-              households[householdListWithEnergy[i]].renewableEnergy = households[householdListWithEnergy[i]].renewableEnergy.sub(energyTransferred);
-              amountNeededRenewableEnergy = amountNeededRenewableEnergy.sub(energyTransferred);
-              households[householdListNoEnergy[j]].renewableEnergy = households[householdListNoEnergy[j]].renewableEnergy.add(energyTransferred);
-
-              // create deed
-              Deed[] storage deed = deeds[block.number];
-              Deed memory newDeed;
-              newDeed.active = true;
-              newDeed.from = householdListWithEnergy[i];
-              newDeed.to = householdListNoEnergy[j];
-              newDeed.renewableEnergyTransferred = energyTransferred;
-              deed.push(newDeed);
-            } else {
-              // energy for settlement by household i is <= needed by household j
-              households[householdListWithEnergy[i]].renewableEnergy = households[householdListWithEnergy[i]].renewableEnergy.sub(amountNeededRenewableEnergy);
-              households[householdListNoEnergy[j]].renewableEnergy = households[householdListNoEnergy[j]].renewableEnergy.add(amountNeededRenewableEnergy);
-
-              // create deed
-              Deed[] storage deed = deeds[block.number];
-              Deed memory newDeed;
-              newDeed.active = true;
-              newDeed.from = householdListWithEnergy[i];
-              newDeed.to = householdListNoEnergy[j];
-              newDeed.renewableEnergyTransferred = amountNeededRenewableEnergy;
-              deed.push(newDeed);
-
-              break;
-            }
-          }
-        }
-      }
+      _proportionalDistribution(
+        neededRenewableEnergy,
+        availableRenewableEnergy,
+        householdListWithEnergy,
+        householdListNoEnergy);
     }
 
     // clean setup for next settlement
@@ -172,5 +92,130 @@ contract Utility is UtilityBase, IUtility {
    */
   function deedsLength(uint256 _blockNumber) public view returns (uint256) {
     return deeds[_blockNumber].length;
+  }
+
+  /**
+   * @dev Distributes renewable energy by proportionally requesting/responding energy so that
+   * _neededAvailableEnergy equals 0.
+   * @param _neededRenewableEnergy int256 total needed renewable energy. Assumed to be negative.
+   * @param _availableRenewableEnergy int256 total available energy. Assumed to be positive.
+   * @param _hhFrom address[] storage
+   * @param _hhTo address[] storage
+   * @return success bool
+   */
+  function _proportionalDistribution(
+    int256 _neededRenewableEnergy,
+    int256 _availableRenewableEnergy,
+    address[] storage _hhFrom,
+    address[] storage _hhTo)
+    private
+    returns (bool)
+  {
+    // ToDo: need to find fitting variable names. It is hard to find names that fit opposite cases
+    bool isMoreAvailableThanDemanded = _availableRenewableEnergy + _neededRenewableEnergy > 0 ? true : false;
+
+    int256 energyReference = isMoreAvailableThanDemanded ?
+      _availableRenewableEnergy : _neededRenewableEnergy;
+
+    int256 energyToShare = isMoreAvailableThanDemanded ?
+      _neededRenewableEnergy : _availableRenewableEnergy;
+
+    uint256 needle = 0;
+    address addressFrom;
+    address addressTo;
+
+    // We are always transferring energy from hhFrom to hhTo
+    // Why does this work? By abusing the fact that might transfer a *negative* amount of energy, which
+    // is like 'demanding'/'buying' energy from someone.
+    for (uint256 i = 0; i < _hhFrom.length; ++i) {
+      addressTo = _hhFrom[i];
+      Household storage hh = households[addressTo];
+
+      int256 proportionalFactor = (_abs(hh.renewableEnergy)
+        .mul(100))
+        .div(_abs(energyReference));
+      int256 proportionalShare = (_abs(energyToShare)
+        .mul(proportionalFactor))
+        .div(100);
+
+      for (uint256 j = needle; j < _hhTo.length; ++j) {
+        addressFrom = _hhTo[j];
+        Household storage hh2 = households[addressFrom];
+
+        int256 toClaim = isMoreAvailableThanDemanded ? proportionalShare.mul(-1) : proportionalShare;
+        int256 renewableEnergy = isMoreAvailableThanDemanded ? hh2.renewableEnergy.mul(-1) : hh2.renewableEnergy;
+
+        if (renewableEnergy > proportionalShare) {
+          _transfer(addressFrom, addressTo, toClaim);
+          if (hh2.renewableEnergy == 0) {
+            needle++;
+          }
+          break;
+        } else {
+          int256 energyTransferred = hh2.renewableEnergy;
+          _transfer(addressFrom, addressTo, energyTransferred);
+          proportionalShare = proportionalShare.sub(_abs(energyTransferred));
+          needle++;
+        }
+      }
+    }
+    return true;
+  }
+
+  /**
+   * @dev Adds a new deed.
+   * If _amount is negative, this function will behave like _addDeed(_to, _from, ||_amount||)
+   * @param _from address from address
+   * @param _to address to adress
+   * @param _amount int256 amount of renewable energy.
+   * Note that it is intended that _amount might be a negative value.
+   * @return success bool
+   */
+  function _addDeed(address _from, address _to, int256 _amount) private returns (bool) {
+    address from = _from;
+    address to = _to;
+    int256 amount = _amount;
+    if (_amount < 0) {
+      from = _to;
+      to = _from;
+      amount = _abs(amount);
+    }
+
+    Deed[] storage deed = deeds[block.number];
+    Deed memory newDeed;
+    newDeed.active = true;
+    newDeed.from = from;
+    newDeed.to = to;
+    newDeed.renewableEnergyTransferred = amount;
+    deed.push(newDeed);
+
+    return true;
+  }
+
+  /**
+   * @dev Transfer energy from a household address to a household address.
+   * Note that this function also creates a new Deed (see _addDeed()).
+   * @param _from address from address
+   * @param _to address to adress
+   * @return success bool
+   */
+  function _transfer(address _from, address _to, int256 _amount) private returns (bool) {
+    Household storage hhFrom = households[_from];
+    Household storage hhTo = households[_to];
+    hhFrom.renewableEnergy = hhFrom.renewableEnergy.sub(_amount);
+    hhTo.renewableEnergy = hhTo.renewableEnergy.add(_amount);
+
+    _addDeed(_from, _to, _amount);
+
+    return true;
+  }
+
+  /**
+   * @dev Returns the absolute value of _number
+   * @param _number int256
+   * @return int256
+   */
+  function _abs(int256 _number) private pure returns (int256) {
+    return _number < 0 ? _number.mul(-1) : _number;
   }
 }

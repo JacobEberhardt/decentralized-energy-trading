@@ -1,94 +1,174 @@
-const { MongoClient } = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
 
 module.exports = {
   /**
    * Method to create the DB and Initialize it with a Collection
-   * @param {String} url URL/URI of the DB
+   * @param {string} dbUrl URL/URI of the DB
+   * @param {string} dbName name of the created database
+   * @param {string[]} collectionList list of all data-collections that are created
    * @returns {boolean} if operation was successful
-
    */
-  createDB: url => {
+  createDB: (dbUrl, dbName, collectionList) => {
     return new Promise((resolve, reject) => {
-      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
         if (err) reject(err);
         console.log("Database created!");
-        const dbo = db.db("sensordata");
-        dbo.createCollection("data", (err, res) => {
-          if (err) reject(err);
-          console.log("Collection created!");
-          db.close();
-          resolve(true);
+        const dbo = db.db(dbName);
+        collectionList.forEach(collection => {
+          dbo.createCollection(collection, (err, res) => {
+            if (err) reject(err);
+            console.log("Collection", collection, "created!");
+            db.close();
+          });
         });
+        resolve(true);
       });
     });
   },
 
   /**
-   * Method to write data to the database. Should be added as Eventlistener to incoming PUT requests of the Sensors
-   * @param {JSONObject} data the data to add to the DB
-   * @param {String} url URL/URI of the DB
-   * @returns {boolean} if operation was successful
-
+   * Method to write data to the database.
+   * @param {string} dbUrl URL/URI of the DB
+   * @param {string} dbName Name of db
+   * @param {string} collection the used collection of the inserted data
+   * @param {Object} data the data to add to the DB
+   * @returns {Object} data that was written
    */
-  writeToDB: (data, url) => {
+  writeToDB: (dbUrl, dbName, collection, data) => {
     return new Promise((resolve, reject) => {
-      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
         if (err) reject(err);
-        const dbo = db.db("sensordata");
-        dbo.collection("data").insertOne(data, (err, res) => {
-          if (err) reject(err);
-          console.log("1 document inserted: ", data);
-          db.close();
-          resolve(true);
-        });
+        const dbo = db.db(dbName);
+        dbo.collection(collection).insertOne(
+          {
+            ...data,
+            timestamp: new Date().getTime()
+          },
+          err => {
+            if (err) reject(err);
+            console.log(
+              `1 document inserted to collection ${collection}:`,
+              data
+            );
+            db.close();
+            resolve(data);
+          }
+        );
+      });
+    });
+  },
+
+  /**
+   * Method to bulk write data to the database.
+   * @param {string} dbUrl URL/URI of the DB
+   * @param {string} dbName Name of db
+   * @param {string} collection the used collection of the inserted data
+   * @param {Object[]} data the data to add to the DB
+   * @returns {Object[]} data that was written
+   */
+  bulkWriteToDB: (dbUrl, dbName, collection, data) => {
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
+        if (err) {
+          reject(err);
+        }
+        const dbo = db.db(dbName);
+        dbo.collection(collection).insertMany(
+          data.map(entry => ({
+            ...entry,
+            timestamp: new Date().getTime()
+          })),
+          err => {
+            if (err) {
+              reject(err);
+            }
+            console.log(
+              `${data.length} documents inserted to collection ${collection}:`,
+              data
+            );
+            db.close();
+            resolve(data);
+          }
+        );
       });
     });
   },
 
   /**
    * Method to read data from the database
-   * @param {string} url URL/URI of the DB
+   * @param {string} dbUrl URL/URI of the DB
+   * @param {string} dbName Name of db
    * @param {string} collection Name of collection to read from
-   * @param {Object} filter
+   * @param {Object} filter MongoDB query
    * @returns {Promise} Which either resolves into an Array of objects or rejects an error
    */
-  readAll: (url, collection, filter = {}) => {
+  readAll: (dbUrl, dbName, collection, filter = {}) => {
     return new Promise((resolve, reject) => {
-      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
-        if (err) reject(err);
-        const dbo = db.db("sensordata");
+      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
+        if (err) {
+          reject(err);
+        }
+        const dbo = db.db(dbName);
         dbo
           .collection(collection)
-          // TODO: Use filter as query
-          .find({}, { produce: 1, consume: 1, _id: 1 })
+          .find(filter)
+          .sort("timestamp", -1)
           .toArray((err, results) => {
             if (err) {
               reject(err);
             }
             db.close();
-            const resultsWithTimestamp = results.map(doc => ({
-              ...doc,
-              timestamp: new Date(doc._id.getTimestamp()).getTime()
-            }));
-            resolve(resultsWithTimestamp);
+            resolve(results);
           });
       });
     });
   },
+
+  /**
+   * Returns latest saved block number
+   * @param {string} dbUrl URL/URI of the DB
+   * @param {string} dbName Name of db
+   * @param {string} collection Name of collection to read from
+   * @returns {Promise<number>} Latest saved block number.
+   */
+  getLatestBlockNumber: (dbUrl, dbName, collection) => {
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
+        if (err) {
+          reject(err);
+        }
+        const dbo = db.db(dbName);
+        dbo
+          .collection(collection)
+          .find({}, { blockNumber: 1 })
+          .sort("blockNumber", -1)
+          .toArray((err, results) => {
+            if (err) {
+              reject(err);
+            }
+            db.close();
+            resolve(results[0].blockNumber);
+          });
+      });
+    });
+  },
+
   /**
    * Method to read data from the database filtered by ID
-   * @param {String} url URL/URI of the DB
-   * @param {Number} id id of the Document
-   * @returns {JSONObject} Result as JSONObject
+   * @param {string} dbUrl URL/URI of the DB
+   * @param {string} dbName Name of db
+   * @param {string} collection Name of collection to read from
+   * @param {number} id id of the document
+   * @returns {Object} Result as JSONObject
    */
-  findByID: (url, id) => {
+  findByID: (dbUrl, dbName, collection, id) => {
     return new Promise((resolve, reject) => {
-      MongoClient.connect(url, { useNewUrlParser: true }, (err, db) => {
+      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
         if (err) throw err;
-        const dbo = db.db("sensordata");
+        const dbo = db.db(dbName);
         dbo
-          .collection("data")
-          .findOne({ _id: id })
+          .collection(collection)
+          .findOne({ _id: ObjectId(id.toString()) })
           .then(result => {
             db.close();
             resolve(result);
