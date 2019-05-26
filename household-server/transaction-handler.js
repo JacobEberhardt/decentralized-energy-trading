@@ -141,15 +141,16 @@ module.exports = {
   },
 
   /**
-   * Call constant methods: `totalEnergy`,
-   *                        `totalConsumedEnergy`,
-   *                        `totalProducedEnergy`,
-   *                        `totalRenewableEnergy`,
-   *                        `totalConsumedRenewableEnergy`,
-   *                        `totalProducedRenewableEnergy`,
-   *                        `totalNonRenewableEnergy`,
-   *                        `totalConsumedNonRenewableEnergy` and
-   *                        `totalProducedNonRenewableEnergy`.
+   * Call constant methods:
+   *  `totalEnergy`,
+   *  `totalConsumedEnergy`,
+   *  `totalProducedEnergy`,
+   *  `totalRenewableEnergy`,
+   *  `totalConsumedRenewableEnergy`,
+   *  `totalProducedRenewableEnergy`,
+   *  `totalNonRenewableEnergy`,
+   *  `totalConsumedNonRenewableEnergy` and
+   *  `totalProducedNonRenewableEnergy`.
    * @param {Object} web3 Web3 instance.
    * @returns {
    *  totalEnergy: number,
@@ -163,7 +164,7 @@ module.exports = {
    *  totalProducedNonRenewableEnergy: number
    * }
    */
-  getNetwork: async web3 => {
+  getNetworkStats: async web3 => {
     const contract = new web3.eth.Contract(
       contractHelper.getAbi(),
       contractHelper.getDeployedAddress(await web3.eth.net.getId())

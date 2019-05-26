@@ -91,7 +91,7 @@ app.get("/household-stats", async (req, res, next) => {
  */
 app.get("/network-stats", async (req, res, next) => {
   try {
-    const data = await txHandler.getNetwork(web3);
+    const data = await txHandler.getNetworkStats(web3);
     res.setHeader("Content-Type", "application/json");
     res.status(200);
     res.end(JSON.stringify(data));
