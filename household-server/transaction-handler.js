@@ -37,7 +37,7 @@ module.exports = {
         conversionHelper.kWhToWs(produce),
         conversionHelper.kWhToWs(consume)
       )
-      .send({ from: address });
+      .send({ from: address, gasLimit: "1000000" });
     return txReceipt;
   },
 
