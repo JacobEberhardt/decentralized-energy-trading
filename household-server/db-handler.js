@@ -147,7 +147,7 @@ module.exports = {
               reject(err);
             }
             db.close();
-            resolve(results[0].blockNumber);
+            resolve(results[0] ? results[0].blockNumber : 0);
           });
       });
     });

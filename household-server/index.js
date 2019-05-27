@@ -71,6 +71,19 @@ app.get("/sensor-stats", async (req, res) => {
 });
 
 /**
+ * GET request for the UI
+ */
+app.get("/deeds", async (req, res) => {
+  try {
+    const { from, to } = req.query;
+    const fromQuery = from ? { timestamp: { $gte: parseInt(from) } } : {};
+    const toQuery = to ? { timestamp: { $lte: parseInt(to) } } : {};
+    const data = await dbHandler.readAll(dbUrl, dbName, utilityDataCollection, {
+      ...fromQuery,
+      ...toQuery
+    });
+
+/**
  * GET /household-stats
  */
 app.get("/household-stats", async (req, res, next) => {
