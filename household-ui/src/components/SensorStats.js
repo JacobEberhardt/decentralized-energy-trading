@@ -46,9 +46,7 @@ const SensorStats = () => {
       setConsumedEnergy(formatConsumeData(data));
     };
     fetchSensorData();
-    const interval = setInterval(() => {
-      fetchSensorData();
-    }, 10000);
+    const interval = setInterval(() => fetchSensorData(), 10000);
     return () => clearInterval(interval);
   }, []);
 
