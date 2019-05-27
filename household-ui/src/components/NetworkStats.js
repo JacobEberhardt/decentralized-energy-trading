@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { Box } from "grommet";
 
 import DashboardBox from "./DashboardBox";
-import NetworkMeter from "./NetworkMeter";
+import NetworkCircleMeter from "./NetworkCircleMeter";
+import NetworkBarMeter from "./NetworkBarMeter";
 
 import { fetchFromEndpoint } from "../helpers/fetch";
 
@@ -34,28 +35,52 @@ const NetworkStats = () => {
 
   return (
     <DashboardBox title={"Network Overview"}>
+      <Box>
+        <NetworkBarMeter
+          value={householdStats.producedRenewableEnergy}
+          maxValue={
+            Math.max(
+              householdStats.producedRenewableEnergy,
+              householdStats.consumedRenewableEnergy
+            ) * 1.5
+          }
+          label={"Your total production"}
+          color={"#55fcc2"}
+        />
+        <NetworkBarMeter
+          value={householdStats.consumedRenewableEnergy}
+          maxValue={
+            Math.max(
+              householdStats.producedRenewableEnergy,
+              householdStats.consumedRenewableEnergy
+            ) * 1.5
+          }
+          label={"Your total consumption"}
+          color={"#f9a7a7"}
+        />
+      </Box>
       <Box
         direction={"row"}
         justify={"evenly"}
         align={"center"}
         height={"100%"}
       >
-        <NetworkMeter
+        <NetworkCircleMeter
           total={networkStats.totalProducedRenewableEnergy}
           householdShare={householdStats.producedRenewableEnergy}
-          totalLabel={"produced"}
+          totalLabel={"network production"}
           colors={["#00C781", "#55fcc2"]}
         />
-        <NetworkMeter
+        <NetworkCircleMeter
           total={networkStats.totalEnergy}
           householdShare={householdStats.renewableEnergy}
-          totalLabel={"balance"}
+          totalLabel={"network balance"}
           colors={["#2dadfc", "#81fced"]}
         />
-        <NetworkMeter
+        <NetworkCircleMeter
           total={networkStats.totalConsumedRenewableEnergy}
           householdShare={householdStats.consumedRenewableEnergy}
-          totalLabel={"consumed"}
+          totalLabel={"network consumption"}
           colors={["#f94848", "#f9a7a7"]}
         />
       </Box>
