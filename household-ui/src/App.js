@@ -67,7 +67,7 @@ function App() {
           balanceOfNetwork={networkStats.totalEnergy}
         />
         <DeedsTicker deeds={deeds} />
-        <Savings deeds={deeds} />
+        <Savings address={householdStats.address} deeds={deeds} />
       </Box>
     </Grommet>
   );
