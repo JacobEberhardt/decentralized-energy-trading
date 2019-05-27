@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import PropTypes from "prop-types";
 import { Box } from "grommet";
 import {
   XYPlot,
@@ -10,8 +11,6 @@ import {
 } from "react-vis";
 
 import DashboardBox from "./DashboardBox";
-
-import { fetchFromEndpoint } from "../helpers/fetch";
 
 const formatProduceData = rawData => {
   return rawData.map(({ produce, timestamp }) => {
@@ -31,25 +30,7 @@ const formatConsumeData = rawData => {
   });
 };
 
-const SensorStats = () => {
-  const [producedEnergy, setProducedEnergy] = useState([]);
-  const [consumedEnergy, setConsumedEnergy] = useState([]);
-
-  useEffect(() => {
-    const fetchSensorData = async () => {
-      const date = new Date();
-      date.setDate(date.getDate() - 1);
-      const data = await fetchFromEndpoint(
-        `/sensor-stats?from=${date.getTime()}`
-      );
-      setProducedEnergy(formatProduceData(data));
-      setConsumedEnergy(formatConsumeData(data));
-    };
-    fetchSensorData();
-    const interval = setInterval(() => fetchSensorData(), 10000);
-    return () => clearInterval(interval);
-  }, []);
-
+const SensorStats = React.memo(({ sensorData }) => {
   return (
     <DashboardBox title={"Sensor Data"}>
       <Box>
@@ -57,11 +38,15 @@ const SensorStats = () => {
           <VerticalGridLines />
           <HorizontalGridLines />
           <LineSeries
-            data={producedEnergy}
+            data={formatProduceData(sensorData)}
             color={"green"}
             strokeStyle="solid"
           />
-          <LineSeries data={consumedEnergy} color={"red"} strokeStyle="solid" />
+          <LineSeries
+            data={formatConsumeData(sensorData)}
+            color={"red"}
+            strokeStyle="solid"
+          />
           <XAxis
             title={"time"}
             attr="x"
@@ -75,6 +60,10 @@ const SensorStats = () => {
       </Box>
     </DashboardBox>
   );
+});
+
+SensorStats.propTypes = {
+  sensorData: PropTypes.arrayOf(PropTypes.object)
 };
 
 export default SensorStats;

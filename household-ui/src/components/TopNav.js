@@ -1,19 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import PropTypes from "prop-types";
 import { Box, Text } from "grommet";
 
-import { fetchFromEndpoint } from "../helpers/fetch";
-
-const TopNav = () => {
-  const [address, setAddress] = useState("");
-
-  useEffect(() => {
-    async function fetchAddress() {
-      const { address } = await fetchFromEndpoint("/household-stats");
-      setAddress(address);
-    }
-    fetchAddress();
-  }, []);
-
+const TopNav = React.memo(({ address }) => {
   return (
     <Box
       fill
@@ -26,6 +15,10 @@ const TopNav = () => {
       <Text>{address}</Text>
     </Box>
   );
+});
+
+TopNav.propTypes = {
+  address: PropTypes.string
 };
 
 export default TopNav;

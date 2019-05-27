@@ -21,7 +21,7 @@ const NetworkBarMeter = ({ maxValue, value, color, label }) => {
         />
         <Box align="center">
           <Text size={"xsmall"}>{label}</Text>
-          <Box direction="row" align="center" pad={0}>
+          <Box direction="row" align="center">
             <Text size="xxlarge" weight="bold">
               {value}
             </Text>

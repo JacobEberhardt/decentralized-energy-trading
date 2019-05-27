@@ -11,27 +11,37 @@ import Savings from "./components/Savings";
 import { fetchFromEndpoint } from "./helpers/fetch";
 
 function App() {
-  const [householdStats, setHouseholdStats] = useState({
-    address: "",
-    producedRenewableEnergy: 0,
-    consumedRenewableEnergy: 0,
-    renewableEnergy: 0
-  });
-  const [networkStats, setNetworkStats] = useState({
-    totalProducedRenewableEnergy: 0,
-    totalEnergy: 0,
-    totalConsumedRenewableEnergy: 0
-  });
+  const [householdStats, setHouseholdStats] = useState({});
+  const [networkStats, setNetworkStats] = useState({});
+  const [sensorData, setSensorData] = useState([]);
+  const [deeds, setDeeds] = useState([]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const [fetchedHouseholdStats, fetchedNetworkStats] = await Promise.all([
-        fetchFromEndpoint(`/household-stats`),
-        fetchFromEndpoint(`/network-stats`)
-      ]);
-      setHouseholdStats(fetchedHouseholdStats);
-      setNetworkStats(fetchedNetworkStats);
+    const fetchSensorData = async () => {
+      const date = new Date();
+      date.setDate(date.getDate() - 1);
+      return fetchFromEndpoint(`/sensor-stats?from=${date.getTime()}`);
     };
+
+    const fetchDeeds = async () => {
+      const date = new Date();
+      date.setDate(date.getDate() - 5);
+      return fetchFromEndpoint(`/deeds?from=${date.getTime()}`);
+    };
+
+    const fetchData = async () => {
+      const fetchedData = await Promise.all([
+        fetchFromEndpoint(`/household-stats`),
+        fetchFromEndpoint(`/network-stats`),
+        fetchSensorData(),
+        fetchDeeds()
+      ]);
+      setHouseholdStats(fetchedData[0]);
+      setNetworkStats(fetchedData[1]);
+      setSensorData(fetchedData[2]);
+      setDeeds(fetchedData[3]);
+    };
+
     fetchData();
     const interval = setInterval(() => fetchData(), 10000);
     return () => clearInterval(interval);
@@ -39,7 +49,7 @@ function App() {
 
   return (
     <Grommet theme={grommet}>
-      <TopNav />
+      <TopNav address={householdStats.address} />
       <Box
         pad={"medium"}
         direction={"row"}
@@ -47,7 +57,7 @@ function App() {
         justify={"around"}
         background={{ color: "light-2" }}
       >
-        <SensorStats />
+        <SensorStats sensorData={sensorData} />
         <NetworkStats
           producedEnergyByHousehold={householdStats.producedRenewableEnergy}
           consumedEnergyByHousehold={householdStats.consumedRenewableEnergy}
@@ -56,8 +66,8 @@ function App() {
           consumedEnergyByNetwork={networkStats.totalConsumedRenewableEnergy}
           balanceOfNetwork={networkStats.totalEnergy}
         />
-        <DeedsTicker />
-        <Savings />
+        <DeedsTicker deeds={deeds} />
+        <Savings deeds={deeds} />
       </Box>
     </Grommet>
   );

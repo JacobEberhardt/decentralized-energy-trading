@@ -1,25 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import PropTypes from "prop-types";
 
 import DashboardBox from "./DashboardBox";
 import DeedItem from "./DeedItem";
 
-import { fetchFromEndpoint } from "../helpers/fetch";
-
-const DeedsTicker = () => {
-  const [deeds, setDeeds] = useState([]);
-
-  useEffect(() => {
-    const fetchDeeds = async () => {
-      const date = new Date();
-      date.setDate(date.getDate() - 5);
-      const deeds = await fetchFromEndpoint(`/deeds?from=${date.getTime()}`);
-      setDeeds(deeds);
-    };
-    fetchDeeds();
-    const interval = setInterval(() => fetchDeeds(), 10000);
-    return () => clearInterval(interval);
-  }, []);
-
+const DeedsTicker = React.memo(({ deeds }) => {
   return (
     <DashboardBox title={"Deeds Ticker"}>
       {deeds.map(deed => (
@@ -33,6 +18,10 @@ const DeedsTicker = () => {
       ))}
     </DashboardBox>
   );
+});
+
+DeedsTicker.propTypes = {
+  deeds: PropTypes.arrayOf(PropTypes.object)
 };
 
 export default DeedsTicker;
