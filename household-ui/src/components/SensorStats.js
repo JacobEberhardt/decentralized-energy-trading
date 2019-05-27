@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+import PropTypes from "prop-types";
 import { Box } from "grommet";
 import {
   XYPlot,
@@ -6,12 +7,11 @@ import {
   VerticalGridLines,
   HorizontalGridLines,
   XAxis,
-  YAxis
+  YAxis,
+  DiscreteColorLegend
 } from "react-vis";
 
 import DashboardBox from "./DashboardBox";
-
-import { fetchFromEndpoint } from "../helpers/fetch";
 
 const formatProduceData = rawData => {
   return rawData.map(({ produce, timestamp }) => {
@@ -31,37 +31,39 @@ const formatConsumeData = rawData => {
   });
 };
 
-const SensorStats = () => {
-  const [producedEnergy, setProducedEnergy] = useState([]);
-  const [consumedEnergy, setConsumedEnergy] = useState([]);
-
-  useEffect(() => {
-    const fetchSensorData = async () => {
-      const date = new Date();
-      date.setDate(date.getDate() - 1);
-      const data = await fetchFromEndpoint(
-        `/sensor-stats?from=${date.getTime()}`
-      );
-      setProducedEnergy(formatProduceData(data));
-      setConsumedEnergy(formatConsumeData(data));
-    };
-    fetchSensorData();
-    const interval = setInterval(() => fetchSensorData(), 10000);
-    return () => clearInterval(interval);
-  }, []);
-
+const SensorStats = React.memo(({ sensorData }) => {
+  const range = sensorData
+    .map(({ consume, produce }) => [consume, produce])
+    .flat();
   return (
     <DashboardBox title={"Sensor Data"}>
       <Box>
-        <XYPlot height={400} width={700}>
+        <DiscreteColorLegend
+          colors={["green", "red"]}
+          items={["produced energy", "consumed energy"]}
+          orientation="horizontal"
+        />
+        <XYPlot
+          height={350}
+          width={700}
+          yDomain={[0, Math.max(...range) * 1.3]}
+        >
           <VerticalGridLines />
           <HorizontalGridLines />
           <LineSeries
-            data={producedEnergy}
+            data={formatProduceData(sensorData)}
             color={"green"}
             strokeStyle="solid"
+            strokeWidth={3}
+            opacity={0.5}
           />
-          <LineSeries data={consumedEnergy} color={"red"} strokeStyle="solid" />
+          <LineSeries
+            data={formatConsumeData(sensorData)}
+            color={"red"}
+            strokeStyle="solid"
+            strokeWidth={3}
+            opacity={0.5}
+          />
           <XAxis
             title={"time"}
             attr="x"
@@ -75,6 +77,10 @@ const SensorStats = () => {
       </Box>
     </DashboardBox>
   );
+});
+
+SensorStats.propTypes = {
+  sensorData: PropTypes.arrayOf(PropTypes.object)
 };
 
 export default SensorStats;

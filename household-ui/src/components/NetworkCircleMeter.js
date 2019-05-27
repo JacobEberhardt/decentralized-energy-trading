@@ -23,16 +23,16 @@ const NetworkCircleMeter = ({
           type="circle"
           values={[
             {
-              value: total - householdShare,
-              color: colors[0],
-              onHover: isHovering =>
-                handleHover(isHovering, total - householdShare, "by others")
-            },
-            {
               value: householdShare,
               color: colors[1],
               onHover: isHovering =>
                 handleHover(isHovering, householdShare, "by you")
+            },
+            {
+              value: total - householdShare,
+              color: colors[0],
+              onHover: isHovering =>
+                handleHover(isHovering, total - householdShare, "by others")
             }
           ]}
           max={total}
