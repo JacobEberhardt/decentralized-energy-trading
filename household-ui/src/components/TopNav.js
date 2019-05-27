@@ -15,7 +15,13 @@ const TopNav = () => {
   }, []);
 
   return (
-    <Box fill direction={"row"} pad={"small"} background={"brand"} justify={"between"}>
+    <Box
+      fill
+      direction={"row"}
+      pad={"small"}
+      background={"brand"}
+      justify={"between"}
+    >
       <Text>Decentralized Energy Trading</Text>
       <Text>{address}</Text>
     </Box>
