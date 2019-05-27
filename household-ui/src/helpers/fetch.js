@@ -5,6 +5,5 @@ export const fetchFromEndpoint = async endpoint => {
       "Content-Type": "application/json"
     }
   });
-  const data = response.json();
-  return data;
+  return response.json();
 };

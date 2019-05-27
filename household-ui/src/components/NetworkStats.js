@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Box, Text } from "grommet";
-import { XYPlot, HorizontalBarSeries, XAxis, YAxis } from "react-vis";
+import { Box } from "grommet";
 
 import DashboardBox from "./DashboardBox";
+import NetworkMeter from "./NetworkMeter";
 
 import { fetchFromEndpoint } from "../helpers/fetch";
 
@@ -13,7 +13,9 @@ const NetworkStats = () => {
     renewableEnergy: 0
   });
   const [networkStats, setNetworkStats] = useState({
-    
+    totalProducedRenewableEnergy: 0,
+    totalEnergy: 0,
+    totalConsumedRenewableEnergy: 0
   });
 
   useEffect(() => {
@@ -30,53 +32,32 @@ const NetworkStats = () => {
     return () => clearInterval(interval);
   }, []);
 
-  console.log({ householdStats, networkStats });
-
   return (
-    <DashboardBox title={"Household Overview"}>
-      <Box align={"center"}>
-        <Text
-          size={"xxlarge"}
-          weight={"bold"}
-          color={householdStats.renewableEnergy < 0 && "red"}
-        >
-          {householdStats.renewableEnergy} kWh
-        </Text>
-        <Text size={"small"}>Energy Balance</Text>
-      </Box>
-      <Box>
-        <XYPlot
-          margin={{ left: 70 }}
-          height={150}
-          width={700}
-          xDomain={[
-            0,
-            Math.max(
-              householdStats.producedRenewableEnergy,
-              householdStats.consumedRenewableEnergy
-            ) * 1.3
-          ]}
-          yDomain={[0, 1]}
-        >
-          <HorizontalBarSeries
-            data={[
-              {
-                x: householdStats.producedRenewableEnergy,
-                y: 0
-              },
-              {
-                x: householdStats.consumedRenewableEnergy,
-                y: 1
-              }
-            ]}
-            style={{}}
-          />
-          <XAxis title={"kWh"} orientation="bottom" tickTotal={5} />
-          <YAxis
-            tickTotal={2}
-            tickFormat={d => (d === 0 ? "Produced" : "Consumed")}
-          />
-        </XYPlot>
+    <DashboardBox title={"Network Overview"}>
+      <Box
+        direction={"row"}
+        justify={"evenly"}
+        align={"center"}
+        height={"100%"}
+      >
+        <NetworkMeter
+          total={networkStats.totalProducedRenewableEnergy}
+          householdShare={householdStats.producedRenewableEnergy}
+          totalLabel={"produced"}
+          colors={["#00C781", "#55fcc2"]}
+        />
+        <NetworkMeter
+          total={networkStats.totalEnergy}
+          householdShare={householdStats.renewableEnergy}
+          totalLabel={"balance"}
+          colors={["#2dadfc", "#81fced"]}
+        />
+        <NetworkMeter
+          total={networkStats.totalConsumedRenewableEnergy}
+          householdShare={householdStats.consumedRenewableEnergy}
+          totalLabel={"consumed"}
+          colors={["#f94848", "#f9a7a7"]}
+        />
       </Box>
     </DashboardBox>
   );
