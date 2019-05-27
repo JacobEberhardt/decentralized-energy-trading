@@ -71,7 +71,7 @@ app.get("/sensor-stats", async (req, res) => {
 });
 
 /**
- * GET request for the UI
+ * GET /deeds?from=<fromDate>&to=<toDate>
  */
 app.get("/deeds", async (req, res) => {
   try {
@@ -82,6 +82,15 @@ app.get("/deeds", async (req, res) => {
       ...fromQuery,
       ...toQuery
     });
+    res.setHeader("Content-Type", "application/json");
+    res.status(200);
+    res.end(JSON.stringify(data));
+  } catch (error) {
+    console.log(error);
+    res.status(500);
+    res.end(error);
+  }
+});
 
 /**
  * GET /household-stats
