@@ -2,6 +2,16 @@ const authorityHelper = require("../helpers/authority");
 const contractHelper = require("../helpers/contract");
 const conversionHelper = require("../helpers/conversion");
 
+const HOUSEHOLD_KEY_MAP = [
+  "initialized",
+  "renewableEnergy",
+  "nonRenewableEnergy",
+  "producedRenewableEnergy",
+  "consumedRenewableEnergy",
+  "producedNonRenewableEnergy",
+  "consumedNonRenewableEnergy"
+];
+
 /**
  * This handler creates, signs and sends transactions to the Utility contract.
  */
@@ -27,7 +37,7 @@ module.exports = {
         conversionHelper.kWhToWs(produce),
         conversionHelper.kWhToWs(consume)
       )
-      .send({ from: address });
+      .send({ from: address, gasLimit: "1000000" });
     return txReceipt;
   },
 
@@ -127,20 +137,21 @@ module.exports = {
       contractHelper.getAbi(),
       contractHelper.getDeployedAddress(await web3.eth.net.getId())
     );
-
-    const householdData = await contract.methods.getHousehold(address).call();
-    let hhStats = {
-      address
-    };
-    for (const key in householdData) {
-      if (typeof householdData[key] === "boolean") {
-        hhStats[key] = householdData[key];
-      } else {
-        hhStats[key] = conversionHelper.wsToKWh(householdData[key].toNumber());
-      }
-    }
-
-    return hhStats;
+    const householdData = await contract.methods
+      .getHousehold(address)
+      .call({ from: address });
+    return Object.keys(householdData).reduce(
+      (formattedData, key) => {
+        return {
+          ...formattedData,
+          [HOUSEHOLD_KEY_MAP[key]]:
+            typeof householdData[key] === "boolean"
+              ? householdData[key]
+              : conversionHelper.wsToKWh(householdData[key].toNumber())
+        };
+      },
+      { address }
+    );
   },
 
   /**
@@ -196,15 +207,31 @@ module.exports = {
     ]);
 
     const networkStats = {
-      totalEnergy: totalEnergy.toNumber(),
-      totalConsumedEnergy: totalConsumedEnergy.toNumber(),
-      totalProducedEnergy: totalProducedEnergy.toNumber(),
-      totalRenewableEnergy: totalRenewableEnergy.toNumber(),
-      totalConsumedRenewableEnergy: totalConsumedRenewableEnergy.toNumber(),
-      totalProducedRenewableEnergy: totalProducedRenewableEnergy.toNumber(),
-      totalNonRenewableEnergy: totalNonRenewableEnergy.toNumber(),
-      totalConsumedNonRenewableEnergy: totalConsumedNonRenewableEnergy.toNumber(),
-      totalProducedNonRenewableEnergy: totalProducedNonRenewableEnergy.toNumber()
+      totalEnergy: conversionHelper.wsToKWh(totalEnergy.toNumber()),
+      totalConsumedEnergy: conversionHelper.wsToKWh(
+        totalConsumedEnergy.toNumber()
+      ),
+      totalProducedEnergy: conversionHelper.wsToKWh(
+        totalProducedEnergy.toNumber()
+      ),
+      totalRenewableEnergy: conversionHelper.wsToKWh(
+        totalRenewableEnergy.toNumber()
+      ),
+      totalConsumedRenewableEnergy: conversionHelper.wsToKWh(
+        totalConsumedRenewableEnergy.toNumber()
+      ),
+      totalProducedRenewableEnergy: conversionHelper.wsToKWh(
+        totalProducedRenewableEnergy.toNumber()
+      ),
+      totalNonRenewableEnergy: conversionHelper.wsToKWh(
+        totalNonRenewableEnergy.toNumber()
+      ),
+      totalConsumedNonRenewableEnergy: conversionHelper.wsToKWh(
+        totalConsumedNonRenewableEnergy.toNumber()
+      ),
+      totalProducedNonRenewableEnergy: conversionHelper.wsToKWh(
+        totalProducedNonRenewableEnergy.toNumber()
+      )
     };
 
     return networkStats;
