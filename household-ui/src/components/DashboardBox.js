@@ -11,6 +11,9 @@ const DashboardBox = ({ title, children }) => {
         round
         overflow={{ vertical: "auto" }}
         height={"500px"}
+        background={{
+          color: "light-1"
+        }}
       >
         <Text
           weight={"bold"}

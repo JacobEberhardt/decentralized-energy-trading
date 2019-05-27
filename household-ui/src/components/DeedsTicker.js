@@ -16,9 +16,7 @@ const DeedsTicker = () => {
       setDeeds(deeds);
     };
     fetchDeeds();
-    const interval = setInterval(() => {
-      fetchDeeds();
-    }, 10000);
+    const interval = setInterval(() => fetchDeeds(), 10000);
     return () => clearInterval(interval);
   }, []);
 
