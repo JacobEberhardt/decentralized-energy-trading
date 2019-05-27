@@ -49,7 +49,7 @@ app.use(express.json());
 app.use(cors());
 
 /**
- * GET request for the UI
+ * GET /sensor-stats?from=<fromDate>&to=<toDate>
  */
 app.get("/sensor-stats", async (req, res) => {
   try {
@@ -82,6 +82,13 @@ app.get("/deeds", async (req, res) => {
       ...fromQuery,
       ...toQuery
     });
+
+/**
+ * GET /household-stats
+ */
+app.get("/household-stats", async (req, res, next) => {
+  try {
+    const data = await txHandler.getHousehold(web3);
     res.setHeader("Content-Type", "application/json");
     res.status(200);
     res.end(JSON.stringify(data));
@@ -93,7 +100,23 @@ app.get("/deeds", async (req, res) => {
 });
 
 /**
- * PUT request from the sensors
+ * GET /network-stats
+ */
+app.get("/network-stats", async (req, res, next) => {
+  try {
+    const data = await txHandler.getNetworkStats(web3);
+    res.setHeader("Content-Type", "application/json");
+    res.status(200);
+    res.end(JSON.stringify(data));
+  } catch (error) {
+    console.log(error);
+    res.status(500);
+    res.end(error);
+  }
+});
+
+/**
+ * PUT /
  */
 app.put("/", async (req, res) => {
   const { produce, consume } = req.body;
