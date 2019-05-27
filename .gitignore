@@ -79,3 +79,6 @@ package-lock.json
 # Parity
 **/bootnode.key
 .idea/codeStyles/Project.xml
+
+# Benchmark
+utility_benchmark.csv

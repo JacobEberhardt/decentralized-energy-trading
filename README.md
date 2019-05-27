@@ -26,6 +26,9 @@ yarn install
 
 ## Run tests
 - `yarn test-contracts` to test contracts
-- `yarn test-parity-native` to test native parity authority setup 
+- `yarn test-parity-native` to test native parity authority setup
 - `yarn test-parity-docker` to test docker parity authority setup
 - `yarn test-helpers` to test helper functions
+
+## Benchmarks
+- `yarn utility-benchmark` to benchmark the `settle` method of the `Utility` contract

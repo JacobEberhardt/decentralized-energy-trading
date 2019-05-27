@@ -1,4 +1,5 @@
 const Utility = artifacts.require("Utility");
+const UtilityBenchmark = artifacts.require("UtilityBenchmark");
 
 const web3Helper = require("../helpers/web3");
 const authorityHelper = require("../helpers/authority");
@@ -30,6 +31,12 @@ module.exports = async (deployer, network, [authority]) => {
       await web3.eth.personal.unlockAccount(address, password, null);
       await utilityInstanceInAuthority.addHousehold(OTHER_AUTHORITY_ADDRESS, {
         from: AUTHORITY_ADDRESS
+      });
+      break;
+    }
+    case "benchmark": {
+      deployer.deploy(UtilityBenchmark, 1000, 50, 1000, -2700, {
+        gas: 99999999
       });
       break;
     }

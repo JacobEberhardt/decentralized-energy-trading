@@ -19,7 +19,8 @@
     "migrate-contracts-authority": "truffle migrate --reset hard --network authority",
     "test-parity-native": "./scripts/run_native_parity_tests.sh",
     "test-parity-docker": "./scripts/run_docker_parity_tests.sh",
-    "test-helpers": "mocha ./test/helpers/*.js"
+    "test-helpers": "mocha ./test/helpers/*.js",
+    "utility-benchmark": "./scripts/benchmarks/run_utility_benchmark.sh"
   },
   "devDependencies": {
     "chai": "^4.2.0",
@@ -48,6 +49,7 @@
     "bn.js": "^4.11.8",
     "commander": "^2.20.0",
     "cors": "^2.8.5",
+    "csv-writer": "^1.3.0",
     "express": "^4.16.4",
     "gaussian": "^1.1.0",
     "mongodb": "^3.2.3",
