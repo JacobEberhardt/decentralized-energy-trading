@@ -12,7 +12,13 @@ function App() {
   return (
     <Grommet theme={grommet}>
       <TopNav />
-      <Box pad={"medium"} direction={"row"} wrap justify={"around"}>
+      <Box
+        pad={"medium"}
+        direction={"row"}
+        wrap
+        justify={"around"}
+        background={{ color: "light-2" }}
+      >
         <SensorStats />
         <NetworkStats />
         <DeedsTicker />
