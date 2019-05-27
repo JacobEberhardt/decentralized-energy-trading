@@ -137,7 +137,9 @@ module.exports = {
       contractHelper.getAbi(),
       contractHelper.getDeployedAddress(await web3.eth.net.getId())
     );
-    const householdData = await contract.methods.getHousehold(address).call();
+    const householdData = await contract.methods
+      .getHousehold(address)
+      .call({ from: address });
     return Object.keys(householdData).reduce(
       (formattedData, key) => {
         return {
