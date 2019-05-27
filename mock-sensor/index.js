@@ -9,6 +9,7 @@ const dataGenerator = require("./data-generator");
 commander
   .option("-h, --host <type>", "ip of household server")
   .option("-p, --port <type>", "port of household server")
+  .option("-e, --endpoint <type>", "endpoint/path of household server")
   .option("-i, --interval <type>", "time interval of the of the sensor in ms")
   .option(
     "-e, --energybalance <type>",
@@ -18,6 +19,7 @@ commander.parse(process.argv);
 
 const host = commander.host || serverConfig.host;
 const port = commander.port || serverConfig.port;
+const path = commander.endpoint || "/sensor-stats";
 const sensorInterval = commander.interval || serverConfig.sensorInterval;
 const energyBalance = commander.energybalance || "=";
 
@@ -35,7 +37,7 @@ const {
 const { energyConsumption, energyProduction } = require("./sensor-config");
 
 console.log(
-  `Starting Mock-Sensor\nSending to http://${host}:${port} with an interval of ${sensorInterval}ms`
+  `Starting Mock-Sensor\nSending to http://${host}:${port}${path} with an interval of ${sensorInterval}ms.`
 );
 
 /**
@@ -46,6 +48,7 @@ const options = {
   hostname: host,
   port: port,
   method: "PUT",
+  path: path,
   headers: {
     "Content-Type": "application/json"
   }
