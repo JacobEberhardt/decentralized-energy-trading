@@ -148,7 +148,7 @@ module.exports = {
               : conversionHelper.wsToKWh(householdData[key].toNumber())
         };
       },
-      { address }
+      { address: web3.utils.toChecksumAddress(address) }
     );
   },
 
