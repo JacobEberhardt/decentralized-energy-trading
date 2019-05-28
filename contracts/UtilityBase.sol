@@ -65,7 +65,7 @@ contract UtilityBase is Mortal, IUtilityBase {
    * @param _household address of the household
    * @return success bool if household does not already exists, should only be called by some authority
    */
-  function addHousehold(address _household) external onlyOwner returns (bool) {
+  function addHousehold(address _household) external returns (bool) {
     return _addHousehold(_household);
   }
 
@@ -254,7 +254,7 @@ contract UtilityBase is Mortal, IUtilityBase {
    * @param _household address of household
    * @return bool success
    */
-  function _addHousehold(address _household) internal returns (bool) {
+  function _addHousehold(address _household) internal onlyOwner returns (bool) {
     require(!households[_household].initialized, "Household already exists.");
 
     // add new household to mapping

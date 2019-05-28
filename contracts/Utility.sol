@@ -31,7 +31,7 @@ contract Utility is UtilityBase, IUtility {
   /**
    * @dev Overrides addHousehold of UtilityBase.sol
    */
-  function addHousehold(address _household) external onlyOwner returns (bool) {
+  function addHousehold(address _household) external returns (bool) {
     if (super._addHousehold(_household)) {
       householdList.push(_household);
     }
