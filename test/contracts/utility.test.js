@@ -20,11 +20,13 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4, hh5, hh6, hh7]) => {
   describe("Households", () => {
     context("with a new household", async () => {
       beforeEach(async () => {
-        ({ logs: this.logs } = await this.instance.addHousehold(hh1));
+        ({ logs: this.logs } = await this.instance.addHousehold(hh1, {
+          from: owner
+        }));
       });
 
       it("should create a new household", async () => {
-        const hh = await this.instance.getHousehold(hh1);
+        const hh = await this.instance.getHousehold(hh1, { from: hh1 });
 
         expect(hh[0]).to.be.true; // initialized
         expect(hh[1]).to.be.bignumber.that.is.zero; // renewableEnergy
@@ -34,7 +36,9 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4, hh5, hh6, hh7]) => {
       it("should store addresses in householdList", async () => {
         expect((await this.instance.householdList(0)) === hh1);
 
-        await this.instance.addHousehold(hh2);
+        await this.instance.addHousehold(hh2, {
+          from: owner
+        });
         expect((await this.instance.householdList(1)) === hh2);
       });
 
@@ -45,20 +49,38 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4, hh5, hh6, hh7]) => {
       });
 
       it("reverts when attempting to add an existing household", async () => {
-        await shouldFail.reverting(this.instance.addHousehold(hh1));
+        await shouldFail.reverting(
+          this.instance.addHousehold(hh1, {
+            from: owner
+          })
+        );
       });
     });
   });
 
   describe("Settlement", () => {
     beforeEach(async () => {
-      await this.instance.addHousehold(hh1);
-      await this.instance.addHousehold(hh2);
-      await this.instance.addHousehold(hh3);
-      await this.instance.addHousehold(hh4);
-      await this.instance.addHousehold(hh5);
-      await this.instance.addHousehold(hh6);
-      await this.instance.addHousehold(hh7);
+      await this.instance.addHousehold(hh1, {
+        from: owner
+      });
+      await this.instance.addHousehold(hh2, {
+        from: owner
+      });
+      await this.instance.addHousehold(hh3, {
+        from: owner
+      });
+      await this.instance.addHousehold(hh4, {
+        from: owner
+      });
+      await this.instance.addHousehold(hh5, {
+        from: owner
+      });
+      await this.instance.addHousehold(hh6, {
+        from: owner
+      });
+      await this.instance.addHousehold(hh7, {
+        from: owner
+      });
     });
 
     context("totalRenewableEnergy = 0", async () => {
@@ -415,10 +437,18 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4, hh5, hh6, hh7]) => {
 
   describe("Consecutive settlements", () => {
     beforeEach(async () => {
-      await this.instance.addHousehold(hh1);
-      await this.instance.addHousehold(hh2);
-      await this.instance.addHousehold(hh3);
-      await this.instance.addHousehold(hh4);
+      await this.instance.addHousehold(hh1, {
+        from: owner
+      });
+      await this.instance.addHousehold(hh2, {
+        from: owner
+      });
+      await this.instance.addHousehold(hh3, {
+        from: owner
+      });
+      await this.instance.addHousehold(hh4, {
+        from: owner
+      });
 
       await this.instance.updateRenewableEnergy(hh1, 200, 0, {
         from: hh1
@@ -490,10 +520,18 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4, hh5, hh6, hh7]) => {
 
   describe("Deeds", () => {
     beforeEach(async () => {
-      await this.instance.addHousehold(hh1);
-      await this.instance.addHousehold(hh2);
-      await this.instance.addHousehold(hh3);
-      await this.instance.addHousehold(hh4);
+      await this.instance.addHousehold(hh1, {
+        from: owner
+      });
+      await this.instance.addHousehold(hh2, {
+        from: owner
+      });
+      await this.instance.addHousehold(hh3, {
+        from: owner
+      });
+      await this.instance.addHousehold(hh4, {
+        from: owner
+      });
 
       await this.instance.updateRenewableEnergy(hh1, 200, 0, {
         from: hh1
