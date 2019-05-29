@@ -2,6 +2,68 @@
 
 All meeting protocols are listed below ordered by date (descending).
 
+### 05/28/19, 12-4pm: Team meeting and Midterm presentation
+
+Midterm presentation from 2-4pm
+
+You can find the agenda [here](https://docs.google.com/document/d/10DUs-q4Ll7EPuuEPqt41bd3saX75i_DbgcTOUUF4xYQ/edit#).
+
+**Done:**
+
+- Emo round
+  - Define responsibilities clearer
+  - Consensus on review process
+    - Test functionality
+    - Look at code
+    - Quick fixes for deadline: functionality tests sufficient
+- Finalize presentation and demo
+- Midterm presentation
+  - Why Blockchain?
+    - Trustlessness: households only need to trust themselves and their component at home (which is validated by TÜV/ Eichamt)
+    - Evolution of todays system
+    - Also: no one can cheat the system (immutability)
+  - Security
+    - Given through signing of data and transactions 
+    - Household processing unit is an enclosed system
+    - HHS only forwards the sensor data
+
+**ToDo:**
+
+- Update architecture
+- Integration of VS and UC
+- Make GitHub repository private and invite responsible people
+- Benchmarks
+  - HW requirements: Would a RaspberryPi suffice?
+    (other apporach: use HW-constraint and make network as high throughput as possible)
+  - Measurements
+    - Processing time vs. gas consumption
+    - Memory consumption
+    - Conditions: time, platform to run the system
+  - Ratio prosumer vs. consumer: introduce variable
+  - Prices for updating contracts
+- Research literature for netting algorithms
+- Handling of updates to contract
+  - Majority based
+  - Code in smart contract allows updates and majority approves
+- Failure handling (esp. HPU)
+- 2 UIs 
+  - One for producer/ prosumer
+  - One for consumer
+
+**Remark:**
+
+- Introduction to ZoKrates with Jacob on 06/04/2019 2pm
+- New information on setup
+  - sensor-data every 15 min. (therefore netting also every 15 min.)
+  - sensor gives data comparable to energy meters nowadays
+    - one number increasing with consumption and decreasing with production of energy
+    - rather push this number to blockchain? 
+    - could be helpful in case of failure of HPU (rebuilding + restoring data)
+- Where does the Utility get their data from?
+    - Option 1: separate channel to provide data to utility
+    - Option 2: utility goes through infrastructure to get all data
+    - Option 3: ?
+
 ### 05/21/19, 12-4pm: Team meeting and presentation of prototype to Jacob
 
 with Jacob from 2-4pm
