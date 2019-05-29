@@ -9,7 +9,7 @@ const dataGenerator = require("./data-generator");
 commander
   .option("-h, --host <type>", "ip of household server")
   .option("-p, --port <type>", "port of household server")
-  .option("-e, --endpoint <type>", "endpoint/path of household server")
+  .option("-r, --route <type>", "route/path of household server")
   .option("-i, --interval <type>", "time interval of the of the sensor in ms")
   .option(
     "-e, --energybalance <type>",
