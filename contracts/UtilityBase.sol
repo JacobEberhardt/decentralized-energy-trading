@@ -1,6 +1,7 @@
 pragma solidity >=0.5.0 <0.6.0;
 
 import "openzeppelin-solidity/contracts/drafts/SignedSafeMath.sol";
+import "./libraries/SignedMath.sol";
 
 import "./interfaces/IUtilityBase.sol";
 import "./Mortal.sol";
@@ -13,6 +14,7 @@ import "./Mortal.sol";
  */
 contract UtilityBase is Mortal, IUtilityBase {
   using SignedSafeMath for int256;
+  using SignedMath for int256;
 
   /*
    * electrical work/energy W, unit 1 kWh = 1000 Wh = 1000 W * 3600 s = 3,6 * 10^6 Ws
@@ -254,7 +256,7 @@ contract UtilityBase is Mortal, IUtilityBase {
   /**
    * @dev see UtilityBase.addHousehold
    * @param _household address of household
-   * @return bool success
+   * @return success bool
    */
   function _addHousehold(address _household) internal onlyOwner returns (bool) {
     require(!households[_household].initialized, "Household already exists.");
