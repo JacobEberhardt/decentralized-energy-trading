@@ -201,29 +201,25 @@ contract Utility is UtilityBase, IUtility {
    * @return success bool
    */
   function _transfer(address _from, address _to, int256 _amount) private returns (bool) {
-    if (_amount > 0) {
-      _updateEnergy(
-        _from,
-        0,
-        _amount,
-        true);
-      _updateEnergy(
-        _to,
-        _amount,
-        0,
-        true);
-    } else {
-      _updateEnergy(
-        _to,
-        0,
-        _abs(_amount),
-        true);
-      _updateEnergy(
-        _from,
-        _abs(_amount),
-        0,
-        true);
+    address from = _from;
+    address to = _to;
+    int256 amount = _amount;
+    if (_amount < 0) {
+      from = _to;
+      to = _from;
+      amount = _abs(amount);
     }
+
+    _updateEnergy(
+      from,
+      0,
+      amount,
+      true);
+    _updateEnergy(
+      to,
+      amount,
+      0,
+      true);
 
     _addDeed(_from, _to, _amount);
 
