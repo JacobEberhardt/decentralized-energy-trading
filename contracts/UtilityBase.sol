@@ -78,6 +78,7 @@ contract UtilityBase is Mortal, IUtilityBase {
    */
   function updateRenewableEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy)
     external
+    onlyHousehold(_household)
     returns (bool)
   {
     return _updateEnergy(
@@ -97,6 +98,7 @@ contract UtilityBase is Mortal, IUtilityBase {
    */
   function updateNonRenewableEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy)
     external
+    onlyHousehold(_household)
     returns (bool)
   {
     return _updateEnergy(
@@ -281,8 +283,7 @@ contract UtilityBase is Mortal, IUtilityBase {
     int256 _consumedEnergy,
     bool _isRenewable
     )
-    private
-    onlyHousehold(_household)
+    internal
     householdExists(_household)
     returns (bool)
   {
