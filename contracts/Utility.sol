@@ -71,11 +71,11 @@ contract Utility is UtilityBase, IUtility {
         householdListNoEnergy,
         householdListWithEnergy);
 
-      // redundant code, need to be refactored; cant outsource into private function, see _requestNonRenewableEnergy
-      if (totalRenewableEnergy < 0) {
+      // emit events for official utility, e.g. request non-renewable energy after settlement
+      if (totalRenewableEnergy < 0) { // line of code is redundant, can be refactored
         for (uint256 i = 0; i < householdListNoEnergy.length; i++) {
           if (households[householdListNoEnergy[i]].renewableEnergy < 0) {
-            emit RequestNonRenewableEnergy(householdListNoEnergy[i], _abs(households[householdListNoEnergy[i]].renewableEnergy));
+            emit RequestNonRenewableEnergy(householdListNoEnergy[i], SignedMath.abs(households[householdListNoEnergy[i]].renewableEnergy));
           }
         }
       }
@@ -101,40 +101,18 @@ contract Utility is UtilityBase, IUtility {
    * @return success bool
    */
   function compensateEnergy(address _household) public householdExists(_household) returns (bool) {
-    int256 energyToCompensate = _min(_abs(households[_household].nonRenewableEnergy), _abs(households[_household].renewableEnergy));
+    int256 energyToCompensate = SignedMath.min(
+      SignedMath.abs(households[_household].nonRenewableEnergy),
+      SignedMath.abs(households[_household].renewableEnergy)
+    );
+
     if (households[_household].nonRenewableEnergy > 0 && households[_household].renewableEnergy < 0) {
       // compensate negative amount of renewable Energy with non-renewable Energy
-      _updateEnergy(
-        _household,
-        0,
-        energyToCompensate,
-        false
-      ); // update non-renewable Energy
-      _updateEnergy(
-        _household,
-        energyToCompensate,
-        0,
-        true); // update renewable Energy
-
-      emit EnergyCompensated(_household, energyToCompensate, false);
-
+      _compensateEnergy(_household, energyToCompensate, true);
       return true;
     } else if (households[_household].nonRenewableEnergy < 0 && households[_household].renewableEnergy > 0) {
       // compensate negative amount of non-renewable Energy non-renewable Energy
-      _updateEnergy(
-        _household,
-        energyToCompensate,
-        0,
-        false
-      ); // update non-renewable Energy
-      _updateEnergy(
-        _household,
-        0,
-        energyToCompensate,
-        true); // update renewable Energy
-
-      emit EnergyCompensated(_household, energyToCompensate, true);
-
+      _compensateEnergy(_household, energyToCompensate, false);
       return true;
     }
 
@@ -148,27 +126,6 @@ contract Utility is UtilityBase, IUtility {
    */
   function deedsLength(uint256 _blockNumber) public view returns (uint256) {
     return deeds[_blockNumber].length;
-  }
-
-  /**
-   * @dev Request non-renewable of official utility by emitting `NonRenewableEnergyNeeded` events
-   * @param _renewableEnergy int256 total amount of renewableEnergy
-   * @return success bool
-   * Note events are not emitted within private function.
-   */
-  function _requestNonRenewableEnergy(int256 _renewableEnergy) private returns (bool) {
-    // no non-renewable energy to request
-    if (_renewableEnergy < 0) {
-      return false;
-    }
-
-    for (uint256 i = 0; i < householdListNoEnergy.length; i++) {
-      if (households[householdListNoEnergy[i]].renewableEnergy < 0) {
-        emit RequestNonRenewableEnergy(householdListNoEnergy[i], _abs(households[householdListNoEnergy[i]].renewableEnergy));
-      }
-    }
-
-    return true;
   }
 
   /**
@@ -208,10 +165,10 @@ contract Utility is UtilityBase, IUtility {
       addressTo = _hhFrom[i];
       Household storage hh = households[addressTo];
 
-      int256 proportionalFactor = (_abs(hh.renewableEnergy)
+      int256 proportionalFactor = (SignedMath.abs(hh.renewableEnergy)
         .mul(100))
-        .div(_abs(energyReference));
-      int256 proportionalShare = (_abs(energyToShare)
+        .div(SignedMath.abs(energyReference));
+      int256 proportionalShare = (SignedMath.abs(energyToShare)
         .mul(proportionalFactor))
         .div(100);
 
@@ -231,7 +188,7 @@ contract Utility is UtilityBase, IUtility {
         } else {
           int256 energyTransferred = hh2.renewableEnergy;
           _transfer(addressFrom, addressTo, energyTransferred);
-          proportionalShare = proportionalShare.sub(_abs(energyTransferred));
+          proportionalShare = proportionalShare.sub(SignedMath.abs(energyTransferred));
           needle++;
         }
       }
@@ -255,7 +212,7 @@ contract Utility is UtilityBase, IUtility {
     if (_amount < 0) {
       from = _to;
       to = _from;
-      amount = _abs(amount);
+      amount = SignedMath.abs(amount);
     }
 
     Deed[] storage deed = deeds[block.number];
@@ -284,19 +241,21 @@ contract Utility is UtilityBase, IUtility {
     if (_amount < 0) {
       from = _to;
       to = _from;
-      amount = _abs(amount);
+      amount = SignedMath.abs(amount);
     }
 
     _updateEnergy(
       from,
       0,
       amount,
-      true);
+      true
+    );
     _updateEnergy(
       to,
       amount,
       0,
-      true);
+      true
+    );
 
     _addDeed(_from, _to, _amount);
 
@@ -304,21 +263,36 @@ contract Utility is UtilityBase, IUtility {
   }
 
   /**
-   * @dev Returns the absolute value of _number
-   * @param _number int256
-   * @return int256
+   * @dev see Utility.compensateEnergy
+   * @param _household address of household
+   * @param _energyToCompensate int256 amount of energy to compensate
+   * @param _toRenewable bool compensate non-renewable energy with renewable energy
+   * @return success bool
    */
-  function _abs(int256 _number) private pure returns (int256) {
-    return _number < 0 ? _number.mul(-1) : _number;
-  }
+  function _compensateEnergy(
+    address _household,
+    int256 _energyToCompensate,
+    bool _toRenewable
+    )
+    private
+    householdExists(_household)
+    returns (bool)
+  {
+    _updateEnergy(
+      _household,
+      0,
+      _energyToCompensate,
+      !_toRenewable
+    );
+    _updateEnergy(
+      _household,
+      _energyToCompensate,
+      0,
+      _toRenewable
+    );
 
-  /**
-   * @dev Returns the minimum of _a and _b
-   * @param _a int256
-   * @param _b int256
-   * @return int256
-   */
-  function _min(int256 _a, int256 _b) private pure returns (int256) {
-    return _a < _b ? _a : _b;
+    emit EnergyCompensated(_household, _energyToCompensate, !_toRenewable);
+
+    return true;
   }
 }
