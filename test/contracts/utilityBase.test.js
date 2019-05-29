@@ -19,11 +19,15 @@ contract("UtilityBase", ([owner, household, other]) => {
   describe("Households", () => {
     context("with a new household", async () => {
       beforeEach(async () => {
-        ({ logs: this.logs } = await this.instance.addHousehold(household));
+        ({ logs: this.logs } = await this.instance.addHousehold(household, {
+          from: owner
+        }));
       });
 
       it("should create a new household", async () => {
-        const hh = await this.instance.getHousehold(household);
+        const hh = await this.instance.getHousehold(household, {
+          from: household
+        });
 
         expect(hh[0]).to.be.true; // initialized
         expect(hh[1]).to.be.bignumber.that.is.zero; // renewableEnergy
@@ -41,14 +45,20 @@ contract("UtilityBase", ([owner, household, other]) => {
       });
 
       it("reverts when attempting to add an existing household", async () => {
-        await shouldFail.reverting(this.instance.addHousehold(household));
+        await shouldFail.reverting(
+          this.instance.addHousehold(household, {
+            from: owner
+          })
+        );
       });
     });
   });
 
   describe("Record household energy production and consumption", () => {
     beforeEach(async () => {
-      await this.instance.addHousehold(household); // Add dummy household
+      await this.instance.addHousehold(household, {
+        from: owner
+      }); // Add dummy household
     });
 
     context("Energy", async () => {
@@ -217,7 +227,9 @@ contract("UtilityBase", ([owner, household, other]) => {
 
   describe("Record total energy production and consumption", () => {
     beforeEach(async () => {
-      await this.instance.addHousehold(household); // Add dummy household
+      await this.instance.addHousehold(household, {
+        from: owner
+      }); // Add dummy household
     });
 
     context("Total energy", async () => {
