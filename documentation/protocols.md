@@ -32,6 +32,8 @@ You can find the agenda [here](https://docs.google.com/document/d/10DUs-q4Ll7EPu
 - Update architecture
 - Integration of VS and UC
 - Make GitHub repository private and invite responsible people
+- Component signing sensor data
+  - should also sign transactions and signature should be verified
 - Benchmarks
   - HW requirements: Would a RaspberryPi suffice?
     (other apporach: use HW-constraint and make network as high throughput as possible)
@@ -40,7 +42,7 @@ You can find the agenda [here](https://docs.google.com/document/d/10DUs-q4Ll7EPu
     - Memory consumption
     - Conditions: time, platform to run the system
   - Ratio prosumer vs. consumer: introduce variable
-  - Prices for updating contracts
+  - Gas cost for updating contracts
 - Research literature for netting algorithms
 - Handling of updates to contract
   - Majority based
@@ -49,6 +51,7 @@ You can find the agenda [here](https://docs.google.com/document/d/10DUs-q4Ll7EPu
 - 2 UIs 
   - One for producer/ prosumer
   - One for consumer
+  
 
 **Remark:**
 
