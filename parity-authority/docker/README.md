@@ -27,6 +27,14 @@ Talk to JSON RPC at [http://127.0.0.1:8545](http://127.0.0.1:8545) with your fav
 Make sure to have dependencies installed via `yarn install`. Now you can run the tests in `<PROJECT_ROOT>/test/parity-authority/docker.test.js` via `yarn test-parity-docker`.
 
 ## Update Contracts
+
+### Automatically
+Run
+```bash
+yarn update-contract-bytecodes
+```
+
+### Manually
 To update the `BlockReward`, `Utility` or `ValidatorSet` contract you have to update the respective byte code of the contract in chain spec file under `./parity/config/chain.json`.
 
 1. First compile updated contracts with
