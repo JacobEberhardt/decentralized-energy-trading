@@ -20,7 +20,8 @@
     "test-parity-native": "./scripts/run_native_parity_tests.sh",
     "test-parity-docker": "./scripts/run_docker_parity_tests.sh",
     "test-helpers": "mocha ./test/helpers/*.js",
-    "utility-benchmark": "./scripts/benchmarks/run_utility_benchmark.sh"
+    "utility-benchmark": "./scripts/benchmarks/run_utility_benchmark.sh",
+    "update-contract-bytecodes": "yarn compile-contracts && node ./scripts/update-contract-bytecodes"
   },
   "devDependencies": {
     "chai": "^4.2.0",
