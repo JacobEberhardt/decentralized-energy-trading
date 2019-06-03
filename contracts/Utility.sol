@@ -195,15 +195,31 @@ contract Utility is UtilityBase, IUtility {
   /**
    * @dev Transfer energy from a household address to a household address.
    * Note that this function also creates a new Deed (see _addDeed()).
+   * If _amount is negative, this function will behave like _transfer(_to, _from, ||_amount||)
    * @param _from address from address
    * @param _to address to adress
    * @return success bool
    */
   function _transfer(address _from, address _to, int256 _amount) private returns (bool) {
-    Household storage hhFrom = households[_from];
-    Household storage hhTo = households[_to];
-    hhFrom.renewableEnergy = hhFrom.renewableEnergy.sub(_amount);
-    hhTo.renewableEnergy = hhTo.renewableEnergy.add(_amount);
+    address from = _from;
+    address to = _to;
+    int256 amount = _amount;
+    if (_amount < 0) {
+      from = _to;
+      to = _from;
+      amount = _abs(amount);
+    }
+
+    _updateEnergy(
+      from,
+      0,
+      amount,
+      true);
+    _updateEnergy(
+      to,
+      amount,
+      0,
+      true);
 
     _addDeed(_from, _to, _amount);
 
