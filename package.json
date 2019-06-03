@@ -6,8 +6,8 @@
     "compile-contracts": "truffle compile",
     "migrate-contracts": "truffle migrate",
     "test-contracts": "run-script-os",
-    "test-contracts:linux:darwin": "truffle test ./test/contracts/* --network develop",
-    "test-contracts:win32": ".\\test-contracts.bat --network develop",
+    "test-contracts:linux:darwin": "truffle test ./test/contracts/*",
+    "test-contracts:win32": ".\\test-contracts.bat",
     "run-server": "node ./household-server/index.js",
     "run-sensor": "node ./mock-sensor/index.js",
     "lint-all": "eslint household-server/ mock-sensor/ test/ helpers/ household-ui/src && yarn lint-contracts",
@@ -20,7 +20,8 @@
     "test-parity-native": "./scripts/run_native_parity_tests.sh",
     "test-parity-docker": "./scripts/run_docker_parity_tests.sh",
     "test-helpers": "mocha ./test/helpers/*.js",
-    "utility-benchmark": "./scripts/benchmarks/run_utility_benchmark.sh"
+    "utility-benchmark": "./scripts/benchmarks/run_utility_benchmark.sh",
+    "update-contract-bytecodes": "yarn compile-contracts && node ./scripts/update-contract-bytecodes"
   },
   "devDependencies": {
     "chai": "^4.2.0",
@@ -43,7 +44,7 @@
     "prettier": "^1.17.0",
     "run-script-os": "^1.0.5",
     "solium": "^1.2.4",
-    "truffle": "^5.0.13"
+    "truffle": "^5.0.20"
   },
   "dependencies": {
     "bn.js": "^4.11.8",
