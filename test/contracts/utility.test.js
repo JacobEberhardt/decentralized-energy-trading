@@ -25,14 +25,6 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4, hh5, hh6, hh7]) => {
         }));
       });
 
-      it("should create a new household", async () => {
-        const hh = await this.instance.getHousehold(hh1, { from: hh1 });
-
-        expect(hh[0]).to.be.true; // initialized
-        expect(hh[1]).to.be.bignumber.that.is.zero; // renewableEnergy
-        expect(hh[2]).to.be.bignumber.that.is.zero; // nonRenewableEnergy
-      });
-
       it("should store addresses in householdList", async () => {
         expect((await this.instance.householdList(0)) === hh1);
 
@@ -40,20 +32,6 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4, hh5, hh6, hh7]) => {
           from: owner
         });
         expect((await this.instance.householdList(1)) === hh2);
-      });
-
-      it("emits event NewHousehold", async () => {
-        expectEvent.inLogs(this.logs, "NewHousehold", {
-          household: hh1
-        });
-      });
-
-      it("reverts when attempting to add an existing household", async () => {
-        await shouldFail.reverting(
-          this.instance.addHousehold(hh1, {
-            from: owner
-          })
-        );
       });
     });
   });
@@ -576,6 +554,146 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4, hh5, hh6, hh7]) => {
       expect(deeds[2].to === hh4); // to
       expect(deeds[2].renewableEnergyTransferred).to.be.bignumber.equal("66"); // renewableEnergyTransferred
       expect(deeds[2].nonRenewableEnergyTransferred).to.be.undefined; // nonRenewableEnergyTransferred
+    });
+  });
+
+  describe("Official Utility", () => {
+    beforeEach(async () => {
+      await this.instance.addHousehold(hh1, {
+        from: owner
+      });
+      await this.instance.addHousehold(hh2, {
+        from: owner
+      });
+      await this.instance.addHousehold(hh3, {
+        from: owner
+      });
+      await this.instance.addHousehold(hh4, {
+        from: owner
+      });
+
+      // totalRenewableEnergy < 0
+      // availableRenewableEnergy = 200, neededRenewableEnergy = -400
+      await this.instance.updateRenewableEnergy(hh1, 100, 0, {
+        from: hh1
+      });
+      await this.instance.updateRenewableEnergy(hh2, 100, 0, {
+        from: hh2
+      });
+      await this.instance.updateRenewableEnergy(hh3, 0, 200, {
+        from: hh3
+      });
+      await this.instance.updateRenewableEnergy(hh4, 0, 200, {
+        from: hh4
+      });
+
+      ({ logs: this.logs } = await this.instance.settle()); // 0 0 -100 -100
+    });
+
+    context("request non-renewable energy", async () => {
+      it("emit events RequestNonRenewableEnergy", async () => {
+        expectEvent.inLogs(this.logs, "RequestNonRenewableEnergy", {
+          household: hh3,
+          energy: new BN(100)
+        });
+
+        expectEvent.inLogs(this.logs, "RequestNonRenewableEnergy", {
+          household: hh4,
+          energy: new BN(100)
+        });
+      });
+    });
+
+    context("compensate energy", async () => {
+      beforeEach(async () => {
+        await this.instance.addHousehold(hh5, {
+          from: owner
+        });
+
+        await this.instance.updateNonRenewableEnergy(hh3, 100, 0, {
+          from: hh3
+        });
+        await this.instance.updateNonRenewableEnergy(hh4, 80, 0, {
+          from: hh4
+        });
+        await this.instance.updateRenewableEnergy(hh5, 100, 0, {
+          from: hh5
+        });
+        await this.instance.updateNonRenewableEnergy(hh5, 0, 80, {
+          from: hh5
+        });
+      });
+
+      it("emit event EnergyCompensated", async () => {
+        ({ logs: this.logs } = await this.instance.compensateEnergy(hh3));
+        expectEvent.inLogs(this.logs, "EnergyCompensated", {
+          household: hh3,
+          energy: new BN(100),
+          isRenewable: false
+        });
+
+        ({ logs: this.logs } = await this.instance.compensateEnergy(hh4));
+        expectEvent.inLogs(this.logs, "EnergyCompensated", {
+          household: hh4,
+          energy: new BN(80),
+          isRenewable: false
+        });
+
+        ({ logs: this.logs } = await this.instance.compensateEnergy(hh5));
+        expectEvent.inLogs(this.logs, "EnergyCompensated", {
+          household: hh5,
+          energy: new BN(80),
+          isRenewable: true
+        });
+      });
+
+      it("fully compensate negative renewable energy with non-renewable energy", async () => {
+        await this.instance.compensateEnergy(hh3);
+
+        const hh3Data = await this.instance.getHousehold(hh3, {
+          from: hh3
+        });
+
+        expect(hh3Data[0]).to.be.true; // initialized
+        expect(hh3Data[1]).to.be.bignumber.that.is.zero; // renewableEnergy
+        expect(hh3Data[2]).to.be.bignumber.that.is.zero; // nonRenewableEnergy
+        expect(hh3Data[3]).to.be.bignumber.equal("200"); // producedRenewableEnergy
+        expect(hh3Data[4]).to.be.bignumber.equal("200"); // consumedRenewableEnergy
+        expect(hh3Data[5]).to.be.bignumber.equal("100"); // producedNonRenewableEnergy
+        expect(hh3Data[6]).to.be.bignumber.equal("100"); // consumedNonRenewableEnergy
+      });
+
+      it("partly compensate negative renewable energy with non-renewable energy", async () => {
+        await this.instance.compensateEnergy(hh4);
+
+        const hh4Data = await this.instance.getHousehold(hh4, {
+          from: hh4
+        });
+
+        expect(hh4Data[0]).to.be.true; // initialized
+        expect(hh4Data[1]).to.be.bignumber.equal("-20"); // renewableEnergy
+        expect(hh4Data[2]).to.be.bignumber.that.is.zero; // nonRenewableEnergy
+        expect(hh4Data[3]).to.be.bignumber.equal("180"); // producedRenewableEnergy
+        expect(hh4Data[4]).to.be.bignumber.equal("200"); // consumedRenewableEnergy
+        expect(hh4Data[5]).to.be.bignumber.equal("80"); // producedNonRenewableEnergy
+        expect(hh4Data[6]).to.be.bignumber.equal("80"); // consumedNonRenewableEnergy
+      });
+
+      it("not over compensate negative non-renewable energy with renewable energy", async () => {
+        await this.instance.compensateEnergy(hh5);
+
+        const hh5Data = await this.instance.getHousehold(hh5, {
+          from: hh5
+        });
+
+        expect(hh5Data[0]).to.be.true; // initialized
+        expect(hh5Data[1]).to.be.bignumber.equal("20"); // renewableEnergy
+        expect(hh5Data[2]).to.be.bignumber.that.is.zero; // nonRenewableEnergy
+        expect(hh5Data[3]).to.be.bignumber.equal("100"); // producedRenewableEnergy
+        expect(hh5Data[4]).to.be.bignumber.equal("80"); // consumedRenewableEnergy
+        expect(hh5Data[5]).to.be.bignumber.equal("80"); // producedNonRenewableEnergy
+        expect(hh5Data[6]).to.be.bignumber.equal("80"); // consumedNonRenewableEnergy
+      });
     });
   });
 });
