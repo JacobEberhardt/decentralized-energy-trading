@@ -629,21 +629,21 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4, hh5, hh6, hh7]) => {
         expectEvent.inLogs(this.logs, "EnergyCompensated", {
           household: hh3,
           energy: new BN(100),
-          isRenewable: false
+          isRenewable: true
         });
 
         ({ logs: this.logs } = await this.instance.compensateEnergy(hh4));
         expectEvent.inLogs(this.logs, "EnergyCompensated", {
           household: hh4,
           energy: new BN(80),
-          isRenewable: false
+          isRenewable: true
         });
 
         ({ logs: this.logs } = await this.instance.compensateEnergy(hh5));
         expectEvent.inLogs(this.logs, "EnergyCompensated", {
           household: hh5,
           energy: new BN(80),
-          isRenewable: true
+          isRenewable: false
         });
       });
 
@@ -657,10 +657,10 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4, hh5, hh6, hh7]) => {
         expect(hh3Data[0]).to.be.true; // initialized
         expect(hh3Data[1]).to.be.bignumber.that.is.zero; // renewableEnergy
         expect(hh3Data[2]).to.be.bignumber.that.is.zero; // nonRenewableEnergy
-        expect(hh3Data[3]).to.be.bignumber.equal("200"); // producedRenewableEnergy
+        expect(hh3Data[3]).to.be.bignumber.that.is.zero; // producedRenewableEnergy
         expect(hh3Data[4]).to.be.bignumber.equal("200"); // consumedRenewableEnergy
         expect(hh3Data[5]).to.be.bignumber.equal("100"); // producedNonRenewableEnergy
-        expect(hh3Data[6]).to.be.bignumber.equal("100"); // consumedNonRenewableEnergy
+        expect(hh3Data[6]).to.be.bignumber.that.is.zero; // consumedNonRenewableEnergy
       });
 
       it("partly compensate negative renewable energy with non-renewable energy", async () => {
@@ -673,10 +673,10 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4, hh5, hh6, hh7]) => {
         expect(hh4Data[0]).to.be.true; // initialized
         expect(hh4Data[1]).to.be.bignumber.equal("-20"); // renewableEnergy
         expect(hh4Data[2]).to.be.bignumber.that.is.zero; // nonRenewableEnergy
-        expect(hh4Data[3]).to.be.bignumber.equal("180"); // producedRenewableEnergy
+        expect(hh4Data[3]).to.be.bignumber.that.is.zero; // producedRenewableEnergy
         expect(hh4Data[4]).to.be.bignumber.equal("200"); // consumedRenewableEnergy
         expect(hh4Data[5]).to.be.bignumber.equal("80"); // producedNonRenewableEnergy
-        expect(hh4Data[6]).to.be.bignumber.equal("80"); // consumedNonRenewableEnergy
+        expect(hh4Data[6]).to.be.bignumber.that.is.zero; // consumedNonRenewableEnergy
       });
 
       it("not over compensate negative non-renewable energy with renewable energy", async () => {
@@ -690,8 +690,8 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4, hh5, hh6, hh7]) => {
         expect(hh5Data[1]).to.be.bignumber.equal("20"); // renewableEnergy
         expect(hh5Data[2]).to.be.bignumber.that.is.zero; // nonRenewableEnergy
         expect(hh5Data[3]).to.be.bignumber.equal("100"); // producedRenewableEnergy
-        expect(hh5Data[4]).to.be.bignumber.equal("80"); // consumedRenewableEnergy
-        expect(hh5Data[5]).to.be.bignumber.equal("80"); // producedNonRenewableEnergy
+        expect(hh5Data[4]).to.be.bignumber.that.is.zero; // consumedRenewableEnergy
+        expect(hh5Data[5]).to.be.bignumber.that.is.zero; // producedNonRenewableEnergy
         expect(hh5Data[6]).to.be.bignumber.equal("80"); // consumedNonRenewableEnergy
       });
     });
