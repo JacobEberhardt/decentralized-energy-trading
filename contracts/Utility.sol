@@ -229,34 +229,15 @@ contract Utility is UtilityBase, IUtility {
   /**
    * @dev Transfer energy from a household address to a household address.
    * Note that this function also creates a new Deed (see _addDeed()).
-   * If _amount is negative, this function will behave like _transfer(_to, _from, ||_amount||)
    * @param _from address from address
    * @param _to address to adress
    * @return success bool
    */
   function _transfer(address _from, address _to, int256 _amount) private returns (bool) {
-    address from = _from;
-    address to = _to;
-    int256 amount = _amount;
-    if (_amount < 0) {
-      from = _to;
-      to = _from;
-      amount = SignedMath.abs(amount);
-    }
-
-    _updateEnergy(
-      from,
-      0,
-      amount,
-      true
-    );
-    _updateEnergy(
-      to,
-      amount,
-      0,
-      true
-    );
-
+    Household storage hhFrom = households[_from];
+    Household storage hhTo = households[_to];
+    hhFrom.renewableEnergy = hhFrom.renewableEnergy.sub(_amount);
+    hhTo.renewableEnergy = hhTo.renewableEnergy.add(_amount);
     _addDeed(_from, _to, _amount);
 
     return true;
@@ -278,20 +259,17 @@ contract Utility is UtilityBase, IUtility {
     householdExists(_household)
     returns (bool)
   {
-    _updateEnergy(
-      _household,
-      0,
-      _energyToCompensate,
-      !_toRenewable
-    );
-    _updateEnergy(
-      _household,
-      _energyToCompensate,
-      0,
-      _toRenewable
-    );
+    Household storage hh = households[_household];
 
-    emit EnergyCompensated(_household, _energyToCompensate, !_toRenewable);
+    if (_toRenewable) {
+      hh.nonRenewableEnergy = hh.nonRenewableEnergy.sub(_energyToCompensate);
+      hh.renewableEnergy = hh.renewableEnergy.add(_energyToCompensate);
+    } else {
+      hh.nonRenewableEnergy = hh.nonRenewableEnergy.add(_energyToCompensate);
+      hh.renewableEnergy = hh.renewableEnergy.sub(_energyToCompensate);
+    }
+
+    emit EnergyCompensated(_household, _energyToCompensate, _toRenewable);
 
     return true;
   }
