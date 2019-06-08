@@ -33,12 +33,14 @@ You can find the agenda [here](https://docs.google.com/document/d/1DgWPveFH9KuTa
     
 **Remark:**
 
-- Next meetings with Jacob on 06/11/2019 2pm and 06/25/19 2pm
+- Next meetings with Jacob
+  - 06/11/2019 2pm 
+  - 06/25/2019 2pm
 - ZoKrates
   - Use the example and stdlib folder on GitHub as help
   - Use the Optimizer
   - Standard operations are all possible
-- Meter values should not be changed
+- Meter values should not be changed within the Contracts
 
 
 ### 05/28/19, 12-4pm: Team meeting and Midterm presentation
