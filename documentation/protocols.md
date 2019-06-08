@@ -2,6 +2,45 @@
 
 All meeting protocols are listed below ordered by date (descending).
 
+### 06/04/19, 12-4pm: Team meeting and Introduction to ZoKrates
+
+with Jacob from 2-4pm
+
+You can find the agenda [here](https://docs.google.com/document/d/1DgWPveFH9KuTakMvF7ReNY_Ei5GiwH7Z-UjZffhgMx8/edit#).
+
+**Done:**
+
+- Emo round
+  - Priority now: Privacy
+- Presented current state of the different components
+- Sharing Knowledge on Zero-Knowledge Proofs
+- Short follow-up from Midterm presentation
+- Introduction to ZoKrates by Jacob
+
+**ToDo:**
+
+- Integration of VS and UC
+- Make GitHub repository private and invite responsible people
+- Fix values from Mock Sensor
+- Get started with ZoKrates
+  - Set up invariants
+  - What should be off-chained?
+- No meter data on the Blockchain using Jacobs approach (after agreeing on a model for using ZoKrates)
+  - Hash produce/ consume values and put them on the Blockchain
+  - Hash as public input, produce/ consume as private input to ZoKrates
+  - Prove that Hash and produce/ consume values match
+  - Keep in mind: maybe later meter value instead of produce/ consume values
+    
+**Remark:**
+
+- Next meetings with Jacob on 06/11/2019 2pm and 06/25/19 2pm
+- ZoKrates
+  - Use the example and stdlib folder on GitHub as help
+  - Use the Optimizer
+  - Standard operations are all possible
+- Meter values should not be changed
+
+
 ### 05/28/19, 12-4pm: Team meeting and Midterm presentation
 
 Midterm presentation from 2-4pm
