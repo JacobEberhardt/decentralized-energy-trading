@@ -9,7 +9,7 @@ const HOUSEHOLD_KEY_MAP = [
   "producedRenewableEnergy",
   "consumedRenewableEnergy",
   "producedNonRenewableEnergy",
-  "consumedNonRenewableEnergy"
+  "consumedNonRenewableEnergy",
 ];
 
 /**
@@ -23,9 +23,8 @@ module.exports = {
    * `updateRenewableEnergy` function.
    * @returns {Promise<Object>} Promise containing the transaction receipt.
    */
-  updateRenewableEnergy: async (web3, payload) => {
+  updateRenewableEnergy: async (web3, address, password, payload) => {
     const { produce, consume } = payload;
-    const { address, password } = authorityHelper.getAddressAndPassword();
     const contract = new web3.eth.Contract(
       contractHelper.getAbi(),
       contractHelper.getDeployedAddress(await web3.eth.net.getId())
@@ -63,25 +62,20 @@ module.exports = {
     // Fill array with [fromBlockNumber, fromBlockNumber + 1, ..., latestBlockNumber]
     const blockNumberRange = Array.from(
       {
-        length: latestBlockNumber - fromBlockNumber
+        length: latestBlockNumber - fromBlockNumber,
       },
       (emptyElement, i) => fromBlockNumber + i
     );
 
     // Concurrently resolve promises for `deedsLength(blockNumber)`
     const deedsLengths = (await Promise.all(
-      blockNumberRange.map(blockNumber =>
-        contract.methods.deedsLength(blockNumber).call()
-      )
+      blockNumberRange.map(blockNumber => contract.methods.deedsLength(blockNumber).call())
     )).map(lengthBN => lengthBN.toNumber());
 
     // Create array with tuples [blockNumber, deedIndex]
     const blockNumberToDeedIndex = blockNumberRange
       .map((blockNumber, i) => {
-        const indices = Array.from(
-          { length: deedsLengths[i] },
-          (emptyElement, i) => i
-        );
+        const indices = Array.from({ length: deedsLengths[i] }, (emptyElement, i) => i);
         if (indices.length === 0) {
           return [];
         }
@@ -101,7 +95,7 @@ module.exports = {
           to: deed.to,
           renewableEnergyTransferred: conversionHelper.wsToKWh(
             deed.renewableEnergyTransferred.toString()
-          )
+          ),
         };
       })
     );
@@ -131,15 +125,12 @@ module.exports = {
    * }
    * Note '0' till '6' can be ignored.
    */
-  getHousehold: async web3 => {
-    const { address } = authorityHelper.getAddressAndPassword();
+  getHousehold: async (web3, address) => {
     const contract = new web3.eth.Contract(
       contractHelper.getAbi(),
       contractHelper.getDeployedAddress(await web3.eth.net.getId())
     );
-    const householdData = await contract.methods
-      .getHousehold(address)
-      .call({ from: address });
+    const householdData = await contract.methods.getHousehold(address).call({ from: address });
     return Object.keys(householdData).reduce(
       (formattedData, key) => {
         return {
@@ -147,7 +138,7 @@ module.exports = {
           [HOUSEHOLD_KEY_MAP[key]]:
             typeof householdData[key] === "boolean"
               ? householdData[key]
-              : conversionHelper.wsToKWh(householdData[key].toNumber())
+              : conversionHelper.wsToKWh(householdData[key].toNumber()),
         };
       },
       { address: web3.utils.toChecksumAddress(address) }
@@ -193,7 +184,7 @@ module.exports = {
       totalProducedRenewableEnergy,
       totalNonRenewableEnergy,
       totalConsumedNonRenewableEnergy,
-      totalProducedNonRenewableEnergy
+      totalProducedNonRenewableEnergy,
     ] = await Promise.all([
       contract.methods.totalEnergy().call(),
       contract.methods.totalConsumedEnergy().call(),
@@ -203,37 +194,29 @@ module.exports = {
       contract.methods.totalProducedRenewableEnergy().call(),
       contract.methods.totalNonRenewableEnergy().call(),
       contract.methods.totalConsumedNonRenewableEnergy().call(),
-      contract.methods.totalProducedNonRenewableEnergy().call()
+      contract.methods.totalProducedNonRenewableEnergy().call(),
     ]);
 
     const networkStats = {
       totalEnergy: conversionHelper.wsToKWh(totalEnergy.toNumber()),
-      totalConsumedEnergy: conversionHelper.wsToKWh(
-        totalConsumedEnergy.toNumber()
-      ),
-      totalProducedEnergy: conversionHelper.wsToKWh(
-        totalProducedEnergy.toNumber()
-      ),
-      totalRenewableEnergy: conversionHelper.wsToKWh(
-        totalRenewableEnergy.toNumber()
-      ),
+      totalConsumedEnergy: conversionHelper.wsToKWh(totalConsumedEnergy.toNumber()),
+      totalProducedEnergy: conversionHelper.wsToKWh(totalProducedEnergy.toNumber()),
+      totalRenewableEnergy: conversionHelper.wsToKWh(totalRenewableEnergy.toNumber()),
       totalConsumedRenewableEnergy: conversionHelper.wsToKWh(
         totalConsumedRenewableEnergy.toNumber()
       ),
       totalProducedRenewableEnergy: conversionHelper.wsToKWh(
         totalProducedRenewableEnergy.toNumber()
       ),
-      totalNonRenewableEnergy: conversionHelper.wsToKWh(
-        totalNonRenewableEnergy.toNumber()
-      ),
+      totalNonRenewableEnergy: conversionHelper.wsToKWh(totalNonRenewableEnergy.toNumber()),
       totalConsumedNonRenewableEnergy: conversionHelper.wsToKWh(
         totalConsumedNonRenewableEnergy.toNumber()
       ),
       totalProducedNonRenewableEnergy: conversionHelper.wsToKWh(
         totalProducedNonRenewableEnergy.toNumber()
-      )
+      ),
     };
 
     return networkStats;
-  }
+  },
 };
