@@ -6,28 +6,28 @@ module.exports = {
     none: 0,
     low: 20,
     normal: 60,
-    high: 100
+    high: 80
   },
 
   energyProduction: {
     none: 0,
     low: 20,
     normal: 60,
-    high: 100
+    high: 80
   },
 
   /**
    * Consumption and production values which define the energybalance differences
    */
   regularProductionFactor: {
-    pos: 0.6,
+    pos: 1.8,
     eq: 1.0,
-    neg: 1.4
+    neg: 0.2
   },
 
   regularConsumptionFactor: {
-    pos: 0.6,
+    pos: 0.2,
     eq: 1.0,
-    neg: 1.4
+    neg: 1.8
   }
 };

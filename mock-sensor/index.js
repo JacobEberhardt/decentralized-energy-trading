@@ -73,7 +73,7 @@ setInterval(() => {
 
   const currentDate = new Date();
   const currentHour = currentDate.getHours();
-  // const currentHour = currentDate.getSeconds(); // For Testing purposes
+  // const currentHour = currentDate.getSeconds()/2; // For Testing purposes
 
   /**
    * The total factors contain the regular factors added to a sin function from [0, pi].
@@ -93,7 +93,7 @@ setInterval(() => {
   if (currentHour < 6) {
     payload = dataGenerator.getGaussianMockData(
       energyConsumption.low * consumeFactor,
-      energyProduction.none * produceFactor
+      energyProduction.low * produceFactor
     );
 
     /**
