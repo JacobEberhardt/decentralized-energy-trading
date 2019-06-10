@@ -4,8 +4,8 @@ export const fetchFromEndpoint = async endpoint => {
   const response = await fetch(`http://localhost:${hhsPort}${endpoint}`, {
     headers: {
       Accept: "application/json",
-      "Content-Type": "application/json",
-    },
+      "Content-Type": "application/json"
+    }
   });
   return response.json();
 };

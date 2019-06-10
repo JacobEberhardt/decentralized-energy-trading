@@ -30,5 +30,8 @@ yarn install
 - `yarn test-parity-docker` to test docker parity authority setup
 - `yarn test-helpers` to test helper functions
 
+## Household Processing Unit
+To setup a dockerized version of the complete setup see [./household-processing-unit/README.md](./household-processing-unit/README.md).
+
 ## Benchmarks
 - `yarn utility-benchmark` to benchmark the `settle` method of the `Utility` contract

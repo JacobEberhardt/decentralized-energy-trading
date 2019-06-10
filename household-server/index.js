@@ -16,7 +16,10 @@ commander
   .option("-d, --dbUrl <type>", "url of mongodb")
   .option("-a, --address <type>", "address of the parity account")
   .option("-P, --password <type>", "password of the parity account")
-  .option("-n, --network <type>", "network name specified in truffle-config.js");
+  .option(
+    "-n, --network <type>",
+    "network name specified in truffle-config.js"
+  );
 commander.parse(process.argv);
 
 const host = commander.host || serverConfig.host;
@@ -30,9 +33,11 @@ const sensorDataCollection = serverConfig.sensorDataCollection;
 const utilityDataCollection = serverConfig.utilityDataCollection;
 
 // Set up the DB
-dbHandler.createDB(dbUrl, dbName, [sensorDataCollection, utilityDataCollection]).catch(err => {
-  console.log("Error while creating DB", err);
-});
+dbHandler
+  .createDB(dbUrl, dbName, [sensorDataCollection, utilityDataCollection])
+  .catch(err => {
+    console.log("Error while creating DB", err);
+  });
 
 // Set up web3
 const web3 = web3Helper.initWeb3(network);
@@ -57,7 +62,7 @@ app.get("/sensor-stats", async (req, res) => {
     const toQuery = to ? { timestamp: { $lte: parseInt(to) } } : {};
     const data = await dbHandler.readAll(dbUrl, dbName, sensorDataCollection, {
       ...fromQuery,
-      ...toQuery,
+      ...toQuery
     });
     res.setHeader("Content-Type", "application/json");
     res.status(200);
@@ -79,7 +84,7 @@ app.get("/deeds", async (req, res) => {
     const toQuery = to ? { timestamp: { $lte: parseInt(to) } } : {};
     const data = await dbHandler.readAll(dbUrl, dbName, utilityDataCollection, {
       ...fromQuery,
-      ...toQuery,
+      ...toQuery
     });
     res.setHeader("Content-Type", "application/json");
     res.status(200);
@@ -140,7 +145,10 @@ app.put("/sensor-stats", async (req, res) => {
         dbName,
         utilityDataCollection
       );
-      const deeds = await txHandler.collectDeeds(web3, latestSavedBlockNumber + 1);
+      const deeds = await txHandler.collectDeeds(
+        web3,
+        latestSavedBlockNumber + 1
+      );
       return deeds.length > 0
         ? dbHandler.bulkWriteToDB(dbUrl, dbName, utilityDataCollection, deeds)
         : [];
@@ -151,12 +159,12 @@ app.put("/sensor-stats", async (req, res) => {
       handleDeeds(),
       txHandler.updateRenewableEnergy(web3, address, password, {
         produce,
-        consume,
+        consume
       }),
       dbHandler.writeToDB(dbUrl, dbName, sensorDataCollection, {
         produce,
-        consume,
-      }),
+        consume
+      })
     ]);
     res.status(200);
     res.send();
@@ -171,7 +179,10 @@ app.put("/sensor-stats", async (req, res) => {
  */
 app.post("/", function(req, res, next) {
   res.statusCode = 400;
-  res.end(req.method + " is not supported. Try GET for UI Requests or PUT for Sensor data!\n");
+  res.end(
+    req.method +
+      " is not supported. Try GET for UI Requests or PUT for Sensor data!\n"
+  );
 });
 
 /**
@@ -179,7 +190,10 @@ app.post("/", function(req, res, next) {
  */
 app.delete("/", function(req, res, next) {
   res.statusCode = 400;
-  res.end(req.method + " is not supported. Try GET for UI Requests or PUT for Sensor data\n");
+  res.end(
+    req.method +
+      " is not supported. Try GET for UI Requests or PUT for Sensor data\n"
+  );
 });
 
 /**
