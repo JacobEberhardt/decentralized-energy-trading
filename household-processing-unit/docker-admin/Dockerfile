@@ -28,9 +28,9 @@ COPY household-processing-unit/parity ./parity
 COPY household-processing-unit/scripts/start_admin.sh ./
 COPY household-processing-unit/scripts/setup_parity.sh ./
 
-RUN yarn install
+RUN yarn install --network-concurrency 1
 WORKDIR /household_procesing_unit/household-ui
-RUN yarn install
+RUN yarn install --network-concurrency 1
 
 WORKDIR /household_procesing_unit
 RUN ./setup_parity.sh
