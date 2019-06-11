@@ -13,7 +13,7 @@ The HHS Processing Unit encapsule the following components in a docker ubuntu im
 
 ## Setup
 
-To test this setup of two households (one admin and one regular) execute the following commands:
+To test this setup of two households (one admin and one regular) execute the following commands (in the root directory of the project!):
 
 1. Start both households:
 
@@ -21,13 +21,11 @@ To test this setup of two households (one admin and one regular) execute the fol
 docker-compose up
 ```
 
-2. After both nodes are up un running add the second node to the admin node:
+2. After both nodes are up and running connect them and add the address of the second node to the `Utility` and `BaseOwnedSet` contract using the following command:
 
 ```sh
 yarn connect-docker-nodes
 ```
-
-3. Last but not least you have to manually add the address of the second node to the `Utility` and `BaseOwnedSet` contracts. You can use remix.io or a custom migration.
 
 You can access the UI of the different nodes in following addresses:
 

@@ -1,11 +1,11 @@
-version: '2.1'
+version: '3'
 services:
   household_processing_unit_0:
     build:
       context: .
       dockerfile: household-processing-unit/docker-admin/Dockerfile
-      args:
-        HHS_PORT: 3002
+    environment:
+      - HHS_PORT=3002
     volumes:
       - node0
     ports:
@@ -16,9 +16,9 @@ services:
     build:
       context: .
       dockerfile: household-processing-unit/Dockerfile
-      args:
-        HHS_PORT: 3003
-        PASSWORD: somepass
+    environment:
+      - HHS_PORT=3003
+      - PASSWORD=somepass
     ports:
       - 8556:8545
       - 3011:3000

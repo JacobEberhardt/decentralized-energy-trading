@@ -1,4 +1,5 @@
 const request = require("request-promise");
+const shell = require("shelljs");
 
 const options = { resolveWithFullResponse: true };
 
@@ -15,6 +16,10 @@ async function callRPC(method_signature, port, params = []) {
   });
 
   return { statusCode, body };
+}
+
+async function run_migrations(other_account) {
+  shell.exec("./path_to_ur_file");
 }
 
 async function main() {
@@ -40,6 +45,8 @@ async function main() {
   ];
   var { statusCode, body } = await callRPC("personal_sendTransaction", 8555, params);
   console.log(body);
+  console.log(`Running migration for ${other_account} ...`);
+  shell.exec(`AUTHORITY_ADDRESS=${other_account} yarn migrate-contracts-docker`);
 }
 
 main();
