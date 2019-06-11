@@ -24,16 +24,13 @@ async function run_migrations(other_account) {
 
 async function main() {
   console.log("Adding new peer ...");
-  var { statusCode, body } = await callRPC("parity_enode", 8556);
-  const enode = body.result;
-  var { statusCode, body } = await callRPC("parity_addReservedPeer", 8555, [enode]);
-  console.log(`Peer added: ${body.result}`);
+  const enode = (await callRPC("parity_enode", 8556)).body.result;
+  const isPeerAdded = (await callRPC("parity_addReservedPeer", 8555, [enode])).body.result;
+  console.log(`Peer added: ${isPeerAdded}`);
 
   console.log("Getting accounts ...");
-  var { statusCode, body } = await callRPC("personal_listAccounts", 8555);
-  admin_account = body.result.pop();
-  var { statusCode, body } = await callRPC("personal_listAccounts", 8556);
-  other_account = body.result.pop();
+  const admin_account = (await callRPC("personal_listAccounts", 8555)).body.result[0];
+  const other_account = (await callRPC("personal_listAccounts", 8556)).body.result[0];
   console.log(`Sending ether from ${admin_account} to ${other_account} ...`);
   params = [
     {
@@ -43,8 +40,8 @@ async function main() {
     },
     "node0",
   ];
-  var { statusCode, body } = await callRPC("personal_sendTransaction", 8555, params);
-  console.log(body);
+  const transactionAddress = (await callRPC("personal_sendTransaction", 8555, params)).body;
+  console.log(transactionAddress);
   console.log(`Running migration for ${other_account} ...`);
   shell.exec(`AUTHORITY_ADDRESS=${other_account} yarn migrate-contracts-docker`);
 }
