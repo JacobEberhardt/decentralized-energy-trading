@@ -6,7 +6,7 @@ const commander = require("commander");
 
 // const web3Helper = require("../helpers/web3");
 
-const serverConfig = require("../household-server-config");
+const serverConfig = require("../ned-server-config");
 
 // Specify cli options
 commander
@@ -36,18 +36,29 @@ app.use(express.json());
 app.use(cors());
 
 // Declaring the saved household transactions
-// const householdTransactions = {};
+const householdTransactions = {};
 
 /**
  * PUT /household-transactions
  */
 app.put("/household-transactions", async (req, res) => {
-  const { meterReading } = req.body;
+  const { meterReading, householdAddress } = req.body;
   try {
     if (typeof meterReading !== "number") {
       throw new Error("Invalid payload");
     }
+    if (householdAddress == null) {
+      // TODO check if address is valid with the Validator Set
+      throw new Error("Invalid address");
+    }
 
+    // Check if the household has already sent a transaction in the current netting span
+    if (householdTransactions.hasOwnProperty(householdAddress)) {
+      throw new Error("Transaction is already sent");
+    }
+
+    // Adding the meter Reading of the Household to the household transactions
+    householdTransactions[householdAddress] = meterReading;
     res.status(200);
     res.send();
   } catch (err) {
