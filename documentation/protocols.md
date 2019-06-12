@@ -15,7 +15,7 @@ You can find the agenda [here](https://docs.google.com/document/d/1VMTaAn8DHaaM1
 - Discussion on different approaches on privacy using ZoKrates
 - Presentation of approaches to Jacob
    - See presentation [here](https://docs.google.com/presentation/d/1zOiGrjStRZrnLnRzxdYRP923lzhBULIKj5guFEK3EoQ/edit#)
-   - Use approach 1 first, later maybe shift more towards approach 2
+   - Use approach 1 (introducing a Netting entity) first, later maybe shift more towards approach 2
 
 **ToDo:**
 
