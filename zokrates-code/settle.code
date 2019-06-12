@@ -1,0 +1,89 @@
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Listing limitations:
+// type field is positive integer
+// type field[n] only static arrays of field can be instantiated with a constant size
+// for-loops, the bounds have to be known at compile time, so only constants are allowed
+
+// First thoughts:
+// Assume n = 4 for now
+// NED entity needs to preprocess household smart meter data: array of household's deltas (produce-consume)
+// index represents household and householdList[index] := delta
+// NED entity needs to seperate household with produce-consume > 0 from produce-consume < 0 and give as input to main
+// if produce-consume >= 0 then no settlement (netting) is needed, NED needs to be aware of that
+
+// Questions:
+// Are the results of a function (e.g. main or some function foo) public by default? In other words, the results cannot be set to private.
+// Then, are results of function calls also public or are they shielded per default? In other words, can someone expose the results of function calls?
+// E.g. main calls function foo, foo results field a: Is a public? Is a exposed such that anyone can see the result?
+// If results of function calls are not shielded, wouldnt it be better to write everything in one main function?
+// Can private inputs be public inputs for other function calls?
+// Does any declared variable need to be initilized?
+// if-expressions need to branch the code regarding a condition?
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+def calculateEnergyForHouseholds(private field[2] householdList, private field[2] householdListAmountOfEnergy) -> (field[2]):
+  field[2] updatedHouseholdList = [0, 0];
+  for field i in 0..1 do
+    updatedHouseholdList[i] = householdList[i] - householdListAmountOfEnergy[i]
+  endfor
+  return updatedHouseholdList
+
+def amountOf(private field[2] householdListProportionOnEnergy, private field energy) -> (field[2]):
+  field[2] householdListAmountOfEnergy = [0, 0];
+  for field i in 0..1 do
+    householdListAmountOfEnergy[i] = (energy * householdListProportionOnEnergy[i]) / 100
+  endfor
+  return householdListAmountOfEnergy
+
+// Calculate proportion of household on energy
+// @param {private field[2]} householdList
+// @param {private field} energy
+// @returns {field[2]} energyProportion of household on energy
+def proportionalDistribution(private field[2] householdList, private field energy) -> (field[2]):
+  field[2] householdListProportionOnEnergy = [0, 0];
+  for field i in 0..1 do
+    householdListProportionOnEnergy[i] = (100 * householdList[i]) / energy
+  endfor
+  return householdListProportionOnEnergy
+
+// Simply return, householdListWithEnergy[0] + householdListWithEnergy[1], householdListNoEnergy[0] + householdListNoEnergy[1]
+// @param {private field[2]} householdListWithEnergy
+// @param {private field[2]} householdListNoEnergy
+// @returns {field, field} availableEnergy, neededEnergy
+def totalEnergyProportion(private field[2] householdListWithEnergy, private field[2] householdListNoEnergy) -> (field, field):
+  field availableEnergy = 0;
+  field neededEnergy = 0;
+  for field i in 0..1 do
+    availableEnergy = availableEnergy + householdListWithEnergy[i]
+    neededEnergy = neededEnergy + householdListNoEnergy[i]
+  endfor
+  return availableEnergy, neededEnergy
+
+// Settlement function for netting
+// Assume n = 4 households, where |householdListWithEnergy| = 2 and |householdListNoEnergy| = 2
+// Households with produce-consume = 0 are not part of the settlement.
+// @param {private field[2]} householdListWithEnergy
+// index represents household and householdListWithEnergy[index] := produce-consume > 0 
+// @param {private field[2]} householdListNoEnergy
+// index represents household and householdListNoEnergy[index] := produce-consume < 0 
+// @returns {field[2], field[2]} 
+// return value needs to be hashed with sha256 if we do not want to expose the netting results
+def main(private field[2] householdListWithEnergy, private field[2] householdListNoEnergy) -> (field[2], field[2]):
+  availableEnergy, neededEnergy = totalEnergyProportion(householdListWithEnergy, householdListNoEnergy)
+  
+  householdListProportionOnEnergy = if (availableEnergy > neededEnergy) then
+    proportionalDistribution(householdListWithEnergy, availableEnergy)
+  else
+    proportionalDistribution(householdListNoEnergy), neededEnergy)
+  fi
+
+  householdListAmountOfEnergy = if (availableEnergy > neededEnergy) then
+    amountOf(householdListProportionOnEnergy, neededEnergy)
+  else
+    amountOf(householdListProportionOnEnergy), availableEnergy)
+  fi
+  
+  field[2] updatedhouseholdListWithEnergy = [0, 0];
+  field[2] updatedhouseholdListNoEnergy = [0, 0];
+
+  return updatedHouseholdListWithEnergy, updatedHouseholdListNoEnergy
