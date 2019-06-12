@@ -3,7 +3,6 @@ const cors = require("cors");
 const commander = require("commander");
 
 // const txHandler = require("./transaction-handler");
-
 // const web3Helper = require("../helpers/web3");
 
 const serverConfig = require("../ned-server-config");
@@ -12,12 +11,15 @@ const serverConfig = require("../ned-server-config");
 commander
   .option("-h, --host <type>", "ip of ned server")
   .option("-p, --port <type>", "port of ned server")
+  .option("-n, --netting <type>", "interval of the netting")
   .option(
     "-n, --network <type>",
     "network name specified in truffle-config.js"
   );
 commander.parse(process.argv);
 
+const nettingInterval =
+  commander.nettingInterval || serverConfig.nettingInterval;
 const host = commander.host || serverConfig.host;
 const port = commander.port || serverConfig.port;
 // const network = commander.network || serverConfig.network;
@@ -74,7 +76,7 @@ app.put("/household-transactions", async (req, res) => {
  * GET request not supported
  */
 app.get("/", function(req, res, next) {
-  res.statusCode = 400;
+  res.status(400);
   res.end(req.method + " is not supported.\n");
 });
 
@@ -82,7 +84,7 @@ app.get("/", function(req, res, next) {
  * POST request not supported
  */
 app.post("/", function(req, res, next) {
-  res.statusCode = 400;
+  res.status(400);
   res.end(req.method + " is not supported.\n");
 });
 
@@ -90,7 +92,7 @@ app.post("/", function(req, res, next) {
  * DELETE request not supported
  */
 app.delete("/", function(req, res, next) {
-  res.statusCode = 400;
+  res.status(400);
   res.end(req.method + " is not supported.\n");
 });
 
@@ -100,3 +102,18 @@ app.delete("/", function(req, res, next) {
 app.listen(port, () => {
   console.log(`NED Server running at http://${host}:${port}/`);
 });
+
+setInterval(() => {
+  // TODO call ZoKrates bash file
+  console.log("Calling ZoKrates to perform some magic");
+  manageNetting();
+}, nettingInterval);
+
+/**
+ * Async function to manage the netting process:
+ * Step 1: Trigger the zokrates execution via the zk-handler
+ * Step 2: Send Proof to the Utility contracs via the tx Handler
+ * */
+const manageNetting = async () => {
+  console.log("Manage Netting");
+};
