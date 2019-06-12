@@ -32,7 +32,7 @@ async function main() {
   const admin_account = (await callRPC("personal_listAccounts", 8555)).body.result[0];
   const other_account = (await callRPC("personal_listAccounts", 8556)).body.result[0];
   console.log(`Sending ether from ${admin_account} to ${other_account} ...`);
-  params = [
+  const params = [
     {
       from: admin_account,
       to: other_account,
