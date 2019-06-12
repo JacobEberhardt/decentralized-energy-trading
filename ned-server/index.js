@@ -44,6 +44,7 @@ const householdTransactions = {};
 app.put("/household-transactions", async (req, res) => {
   const { meterReading, householdAddress } = req.body;
   try {
+    console.log(meterReading, householdAddress);
     if (typeof meterReading !== "number") {
       throw new Error("Invalid payload");
     }
@@ -51,18 +52,20 @@ app.put("/household-transactions", async (req, res) => {
       // TODO check if address is valid with the Validator Set
       throw new Error("Invalid address");
     }
-
     // Check if the household has already sent a transaction in the current netting span
     if (householdTransactions.hasOwnProperty(householdAddress)) {
+      console.log("Already sent");
       throw new Error("Transaction is already sent");
     }
 
     // Adding the meter Reading of the Household to the household transactions
     householdTransactions[householdAddress] = meterReading;
+
+    console.log(householdTransactions);
     res.status(200);
     res.send();
   } catch (err) {
-    res.status = 400;
+    res.status(400);
     res.send(err);
   }
 });
@@ -95,5 +98,5 @@ app.delete("/", function(req, res, next) {
  * Let the server listen to incoming requests on the given IP:Port
  */
 app.listen(port, () => {
-  console.log(`Household Server running at http://${host}:${port}/`);
+  console.log(`NED Server running at http://${host}:${port}/`);
 });

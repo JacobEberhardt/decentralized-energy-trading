@@ -2,7 +2,7 @@ module.exports = {
   // IP on which the ned server should run
   host: "127.0.0.1",
   // Port on which the ned server should listen
-  port: 3002,
+  port: 3005,
   // Path to the parity key file json of the authority node that is connected to the household server
   authKeyPath: "parity-authority/docker/parity/authorities/authority0.json",
   // Path to the password file to unlock above authority node
