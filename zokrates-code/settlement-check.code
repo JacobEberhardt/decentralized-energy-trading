@@ -1,0 +1,28 @@
+// Correctness, no energy is generated, no energy has dissolved
+// Fairness, proportion on available/needed energy is calculated; proportional distribution
+
+// Second approach
+
+def totalEnergy(private field[2] hh) -> (field):
+  field energy = 0;
+  for field i in 0..1 do
+    energy = energy + hh[i]
+  endfor
+  return energy
+
+def deltaNet(private field[2] hh, private field[2] hhNet) -> (field):
+  field delta = 0;
+  for field i in 0..1 do
+    delta = delta + (hh[i] - hhNet[i])
+  endfor
+  return delta
+
+// Returns 1, when netting result is "correct and fair", 0 otherwise.
+def main(private field[2] hhWithEnergy, private field[2] hhNoEnergy, private field[2] hhWithEnergyNet, private field[2] hhNoEnergyNet) -> (field):
+  deltaNetWithEnergy = deltaNet(hhWithEnergy, hhWithEnergyNet)
+  deltaNetNoEnergy = deltaNet(hhNoEnergy, hhNoEnergyNet)
+  
+  // Correctness check, does this suffice?
+  field success = if deltaNetWithEnergy == deltaNetNoEnergy then 1 else 0 fi
+
+  return success
