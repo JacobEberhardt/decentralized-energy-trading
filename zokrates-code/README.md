@@ -13,7 +13,7 @@
 # perform the setup phase
 ./zokrates setup
 # execute the program
-./zokrates compute-witness -a input_n, input_n, ..., input_n, output
+./zokrates compute-witness -a input_1 input_2 ... input_n output
 # generate a proof of computation
 ./zokrates generate-proof
 # export a solidity verifier
