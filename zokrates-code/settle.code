@@ -1,26 +1,36 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Listing limitations:
+// Listing limitations:
 // type field is positive integer
 // type field[n] only static arrays of field can be instantiated with a constant size
 // for-loops, the bounds have to be known at compile time, so only constants are allowed
 
 // First thoughts:
-// Assume n = 4 for now
+// Assume n = 4 for now, n needs to be static
 // NED entity needs to preprocess household smart meter data: array of household's deltas (produce-consume)
-// index represents household and householdList[index] := delta
+// Index represents household and householdList[index] := delta
 // NED entity needs to seperate household with produce-consume > 0 from produce-consume < 0 and give as input to main
-// if produce-consume >= 0 then no settlement (netting) is needed, NED needs to be aware of that
+// If produce-consume >= 0 for all households then no settlement (netting) is needed, NED needs to be aware of that
+// Households with produce-consume = 0 are not part of the settlement
 
 // Questions:
-// Are the results of a function (e.g. main or some function foo) public by default? In other words, the results cannot be set to private.
-// Then, are results of function calls also public or are they shielded per default? In other words, can someone expose the results of function calls?
-// E.g. main calls function foo, foo results field a: Is a public? Is a exposed such that anyone can see the result?
-// If results of function calls are not shielded, wouldnt it be better to write everything in one main function?
+// As far as I remember the return values of a function are public by default, right? In other words, are the results of a function (e.g. `main`or some function `foo`) public by default?
+// What about function calls within a function? Then, are results of function calls also public or are they shielded per default? E.g. `main` calls function `foo`, `foo` results `field a`; Is a public?
+// If results of function calls are not shielded, wouldn't it be better to write everything in the `main` function?
 // Can private inputs be public inputs for other function calls?
-// Does any declared variable need to be initilized?
-// if-expressions need to branch the code regarding a condition?
+// Does any declared variable need to be initialized?
+// if-expressions are just of the form `field y = if x + 2 == 3 then 1 else 5 fi`? In other words, if-expressions cannot branch more lines of code?
+
+// Design pattern:
+// As far as I see, there are two design patterns to implement in ZoKrates that would match the requirements of our project regarding privacy:
+// On the one hand, we implement the complete "netting algorithm" in ZoKrates HLC and return the "new state of the households after successful netting" (probably hashed).
+// On the other hand, we implement a kind of "validator" (e.g. `sodoku.code` or `waldo.code`) that checks whether a given netting result is correct regarding (to be defined) contraints and invariants. 
+// (E.g. let the NED component perform the netting algorithm and give the ZoKrates HLC the current state of the households and the result of the netting; check whether this result is correct, fair, ...).
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// Calculate new energy state for households
+// @param {private field[2]} householdList
+// @param {private field[2]} householdListAmountOfEnergy
+// @returns {field[2]} updatedHouseholdList
 def calculateEnergyForHouseholds(private field[2] householdList, private field[2] householdListAmountOfEnergy) -> (field[2]):
   field[2] updatedHouseholdList = [0, 0];
   for field i in 0..1 do
@@ -28,6 +38,10 @@ def calculateEnergyForHouseholds(private field[2] householdList, private field[2
   endfor
   return updatedHouseholdList
 
+// Calculate the proportional amount of energy for household on energy
+// @param {private field[2]} householdListProportionOnEnergy
+// @param {private field} energy
+// @returns {field[2]} householdListAmountOfEnergy
 def amountOf(private field[2] householdListProportionOnEnergy, private field energy) -> (field[2]):
   field[2] householdListAmountOfEnergy = [0, 0];
   for field i in 0..1 do
@@ -38,7 +52,7 @@ def amountOf(private field[2] householdListProportionOnEnergy, private field ene
 // Calculate proportion of household on energy
 // @param {private field[2]} householdList
 // @param {private field} energy
-// @returns {field[2]} energyProportion of household on energy
+// @returns {field[2]} householdListProportionOnEnergy
 def proportionalDistribution(private field[2] householdList, private field energy) -> (field[2]):
   field[2] householdListProportionOnEnergy = [0, 0];
   for field i in 0..1 do
@@ -61,11 +75,11 @@ def totalEnergyProportion(private field[2] householdListWithEnergy, private fiel
 
 // Settlement function for netting
 // Assume n = 4 households, where |householdListWithEnergy| = 2 and |householdListNoEnergy| = 2
-// Households with produce-consume = 0 are not part of the settlement.
+// Households with produce-consume = 0 are not part of the settlement
 // @param {private field[2]} householdListWithEnergy
-// index represents household and householdListWithEnergy[index] := produce-consume > 0 
+// Index represents household and householdListWithEnergy[index] := produce-consume > 0 
 // @param {private field[2]} householdListNoEnergy
-// index represents household and householdListNoEnergy[index] := produce-consume < 0 
+// Index represents household and householdListNoEnergy[index] := produce-consume < 0 
 // @returns {field[2], field[2]} 
 // return value needs to be hashed with sha256 if we do not want to expose the netting results
 def main(private field[2] householdListWithEnergy, private field[2] householdListNoEnergy) -> (field[2], field[2]):
@@ -74,16 +88,32 @@ def main(private field[2] householdListWithEnergy, private field[2] householdLis
   householdListProportionOnEnergy = if (availableEnergy > neededEnergy) then
     proportionalDistribution(householdListWithEnergy, availableEnergy)
   else
-    proportionalDistribution(householdListNoEnergy), neededEnergy)
+    proportionalDistribution(householdListNoEnergy, neededEnergy)
   fi
 
   householdListAmountOfEnergy = if (availableEnergy > neededEnergy) then
     amountOf(householdListProportionOnEnergy, neededEnergy)
   else
-    amountOf(householdListProportionOnEnergy), availableEnergy)
+    amountOf(householdListProportionOnEnergy, availableEnergy)
   fi
   
-  field[2] updatedhouseholdListWithEnergy = [0, 0];
-  field[2] updatedhouseholdListNoEnergy = [0, 0];
+  updatedHouseholdList = if (availableEnergy > neededEnergy) then
+    calculateEnergyForHouseholds(householdListWithEnergy, householdListAmountOfEnergy)
+  else
+    calculateEnergyForHouseholds(householdListNoEnergy, householdListAmountOfEnergy)
+  fi
+
+  field[2] updatedhouseholdListWithEnergy = if (availableEnergy > neededEnergy) then
+    updatedHouseholdList
+  else
+    [0,0]
+  fi
+
+  field[2] updatedhouseholdListNoEnergy = if (availableEnergy > neededEnergy) then
+    [0,0]
+  else
+  // availableEnergy == neededEnergy, updatedHouseholdList=[0,0]
+    updatedHouseholdList
+  fi
 
   return updatedHouseholdListWithEnergy, updatedHouseholdListNoEnergy
