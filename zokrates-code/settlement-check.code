@@ -3,6 +3,8 @@
 
 // Second approach
 
+import "hashes/sha256/512bitPacked.code" as sha256packed
+
 def totalEnergy(field[2] hh) -> (field):
   field energy = 0
   for field i in 0..1 do
@@ -30,7 +32,7 @@ def validateSolution(field[2] hh, field[2] hhNet) -> (field):
   return errorCounter
 
 // Returns 1, when netting result is "correct and fair", 0 otherwise.
-def main(private field[2] hhWithEnergy, private field[2] hhNoEnergy, private field[2] hhWithEnergyNet, private field[2] hhNoEnergyNet) -> (field):
+def main(private field[2] hhWithEnergy, private field[2] hhNoEnergy, private field[2] hhWithEnergyNet, private field[2] hhNoEnergyNet) -> (field[2]):
   deltaNetWithEnergy = deltaNet(hhWithEnergy, hhWithEnergyNet)
   deltaNetNoEnergy = deltaNet(hhNoEnergy, hhNoEnergyNet)
   
@@ -41,5 +43,10 @@ def main(private field[2] hhWithEnergy, private field[2] hhNoEnergy, private fie
   // Invariants
   0 == validateSolution(hhWithEnergy, hhWithEnergyNet)
   0 == validateSolution(hhNoEnergy, hhNoEnergyNet)
+  
+  // When we have private inputs, we are apparently required to return something that depend on those inputs
+  // This is my observation, maybe there is a workaround...
+  field sum = hhWithEnergy[0] + hhWithEnergy[1] + hhNoEnergy[0] + hhNoEnergy[1] + hhWithEnergyNet[0] + hhWithEnergyNet[1] + hhNoEnergyNet[0] + hhNoEnergyNet[1]
+  h = sha256packed([sum, 0, 0, 0])
 
-  return 1
+  return h
