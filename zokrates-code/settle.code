@@ -27,6 +27,8 @@
 // (E.g. let the NED component perform the netting algorithm and give the ZoKrates HLC the current state of the households and the result of the netting; check whether this result is correct, fair, ...).
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+// First approach
+
 // Calculate new energy state for households
 // @param {private field[2]} householdList
 // @param {private field[2]} householdListAmountOfEnergy
@@ -60,7 +62,7 @@ def proportionalDistribution(private field[2] householdList, private field energ
   endfor
   return householdListProportionOnEnergy
 
-// Simply return, householdListWithEnergy[0] + householdListWithEnergy[1], householdListNoEnergy[0] + householdListNoEnergy[1]
+// Simply return householdListWithEnergy[0] + householdListWithEnergy[1] and householdListNoEnergy[0] + householdListNoEnergy[1]
 // @param {private field[2]} householdListWithEnergy
 // @param {private field[2]} householdListNoEnergy
 // @returns {field, field} availableEnergy, neededEnergy
