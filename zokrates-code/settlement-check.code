@@ -4,14 +4,14 @@
 // Second approach
 
 def totalEnergy(private field[2] hh) -> (field):
-  field energy = 0;
+  field energy = 0
   for field i in 0..1 do
     energy = energy + hh[i]
   endfor
   return energy
 
 def deltaNet(private field[2] hh, private field[2] hhNet) -> (field):
-  field delta = 0;
+  field delta = 0
   for field i in 0..1 do
     delta = delta + (hh[i] - hhNet[i])
   endfor
