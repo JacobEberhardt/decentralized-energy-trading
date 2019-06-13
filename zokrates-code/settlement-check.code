@@ -3,19 +3,31 @@
 
 // Second approach
 
-def totalEnergy(private field[2] hh) -> (field):
+def totalEnergy(field[2] hh) -> (field):
   field energy = 0
   for field i in 0..1 do
     energy = energy + hh[i]
   endfor
   return energy
 
-def deltaNet(private field[2] hh, private field[2] hhNet) -> (field):
+def deltaNet(field[2] hh, field[2] hhNet) -> (field):
   field delta = 0
   for field i in 0..1 do
     delta = delta + (hh[i] - hhNet[i])
   endfor
   return delta
+
+def validateSolution(field[2] hh, field[2] hhNet) -> (field):
+  field errorCounter = 0
+
+  for field i in 0..1 do
+    // Netting should NEVER make things worse, i.e., giving a demanding household more demand or
+    // allocating a producing household more energy
+    // There is more space for stricter invariants
+    errorCounter = errorCounter + if hhNet[i] > hh[i] then 1 else 0 fi
+  endfor
+
+  return errorCounter
 
 // Returns 1, when netting result is "correct and fair", 0 otherwise.
 def main(private field[2] hhWithEnergy, private field[2] hhNoEnergy, private field[2] hhWithEnergyNet, private field[2] hhNoEnergyNet) -> (field):
@@ -23,6 +35,11 @@ def main(private field[2] hhWithEnergy, private field[2] hhNoEnergy, private fie
   deltaNetNoEnergy = deltaNet(hhNoEnergy, hhNoEnergyNet)
   
   // Correctness check, does this suffice?
-  field success = if deltaNetWithEnergy == deltaNetNoEnergy then 1 else 0 fi
+  // Energy system stays the same
+  deltaNetWithEnergy == deltaNetNoEnergy
 
-  return success
+  // Invariants
+  0 == validateSolution(hhWithEnergy, hhWithEnergyNet)
+  0 == validateSolution(hhNoEnergy, hhNoEnergyNet)
+
+  return 1
