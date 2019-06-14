@@ -4,6 +4,7 @@
   "repository": "git@github.com:cp-ss2019/decentralized-energy-trading.git",
   "scripts": {
     "compile-contracts": "truffle compile",
+    "connect-docker-nodes": "node scripts/connect_nodes.js",
     "migrate-contracts": "truffle migrate",
     "test-contracts": "run-script-os",
     "test-contracts:linux:darwin": "truffle test ./test/contracts/*",
@@ -17,6 +18,7 @@
     "run-ganache": "ganache-cli --account='0xdcb15ba5d2caf586c22f0414f527201d2fb2424c92ced3efacd742a34e5b0db2,100000000000000000000' -i 1234 -l 0x1fffffffffffff",
     "migrate-contracts-ganache": "truffle migrate --reset hard --network ganache",
     "migrate-contracts-authority": "truffle migrate --reset hard --network authority",
+    "migrate-contracts-docker": "truffle migrate --reset hard --network authority_docker",
     "test-parity-native": "./scripts/run_native_parity_tests.sh",
     "test-parity-docker": "./scripts/run_docker_parity_tests.sh",
     "test-helpers": "mocha ./test/helpers/*.js",
@@ -56,6 +58,7 @@
     "mongodb": "^3.2.3",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
+    "shelljs": "^0.8.3",
     "web3": "^1.0.0-beta.54"
   }
 }

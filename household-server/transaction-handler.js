@@ -1,4 +1,3 @@
-const authorityHelper = require("../helpers/authority");
 const contractHelper = require("../helpers/contract");
 const conversionHelper = require("../helpers/conversion");
 
@@ -23,9 +22,8 @@ module.exports = {
    * `updateRenewableEnergy` function.
    * @returns {Promise<Object>} Promise containing the transaction receipt.
    */
-  updateRenewableEnergy: async (web3, payload) => {
+  updateRenewableEnergy: async (web3, address, password, payload) => {
     const { produce, consume } = payload;
-    const { address, password } = authorityHelper.getAddressAndPassword();
     const contract = new web3.eth.Contract(
       contractHelper.getAbi(),
       contractHelper.getDeployedAddress(await web3.eth.net.getId())
@@ -131,8 +129,7 @@ module.exports = {
    * }
    * Note '0' till '6' can be ignored.
    */
-  getHousehold: async web3 => {
-    const { address } = authorityHelper.getAddressAndPassword();
+  getHousehold: async (web3, address) => {
     const contract = new web3.eth.Contract(
       contractHelper.getAbi(),
       contractHelper.getDeployedAddress(await web3.eth.net.getId())
