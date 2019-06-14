@@ -3,6 +3,7 @@ const cors = require("cors");
 const commander = require("commander");
 
 // const txHandler = require("./transaction-handler");
+const zkHandler = require("./zk-handler");
 // const web3Helper = require("../helpers/web3");
 
 const serverConfig = require("../ned-server-config");
@@ -116,4 +117,5 @@ setInterval(() => {
  * */
 const manageNetting = async () => {
   console.log("Manage Netting");
+  zkHandler.triggerNetting();
 };

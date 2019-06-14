@@ -10,5 +10,11 @@ module.exports = {
   // Name of JSON RPC interface specified in `truffle-config.js`
   network: "authority",
   // Time Interval of the ned server triggering the netting in the ZoKrates execution environment
-  nettingInterval: 10000
+  nettingInterval: 10000,
+  // Working directory of the file and the child process
+  workingDir: "./ned-server",
+  // File name to execute
+  fileName: "helloworld.sh",
+  // Execution environment for the file
+  executionEnv: "bash"
 };
