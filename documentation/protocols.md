@@ -2,6 +2,43 @@
 
 All meeting protocols are listed below ordered by date (descending).
 
+### 06/11/19, 12-4pm: Team meeting and presentation of approaches on privacy
+
+with Jacob from 2-4pm
+
+You can find the agenda [here](https://docs.google.com/document/d/1VMTaAn8DHaaM1hqrleETW7YyGQHyhlrCRExV8kV3sII/edit#).
+
+**Done:**
+
+- Emo round
+- Updates on components and deployment
+- Discussion on different approaches on privacy using ZoKrates
+- Presentation of approaches to Jacob
+   - See presentation [here](https://docs.google.com/presentation/d/1zOiGrjStRZrnLnRzxdYRP923lzhBULIKj5guFEK3EoQ/edit#)
+   - Use approach 1 (introducing a Netting entity) first, later maybe shift more towards approach 2
+
+**ToDo:**
+
+- Set up netting entity
+- Adjust dUtility contract
+  - Includes Netting algorithm into ZoKrates
+- Update Docker setup
+- Research Secure Multi-Party Computation
+    
+**Remark:**
+
+- Next meeting with Jacob
+  - 06/26/2019 or 07/02/2019
+- Next Team Meeting
+  - 06/18/2019
+- idea: Secure Multi-Party Computation
+  - Protocols allowing calculation including several parties without revealing the given data from each party
+  - Efficiency?
+- Use smart meter value, not produce & consume values
+- JavaScript Wrapper for ZoKrates
+  - Nightfall (EY)
+
+
 ### 06/04/19, 12-4pm: Team meeting and Introduction to ZoKrates
 
 with Jacob from 2-4pm
