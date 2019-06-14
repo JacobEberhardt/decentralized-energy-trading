@@ -34,7 +34,7 @@
 // @param {private field[2]} householdListAmountOfEnergy
 // @returns {field[2]} updatedHouseholdList
 def calculateEnergyForHouseholds(private field[2] householdList, private field[2] householdListAmountOfEnergy) -> (field[2]):
-  field[2] updatedHouseholdList = [0, 0];
+  field[2] updatedHouseholdList = [0, 0]
   for field i in 0..1 do
     updatedHouseholdList[i] = householdList[i] - householdListAmountOfEnergy[i]
   endfor
@@ -45,7 +45,7 @@ def calculateEnergyForHouseholds(private field[2] householdList, private field[2
 // @param {private field} energy
 // @returns {field[2]} householdListAmountOfEnergy
 def amountOf(private field[2] householdListProportionOnEnergy, private field energy) -> (field[2]):
-  field[2] householdListAmountOfEnergy = [0, 0];
+  field[2] householdListAmountOfEnergy = [0, 0]
   for field i in 0..1 do
     householdListAmountOfEnergy[i] = (energy * householdListProportionOnEnergy[i]) / 100
   endfor
@@ -56,7 +56,7 @@ def amountOf(private field[2] householdListProportionOnEnergy, private field ene
 // @param {private field} energy
 // @returns {field[2]} householdListProportionOnEnergy
 def proportionalDistribution(private field[2] householdList, private field energy) -> (field[2]):
-  field[2] householdListProportionOnEnergy = [0, 0];
+  field[2] householdListProportionOnEnergy = [0, 0]
   for field i in 0..1 do
     householdListProportionOnEnergy[i] = (100 * householdList[i]) / energy
   endfor
@@ -67,8 +67,8 @@ def proportionalDistribution(private field[2] householdList, private field energ
 // @param {private field[2]} householdListNoEnergy
 // @returns {field, field} availableEnergy, neededEnergy
 def totalEnergyProportion(private field[2] householdListWithEnergy, private field[2] householdListNoEnergy) -> (field, field):
-  field availableEnergy = 0;
-  field neededEnergy = 0;
+  field availableEnergy = 0
+  field neededEnergy = 0
   for field i in 0..1 do
     availableEnergy = availableEnergy + householdListWithEnergy[i]
     neededEnergy = neededEnergy + householdListNoEnergy[i]
@@ -87,35 +87,20 @@ def totalEnergyProportion(private field[2] householdListWithEnergy, private fiel
 def main(private field[2] householdListWithEnergy, private field[2] householdListNoEnergy) -> (field[2], field[2]):
   availableEnergy, neededEnergy = totalEnergyProportion(householdListWithEnergy, householdListNoEnergy)
   
-  householdListProportionOnEnergy = if (availableEnergy > neededEnergy) then
-    proportionalDistribution(householdListWithEnergy, availableEnergy)
-  else
-    proportionalDistribution(householdListNoEnergy, neededEnergy)
-  fi
+  propDistA = proportionalDistribution(householdListWithEnergy, availableEnergy)
+  propDistB = proportionalDistribution(householdListNoEnergy, neededEnergy)
+  field[2] householdListProportionOnEnergy = if (availableEnergy > neededEnergy) then propDistA else propDistB fi
 
-  householdListAmountOfEnergy = if (availableEnergy > neededEnergy) then
-    amountOf(householdListProportionOnEnergy, neededEnergy)
-  else
-    amountOf(householdListProportionOnEnergy, availableEnergy)
-  fi
+  amountA = amountOf(householdListProportionOnEnergy, neededEnergy)
+  amountB = amountOf(householdListProportionOnEnergy, availableEnergy)
+  field[2] householdListAmountOfEnergy = if (availableEnergy > neededEnergy) then amountA else amountB fi
   
-  updatedHouseholdList = if (availableEnergy > neededEnergy) then
-    calculateEnergyForHouseholds(householdListWithEnergy, householdListAmountOfEnergy)
-  else
-    calculateEnergyForHouseholds(householdListNoEnergy, householdListAmountOfEnergy)
-  fi
+  calcEnergyA = calculateEnergyForHouseholds(householdListWithEnergy, householdListAmountOfEnergy)
+  calcEnergyB = calculateEnergyForHouseholds(householdListNoEnergy, householdListAmountOfEnergy)
+  field[2] updatedHouseholdList = if (availableEnergy > neededEnergy) then calcEnergyA else calcEnergyB fi
 
-  field[2] updatedhouseholdListWithEnergy = if (availableEnergy > neededEnergy) then
-    updatedHouseholdList
-  else
-    [0,0]
-  fi
+  field[2] updatedhouseholdListWithEnergy = if (availableEnergy > neededEnergy) then updatedHouseholdList else [0,0] fi
 
-  field[2] updatedhouseholdListNoEnergy = if (availableEnergy > neededEnergy) then
-    [0,0]
-  else
-  // availableEnergy == neededEnergy, updatedHouseholdList=[0,0]
-    updatedHouseholdList
-  fi
+  field[2] updatedhouseholdListNoEnergy = if (availableEnergy > neededEnergy) then [0,0] else updatedHouseholdList fi
 
-  return updatedHouseholdListWithEnergy, updatedHouseholdListNoEnergy
+  return updatedhouseholdListWithEnergy, updatedhouseholdListNoEnergy
