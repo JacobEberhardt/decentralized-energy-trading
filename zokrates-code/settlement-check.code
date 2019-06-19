@@ -1,7 +1,13 @@
-// Correctness, no energy is generated, no energy has dissolved
-// Fairness, proportion on available/needed energy is calculated; proportional distribution
-
-// Second approach
+// Correctness: After a settlement the total energy balance remains the same, i.e. no energy is generated and no energy has dissolved within the settlement.
+// We introduce different fairness assumptions: Given households hhWithEnergy (produce-consume > 0) and households hhNoEnergy (produce-consume < 0 ), a settlement is fair,
+// - if a household transfers/ receives the amount of energy corresponding to its proportion on total available/ needed energy 
+//   depending on the total energy balance in the system (proportional fairness). This would be the corresponding fairness assumption to the implemented settlement algorithm.
+//   Therefore, this fairness assumption can be implemented by following a naive approach of calculating the settlement within ZoKrates and compare input with calculated settlement results.
+// - given some threshold h (e.g. percentage on energy), if a household transfers/ receives atleast h of its available/ needed energy (threshold fairness).
+// - if a household of hhWithEnergy (with energy balance e_b before settlement and energy balance e_a after) transfers "some" energy such that e_b < e_a while e_a >= 0
+//   and a household of hhNoEnergy (with energy balance e_b before settlement and energy balance e_a after) receives "some" energy such that e_b > e_a while e_a <= 0 (weak fairness). 
+//   This fairness assumption would be weak but fits different settlement algorithms.
+// For reasons of simplicity and mobility, we follow the approach of weak fairness.
 
 import "hashes/sha256/512bitPacked.code" as sha256packed
 
@@ -31,13 +37,12 @@ def validateSolution(field[2] hh, field[2] hhNet) -> (field):
 
   return errorCounter
 
-// Returns 1, when netting result is "correct and fair", 0 otherwise.
+// Returns 1 if settlement (netting) result is correct and follows weak fainess, 0 otherwise.
 def main(private field[2] hhWithEnergy, private field[2] hhNoEnergy, private field[2] hhWithEnergyNet, private field[2] hhNoEnergyNet) -> (field[2]):
   deltaNetWithEnergy = deltaNet(hhWithEnergy, hhWithEnergyNet)
   deltaNetNoEnergy = deltaNet(hhNoEnergy, hhNoEnergyNet)
   
-  // Correctness check, does this suffice?
-  // Energy system stays the same
+  // Correctness: energy balance in the system stays the same
   deltaNetWithEnergy == deltaNetNoEnergy
 
   // Invariants
@@ -45,7 +50,6 @@ def main(private field[2] hhWithEnergy, private field[2] hhNoEnergy, private fie
   0 == validateSolution(hhNoEnergy, hhNoEnergyNet)
   
   // When we have private inputs, we are apparently required to return something that depend on those inputs
-  // This is my observation, maybe there is a workaround...
   field sum = hhWithEnergy[0] + hhWithEnergy[1] + hhNoEnergy[0] + hhNoEnergy[1] + hhWithEnergyNet[0] + hhWithEnergyNet[1] + hhNoEnergyNet[0] + hhNoEnergyNet[1]
   h = sha256packed([sum, 0, 0, 0])
 
