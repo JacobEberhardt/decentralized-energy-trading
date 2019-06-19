@@ -11,6 +11,7 @@
     "test-contracts:win32": ".\\test-contracts.bat",
     "run-server": "node ./household-server/index.js",
     "run-sensor": "node ./mock-sensor/index.js",
+    "run-ned": "node ./ned-server/index.js",
     "lint-all": "eslint household-server/ mock-sensor/ test/ helpers/ household-ui/src && yarn lint-contracts",
     "lint-contracts": "solium -d contracts/",
     "format-all": "eslint household-server/ mock-sensor/ test/ helpers/ household-ui/src --fix && yarn format-contracts",
