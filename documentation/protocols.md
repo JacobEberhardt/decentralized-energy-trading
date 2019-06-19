@@ -55,6 +55,9 @@ You can find the agenda [here](https://docs.google.com/document/d/15s6lRSq7oatCT
   - What it would change
     - No need for utility.js in NED
     - ZK in NEd would be split up towards the HPU
+- Next meetings
+  - 06/26/19 2-4pm (Wednesday) with Jacob
+  - 06/26/19 12-2pm Team meeting
 
 ### 06/11/19, 12-4pm: Team meeting and presentation of approaches on privacy
 
