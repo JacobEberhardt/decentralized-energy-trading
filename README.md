@@ -29,6 +29,7 @@ yarn install
 - `yarn test-parity-native` to test native parity authority setup
 - `yarn test-parity-docker` to test docker parity authority setup
 - `yarn test-helpers` to test helper functions
+- `yarn test-utility-js` to test off-chain utility functionality
 
 ## Household Processing Unit
 To setup a dockerized version of the complete setup see [./household-processing-unit/README.md](./household-processing-unit/README.md).
