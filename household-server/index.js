@@ -2,8 +2,8 @@ const express = require("express");
 const cors = require("cors");
 const commander = require("commander");
 
-const dbHandler = require("./db-handler");
-const nedHandler = require("./ned-handler");
+const db = require("./apis/db");
+const ned = require("./apis/ned");
 
 const web3Helper = require("../helpers/web3");
 
@@ -35,11 +35,11 @@ const sensorDataCollection = serverConfig.sensorDataCollection;
 const utilityDataCollection = serverConfig.utilityDataCollection;
 
 // Set up the DB
-dbHandler
-  .createDB(dbUrl, dbName, [sensorDataCollection, utilityDataCollection])
-  .catch(err => {
+db.createDB(dbUrl, dbName, [sensorDataCollection, utilityDataCollection]).catch(
+  err => {
     console.log("Error while creating DB", err);
-  });
+  }
+);
 
 // Set up web3
 const web3 = web3Helper.initWeb3(network);
@@ -62,7 +62,7 @@ app.get("/sensor-stats", async (req, res) => {
     const { from, to } = req.query;
     const fromQuery = from ? { timestamp: { $gte: parseInt(from) } } : {};
     const toQuery = to ? { timestamp: { $lte: parseInt(to) } } : {};
-    const data = await dbHandler.readAll(dbUrl, dbName, sensorDataCollection, {
+    const data = await db.readAll(dbUrl, dbName, sensorDataCollection, {
       ...fromQuery,
       ...toQuery
     });
@@ -84,7 +84,7 @@ app.get("/deeds", async (req, res) => {
     const { from, to } = req.query;
     const fromQuery = from ? { timestamp: { $gte: parseInt(from) } } : {};
     const toQuery = to ? { timestamp: { $lte: parseInt(to) } } : {};
-    const data = await dbHandler.readAll(dbUrl, dbName, utilityDataCollection, {
+    const data = await db.readAll(dbUrl, dbName, utilityDataCollection, {
       ...fromQuery,
       ...toQuery
     });
@@ -103,7 +103,7 @@ app.get("/deeds", async (req, res) => {
  */
 app.get("/household-stats", async (req, res, next) => {
   try {
-    const data = await nedHandler.getHousehold(web3, address);
+    const data = await ned.getHousehold(web3, address);
     res.setHeader("Content-Type", "application/json");
     res.status(200);
     res.end(JSON.stringify(data));
@@ -119,7 +119,7 @@ app.get("/household-stats", async (req, res, next) => {
  */
 app.get("/network-stats", async (req, res, next) => {
   try {
-    const data = await nedHandler.getNetworkStats(web3);
+    const data = await ned.getNetworkStats(web3);
     res.setHeader("Content-Type", "application/json");
     res.status(200);
     res.end(JSON.stringify(data));
@@ -142,28 +142,25 @@ app.put("/sensor-stats", async (req, res) => {
 
     // TODO: Source out in separate handler file
     const handleDeeds = async () => {
-      const latestSavedBlockNumber = await dbHandler.getLatestBlockNumber(
+      const latestSavedBlockNumber = await db.getLatestBlockNumber(
         dbUrl,
         dbName,
         utilityDataCollection
       );
-      const deeds = await nedHandler.collectDeeds(
-        web3,
-        latestSavedBlockNumber + 1
-      );
+      const deeds = await ned.collectDeeds(web3, latestSavedBlockNumber + 1);
       return deeds.length > 0
-        ? dbHandler.bulkWriteToDB(dbUrl, dbName, utilityDataCollection, deeds)
+        ? db.bulkWriteToDB(dbUrl, dbName, utilityDataCollection, deeds)
         : [];
     };
 
     // TODO: Handle case where one promise rejects (i.e. tx fails)
     await Promise.all([
       handleDeeds(),
-      nedHandler.updateRenewableEnergy(web3, address, password, {
+      ned.updateRenewableEnergy(web3, address, password, {
         produce,
         consume
       }),
-      dbHandler.writeToDB(dbUrl, dbName, sensorDataCollection, {
+      db.writeToDB(dbUrl, dbName, sensorDataCollection, {
         produce,
         consume
       })

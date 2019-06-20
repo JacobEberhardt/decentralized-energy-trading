@@ -1,7 +1,7 @@
 const request = require("request-promise");
 
-const contractHelper = require("../helpers/contract");
-const conversionHelper = require("../helpers/conversion");
+const contractHelper = require("../../helpers/contract");
+const conversionHelper = require("../../helpers/conversion");
 
 const HOUSEHOLD_KEY_MAP = [
   "initialized",
