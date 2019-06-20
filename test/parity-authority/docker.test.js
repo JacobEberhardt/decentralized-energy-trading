@@ -21,9 +21,9 @@ describe("Test Node Properties", () => {
             jsonrpc: "2.0",
             method: "personal_listAccounts",
             params: [],
-            id: 0,
+            id: 0
           },
-          ...options,
+          ...options
         });
         // NOTE: Including test account with a lot of ETH which is not a authority.
         assert.strictEqual(statusCode, 200);
@@ -44,8 +44,8 @@ describe("Test Network Properties", () => {
             jsonrpc: "2.0",
             method: "net_peerCount",
             params: [],
-            id: 0,
-          },
+            id: 0
+          }
         });
         assert.strictEqual(statusCode, 200);
         assert.strictEqual(body.result, "0x2");
@@ -59,8 +59,8 @@ describe("Test Network Properties", () => {
             jsonrpc: "2.0",
             method: "eth_blockNumber",
             params: [],
-            id: 0,
-          },
+            id: 0
+          }
         });
         assert.strictEqual(statusCode, 200);
         assert.ok(body.result > 0);
@@ -69,7 +69,10 @@ describe("Test Network Properties", () => {
       it("has at least 3 validators", async () => {
         const contractData = require(`${root}/build/contracts/OwnedSet.json`);
         const web3 = web3Helper.initWeb3("authority");
-        const contract = new web3.eth.Contract(contractData.abi, OWNED_SET_ADDRESS);
+        const contract = new web3.eth.Contract(
+          contractData.abi,
+          OWNED_SET_ADDRESS
+        );
         const validators = await contract.methods.getValidators().call();
 
         assert.ok(validators.length >= 3);
@@ -78,10 +81,13 @@ describe("Test Network Properties", () => {
       it("has 0 pending validators", async () => {
         const contractData = require(`${root}/build/contracts/OwnedSet.json`);
         const web3 = web3Helper.initWeb3("authority");
-        const contract = new web3.eth.Contract(contractData.abi, OWNED_SET_ADDRESS);
+        const contract = new web3.eth.Contract(
+          contractData.abi,
+          OWNED_SET_ADDRESS
+        );
         const pendingValidators = await contract.methods.getPending().call();
 
-        assert.ok(pendingValidators.length == 0);
+        assert.ok(pendingValidators.length === 0);
       });
     });
   });
