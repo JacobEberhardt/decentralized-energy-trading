@@ -3,7 +3,7 @@ const cors = require("cors");
 const commander = require("commander");
 
 const dbHandler = require("./db-handler");
-const txHandler = require("./transaction-handler");
+const nedHandler = require("./ned-handler");
 
 const web3Helper = require("../helpers/web3");
 
@@ -14,6 +14,7 @@ commander
   .option("-h, --host <type>", "ip of household server")
   .option("-p, --port <type>", "port of household server")
   .option("-d, --dbUrl <type>", "url of mongodb")
+  .option("--nedUrl <type>", "url of NED server")
   .option("-a, --address <type>", "address of the parity account")
   .option("-P, --password <type>", "password of the parity account")
   .option(
@@ -25,6 +26,7 @@ commander.parse(process.argv);
 const host = commander.host || serverConfig.host;
 const port = commander.port || serverConfig.port;
 const dbUrl = commander.dbUrl || serverConfig.dbUrl;
+const nedUrl = commander.nedUrl || serverConfig.nedUrl;
 const network = commander.network || serverConfig.network;
 const address = commander.address || serverConfig.address;
 const password = commander.password || serverConfig.password;
@@ -101,7 +103,7 @@ app.get("/deeds", async (req, res) => {
  */
 app.get("/household-stats", async (req, res, next) => {
   try {
-    const data = await txHandler.getHousehold(web3, address);
+    const data = await nedHandler.getHousehold(web3, address);
     res.setHeader("Content-Type", "application/json");
     res.status(200);
     res.end(JSON.stringify(data));
@@ -117,7 +119,7 @@ app.get("/household-stats", async (req, res, next) => {
  */
 app.get("/network-stats", async (req, res, next) => {
   try {
-    const data = await txHandler.getNetworkStats(web3);
+    const data = await nedHandler.getNetworkStats(web3);
     res.setHeader("Content-Type", "application/json");
     res.status(200);
     res.end(JSON.stringify(data));
@@ -145,7 +147,7 @@ app.put("/sensor-stats", async (req, res) => {
         dbName,
         utilityDataCollection
       );
-      const deeds = await txHandler.collectDeeds(
+      const deeds = await nedHandler.collectDeeds(
         web3,
         latestSavedBlockNumber + 1
       );
@@ -157,7 +159,7 @@ app.put("/sensor-stats", async (req, res) => {
     // TODO: Handle case where one promise rejects (i.e. tx fails)
     await Promise.all([
       handleDeeds(),
-      txHandler.updateRenewableEnergy(web3, address, password, {
+      nedHandler.updateRenewableEnergy(web3, address, password, {
         produce,
         consume
       }),

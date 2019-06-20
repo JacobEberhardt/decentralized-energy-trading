@@ -1,3 +1,5 @@
+const request = require("request-promise");
+
 const contractHelper = require("../helpers/contract");
 const conversionHelper = require("../helpers/conversion");
 
@@ -12,9 +14,36 @@ const HOUSEHOLD_KEY_MAP = [
 ];
 
 /**
- * This handler creates, signs and sends transactions to the Utility contract.
+ * This handler interacts with the NED server.
  */
 module.exports = {
+  /**
+   * Send PUT request to given URL with specified json as body.
+   * @param {string} url URL to send PUT request to.
+   * @param {Object} json Data to send.
+   */
+  put: (url, json) => {
+    return request(url, {
+      method: "PUT",
+      json
+    });
+  },
+  /**
+   * Signs given data.
+   * @param {Object} web3 Web3 instance.
+   * @param {string} address Signer address.
+   * @param {string} password Password to unlock signer.
+   * @param {Object} data Arbitrary data to sign.
+   */
+  sign: async (web3, address, password, data) => {
+    const dataStr = JSON.stringify(data);
+    const signature = await web3.eth.personal.sign(dataStr, address, password);
+    return {
+      data,
+      signature,
+      signerAddress: address
+    };
+  },
   /**
    * Call `updateRenewableEnergy` contract method.
    * @param {Object} web3 Web3 instance.
