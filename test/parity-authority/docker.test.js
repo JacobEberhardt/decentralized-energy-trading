@@ -36,15 +36,6 @@ describe("Test Node Properties", () => {
 describe("Test Network Properties", () => {
   nodes.forEach((node, i) => {
     describe(util.format("Test Node #%d", i), function() {
-      // beforeEach(function(done) {
-      //   if (this.currentTest.currentRetry() > 0) {
-      //     setTimeout(done, this.currentTest.currentRetry() * 500);
-      //   } else {
-      //     done();
-      //   }
-      // });
-      // this.retries(10);
-
       it("Node have two peers", async () => {
         const { statusCode, body } = await request(nodes[i], {
           ...options,
@@ -75,7 +66,7 @@ describe("Test Network Properties", () => {
         assert.ok(body.result > 0);
       });
 
-      it("has at least 1 validators", async () => {
+      it("has at least 3 validators", async () => {
         const contractData = require(`${root}/build/contracts/OwnedSet.json`);
         const web3 = web3Helper.initWeb3("authority");
         const contract = new web3.eth.Contract(
@@ -84,7 +75,19 @@ describe("Test Network Properties", () => {
         );
         const validators = await contract.methods.getValidators().call();
 
-        assert.ok(validators.length >= 1);
+        assert.ok(validators.length >= 3);
+      });
+
+      it("has 0 pending validators", async () => {
+        const contractData = require(`${root}/build/contracts/OwnedSet.json`);
+        const web3 = web3Helper.initWeb3("authority");
+        const contract = new web3.eth.Contract(
+          contractData.abi,
+          OWNED_SET_ADDRESS
+        );
+        const pendingValidators = await contract.methods.getPending().call();
+
+        assert.ok(pendingValidators.length === 0);
       });
     });
   });
