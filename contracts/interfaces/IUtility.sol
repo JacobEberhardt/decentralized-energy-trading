@@ -8,11 +8,15 @@ import "./IUtilityBase.sol";
  */
 contract IUtility is IUtilityBase {
 
-  event RequestNonRenewableEnergy(address indexed household, int256 energy);
+  event NettingSuccess(uint blockNumber);
 
-  event EnergyCompensated(address household, int256 energy, bool isRenewable);
+  function setVerifier(address _verifier) external returns (bool);
 
-  function settle() external returns (bool);
+  function verifyNetting(
+    uint256[2] calldata _a,
+    uint256[2][2] calldata _b,
+    uint256[2] calldata _c,
+    uint256[1] calldata _input) external returns (bool success);
 
-  function deedsLength(uint256 _blockNumber) public view returns (uint256);
+  function getDeedsLength() external view returns (uint256);
 }
