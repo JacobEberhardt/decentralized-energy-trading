@@ -1,14 +1,17 @@
+const chalk = require("chalk");
+
 const Utility = artifacts.require("Utility");
-const BaseOwnedSet = artifacts.require("BaseOwnedSet");
+const OwnedSet = artifacts.require("OwnedSet");
 const UtilityBenchmark = artifacts.require("UtilityBenchmark");
 
 const web3Helper = require("../helpers/web3");
+const asyncUtils = require("../helpers/async-utils");
 const authorityHelper = require("../helpers/authority");
 
 const {
   UTILITY_ADDRESS_IN_AUTHORITY,
   AUTHORITY_ADDRESS,
-  OTHER_AUTHORITY_ADDRESS,
+  OTHER_AUTHORITY_ADDRESSES,
   OWNED_SET_ADDRESS,
 } = require("../helpers/constants");
 
@@ -22,23 +25,46 @@ module.exports = async (deployer, network, [authority]) => {
     }
     case "authority": {
       const utilityInstanceInAuthority = await Utility.at(UTILITY_ADDRESS_IN_AUTHORITY);
+      const ownedSetInstanceInAuthority = await OwnedSet.at(OWNED_SET_ADDRESS);
       const web3 = web3Helper.initWeb3("authority");
       const { address, password } = authorityHelper.getAddressAndPassword();
+
+      process.stdout.write("  Adding admin node to Utility contract ... ");
       await web3.eth.personal.unlockAccount(address, password, null);
       await utilityInstanceInAuthority.addHousehold(AUTHORITY_ADDRESS, {
         from: AUTHORITY_ADDRESS,
       });
+      process.stdout.write(chalk.green("done\n"));
+
+      process.stdout.write("  Transfer ownership of Utility contract ... ");
       await web3.eth.personal.unlockAccount(address, password, null);
-      await utilityInstanceInAuthority.addHousehold(OTHER_AUTHORITY_ADDRESS, {
+      await utilityInstanceInAuthority.transferOwnership(OWNED_SET_ADDRESS, {
         from: AUTHORITY_ADDRESS,
       });
+      process.stdout.write(chalk.green("done\n"));
+
+      process.stdout.write("  Adding authority addresses ...\n");
+      await asyncUtils.asyncForEach(OTHER_AUTHORITY_ADDRESSES, async a => {
+        process.stdout.write(`  Adding ${a} to OwnedSet contract ... `);
+        await web3.eth.personal.unlockAccount(address, password, null);
+        await ownedSetInstanceInAuthority.addValidator(a, {
+          from: AUTHORITY_ADDRESS,
+        });
+        process.stdout.write(chalk.green("done\n"));
+      });
+
+      process.stdout.write(`  Finalizing changes to OwnedSet contract ... `);
+      await web3.eth.personal.unlockAccount(address, password, null);
+      await ownedSetInstanceInAuthority.finalizeChange();
+      process.stdout.write(chalk.green("done\n"));
+
       break;
     }
     case "authority_docker": {
       const otherAuthorityAddress = process.env.AUTHORITY_ADDRESS;
       const web3 = web3Helper.initWeb3("authority_docker");
       const { address, password } = authorityHelper.getAddressAndPassword();
-      const ownedSetInstanceInAuthority = await BaseOwnedSet.at(OWNED_SET_ADDRESS);
+      const ownedSetInstanceInAuthority = await OwnedSet.at(OWNED_SET_ADDRESS);
       await web3.eth.personal.unlockAccount(address, password, null);
       await ownedSetInstanceInAuthority.addValidator(otherAuthorityAddress, {
         from: AUTHORITY_ADDRESS,

@@ -1,6 +1,7 @@
 pragma solidity ^0.5.0;
 
 import "./Ownable.sol";
+import "./interfaces/IUtility.sol";
 import "./interfaces/IValidatorSet.sol";
 
 
@@ -37,6 +38,8 @@ contract BaseOwnedSet is Ownable, IValidatorSet {
   address[] validators;
   address[] pending;
   mapping(address => AddressStatus) status;
+
+  address public constant UTILITY_CONTRACT = 0x0000000000000000000000000000000000000042;
 
   // MODIFIERS
 
@@ -109,6 +112,8 @@ contract BaseOwnedSet is Ownable, IValidatorSet {
     status[_validator].isIn = true;
     status[_validator].index = pending.length;
     pending.push(_validator);
+    IUtility utility = IUtility(UTILITY_CONTRACT);
+    utility.addHousehold(_validator);
   }
 
   // Remove a validator.
@@ -200,6 +205,7 @@ contract BaseOwnedSet is Ownable, IValidatorSet {
   {
     validators = pending;
     finalized = true;
+    delete pending;
     emit ChangeFinalized(validators);
   }
 }
