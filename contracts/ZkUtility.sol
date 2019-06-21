@@ -15,11 +15,19 @@ contract ZkUtility is Mortal, IZkUtility {
 
   uint256[] public deeds;
 
+  /**
+   * @dev Sets the address of a ZoKrates verifier contract.
+   * @param _verifier address of a deployed ZoKrates verifier contract
+   */
   function setVerifier(address _verifier) external onlyOwner() returns (bool) {
     verifier = IVerifier(_verifier);
     return true;
   }
 
+  /**
+   * @dev Verifies netting by using ZoKrates verifier contract.
+   * Emits NettingSuccess when netting could be verified
+   */
   function verifyNetting(
     uint256[2] calldata _a,
     uint256[2][2] calldata _b,
@@ -33,6 +41,9 @@ contract ZkUtility is Mortal, IZkUtility {
     }
   }
 
+  /**
+   * @return uint256 length of all successfully verified settlements
+   */
   function getDeedsLength() external view returns (uint256) {
     return deeds.length;
   }
