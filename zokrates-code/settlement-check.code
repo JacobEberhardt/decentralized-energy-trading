@@ -9,14 +9,23 @@
 //   This fairness assumption would be weak but fits different settlement algorithms.
 // For reasons of simplicity and mobility, we follow the approach of weak fairness.
 
+
 import "hashes/sha256/512bitPacked.code" as sha256packed
 
-def totalEnergy(field[2] hh) -> (field):
-  field energy = 0
+def energyOf(field[2] hh) -> (field):
+  field energy = 0;
   for field i in 0..1 do
     energy = energy + hh[i]
   endfor
   return energy
+
+def calculateTotalEnergy(field[2] hhWithEnergy, field[2] hhNoEnergy) -> (field):
+  availableEnergy = energyOf(hhWithEnergy)
+  neededEnergy = energyOf(hhNoEnergy)
+
+  field totalEnergy = if (availableEnergy > neededEnergy) then (availableEnergy - neededEnergy) else (neededEnergy - availableEnergy) fi
+
+  return totalEnergy
 
 def deltaNet(field[2] hh, field[2] hhNet) -> (field):
   field delta = 0
@@ -25,31 +34,34 @@ def deltaNet(field[2] hh, field[2] hhNet) -> (field):
   endfor
   return delta
 
-def validateSolution(field[2] hh, field[2] hhNet) -> (field):
+def validateFairness(field[2] hh, field[2] hhNet) -> (field):
   field errorCounter = 0
 
   for field i in 0..1 do
-    // Netting should NEVER make things worse, i.e., giving a demanding household more demand or
-    // allocating a producing household more energy
-    // There is more space for stricter invariants
+    // Netting should NEVER make things worse, i.e., giving a demanding household more demand or allocating a producing household more energy
     errorCounter = errorCounter + if hhNet[i] > hh[i] then 1 else 0 fi
   endfor
 
   return errorCounter
 
-// Returns 1 if settlement (netting) result is correct and follows weak fainess, 0 otherwise.
+// Returns sha256packed hash if settlement (netting) result is correct.
+// Checks for correctness and weak fairness.
 def main(private field[2] hhWithEnergy, private field[2] hhNoEnergy, private field[2] hhWithEnergyNet, private field[2] hhNoEnergyNet) -> (field[2]):
+  // Correctness: Energy balance in the system stays the same
+  totalEnergy = calculateTotalEnergy(hhWithEnergy, hhNoEnergy)
+  totalEnergyNet = calculateTotalEnergy(hhWithEnergyNet, hhNoEnergyNet)
+  totalEnergy == totalEnergyNet
+
+  // (Strong) Correctness: Transferred energy (deltaNetWithEnergy) is equal to received energy (deltaNetNoEnergy) 
   deltaNetWithEnergy = deltaNet(hhWithEnergy, hhWithEnergyNet)
   deltaNetNoEnergy = deltaNet(hhNoEnergy, hhNoEnergyNet)
-  
-  // Correctness: energy balance in the system stays the same
   deltaNetWithEnergy == deltaNetNoEnergy
 
-  // Invariants
-  0 == validateSolution(hhWithEnergy, hhWithEnergyNet)
-  0 == validateSolution(hhNoEnergy, hhNoEnergyNet)
+  // Weak fairness
+  0 == validateFairness(hhWithEnergy, hhWithEnergyNet)
+  0 == validateFairness(hhNoEnergy, hhNoEnergyNet)
   
-  // When we have private inputs, we are apparently required to return something that depend on those inputs
+  // Return sha256packed hash that depends on inputs
   field sum = hhWithEnergy[0] + hhWithEnergy[1] + hhNoEnergy[0] + hhNoEnergy[1] + hhWithEnergyNet[0] + hhWithEnergyNet[1] + hhNoEnergyNet[0] + hhNoEnergyNet[1]
   h = sha256packed([sum, 0, 0, 0])
 
