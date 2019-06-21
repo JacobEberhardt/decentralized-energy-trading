@@ -37,10 +37,10 @@
 
 
 // Calculate new energy state for households
-// @param {private field[2]} householdList
-// @param {private field[2]} householdListAmountOfEnergy
+// @param {field[2]} householdList
+// @param {field[2]} householdListAmountOfEnergy
 // @returns {field[2]} updatedHouseholdList
-def calculateEnergyForHouseholds(private field[2] householdList, private field[2] householdListAmountOfEnergy) -> (field[2]):
+def calculateEnergyForHouseholds(field[2] householdList, field[2] householdListAmountOfEnergy) -> (field[2]):
   field[2] updatedHouseholdList = [0, 0]
   for field i in 0..1 do
     updatedHouseholdList[i] = householdList[i] - householdListAmountOfEnergy[i]
@@ -48,10 +48,10 @@ def calculateEnergyForHouseholds(private field[2] householdList, private field[2
   return updatedHouseholdList
 
 // Calculate the proportional amount of energy for household on energy
-// @param {private field[2]} householdListProportionOnEnergy
-// @param {private field} energy
+// @param {field[2]} householdListProportionOnEnergy
+// @param {field} energy
 // @returns {field[2]} householdListAmountOfEnergy
-def amountOf(private field[2] householdListProportionOnEnergy, private field energy) -> (field[2]):
+def amountOf(field[2] householdListProportionOnEnergy, field energy) -> (field[2]):
   field[2] householdListAmountOfEnergy = [0, 0]
   for field i in 0..1 do
     householdListAmountOfEnergy[i] = (energy * householdListProportionOnEnergy[i]) / 100
@@ -59,10 +59,10 @@ def amountOf(private field[2] householdListProportionOnEnergy, private field ene
   return householdListAmountOfEnergy
 
 // Calculate proportion of household on energy
-// @param {private field[2]} householdList
-// @param {private field} energy
+// @param {field[2]} householdList
+// @param {field} energy
 // @returns {field[2]} householdListProportionOnEnergy
-def proportionalDistribution(private field[2] householdList, private field energy) -> (field[2]):
+def proportionalDistribution(field[2] householdList, field energy) -> (field[2]):
   field[2] householdListProportionOnEnergy = [0, 0]
   for field i in 0..1 do
     householdListProportionOnEnergy[i] = (100 * householdList[i]) / energy
@@ -70,10 +70,10 @@ def proportionalDistribution(private field[2] householdList, private field energ
   return householdListProportionOnEnergy
 
 // Simply return householdListWithEnergy[0] + householdListWithEnergy[1] and householdListNoEnergy[0] + householdListNoEnergy[1]
-// @param {private field[2]} householdListWithEnergy
-// @param {private field[2]} householdListNoEnergy
+// @param {field[2]} householdListWithEnergy
+// @param {field[2]} householdListNoEnergy
 // @returns {field, field} availableEnergy, neededEnergy
-def totalEnergyProportion(private field[2] householdListWithEnergy, private field[2] householdListNoEnergy) -> (field, field):
+def totalEnergyProportion(field[2] householdListWithEnergy, field[2] householdListNoEnergy) -> (field, field):
   field availableEnergy = 0
   field neededEnergy = 0
   for field i in 0..1 do
