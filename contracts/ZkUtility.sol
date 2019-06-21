@@ -9,13 +9,13 @@ import "./Mortal.sol";
  * @dev Inherits from UtilityBase.
  * NOTE: this contract stays as 'Utility.sol' for compatibility reasons ;)
  */
-contract ZkUtility is IZkUtility {
+contract ZkUtility is Mortal, IZkUtility {
 
   IVerifier private verifier;
 
   uint256[] public deeds;
 
-  function setVerifier(address _verifier) external returns (bool) {
+  function setVerifier(address _verifier) external onlyOwner() returns (bool) {
     verifier = IVerifier(_verifier);
     return true;
   }
