@@ -12,6 +12,9 @@
 
 import "hashes/sha256/512bitPacked.code" as sha256packed
 
+// Simply return hh[0] + hh[1] for any array of households.
+// @param {field[2]} hh
+// @returns {field} energy of provided households
 def energyOf(field[2] hh) -> (field):
   field energy = 0;
   for field i in 0..1 do
@@ -19,6 +22,10 @@ def energyOf(field[2] hh) -> (field):
   endfor
   return energy
 
+// Returns total energy balance of the system. Remember, this balance can be available or needed energy.
+// @param {field[2]} hhWithEnergy
+// @param {field[2]} hhNoEnergy
+// @returns {field} totalEnergy
 def calculateTotalEnergy(field[2] hhWithEnergy, field[2] hhNoEnergy) -> (field):
   availableEnergy = energyOf(hhWithEnergy)
   neededEnergy = energyOf(hhNoEnergy)
@@ -27,6 +34,10 @@ def calculateTotalEnergy(field[2] hhWithEnergy, field[2] hhNoEnergy) -> (field):
 
   return totalEnergy
 
+// Returns sum of deltas between hh and hhNet
+// @param {field[2]} hh
+// @param {field[2]} hhNet
+// @returns {field} delta
 def deltaNet(field[2] hh, field[2] hhNet) -> (field):
   field delta = 0
   for field i in 0..1 do
@@ -34,6 +45,10 @@ def deltaNet(field[2] hh, field[2] hhNet) -> (field):
   endfor
   return delta
 
+// Returns errorCounter. Implements weak fairness invariant
+// @param {field[2]} hh
+// @param {field[2]} hhNet
+// @returns {field} errorCounter
 def validateFairness(field[2] hh, field[2] hhNet) -> (field):
   field errorCounter = 0
 
@@ -46,6 +61,17 @@ def validateFairness(field[2] hh, field[2] hhNet) -> (field):
 
 // Returns sha256packed hash if settlement (netting) result is correct.
 // Checks for correctness and weak fairness.
+// Assume n = 4 households, where |householdListWithEnergy| = 2 and |householdListNoEnergy| = 2
+// Before settlement, households with produce-consume = 0 are not part of the settlement
+// @param {private field[2]} hhWithEnergy before settlement
+// Index represents household and hhWithEnergy[index] := produce-consume > 0 
+// @param {private field[2]} hhNoEnergy before settlement
+// Index represents household and hhNoEnergy[index] := produce-consume < 0 
+// @param {private field[2]} hhWithEnergyNet after settlement
+// Index represents household and hhWithEnergyNet[index] := produce-consume > 0 
+// @param {private field[2]} hhNoEnergyNet after settlement
+// Index represents household and hhNoEnergyNet[index] := produce-consume < 0 
+// @returns {field[2]} sha256packed hash of inputs if settlement is correct and fair.
 def main(private field[2] hhWithEnergy, private field[2] hhNoEnergy, private field[2] hhWithEnergyNet, private field[2] hhNoEnergyNet) -> (field[2]):
   // Correctness: Energy balance in the system stays the same
   totalEnergy = calculateTotalEnergy(hhWithEnergy, hhNoEnergy)
