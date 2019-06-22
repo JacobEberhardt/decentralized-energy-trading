@@ -2,6 +2,63 @@
 
 All meeting protocols are listed below ordered by date (descending).
 
+### 06/18/19, 12-2pm: Team meeting
+
+You can find the agenda [here](https://docs.google.com/document/d/15s6lRSq7oatCTWKJ3v5tNRI-DcVb6m5ThTweFFfA-_g/edit#).
+
+**Done:**
+
+- Emo round
+  - start working on the final presentation as soon as possible
+  - split work on dUC
+- Updates and discussion on architecture
+  - ZoKrates Netting approaches
+    - (1) naive approach: NED result of netting = ZK result of netting?
+    - (2) threshold approach: 10% min
+    - (3) weak fairness: + stay or send / - stay or receive
+  - NED Server
+    - Verification via check with VS
+    - utility.js includes deeds that can be collected by the HPUs
+  - UI connected to NED instead of HPU 
+  - HPU needs adjustments 
+- Structure ToDos and priorities
+
+**ToDo:**
+
+- HPU
+  - Communication to NED
+  - Adapt deeds collection (from NED)
+- NED
+  - execute Netting alorithm and generate proof
+  - Sript for ZoKrates Deployment flow
+  - Listen to events of dUtility contract
+  - Verify signed data from HPU
+- dUtility
+  - Verify execution of settlement
+  - Fire events
+  - Send hash to NED
+- ZoKrates
+  - Implement weak fairness
+  - Check for correct and fair settlement
+- Adjust parity related files
+    
+**Remark:**
+
+- High priority
+  - NED Server
+  - ZoKrates
+- Lower priority for following week 
+  - Verification contract
+  - ZoKrates deployment flow
+- Thoughts on SMPC
+  - Up to now: no approach easy feasible
+  - What it would change
+    - No need for utility.js in NED
+    - ZK in NEd would be split up towards the HPU
+- Next meetings
+  - 06/26/19 2-4pm (Wednesday) with Jacob
+  - 06/26/19 12-2pm Team meeting
+
 ### 06/11/19, 12-4pm: Team meeting and presentation of approaches on privacy
 
 with Jacob from 2-4pm
