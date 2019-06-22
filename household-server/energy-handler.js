@@ -1,4 +1,4 @@
-const authority = require("./apis/authority");
+const web3Helper = require("../helpers/web3");
 const ned = require("./apis/ned");
 
 module.exports = {
@@ -20,7 +20,7 @@ module.exports = {
    * @param {number} energyDelta Delta of produced and consumed.
    */
   putEnergy: async (config, web3, energyDelta) => {
-    const signedData = authority.signData(
+    const signedData = await web3Helper.signData(
       web3,
       config.address,
       config.password,
