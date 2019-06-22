@@ -1,5 +1,8 @@
 const { MongoClient, ObjectId } = require("mongodb");
 
+/**
+ * This module interfaces with the DB.
+ */
 module.exports = {
   /**
    * Method to create the DB and Initialize it with a Collection
@@ -148,6 +151,35 @@ module.exports = {
             }
             db.close();
             resolve(results[0] ? results[0].blockNumber : 0);
+          });
+      });
+    });
+  },
+
+  /**
+   * Returns latest saved timestamp.
+   * @param {string} dbUrl URL/URI of the DB
+   * @param {string} dbName Name of db
+   * @param {string} collection Name of collection to read from
+   * @returns {Promise<number>} Latest saved block number.
+   */
+  getLatestTimestamp: (dbUrl, dbName, collection) => {
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
+        if (err) {
+          reject(err);
+        }
+        const dbo = db.db(dbName);
+        dbo
+          .collection(collection)
+          .find({}, { timestamp: 1 })
+          .sort("timestamp", -1)
+          .toArray((err, results) => {
+            if (err) {
+              reject(err);
+            }
+            db.close();
+            resolve(results[0] ? results[0].timestamp : 0);
           });
       });
     });
