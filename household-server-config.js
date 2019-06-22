@@ -14,9 +14,9 @@ module.exports = {
   // Name of the Collection where the deeds from the utility contract is saved
   utilityDataCollection: "utility_data",
   // Path to the parity key file json of the authority node that is connected to the household server
-  authKeyPath: "parity-authority/docker/parity/authorities/authority0.json",
+  address: "0x00bd138abd70e2f00903268f3db08f2d25677c9e",
   // Path to the password file to unlock above authority node
-  authPasswordPath: "parity-authority/docker/parity/authorities/authority0.pwd",
+  password: "node0",
   // Name of JSON RPC interface specified in `truffle-config.js`
   network: "authority",
   // Time Interval of the Mock-Sensor sending Data to the Household Server in ms

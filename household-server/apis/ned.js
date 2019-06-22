@@ -28,10 +28,14 @@ module.exports = {
    * Send PUT signed energy data to NED server.
    * @param {string} nedUrl Base URL of NED server.
    * @param {string} householdAddress Address of sending household.
-   * @param {Object} json Data to send.
+   * @param {string} signature Signature.
+   * @param {number} energy Energy delta.
    */
-  putEnergy: (nedUrl, householdAddress, json) => {
-    return this.put(`${nedUrl}/energy/${householdAddress}`, json);
+  putEnergy: (nedUrl, householdAddress, signature, energy) => {
+    return this.put(`${nedUrl}/energy/${householdAddress}`, {
+      signature,
+      energy
+    });
   },
   /**
    * Fetches current stats of a household.

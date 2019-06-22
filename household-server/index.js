@@ -16,7 +16,7 @@ commander
   .option("-h, --host <type>", "ip of household server")
   .option("-p, --port <type>", "port of household server")
   .option("-d, --dbUrl <type>", "url of mongodb")
-  .option("--nedUrl <type>", "url of NED server")
+  .option("-N, --nedUrl <type>", "url of NED server")
   .option("-a, --address <type>", "address of the parity account")
   .option("-P, --password <type>", "password of the parity account")
   .option(
