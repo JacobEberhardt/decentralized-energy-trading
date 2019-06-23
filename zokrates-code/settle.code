@@ -1,0 +1,113 @@
+// Listing limitations:
+// - type field is positive integer
+// - type field[n] only static arrays of field can be instantiated with a constant size
+// - for-loops, the bounds have to be known at compile time, so only constants are allowed
+// - output of main has to depend on inputs somehow
+
+// First thoughts:
+// For simplicity, since n needs to be static we assume n = 4 for now. Can be handled by application layer somehow.
+// NED entity needs to preprocess household smart meter data: array of household's deltas (produce-consume).
+// Index represents household and householdList[index] := delta.
+// NED entity needs to seperate household with produce-consume > 0 from produce-consume < 0 and give as input to main.
+// If produce-consume >= 0 for all households then no settlement (netting) is needed. Therefore all households with produce-consume >= 0 do not take part in a settlement.
+
+// Questions:
+// 1. As far as I remember the return values of a function are public by default. In other words, are the results of a function (e.g. `main`or some function `foo`) public by default?
+// 2. What about function calls within a function? Then, are results of function calls also public or are they shielded per default? E.g. `main` calls function `foo`, `foo` results `field a`; Is a public?
+// 3. If results of function calls are not shielded, wouldn't it be better to write everything in the `main` function?
+// 4. Can private inputs be public inputs for other function calls?
+// 5. Does any declared variable need to be initialized?
+// 6. if-expressions are just of the form `field y = if x + 2 == 3 then 1 else 5 fi`? In other words, if-expressions cannot branch more lines of code?
+
+// Answers:
+// 1. Everything you provide as public inputs to main and all return values are public
+// 2. Only the main method takes visibility modifiers.
+// 3. Refer to 2.
+// 4. Refer to 2.
+// 5. You need to initialize variables.
+// 6. The if-else expressions, do no span multiple lines
+// This is usually worked around at application layer or by defining an upper bound and using conditional ifs.
+
+// Design pattern:
+// As far as I see, there are two design patterns to implement in ZoKrates that would match the requirements of our project regarding privacy:
+// On the one hand, we implement the complete "netting algorithm" in ZoKrates HLC and return the "new state of the households after successful netting" (probably hashed).
+// On the other hand, we implement a kind of "validator" (e.g. `sodoku.code` or `waldo.code`) that checks whether a given netting result is correct regarding (to be defined) contraints and invariants. 
+// (E.g. let the NED component perform the netting algorithm and give the ZoKrates HLC the current state of the households and the result of the netting; check whether this result is correct, fair, ...).
+// For the second approach (refer to `settlement-check.code`) we might need a implementation of the settlement algorithm if we follow the approach of the proportional fairness.
+
+
+// Calculate new energy state for households
+// @param {field[2]} householdList
+// @param {field[2]} householdListAmountOfEnergy
+// @returns {field[2]} updatedHouseholdList
+def calculateEnergyForHouseholds(field[2] householdList, field[2] householdListAmountOfEnergy) -> (field[2]):
+  field[2] updatedHouseholdList = [0, 0]
+  for field i in 0..1 do
+    updatedHouseholdList[i] = householdList[i] - householdListAmountOfEnergy[i]
+  endfor
+  return updatedHouseholdList
+
+// Calculate the proportional amount of energy for household on energy
+// @param {field[2]} householdListProportionOnEnergy
+// @param {field} energy
+// @returns {field[2]} householdListAmountOfEnergy
+def amountOf(field[2] householdListProportionOnEnergy, field energy) -> (field[2]):
+  field[2] householdListAmountOfEnergy = [0, 0]
+  for field i in 0..1 do
+    householdListAmountOfEnergy[i] = (energy * householdListProportionOnEnergy[i]) / 100
+  endfor
+  return householdListAmountOfEnergy
+
+// Calculate proportion of household on energy
+// @param {field[2]} householdList
+// @param {field} energy
+// @returns {field[2]} householdListProportionOnEnergy
+def proportionalDistribution(field[2] householdList, field energy) -> (field[2]):
+  field[2] householdListProportionOnEnergy = [0, 0]
+  for field i in 0..1 do
+    householdListProportionOnEnergy[i] = (100 * householdList[i]) / energy
+  endfor
+  return householdListProportionOnEnergy
+
+// Simply return householdListWithEnergy[0] + householdListWithEnergy[1] and householdListNoEnergy[0] + householdListNoEnergy[1]
+// @param {field[2]} householdListWithEnergy
+// @param {field[2]} householdListNoEnergy
+// @returns {field, field} availableEnergy, neededEnergy
+def totalEnergyProportion(field[2] householdListWithEnergy, field[2] householdListNoEnergy) -> (field, field):
+  field availableEnergy = 0
+  field neededEnergy = 0
+  for field i in 0..1 do
+    availableEnergy = availableEnergy + householdListWithEnergy[i]
+    neededEnergy = neededEnergy + householdListNoEnergy[i]
+  endfor
+  return availableEnergy, neededEnergy
+
+// Settlement function for netting
+// Assume n = 4 households, where |householdListWithEnergy| = 2 and |householdListNoEnergy| = 2
+// Households with produce-consume = 0 are not part of the settlement
+// @param {private field[2]} householdListWithEnergy
+// Index represents household and householdListWithEnergy[index] := produce-consume > 0 
+// @param {private field[2]} householdListNoEnergy
+// Index represents household and householdListNoEnergy[index] := produce-consume < 0 
+// @returns {field[2], field[2]} 
+// return value needs to be hashed with sha256 if we do not want to expose the netting results
+def main(private field[2] householdListWithEnergy, private field[2] householdListNoEnergy) -> (field[2], field[2]):
+  availableEnergy, neededEnergy = totalEnergyProportion(householdListWithEnergy, householdListNoEnergy)
+  
+  propDistA = proportionalDistribution(householdListWithEnergy, availableEnergy)
+  propDistB = proportionalDistribution(householdListNoEnergy, neededEnergy)
+  field[2] householdListProportionOnEnergy = if (availableEnergy > neededEnergy) then propDistA else propDistB fi
+
+  amountA = amountOf(householdListProportionOnEnergy, neededEnergy)
+  amountB = amountOf(householdListProportionOnEnergy, availableEnergy)
+  field[2] householdListAmountOfEnergy = if (availableEnergy > neededEnergy) then amountA else amountB fi
+  
+  calcEnergyA = calculateEnergyForHouseholds(householdListWithEnergy, householdListAmountOfEnergy)
+  calcEnergyB = calculateEnergyForHouseholds(householdListNoEnergy, householdListAmountOfEnergy)
+  field[2] updatedHouseholdList = if (availableEnergy > neededEnergy) then calcEnergyA else calcEnergyB fi
+
+  field[2] updatedhouseholdListWithEnergy = if (availableEnergy > neededEnergy) then updatedHouseholdList else [0,0] fi
+
+  field[2] updatedhouseholdListNoEnergy = if (availableEnergy > neededEnergy) then [0,0] else updatedHouseholdList fi
+
+  return updatedhouseholdListWithEnergy, updatedhouseholdListNoEnergy

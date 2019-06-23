@@ -82,3 +82,12 @@ package-lock.json
 
 # Benchmark
 utility_benchmark.csv
+
+# ZoKrates
+zokrates-code/out
+zokrates-code/out.code
+zokrates-code/proving.key
+zokrates-code/verification.key
+zokrates-code/witness
+zokrates-code/proof.json
+zokrates-code/verifier.sol
