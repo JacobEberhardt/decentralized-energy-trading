@@ -5,17 +5,6 @@ const request = require("request-promise");
  */
 module.exports = {
   /**
-   * Send PUT request to given URL with specified json as body.
-   * @param {string} url URL to send PUT request to.
-   * @param {Object} json Data to send.
-   */
-  put: (url, json) => {
-    return request(url, {
-      method: "PUT",
-      json
-    });
-  },
-  /**
    * Fetches deeds from off-chain utility of NED server.
    * @param {string} nedUrl Base URL of NED server.
    * @param {string} householdAddress Address of requesting household.
@@ -32,9 +21,12 @@ module.exports = {
    * @param {number} energy Energy delta.
    */
   putEnergy: (nedUrl, householdAddress, signature, energy) => {
-    return this.put(`${nedUrl}/energy/${householdAddress}`, {
-      signature,
-      energy
+    return request(`${nedUrl}/energy/${householdAddress}`, {
+      method: "PUT",
+      json: {
+        signature,
+        energy
+      }
     });
   },
   /**
