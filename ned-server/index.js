@@ -41,11 +41,11 @@ async function init() {
   utility = new Utility();
   ownedSetContract = new web3.eth.Contract(
     contractHelper.getAbi("ownedSet"),
-    contractHelper.getDeployedAddress(await web3.eth.net.getId())
+    contractHelper.getDeployedAddress("ownedSet", await web3.eth.net.getId())
   );
   // utilityContract = new web3.eth.Contract(
   //   contractHelper.getAbi("utility"),
-  //   contractHelper.getDeployedAddress(await web3.eth.net.getId())
+  //   contractHelper.getDeployedAddress("utility", await web3.eth.net.getId())
   // );
 
   setInterval(() => {
@@ -94,10 +94,7 @@ app.put("/energy/:householdAddress", async (req, res) => {
     }
 
     utility.addHousehold(householdAddress);
-
-    if (!utility.updateRenewableEnergy(householdAddress, energy)) {
-      throw new Error("Error while updating energy");
-    }
+    utility.updateRenewableEnergy(householdAddress, energy);
 
     res.status(200);
     res.send();
