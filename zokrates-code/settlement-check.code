@@ -16,7 +16,7 @@ import "hashes/sha256/512bitPacked.code" as sha256packed
 // @param {field[2]} hh
 // @returns {field} energy of provided households
 def energyOf(field[2] hh) -> (field):
-  field energy = 0;
+  field energy = 0
   for field i in 0..1 do
     energy = energy + hh[i]
   endfor
