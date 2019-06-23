@@ -134,8 +134,7 @@ class Utility {
    * @returns {boolean} `true`
    */
   _proportionalDistribution(availableEnergy, neededEnergy, hhFrom, hhTo) {
-    const isMoreAvailableThanDemanded =
-      availableEnergy + neededEnergy > 0 ? true : false;
+    const isMoreAvailableThanDemanded = availableEnergy + neededEnergy > 0;
 
     const energyReference = isMoreAvailableThanDemanded
       ? availableEnergy
@@ -172,7 +171,7 @@ class Utility {
         if (energy >= proportionalShare) {
           this._transfer(from, to, toClaim, RENEWABLE_ENERGY);
           this._addDeed(from, to, toClaim, RENEWABLE_ENERGY);
-          if (this.households[from][RENEWABLE_ENERGY] == 0) {
+          if (this.households[from][RENEWABLE_ENERGY] === 0) {
             needle++;
           }
           break;

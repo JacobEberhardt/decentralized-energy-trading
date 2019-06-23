@@ -34,17 +34,18 @@ fs.writeFile(
         ...chainSpec.accounts,
         [UTILITY_ADDRESS]: {
           balance: "1",
-          constructor: utilityArtefact.bytecode,
+          constructor: utilityArtefact.bytecode
         },
         [BLOCK_REWARD_ADDRESS]: {
           balance: "1",
-          constructor: blockRewardArtefact.bytecode,
+          constructor: blockRewardArtefact.bytecode
         },
         [VALIDATOR_SET_ADDRESS]: {
           balance: "1",
-          constructor: validatorSetArtefact.bytecode + ENCODED_INITIAL_VALIDATOR_ADDRESSES,
-        },
-      },
+          constructor:
+            validatorSetArtefact.bytecode + ENCODED_INITIAL_VALIDATOR_ADDRESSES
+        }
+      }
     },
     null,
     2
