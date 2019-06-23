@@ -1,10 +1,13 @@
 const express = require("express");
 const cors = require("cors");
 const commander = require("commander");
+const web3Utils = require("web3-utils");
 
-// const txHandler = require("./transaction-handler");
-const zkHandler = require("./zk-handler");
-// const web3Helper = require("../helpers/web3");
+const Utility = require("../utility-js/Utility");
+const hhHandler = require("./household-handler");
+// const zkHandler = require("./zk-handler");
+const web3Helper = require("../helpers/web3");
+const contractHelper = require("../helpers/contract");
 
 const serverConfig = require("../ned-server-config");
 
@@ -12,59 +15,90 @@ const serverConfig = require("../ned-server-config");
 commander
   .option("-h, --host <type>", "ip of ned server")
   .option("-p, --port <type>", "port of ned server")
-  .option("-n, --netting <type>", "interval of the netting")
+  .option("-i, --interval <type>", "interval of the netting")
   .option(
     "-n, --network <type>",
     "network name specified in truffle-config.js"
   );
 commander.parse(process.argv);
 
-const nettingInterval =
-  commander.nettingInterval || serverConfig.nettingInterval;
-const host = commander.host || serverConfig.host;
-const port = commander.port || serverConfig.port;
-// const network = commander.network || serverConfig.network;
+const config = {
+  nettingInterval: commander.nettingInterval || serverConfig.nettingInterval,
+  host: commander.host || serverConfig.host,
+  port: commander.port || serverConfig.port,
+  network: commander.network || serverConfig.network
+};
 
-// Set up web3
-//  const web3 = web3Helper.initWeb3(network);
+let web3;
+let utility;
+let ownedSetContract;
+// let utilityContract;
 
-/**
- * Creating the express server waiting for incoming requests
- * When a request comes in, a corresponding event is emitted
- * At last a response is sent to the requester
- */
+async function init() {
+  web3 = web3Helper.initWeb3(config.network);
+
+  // Off-chain utility instance
+  utility = new Utility();
+  ownedSetContract = new web3.eth.Contract(
+    contractHelper.getAbi("ownedSet"),
+    contractHelper.getDeployedAddress(await web3.eth.net.getId())
+  );
+  // utilityContract = new web3.eth.Contract(
+  //   contractHelper.getAbi("utility"),
+  //   contractHelper.getDeployedAddress(await web3.eth.net.getId())
+  // );
+
+  setInterval(() => {
+    // TODO call ZoKrates bash file
+    console.log("Calling ZoKrates to perform some magic");
+    // manageNetting();
+  }, config.nettingInterval);
+}
+
+init();
+
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
-// Declaring the saved household transactions
-const householdTransactions = {};
-
 /**
- * PUT /household-transactions
+ * PUT /energy/:householdAddress
  */
-app.put("/household-transactions", async (req, res) => {
-  const { meterReading, householdAddress } = req.body;
+app.put("/energy/:householdAddress", async (req, res) => {
   try {
-    console.log(meterReading, householdAddress);
-    if (typeof meterReading !== "number") {
+    const householdAddress = web3Utils.toChecksumAddress(
+      req.params.householdAddress
+    );
+    const { signature, energy } = req.body;
+
+    if (typeof energy !== "number") {
       throw new Error("Invalid payload");
     }
-    if (householdAddress == null) {
-      // TODO check if address is valid with the Validator Set
-      throw new Error("Invalid address");
-    }
-    // Check if the household has already sent a transaction in the current netting span
-    if (householdTransactions.hasOwnProperty(householdAddress)) {
-      console.log("Already sent");
-      throw new Error("Transaction is already sent");
+
+    if (
+      !(await hhHandler.isValidatorAddress(ownedSetContract, householdAddress))
+    ) {
+      throw new Error("Given address is not a validator");
     }
 
-    // Adding the meter Reading of the Household to the household transactions
-    householdTransactions[householdAddress] = meterReading;
+    if (
+      !(await web3Helper.verifySignature(
+        web3,
+        energy,
+        signature,
+        householdAddress
+      ))
+    ) {
+      throw new Error("Invalid signature");
+    }
 
-    console.log(householdTransactions);
+    utility.addHousehold(householdAddress);
+
+    if (!utility.updateRenewableEnergy(householdAddress, energy)) {
+      throw new Error("Error while updating energy");
+    }
+
     res.status(200);
     res.send();
   } catch (err) {
@@ -100,22 +134,6 @@ app.delete("/", function(req, res, next) {
 /**
  * Let the server listen to incoming requests on the given IP:Port
  */
-app.listen(port, () => {
-  console.log(`NED Server running at http://${host}:${port}/`);
+app.listen(config.port, () => {
+  console.log(`NED Server running at http://${config.host}:${config.port}/`);
 });
-
-setInterval(() => {
-  // TODO call ZoKrates bash file
-  console.log("Calling ZoKrates to perform some magic");
-  manageNetting();
-}, nettingInterval);
-
-/**
- * Async function to manage the netting process:
- * Step 1: Trigger the zokrates execution via the zk-handler
- * Step 2: Send Proof to the Utility contracs via the tx Handler
- * */
-const manageNetting = async () => {
-  console.log("Manage Netting");
-  zkHandler.triggerNetting();
-};

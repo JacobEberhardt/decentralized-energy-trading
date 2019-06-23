@@ -13,7 +13,7 @@ const CONTRACTS_MAP = {
     addressInAuthority: UTILITY_ADDRESS_IN_AUTHORITY,
     artifact: UtilityArtifact
   },
-  baseOwnedSet: {
+  ownedSet: {
     addressInAuthority: OWNED_SET_ADDRESS,
     artifact: OwnedSet
   }
@@ -26,7 +26,7 @@ const CONTRACTS_MAP = {
 module.exports = {
   /**
    * Helper function to retrieve the deployed contract address of Utility.
-   * @param {string} contractName Name of contract.
+   * @param {string} contractName Name of contract. "utility" | "ownedSet"
    * @param {string} networkId Id of network where contract is deployed.
    * @returns {string} Contract address of deployed Utility contract.
    */
