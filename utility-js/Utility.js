@@ -1,3 +1,5 @@
+const { ZERO_ADDRESS } = require("../helpers/constants");
+
 const RENEWABLE_ENERGY = "renewableEnergy";
 const NONRENEWABLE_ENERGY = "nonRenewableEnergy";
 
@@ -9,7 +11,13 @@ class Utility {
     // total produced and consumed renewable energy
     this[RENEWABLE_ENERGY] = 0;
     this[NONRENEWABLE_ENERGY] = 0;
-    this.households = {};
+    this.households = {
+      // placeholder address
+      [ZERO_ADDRESS]: {
+        renewableEnergy: 0,
+        nonRenewableEnergy: 0
+      }
+    };
     this.checkpoint = 0;
     this.deeds = {};
   }
@@ -121,6 +129,16 @@ class Utility {
 
     this.checkpoint++;
     return true;
+  }
+
+  getHouseholdAddressesWithEnergy() {
+    const entries = Object.entries(this.households);
+    return entries.filter(hh => hh[1].renewableEnergy > 0).map(hh => hh[0]);
+  }
+
+  getHouseholdAddressesNoEnergy() {
+    const entries = Object.entries(this.households);
+    return entries.filter(hh => hh[1].renewableEnergy > 0).map(hh => hh[0]);
   }
 
   /**
