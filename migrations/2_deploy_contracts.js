@@ -3,6 +3,7 @@ const chalk = require("chalk");
 const Utility = artifacts.require("Utility");
 const OwnedSet = artifacts.require("OwnedSet");
 const UtilityBenchmark = artifacts.require("UtilityBenchmark");
+const Verifier = artifacts.require("Verifier");
 
 const web3Helper = require("../helpers/web3");
 const asyncUtils = require("../helpers/async-utils");
@@ -28,6 +29,13 @@ module.exports = async (deployer, network, [authority]) => {
       );
       const ownedSetInstanceInAuthority = await OwnedSet.at(OWNED_SET_ADDRESS);
       const web3 = web3Helper.initWeb3("authority");
+
+      await web3.eth.personal.unlockAccount(address, password, null);
+      await deployer.deploy(Verifier, {
+        from: AUTHORITY_ADDRESS
+      });
+      // const verifierInstance = await Verifier.deployed();
+      // TODO Add address of verifier contract to dUtility contract.
 
       process.stdout.write("  Adding admin node to Utility contract ... ");
       await web3.eth.personal.unlockAccount(address, password, null);
