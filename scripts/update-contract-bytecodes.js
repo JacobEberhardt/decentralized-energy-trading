@@ -5,10 +5,15 @@ const chainSpec = require("../parity-authority/docker/parity/config/chain.json")
 const utilityArtefact = require("../build/contracts/Utility.json");
 const blockRewardArtefact = require("../build/contracts/BlockReward.json");
 const validatorSetArtefact = require("../build/contracts/OwnedSet.json");
+const verifierArtefact = require("../build/contracts/Verifier.json");
 
-const UTILITY_ADDRESS = "0x0000000000000000000000000000000000000042";
-const BLOCK_REWARD_ADDRESS = "0x0000000000000000000000000000000000000043";
-const VALIDATOR_SET_ADDRESS = "0x0000000000000000000000000000000000000044";
+const {
+  UTILITY_ADDRESS,
+  BLOCK_REWARD_ADDRESS,
+  OWNED_SET_ADDRESS,
+  VERIFIER_ADDRESS
+} = require("../helpers/constants");
+
 // TODO: Dynamically generate with web3
 const ENCODED_INITIAL_VALIDATOR_ADDRESSES =
   "0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000bd138abd70e2f00903268f3db08f2d25677c9e";
@@ -23,6 +28,10 @@ if (!blockRewardArtefact) {
 
 if (!validatorSetArtefact) {
   throw new Error("No contract artefact for ValidatorSet found.");
+}
+
+if (!verifierArtefact) {
+  throw new Error("No contract artefact for Verifier found.");
 }
 
 fs.writeFile(
@@ -40,10 +49,14 @@ fs.writeFile(
           balance: "1",
           constructor: blockRewardArtefact.bytecode
         },
-        [VALIDATOR_SET_ADDRESS]: {
+        [OWNED_SET_ADDRESS]: {
           balance: "1",
           constructor:
             validatorSetArtefact.bytecode + ENCODED_INITIAL_VALIDATOR_ADDRESSES
+        },
+        [VERIFIER_ADDRESS]: {
+          balance: "1",
+          constructor: verifierArtefact.bytecode
         }
       }
     },
