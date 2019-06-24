@@ -1,6 +1,5 @@
 const root = process.env.PROJECT_ROOT;
 const web3Helper = require(`${root}/helpers/web3`);
-const authorityHelper = require(`${root}/helpers/authority`);
 const contractData = require(`${root}/build/contracts/UtilityBenchmark.json`);
 const web3 = web3Helper.initWeb3("authority");
 const { address, password } = require(`${root}/household-server-config`);
