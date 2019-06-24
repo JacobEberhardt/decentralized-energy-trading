@@ -1,6 +1,6 @@
 module.exports = {
   // URL of a running MongoDB instance
-  dbUrl: "mongodb://localhost:27017",
+  dbUrl: "mongodb://127.0.0.1:27017",
   // URL of NED server
   nedUrl: "http://127.0.0.1:3005",
   // IP on which the household server should run
