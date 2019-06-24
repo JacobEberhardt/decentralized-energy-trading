@@ -6,8 +6,7 @@ const UtilityBenchmark = artifacts.require("UtilityBenchmark");
 
 const web3Helper = require("../helpers/web3");
 const asyncUtils = require("../helpers/async-utils");
-const authorityHelper = require("../helpers/authority");
-
+const { address, password } = require("../household-server-config");
 const {
   UTILITY_ADDRESS_IN_AUTHORITY,
   AUTHORITY_ADDRESS,
@@ -29,7 +28,6 @@ module.exports = async (deployer, network, [authority]) => {
       );
       const ownedSetInstanceInAuthority = await OwnedSet.at(OWNED_SET_ADDRESS);
       const web3 = web3Helper.initWeb3("authority");
-      const { address, password } = authorityHelper.getAddressAndPassword();
 
       process.stdout.write("  Adding admin node to Utility contract ... ");
       await web3.eth.personal.unlockAccount(address, password, null);
@@ -65,7 +63,6 @@ module.exports = async (deployer, network, [authority]) => {
     case "authority_docker": {
       const otherAuthorityAddress = process.env.AUTHORITY_ADDRESS;
       const web3 = web3Helper.initWeb3("authority_docker");
-      const { address, password } = authorityHelper.getAddressAndPassword();
       const ownedSetInstanceInAuthority = await OwnedSet.at(OWNED_SET_ADDRESS);
       await web3.eth.personal.unlockAccount(address, password, null);
       await ownedSetInstanceInAuthority.addValidator(otherAuthorityAddress, {

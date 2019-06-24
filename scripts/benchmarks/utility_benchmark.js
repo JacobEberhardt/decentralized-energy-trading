@@ -3,7 +3,7 @@ const web3Helper = require(`${root}/helpers/web3`);
 const authorityHelper = require(`${root}/helpers/authority`);
 const contractData = require(`${root}/build/contracts/UtilityBenchmark.json`);
 const web3 = web3Helper.initWeb3("authority");
-const { address, password } = authorityHelper.getAddressAndPassword();
+const { address, password } = require(`${root}/household-server-config`);
 
 var data = [];
 const createCsvWriter = require("csv-writer").createObjectCsvWriter;
