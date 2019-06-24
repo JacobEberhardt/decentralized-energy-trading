@@ -156,6 +156,7 @@ app.put("/sensor-stats", async (req, res) => {
       throw new Error("Invalid payload");
     }
 
+    // TODO Error handling
     await Promise.all([
       energyHandler.putEnergy(config, web3, produce - consume),
       db.writeToDB(config.dbUrl, config.dbName, config.sensorDataCollection, {

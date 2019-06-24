@@ -3,10 +3,10 @@ module.exports = {
   host: "127.0.0.1",
   // Port on which the ned server should listen
   port: 3005,
-  // Path to the parity key file json of the authority node that is connected to the household server
-  authKeyPath: "parity-authority/docker/parity/authorities/authority0.json",
-  // Path to the password file to unlock above authority node
-  authPasswordPath: "parity-authority/docker/parity/authorities/authority0.pwd",
+  // Ethereum address of NED node
+  address: "0x00bd138abd70e2f00903268f3db08f2d25677c9e",
+  // Password to unlock NED node
+  password: "node0",
   // Name of JSON RPC interface specified in `truffle-config.js`
   network: "authority",
   // Time Interval of the ned server triggering the netting in the ZoKrates execution environment
