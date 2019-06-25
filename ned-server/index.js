@@ -116,9 +116,17 @@ app.get("/network", function(req, res, next) {
  * GET endpoint returning the current energy balance of the requested Household form Utility.js
  */
 app.get("/household/:address", function(req, res, next) {
-  // TODO
-  res.status(400);
-  res.end(req.method + " is not supported.\n");
+  try {
+    const householdAddress = web3Utils.toChecksumAddress(
+      req.params.householdAddress
+    );
+    let energyBalance = utility.getHousehold(householdAddress);
+    res.status(200);
+    res.end(energyBalance);
+  } catch (err) {
+    res.status(400);
+    res.send(err);
+  }
 });
 
 /**
