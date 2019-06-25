@@ -31,6 +31,13 @@ class Utility {
     return true;
   }
 
+  getDeeds(hhAddress, fromDate) {
+    if (!this._householdExists(hhAddress)) return false;
+    return this.deeds
+      .filter(deed => deed.date >= fromDate)
+      .filter(deed => deed.hhFrom === hhAddress || deed.hhTo === hhAddress);
+  }
+
   /**
    * Updates a household's renewable energy state.
    *

@@ -123,11 +123,24 @@ app.get("/household/:address", function(req, res, next) {
 
 /**
  * GET endpoint returning the deeds of a specific Household and a given day from Utility.js
+ * Access this like: http://127.0.0.1:3005/deeds/123456789?fromDate=1122465557 (= Date.now())
  */
-app.get("/deeds/:householdAddress?fromDate", function(req, res, next) {
-  // TODO
-  res.status(400);
-  res.end(req.method + " is not supported.\n");
+app.get("/deeds/:householdAddress", function(req, res, next) {
+  try {
+    const fromDate = req.query;
+
+    const householdAddress = web3Utils.toChecksumAddress(
+      req.params.householdAddress
+    );
+
+    console.log(householdAddress, fromDate);
+    let deeds = utility.getDeeds(householdAddress, fromDate);
+    res.status(200);
+    res.end(deeds);
+  } catch (err) {
+    res.status(400);
+    res.send(err);
+  }
 });
 
 /**
@@ -135,7 +148,7 @@ app.get("/deeds/:householdAddress?fromDate", function(req, res, next) {
  */
 app.get("/", function(req, res, next) {
   res.status(400);
-  res.end(req.method + " is not supported.\n");
+  res.end(req.method + " is 1 not supported.\n");
 });
 
 /**
