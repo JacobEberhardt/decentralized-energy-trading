@@ -103,6 +103,32 @@ app.put("/energy/:householdAddress", async (req, res) => {
     res.send(err);
   }
 });
+/**
+ * GET endpoint returning the current energy balance of renewableEnergy from Utility.js
+ */
+app.get("/network", function(req, res, next) {
+  // TODO
+  res.status(400);
+  res.end(req.method + " is not supported.\n");
+});
+
+/**
+ * GET endpoint returning the current energy balance of the requested Household form Utility.js
+ */
+app.get("/household/:address", function(req, res, next) {
+  // TODO
+  res.status(400);
+  res.end(req.method + " is not supported.\n");
+});
+
+/**
+ * GET endpoint returning the deeds of a specific Household and a given day from Utility.js
+ */
+app.get("/deeds/:householdAddress?fromDate", function(req, res, next) {
+  // TODO
+  res.status(400);
+  res.end(req.method + " is not supported.\n");
+});
 
 /**
  * GET request not supported
