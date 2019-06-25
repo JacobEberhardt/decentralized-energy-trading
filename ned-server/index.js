@@ -127,12 +127,10 @@ app.get("/household/:address", function(req, res, next) {
  */
 app.get("/deeds/:householdAddress", function(req, res, next) {
   try {
-    const fromDate = req.query;
-
+    const fromDate = req.query.fromDate;
     const householdAddress = web3Utils.toChecksumAddress(
       req.params.householdAddress
     );
-
     console.log(householdAddress, fromDate);
     let deeds = utility.getDeeds(householdAddress, fromDate);
     res.status(200);
