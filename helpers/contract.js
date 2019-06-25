@@ -1,16 +1,13 @@
 const UtilityArtifact = require("../build/contracts/Utility.json");
 const OwnedSet = require("../build/contracts/OwnedSet.json");
-const {
-  UTILITY_ADDRESS_IN_AUTHORITY,
-  OWNED_SET_ADDRESS
-} = require("../helpers/constants");
+const { UTILITY_ADDRESS, OWNED_SET_ADDRESS } = require("../helpers/constants");
 
 /**
  * Maps contract name to hard coded address in authority setup and truffle artifact.
  */
 const CONTRACTS_MAP = {
   utility: {
-    addressInAuthority: UTILITY_ADDRESS_IN_AUTHORITY,
+    addressInAuthority: UTILITY_ADDRESS,
     artifact: UtilityArtifact
   },
   ownedSet: {

@@ -8,7 +8,7 @@ const web3Helper = require("../helpers/web3");
 const asyncUtils = require("../helpers/async-utils");
 const { address, password } = require("../household-server-config");
 const {
-  UTILITY_ADDRESS_IN_AUTHORITY,
+  UTILITY_ADDRESS,
   AUTHORITY_ADDRESS,
   OTHER_AUTHORITY_ADDRESSES,
   OWNED_SET_ADDRESS
@@ -23,9 +23,7 @@ module.exports = async (deployer, network, [authority]) => {
       break;
     }
     case "authority": {
-      const utilityInstanceInAuthority = await Utility.at(
-        UTILITY_ADDRESS_IN_AUTHORITY
-      );
+      const utilityInstanceInAuthority = await Utility.at(UTILITY_ADDRESS);
       const ownedSetInstanceInAuthority = await OwnedSet.at(OWNED_SET_ADDRESS);
       const web3 = web3Helper.initWeb3("authority");
 
@@ -69,9 +67,7 @@ module.exports = async (deployer, network, [authority]) => {
         from: AUTHORITY_ADDRESS
       });
 
-      const utilityInstanceInAuthority = await Utility.at(
-        UTILITY_ADDRESS_IN_AUTHORITY
-      );
+      const utilityInstanceInAuthority = await Utility.at(UTILITY_ADDRESS);
       await web3.eth.personal.unlockAccount(address, password, null);
       await utilityInstanceInAuthority.addHousehold(otherAuthorityAddress, {
         from: AUTHORITY_ADDRESS
