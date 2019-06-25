@@ -107,9 +107,18 @@ app.put("/energy/:householdAddress", async (req, res) => {
  * GET endpoint returning the current energy balance of renewableEnergy from Utility.js
  */
 app.get("/network", function(req, res, next) {
-  // TODO
-  res.status(400);
-  res.end(req.method + " is not supported.\n");
+  try {
+    let renewableEnergy = utility["renewableEnergy"];
+    let nonRenewableEnergy = utility["nonRenewableEnergy"];
+    res.status(200);
+    res.end({
+      renewableEnergy: renewableEnergy,
+      nonRenewableEnergy: nonRenewableEnergy
+    });
+  } catch (err) {
+    res.status(400);
+    res.send(err);
+  }
 });
 
 /**
