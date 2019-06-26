@@ -56,14 +56,14 @@ class Utility {
    * Getter for the global Renewable Energy
    * @returns {Number} the current value of the global Renewable Energy
    */
-  getRenewableEnergy(){
+  getRenewableEnergy() {
     return this[RENEWABLE_ENERGY];
   }
     /**
    * Getter for the global Non-Renewable Energy
    * @returns {Number} the current value of the global Non-Renewable Energy
    */
-  getNonRenewableEnergy(){
+  getNonRenewableEnergy() {
     return this[NONRENEWABLE_ENERGY];
   }
   /**
