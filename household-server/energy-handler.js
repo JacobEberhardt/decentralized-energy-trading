@@ -1,3 +1,6 @@
+const web3Utils = require("web3-utils");
+
+const conversionHelper = require("../helpers/conversion");
 const web3Helper = require("../helpers/web3");
 const ned = require("./apis/ned");
 
@@ -19,13 +22,25 @@ module.exports = {
    * @param {Object} web3 Web3 instance.
    * @param {number} meterReading current meter Reading.
    */
-  putEnergy: async (config, web3, meterReading) => {
-    const { signature, signerAddress, data } = await web3Helper.signData(
-      web3,
-      config.address,
-      config.password,
-      meterReading
+  putEnergy: async (config, web3, energy) => {
+    const { address, password } = config;
+    const timestamp = Date.now();
+    const hash = web3Utils.soliditySha3(
+      conversionHelper.kWhToWs(energy),
+      address,
+      timestamp
     );
-    return ned.putEnergy(config.nedUrl, signerAddress, signature, data);
+    const { signature, signerAddress } = await web3Helper.signData(
+      web3,
+      address,
+      password,
+      hash
+    );
+    return ned.putEnergy(config.nedUrl, signerAddress, {
+      signature,
+      hash,
+      timestamp,
+      energy
+    });
   }
 };
