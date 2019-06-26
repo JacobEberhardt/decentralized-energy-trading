@@ -52,6 +52,7 @@ class Utility {
     if (!this._householdExists(hhAddress)) return false;
     return this.households[hhAddress];
   }
+
   /**
    * Getter for the global Renewable Energy
    * @returns {Number} the current value of the global Renewable Energy
@@ -59,13 +60,15 @@ class Utility {
   getRenewableEnergy() {
     return this[RENEWABLE_ENERGY];
   }
-    /**
+
+  /**
    * Getter for the global Non-Renewable Energy
    * @returns {Number} the current value of the global Non-Renewable Energy
    */
   getNonRenewableEnergy() {
     return this[NONRENEWABLE_ENERGY];
   }
+  
   /**
    * Updates a household's renewable energy state.
    *
