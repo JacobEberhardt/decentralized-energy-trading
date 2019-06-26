@@ -8,7 +8,6 @@ const hhHandler = require("./household-handler");
 const zkHandler = require("./zk-handler");
 const web3Helper = require("../helpers/web3");
 // const dUtilityHandler = require("./utility-contract-handler");
-// const contractHelper = require("../helpers/contract");
 
 const serverConfig = require("../ned-server-config");
 
@@ -40,10 +39,6 @@ async function init() {
 
   // Off-chain utility instance
   utility = new Utility();
-  // ownedSetContract = new web3.eth.Contract(
-  //   contractHelper.getAbi("ownedSet"),
-  //   contractHelper.getDeployedAddress("ownedSet", await web3.eth.net.getId())
-  // );
   // utilityContract = new web3.eth.Contract(
   //   contractHelper.getAbi("utility"),
   //   contractHelper.getDeployedAddress("utility", await web3.eth.net.getId())
