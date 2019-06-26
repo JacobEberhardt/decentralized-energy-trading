@@ -108,12 +108,10 @@ app.put("/energy/:householdAddress", async (req, res) => {
  */
 app.get("/network", function(req, res, next) {
   try {
-    let renewableEnergy = utility["renewableEnergy"];
-    let nonRenewableEnergy = utility["nonRenewableEnergy"];
     res.status(200);
     res.end({
-      renewableEnergy: renewableEnergy,
-      nonRenewableEnergy: nonRenewableEnergy
+      renewableEnergy: utility.getRenewableEnergy(),
+      nonRenewableEnergy: utility.getNonRenewableEnergy()
     });
   } catch (err) {
     res.status(400);
