@@ -124,7 +124,7 @@ app.get("/network", function(req, res, next) {
 /**
  * GET endpoint returning the current energy balance of the requested Household form Utility.js
  */
-app.get("/household/:address", function(req, res, next) {
+app.get("/household/:householdAddress", function(req, res, next) {
   try {
     const householdAddress = web3Utils.toChecksumAddress(
       req.params.householdAddress
@@ -163,7 +163,7 @@ app.get("/deeds/:householdAddress", function(req, res, next) {
  */
 app.get("/", function(req, res, next) {
   res.status(400);
-  res.end(req.method + " is 1 not supported.\n");
+  res.end(req.method + " is not supported.\n");
 });
 
 /**
