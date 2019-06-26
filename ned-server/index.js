@@ -75,7 +75,7 @@ app.put("/energy/:householdAddress", async (req, res) => {
     const householdAddress = web3Utils.toChecksumAddress(
       req.params.householdAddress
     );
-    const { signature, energy } = req.body;
+    const { signature, hash, timestamp, energy } = req.body;
 
     if (typeof energy !== "number") {
       throw new Error("Invalid payload");
@@ -90,7 +90,7 @@ app.put("/energy/:householdAddress", async (req, res) => {
     if (
       !(await web3Helper.verifySignature(
         web3,
-        energy,
+        hash,
         signature,
         householdAddress
       ))
@@ -99,7 +99,7 @@ app.put("/energy/:householdAddress", async (req, res) => {
     }
 
     utility.addHousehold(householdAddress);
-    utility.updateRenewableEnergy(householdAddress, energy);
+    utility.updateRenewableEnergy(householdAddress, energy, timestamp);
 
     res.status(200);
     res.send();
