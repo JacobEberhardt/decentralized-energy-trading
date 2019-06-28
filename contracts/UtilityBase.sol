@@ -70,7 +70,7 @@ contract UtilityBase is Mortal, IUtilityBase {
   function addHousehold(address _household) external returns (bool) {
     return _addHousehold(_household);
   }
-  
+
   /**
    * @dev Remove a household with address _household.
    * @param _household address of the household

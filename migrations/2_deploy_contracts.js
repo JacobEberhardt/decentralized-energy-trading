@@ -12,18 +12,19 @@ const {
   AUTHORITY_ADDRESS,
   OTHER_AUTHORITY_ADDRESSES,
   OWNED_SET_ADDRESS,
+  TESTS_FAKE_ADDRESS
 } = require("../helpers/constants");
 
-async function addValidator(validator, ownedSetInstance) {
+async function addValidator(validator, ownedSetInstance, web3) {
   process.stdout.write(`  Adding ${validator} to OwnedSet contract ... `);
   await web3.eth.personal.unlockAccount(address, password, null);
   await ownedSetInstance.addValidator(validator, {
-    from: AUTHORITY_ADDRESS,
+    from: AUTHORITY_ADDRESS
   });
   process.stdout.write(chalk.green("done\n"));
 }
 
-async function finalizeChange(ownedSetInstance) {
+async function finalizeChange(ownedSetInstance, web3) {
   process.stdout.write(`  Finalizing changes to OwnedSet contract ... `);
   await web3.eth.personal.unlockAccount(address, password, null);
   await ownedSetInstance.finalizeChange();
@@ -46,31 +47,29 @@ module.exports = async (deployer, network, [authority]) => {
       process.stdout.write("  Adding admin node to Utility contract ... ");
       await web3.eth.personal.unlockAccount(address, password, null);
       await utilityInstanceInAuthority.addHousehold(AUTHORITY_ADDRESS, {
-        from: AUTHORITY_ADDRESS,
+        from: AUTHORITY_ADDRESS
       });
       process.stdout.write(chalk.green("done\n"));
 
       process.stdout.write("  Transfer ownership of Utility contract ... ");
       await web3.eth.personal.unlockAccount(address, password, null);
       await utilityInstanceInAuthority.transferOwnership(OWNED_SET_ADDRESS, {
-        from: AUTHORITY_ADDRESS,
+        from: AUTHORITY_ADDRESS
       });
       process.stdout.write(chalk.green("done\n"));
 
       process.stdout.write("  Adding authority addresses ...\n");
       await asyncUtils.asyncForEach(OTHER_AUTHORITY_ADDRESSES, async a => {
-        await addValidator(a, ownedSetInstanceInAuthority);
+        await addValidator(a, ownedSetInstanceInAuthority, web3);
       });
 
-      const fakeAddress = "0xFbc22a13295Dea4EfBb061ff162CD19B362d1F1D";
-
-      await addValidator(fakeAddress, ownedSetInstanceInAuthority);
-      await finalizeChange(ownedSetInstanceInAuthority);
+      await addValidator(TESTS_FAKE_ADDRESS, ownedSetInstanceInAuthority, web3);
+      await finalizeChange(ownedSetInstanceInAuthority, web3);
 
       process.stdout.write("  Removing 'fake' authority addresses ...");
       await web3.eth.personal.unlockAccount(address, password, null);
-      await ownedSetInstanceInAuthority.removeValidator(fakeAddress, {
-        from: AUTHORITY_ADDRESS,
+      await ownedSetInstanceInAuthority.removeValidator(TESTS_FAKE_ADDRESS, {
+        from: AUTHORITY_ADDRESS
       });
       process.stdout.write(chalk.green("done\n"));
       await finalizeChange(ownedSetInstanceInAuthority);
@@ -83,19 +82,19 @@ module.exports = async (deployer, network, [authority]) => {
       const ownedSetInstanceInAuthority = await OwnedSet.at(OWNED_SET_ADDRESS);
       await web3.eth.personal.unlockAccount(address, password, null);
       await ownedSetInstanceInAuthority.addValidator(otherAuthorityAddress, {
-        from: AUTHORITY_ADDRESS,
+        from: AUTHORITY_ADDRESS
       });
 
       const utilityInstanceInAuthority = await Utility.at(UTILITY_ADDRESS);
       await web3.eth.personal.unlockAccount(address, password, null);
       await utilityInstanceInAuthority.addHousehold(otherAuthorityAddress, {
-        from: AUTHORITY_ADDRESS,
+        from: AUTHORITY_ADDRESS
       });
       break;
     }
     case "benchmark": {
       deployer.deploy(UtilityBenchmark, 1000, 50, 1000, -2700, {
-        gas: 99999999,
+        gas: 99999999
       });
       break;
     }
