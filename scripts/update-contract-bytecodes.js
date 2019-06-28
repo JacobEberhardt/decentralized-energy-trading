@@ -11,7 +11,7 @@ const {
   UTILITY_ADDRESS,
   BLOCK_REWARD_ADDRESS,
   OWNED_SET_ADDRESS,
-  VERIFIER_ADDRESS,
+  VERIFIER_ADDRESS
 } = require("../helpers/constants");
 
 // TODO: Dynamically generate with web3
@@ -43,21 +43,22 @@ fs.writeFile(
         ...chainSpec.accounts,
         [UTILITY_ADDRESS]: {
           balance: "1",
-          constructor: utilityArtefact.bytecode,
+          constructor: utilityArtefact.bytecode
         },
         [BLOCK_REWARD_ADDRESS]: {
           balance: "1",
-          constructor: blockRewardArtefact.bytecode,
+          constructor: blockRewardArtefact.bytecode
         },
         [OWNED_SET_ADDRESS]: {
           balance: "1",
-          constructor: validatorSetArtefact.bytecode + ENCODED_INITIAL_VALIDATOR_ADDRESSES,
+          constructor:
+            validatorSetArtefact.bytecode + ENCODED_INITIAL_VALIDATOR_ADDRESSES
         },
         [VERIFIER_ADDRESS]: {
           balance: "1",
-          constructor: verifierArtefact.bytecode,
-        },
-      },
+          constructor: verifierArtefact.bytecode
+        }
+      }
     },
     null,
     2
