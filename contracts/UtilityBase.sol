@@ -70,6 +70,15 @@ contract UtilityBase is Mortal, IUtilityBase {
   function addHousehold(address _household) external returns (bool) {
     return _addHousehold(_household);
   }
+  
+  /**
+   * @dev Remove a household with address _household.
+   * @param _household address of the household
+   * @return success bool if household was deleted.
+   */
+  function removeHousehold(address _household) external returns (bool) {
+    return _removeHousehold(_household);
+  }
 
   /**
    * @dev Updates a household's renewable energy state calling _updateEnergy
@@ -268,6 +277,17 @@ contract UtilityBase is Mortal, IUtilityBase {
     hh.nonRenewableEnergy = 0;
 
     emit NewHousehold(_household);
+    return true;
+  }
+
+  /**
+   * @dev see UtilityBase.removeHousehold
+   * @param _household address of household
+   * @return success bool
+   */
+  function _removeHousehold(address _household) internal onlyOwner returns (bool) {
+    require(households[_household].initialized, "Household doesn't exists.");
+    delete households[_household];
     return true;
   }
 
