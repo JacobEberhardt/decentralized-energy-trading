@@ -4,7 +4,7 @@ export PARITY_VERSION=v2.4.5
 export PROJECT_ROOT=$(git rev-parse --show-toplevel)
 
 echo "Starting test network using docker ..."
-cd $PROJECT_ROOT/parity-authority/docker
+cd $PROJECT_ROOT/parity-authority
 docker-compose up -d &> /dev/null
 
 export NODE_0="http://$(docker-compose port authority0 8545)"
@@ -21,6 +21,6 @@ $PROJECT_ROOT/node_modules/.bin/mocha $PROJECT_ROOT/test/parity-authority/docker
 echo "Tests done!"
 
 echo "Cleaning up ..."
-cd $PROJECT_ROOT/parity-authority/docker
-docker-compose -f $PROJECT_ROOT/parity-authority/docker/docker-compose.yml down -v &> /dev/null
+cd $PROJECT_ROOT/parity-authority
+docker-compose -f $PROJECT_ROOT/parity-authority/docker-compose.yml down -v &> /dev/null
 echo "Done!"
