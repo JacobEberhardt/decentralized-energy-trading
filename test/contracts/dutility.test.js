@@ -10,6 +10,8 @@ const {
 const expect = require("chai").use(require("chai-bn")(BN)).expect;
 
 contract("UtilityBase", ([owner, household, household2, other]) => {
+  const ZERO_HASH =
+    "0x0000000000000000000000000000000000000000000000000000000000000000";
   beforeEach(async () => {
     this.instance = await UtilityBase.new({
       from: owner
@@ -25,12 +27,8 @@ contract("UtilityBase", ([owner, household, household2, other]) => {
         from: household
       });
       expect(hh[0]).to.be.true; // initialized
-      expect(hh[1]).to.be.equal(
-        "0x0000000000000000000000000000000000000000000000000000000000000000"
-      ); // renewableEnergy
-      expect(hh[2]).to.be.equal(
-        "0x0000000000000000000000000000000000000000000000000000000000000000"
-      ); // nonRenewableEnergy
+      expect(hh[1]).to.be.equal(ZERO_HASH); // renewableEnergy
+      expect(hh[2]).to.be.equal(ZERO_HASH); // nonRenewableEnergy
     });
 
     it("should throw when sender is not owner", async () => {
@@ -52,12 +50,8 @@ contract("UtilityBase", ([owner, household, household2, other]) => {
           from: household2
         });
         expect(hh[0]).to.be.true; // initialized
-        expect(hh[1]).to.be.equal(
-          "0x0000000000000000000000000000000000000000000000000000000000000000"
-        ); // renewableEnergy
-        expect(hh[2]).to.be.equal(
-          "0x0000000000000000000000000000000000000000000000000000000000000000"
-        ); // nonRenewableEnergy
+        expect(hh[1]).to.be.equal(ZERO_HASH); // renewableEnergy
+        expect(hh[2]).to.be.equal(ZERO_HASH); // nonRenewableEnergy
       });
 
       it("emits event NewHousehold", async () => {
@@ -74,5 +68,52 @@ contract("UtilityBase", ([owner, household, household2, other]) => {
         );
       });
     });
+  });
+
+  describe("Energy tracking", () => {
+    // Some dummy energy hash to be used as input for the energy methods.
+    const energyHash =
+      "0xa5b9d60f32436310afebcfda832817a68921beb782fabf7915cc0460b443116a";
+
+    beforeEach(async () => {
+      await this.instance.addHousehold(household, {
+        from: owner
+      }); // Add dummy household
+    });
+
+    it("should throw when sender is not household owner", async () => {
+      await shouldFail.reverting(
+        this.instance.updateRenewableEnergy(household, energyHash, {
+          from: household2
+        })
+      );
+    });
+
+    it("should set the renewable energy hash to " + energyHash, async () => {
+      await this.instance.updateRenewableEnergy(household, energyHash, {
+        from: household
+      });
+      const hh = await this.instance.getHousehold(household, {
+        from: household
+      });
+      expect(hh[0]).to.be.true; // initialized
+      expect(hh[1]).to.be.equal(energyHash); // renewableEnergy
+      expect(hh[2]).to.be.equal(ZERO_HASH); // nonRenewableEnergy
+    });
+
+    it(
+      "should set the non-renewable energy hash to " + energyHash,
+      async () => {
+        await this.instance.updateNonRenewableEnergy(household, energyHash, {
+          from: household
+        });
+        const hh = await this.instance.getHousehold(household, {
+          from: household
+        });
+        expect(hh[0]).to.be.true; // initialized
+        expect(hh[1]).to.be.equal(ZERO_HASH); // renewableEnergy
+        expect(hh[2]).to.be.equal(energyHash); // nonRenewableEnergy
+      }
+    );
   });
 });
