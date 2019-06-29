@@ -20,11 +20,14 @@ COPY household-server ./household-server
 COPY household-ui ./household-ui
 COPY migrations ./migrations
 
-COPY household-processing-unit/docker-admin/household-server-config.js ./
+COPY household-server-config.js ./
 COPY package.json ./
 COPY truffle-config.js ./
 COPY yarn.lock ./
-COPY household-processing-unit/parity ./parity
+COPY parity-authority/parity/config/chain.json ./parity/config/chain.json
+COPY parity-authority/parity/config/authority.toml ./parity/authority.toml
+COPY parity-authority/parity/authorities/authority0.json ./parity/authority.json
+COPY parity-authority/parity/authorities/authority0.pwd ./parity/authority.pwd
 COPY household-processing-unit/scripts/start_admin.sh ./
 COPY household-processing-unit/scripts/setup_parity.sh ./
 
