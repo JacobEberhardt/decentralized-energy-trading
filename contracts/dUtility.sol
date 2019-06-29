@@ -1,6 +1,6 @@
 pragma solidity >=0.5.0 <0.6.0;
 
-import "./interfaces/IZkUtility.sol";
+import "./interfaces/IdUtility.sol";
 import "./interfaces/IVerifier.sol";
 import "./Mortal.sol";
 
@@ -9,7 +9,7 @@ import "./Mortal.sol";
  * @dev Inherits from UtilityBase.
  * NOTE: this contract stays as 'Utility.sol' for compatibility reasons ;)
  */
-contract ZkUtility is Mortal, IZkUtility {
+contract dUtility is Mortal, IdUtility {
 
   IVerifier private verifier;
 

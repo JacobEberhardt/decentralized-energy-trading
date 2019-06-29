@@ -6,7 +6,7 @@ import "./IUtilityBase.sol";
 /**
  * @title Utility interface
  */
-contract IZkUtility is IUtilityBase {
+contract IdUtility is IUtilityBase {
 
   event NettingSuccess(uint blockNumber);
 
