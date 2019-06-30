@@ -30,6 +30,44 @@ class Utility {
 
     return true;
   }
+  /**
+   * Retrieves the renewable & non renewable energy from a given household
+   * @param {string} hhAddress Household address to return its deeds
+   * @param {Date} fromDate Date in the format of Date.now() of the first deed to retrieve
+   * @returns {Object} returns an Object of Deeds
+   */
+  getDeeds(hhAddress, fromDate) {
+    if (!this._householdExists(hhAddress)) return false;
+    return this.deeds
+      .filter(deed => deed.date >= fromDate)
+      .filter(deed => deed.hhFrom === hhAddress || deed.hhTo === hhAddress);
+  }
+
+  /**
+   * Retrieves the Energy Balances of a given Household
+   * @param {String} hhAddress of the Household whose energy Balance should be retrieved
+   * @returns {Object} returns an object of {renewableEnergy, nonRenewableEnergy}
+   */
+  getHousehold(hhAddress) {
+    if (!this._householdExists(hhAddress)) return false;
+    return this.households[hhAddress];
+  }
+
+  /**
+   * Getter for the global Renewable Energy
+   * @returns {Number} the current value of the global Renewable Energy
+   */
+  getRenewableEnergy() {
+    return this[RENEWABLE_ENERGY];
+  }
+
+  /**
+   * Getter for the global Non-Renewable Energy
+   * @returns {Number} the current value of the global Non-Renewable Energy
+   */
+  getNonRenewableEnergy() {
+    return this[NONRENEWABLE_ENERGY];
+  }
 
   /**
    * Updates a household's renewable energy state.
