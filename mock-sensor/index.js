@@ -30,7 +30,7 @@ const port = commander.port || serverConfig.port;
 const path = commander.endpoint || "/sensor-stats";
 const sensorInterval = commander.interval || serverConfig.sensorInterval;
 const energyBalance = commander.energybalance || "=";
-const mode = Number(commander.mode) || 1;
+const mode = Number(commander.mode) || serverConfig.sensorMode;
 let currentMeterReading = Number(commander.startValue) || 0;
 
 /**
@@ -69,7 +69,7 @@ const options = {
  * The interval is defined in household-server-config.js
  */
 setInterval(() => {
-  /*   const req = http.request(options, res => {
+  const req = http.request(options, res => {
     console.log(`statusCode: ${res.statusCode}`);
 
     res.on("data", d => {
@@ -79,7 +79,7 @@ setInterval(() => {
 
   req.on("error", error => {
     console.error(error);
-  }); */
+  });
 
   const currentDate = new Date();
   const currentHour = currentDate.getHours();
@@ -159,5 +159,5 @@ setInterval(() => {
    * Sending the request with the payload to the Household server
    */
   console.log(payload);
-  // req.end(JSON.stringify(payload));
+  req.end(JSON.stringify(payload));
 }, 1000);
