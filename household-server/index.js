@@ -73,7 +73,7 @@ async function init() {
 
   // Set up the event Listener on the dUtility contract to control the data flow until the netting was successful
   // TODO Rename Event to actual name from the dUtility contract
-  utilityContract.events.NettingSuccessful(
+  utilityContract.events.NettingSuccess(
     { filter: {}, fromBlock: 0 },
     ((error, event) => {
       console.log(error, event);
@@ -82,27 +82,6 @@ async function init() {
       .on("data", event => {
         console.log("Netting successful event received");
         nettingActive = false;
-      })
-
-      // Listener on changed. Fires on each event which was removed from the blockchain.
-      // The event will have the additional property "removed: true".
-      .on("changed", event => console.error(event))
-
-      // Listener on error. Fires when an error in the subscription occurs.
-      .on("error", err => console.error(err))
-  );
-
-  // Set up the event Listener on the dUtility in case the netting process starts
-  // TODO Rename Event to actual name from the dUtility contract
-  utilityContract.events.StartNetting(
-    { filter: {}, fromBlock: 0 },
-    ((error, event) => {
-      console.log(error, event);
-    })
-      // Listener on data. Fires on each incoming event with the event object as argument.
-      .on("data", event => {
-        console.log("Netting starts now. Setting flag nettingActive on true");
-        nettingActive = true;
       })
 
       // Listener on changed. Fires on each event which was removed from the blockchain.
@@ -236,6 +215,10 @@ app.put("/sensor-stats", async (req, res) => {
         consume
       })
     ]);
+
+    // set the nettingActive flag so we do not send another Energy update within this netting period
+    nettingActive = true;
+
     res.status(200);
     res.send();
   } catch (err) {
