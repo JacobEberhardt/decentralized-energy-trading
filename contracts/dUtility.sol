@@ -94,7 +94,7 @@ contract dUtility is Mortal, IdUtility {
     success = verifier.verifyTx(_a, _b, _c, _input);
     if (success) {
       uint256 record = block.number;
-      emit NettingSuccess(record);
+      emit NettingSuccess();
       deeds.push(record);
     }
   }

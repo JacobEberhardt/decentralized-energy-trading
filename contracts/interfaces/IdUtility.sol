@@ -8,7 +8,7 @@ contract IdUtility {
   /* Events */
   event NewHousehold(address indexed household);
 
-  event NettingSuccess(uint blockNumber);
+  event NettingSuccess();
 
   event RenewableEnergyChanged(address indexed household, bytes32 newDeltaEnergy);
 
