@@ -28,7 +28,7 @@ contract IdUtility {
     uint256[2] calldata _a,
     uint256[2][2] calldata _b,
     uint256[2] calldata _c,
-    uint256[1] calldata _input) external returns (bool success);
+    uint256[2] calldata _input) external returns (bool success);
 
   function getDeedsLength() external view returns (uint256);
 
