@@ -1,6 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */
 const UtilityBase = artifacts.require("dUtility");
+const MockVerifier = artifacts.require("MockContract");
 const {
   BN,
   constants,
@@ -9,17 +10,20 @@ const {
 } = require("openzeppelin-test-helpers");
 const expect = require("chai").use(require("chai-bn")(BN)).expect;
 
-contract("UtilityBase", ([owner, household, household2, other]) => {
+contract("dUtility", ([owner, household, household2, other]) => {
   const ZERO_HASH =
     "0x0000000000000000000000000000000000000000000000000000000000000000";
+  let verifier = null;
   beforeEach(async () => {
+    verifier = await MockVerifier.new();
     this.instance = await UtilityBase.new({
       from: owner
     });
+    await this.instance.setVerifier(verifier.address, { from: owner });
   });
 
   describe("Households", () => {
-    it("should create a new household", async () => {
+    it("should create another new household", async () => {
       await this.instance.addHousehold(household, {
         from: owner
       });
@@ -115,5 +119,37 @@ contract("UtilityBase", ([owner, household, household2, other]) => {
         expect(hh[2]).to.be.equal(energyHash); // nonRenewableEnergy
       }
     );
+  });
+
+  describe("Netting verification", () => {
+    const NETTING_SUCCESS = "NettingSuccess";
+    context("On a successful verification", async () => {
+      beforeEach(async () => {
+        await verifier.givenAnyReturnBool(true);
+        ({ logs: this.logs } = await this.instance.verifyNetting(
+          [0, 1],
+          [[2, 3], [4, 5]],
+          [6, 7],
+          [8, 9],
+          { from: household }
+        ));
+      });
+
+      it(`should emit ${NETTING_SUCCESS} event`, async () => {
+        expectEvent.inLogs(this.logs, NETTING_SUCCESS);
+      });
+    });
+
+    it(`should not emit ${NETTING_SUCCESS} event on failure`, async () => {
+      await verifier.givenAnyReturnBool(false);
+      ({ logs: this.logs } = await this.instance.verifyNetting(
+        [0, 1],
+        [[2, 3], [4, 5]],
+        [6, 7],
+        [8, 9],
+        { from: household }
+      ));
+      expect(this.logs).to.be.empty;
+    });
   });
 });
