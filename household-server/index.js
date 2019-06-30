@@ -67,8 +67,8 @@ async function init() {
   // Set up web3
   const web3 = web3Helper.initWeb3(config.network);
   utilityContract = new web3.eth.Contract(
-    contractHelper.getAbi("utility"),
-    contractHelper.getDeployedAddress("utility", await web3.eth.net.getId())
+    contractHelper.getAbi("dUtility"),
+    contractHelper.getDeployedAddress("dUtility", await web3.eth.net.getId())
   );
 
   // Set up the event Listener on the dUtility contract to control the data flow until the netting was successful
