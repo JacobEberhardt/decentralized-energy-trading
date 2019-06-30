@@ -8,6 +8,7 @@ const ned = require("./apis/ned");
 const energyHandler = require("./energy-handler");
 
 const web3Helper = require("../helpers/web3");
+const contractHelper = require("../helpers/contract");
 
 const serverConfig = require("../household-server-config");
 
@@ -47,8 +48,73 @@ db.createDB(config.dbUrl, config.dbName, [
   console.log("Error while creating DB", err);
 });
 
-// Set up web3
-const web3 = web3Helper.initWeb3(config.network);
+let web3;
+let utilityContract;
+// let utilityEventListener;
+
+// Boolean flag whether the netting is currently active or not. If true no transaction must be send!
+let nettingActive = false;
+
+async function init() {
+  // Set up the DB
+  db.createDB(config.dbUrl, config.dbName, [
+    config.sensorDataCollection,
+    config.utilityDataCollection
+  ]).catch(err => {
+    console.log("Error while creating DB", err);
+  });
+
+  // Set up web3
+  const web3 = web3Helper.initWeb3(config.network);
+  utilityContract = new web3.eth.Contract(
+    contractHelper.getAbi("utility"),
+    contractHelper.getDeployedAddress("utility", await web3.eth.net.getId())
+  );
+
+  // Set up the event Listener on the dUtility contract to control the data flow until the netting was successful
+  // TODO Rename Event to actual name from the dUtility contract
+  utilityContract.events.NettingSuccessful(
+    { filter: {}, fromBlock: 0 },
+    ((error, event) => {
+      console.log(error, event);
+    })
+      // Listener on data. Fires on each incoming event with the event object as argument.
+      .on("data", event => {
+        console.log("Netting successful event received");
+        nettingActive = false;
+      })
+
+      // Listener on changed. Fires on each event which was removed from the blockchain.
+      // The event will have the additional property "removed: true".
+      .on("changed", event => console.error(event))
+
+      // Listener on error. Fires when an error in the subscription occurs.
+      .on("error", err => console.error(err))
+  );
+
+  // Set up the event Listener on the dUtility in case the netting process starts
+  // TODO Rename Event to actual name from the dUtility contract
+  utilityContract.events.StartNetting(
+    { filter: {}, fromBlock: 0 },
+    ((error, event) => {
+      console.log(error, event);
+    })
+      // Listener on data. Fires on each incoming event with the event object as argument.
+      .on("data", event => {
+        console.log("Netting starts now. Setting flag nettingActive on true");
+        nettingActive = true;
+      })
+
+      // Listener on changed. Fires on each event which was removed from the blockchain.
+      // The event will have the additional property "removed: true".
+      .on("changed", event => console.error(event))
+
+      // Listener on error. Fires when an error in the subscription occurs.
+      .on("error", err => console.error(err))
+  );
+}
+
+init();
 
 /**
  * Creating the express server waiting for incoming requests
@@ -154,6 +220,12 @@ app.put("/sensor-stats", async (req, res) => {
   try {
     if (typeof produce !== "number" || typeof consume !== "number") {
       throw new Error("Invalid payload");
+    }
+
+    if (nettingActive) {
+      throw new Error(
+        "Netting process is still active. Not sending Transaction... "
+      );
     }
 
     // TODO Error handling
