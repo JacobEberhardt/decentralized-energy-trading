@@ -68,7 +68,7 @@ class Utility {
   getNonRenewableEnergy() {
     return this[NONRENEWABLE_ENERGY];
   }
-  
+
   /**
    * Updates a household's renewable energy state.
    *
