@@ -66,19 +66,19 @@ describe("Test Network Properties", () => {
         assert.ok(body.result > 0);
       });
 
-      it("has at least 3 validators", async () => {
+      it("has 3 validators", async () => {
         const contractData = require(`${root}/build/contracts/OwnedSet.json`);
         const web3 = web3Helper.initWeb3("authority");
         const contract = new web3.eth.Contract(
           contractData.abi,
           OWNED_SET_ADDRESS
         );
-        const validators = await contract.methods.getValidators().call();
 
-        assert.ok(validators.length >= 3);
+        const validators = await contract.methods.getValidators().call();
+        assert.strictEqual(validators, 3);
       });
 
-      it("has 0 pending validators", async () => {
+      it("has 3 pending validators", async () => {
         const contractData = require(`${root}/build/contracts/OwnedSet.json`);
         const web3 = web3Helper.initWeb3("authority");
         const contract = new web3.eth.Contract(
@@ -86,8 +86,7 @@ describe("Test Network Properties", () => {
           OWNED_SET_ADDRESS
         );
         const pendingValidators = await contract.methods.getPending().call();
-
-        assert.ok(pendingValidators.length === 0);
+        assert.strictEqual(pendingValidators, 3);
       });
     });
   });

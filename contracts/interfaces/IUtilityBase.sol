@@ -14,6 +14,8 @@ contract IUtilityBase {
 
   function addHousehold(address _household) external returns (bool);
 
+  function removeHousehold(address _household) external returns (bool);
+
   function updateRenewableEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy) external returns (bool);
 
   function updateNonRenewableEnergy(address _household, int256 _producedEnergy, int256 _consumedEnergy) external returns (bool);

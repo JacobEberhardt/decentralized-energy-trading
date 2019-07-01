@@ -112,6 +112,7 @@ contract BaseOwnedSet is Ownable, IValidatorSet {
     status[_validator].isIn = true;
     status[_validator].index = pending.length;
     pending.push(_validator);
+    finalized = false;
     IUtility utility = IUtility(UTILITY_CONTRACT);
     utility.addHousehold(_validator);
   }
@@ -132,6 +133,10 @@ contract BaseOwnedSet is Ownable, IValidatorSet {
 
     // Reset address status
     delete status[_validator];
+    finalized = false;
+
+    IUtility utility = IUtility(UTILITY_CONTRACT);
+    utility.removeHousehold(_validator);
   }
 
   function setRecentBlocks(uint _recentBlocks)
@@ -205,7 +210,6 @@ contract BaseOwnedSet is Ownable, IValidatorSet {
   {
     validators = pending;
     finalized = true;
-    delete pending;
     emit ChangeFinalized(validators);
   }
 }
