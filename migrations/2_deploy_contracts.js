@@ -11,8 +11,25 @@ const {
   UTILITY_ADDRESS,
   AUTHORITY_ADDRESS,
   OTHER_AUTHORITY_ADDRESSES,
-  OWNED_SET_ADDRESS
+  OWNED_SET_ADDRESS,
+  TESTS_FAKE_ADDRESS
 } = require("../helpers/constants");
+
+async function addValidator(validator, ownedSetInstance, web3) {
+  process.stdout.write(`  Adding ${validator} to OwnedSet contract ... `);
+  await web3.eth.personal.unlockAccount(address, password, null);
+  await ownedSetInstance.addValidator(validator, {
+    from: AUTHORITY_ADDRESS
+  });
+  process.stdout.write(chalk.green("done\n"));
+}
+
+async function finalizeChange(ownedSetInstance, web3) {
+  process.stdout.write(`  Finalizing changes to OwnedSet contract ... `);
+  await web3.eth.personal.unlockAccount(address, password, null);
+  await ownedSetInstance.finalizeChange();
+  process.stdout.write(chalk.green("done\n"));
+}
 
 module.exports = async (deployer, network, [authority]) => {
   switch (network) {
@@ -43,18 +60,19 @@ module.exports = async (deployer, network, [authority]) => {
 
       process.stdout.write("  Adding authority addresses ...\n");
       await asyncUtils.asyncForEach(OTHER_AUTHORITY_ADDRESSES, async a => {
-        process.stdout.write(`  Adding ${a} to OwnedSet contract ... `);
-        await web3.eth.personal.unlockAccount(address, password, null);
-        await ownedSetInstanceInAuthority.addValidator(a, {
-          from: AUTHORITY_ADDRESS
-        });
-        process.stdout.write(chalk.green("done\n"));
+        await addValidator(a, ownedSetInstanceInAuthority, web3);
       });
 
-      process.stdout.write(`  Finalizing changes to OwnedSet contract ... `);
+      await addValidator(TESTS_FAKE_ADDRESS, ownedSetInstanceInAuthority, web3);
+      await finalizeChange(ownedSetInstanceInAuthority, web3);
+
+      process.stdout.write("  Removing 'fake' authority addresses ...");
       await web3.eth.personal.unlockAccount(address, password, null);
-      await ownedSetInstanceInAuthority.finalizeChange();
+      await ownedSetInstanceInAuthority.removeValidator(TESTS_FAKE_ADDRESS, {
+        from: AUTHORITY_ADDRESS
+      });
       process.stdout.write(chalk.green("done\n"));
+      await finalizeChange(ownedSetInstanceInAuthority, web3);
 
       break;
     }
@@ -62,16 +80,12 @@ module.exports = async (deployer, network, [authority]) => {
       const otherAuthorityAddress = process.env.AUTHORITY_ADDRESS;
       const web3 = web3Helper.initWeb3("authority_docker");
       const ownedSetInstanceInAuthority = await OwnedSet.at(OWNED_SET_ADDRESS);
-      await web3.eth.personal.unlockAccount(address, password, null);
-      await ownedSetInstanceInAuthority.addValidator(otherAuthorityAddress, {
-        from: AUTHORITY_ADDRESS
-      });
-
-      const utilityInstanceInAuthority = await Utility.at(UTILITY_ADDRESS);
-      await web3.eth.personal.unlockAccount(address, password, null);
-      await utilityInstanceInAuthority.addHousehold(otherAuthorityAddress, {
-        from: AUTHORITY_ADDRESS
-      });
+      await addValidator(
+        otherAuthorityAddress,
+        ownedSetInstanceInAuthority,
+        web3
+      );
+      await finalizeChange(ownedSetInstanceInAuthority, web3);
       break;
     }
     case "benchmark": {
