@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const chainSpec = require("../parity-authority/docker/parity/config/chain.json");
+const chainSpec = require("../parity-authority/parity/config/chain.json");
 const utilityArtefact = require("../build/contracts/Utility.json");
 const blockRewardArtefact = require("../build/contracts/BlockReward.json");
 const validatorSetArtefact = require("../build/contracts/OwnedSet.json");
@@ -35,7 +35,7 @@ if (!verifierArtefact) {
 }
 
 fs.writeFile(
-  path.resolve("./parity-authority/docker/parity/config/chain.json"),
+  path.resolve("./parity-authority/parity/config/chain.json"),
   JSON.stringify(
     {
       ...chainSpec,

@@ -5,9 +5,9 @@ const web3Utils = require("web3-utils");
 
 const Utility = require("../utility-js/Utility");
 const hhHandler = require("./household-handler");
-// const zkHandler = require("./zk-handler");
+const zkHandler = require("./zk-handler");
 const web3Helper = require("../helpers/web3");
-const contractHelper = require("../helpers/contract");
+// const dUtilityHandler = require("./utility-contract-handler");
 
 const serverConfig = require("../ned-server-config");
 
@@ -39,19 +39,24 @@ async function init() {
 
   // Off-chain utility instance
   utility = new Utility();
-  ownedSetContract = new web3.eth.Contract(
-    contractHelper.getAbi("ownedSet"),
-    contractHelper.getDeployedAddress("ownedSet", await web3.eth.net.getId())
-  );
   // utilityContract = new web3.eth.Contract(
   //   contractHelper.getAbi("utility"),
   //   contractHelper.getDeployedAddress("utility", await web3.eth.net.getId())
   // );
 
-  setInterval(() => {
-    // TODO call ZoKrates bash file
-    console.log("Calling ZoKrates to perform some magic");
-    // manageNetting();
+  setInterval(async () => {
+    const utilityCopy = { ...utility };
+    Object.setPrototypeOf(utilityCopy, Utility.prototype);
+    const utilityBeforeNetting = { ...utilityCopy };
+    Object.setPrototypeOf(utilityBeforeNetting, Utility.prototype);
+    utilityCopy.settle();
+    const hash = zkHandler.generateProof(utilityBeforeNetting, utilityCopy);
+    console.log(hash);
+    // TODO Call contract method of dUtility.sol contract
+    // const txReceipt = await dUtilityHandler.sendProof(utilityContract, hash);
+    // console.log(txReceipt);
+    // TODO Set new utility state on successful verification. E.g. event is emitted.
+    utility = utilityCopy;
   }, config.nettingInterval);
 }
 
