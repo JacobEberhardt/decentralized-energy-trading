@@ -103,6 +103,58 @@ app.put("/energy/:householdAddress", async (req, res) => {
     res.send(err);
   }
 });
+/**
+ * GET endpoint returning the current energy balance of renewableEnergy from Utility.js
+ */
+app.get("/network", function(req, res, next) {
+  try {
+    res.status(200);
+    res.end({
+      renewableEnergy: utility.getRenewableEnergy(),
+      nonRenewableEnergy: utility.getNonRenewableEnergy()
+    });
+  } catch (err) {
+    res.status(400);
+    res.send(err);
+  }
+});
+
+/**
+ * GET endpoint returning the current energy balance of the requested Household form Utility.js
+ */
+app.get("/household/:householdAddress", function(req, res, next) {
+  try {
+    const householdAddress = web3Utils.toChecksumAddress(
+      req.params.householdAddress
+    );
+    let energyBalance = utility.getHousehold(householdAddress);
+    res.status(200);
+    res.end(energyBalance);
+  } catch (err) {
+    res.status(400);
+    res.send(err);
+  }
+});
+
+/**
+ * GET endpoint returning the deeds of a specific Household and a given day from Utility.js
+ * Access this like: http://127.0.0.1:3005/deeds/123456789?fromDate=1122465557 (= Date.now())
+ */
+app.get("/deeds/:householdAddress", function(req, res, next) {
+  try {
+    const fromDate = req.query.fromDate;
+    const householdAddress = web3Utils.toChecksumAddress(
+      req.params.householdAddress
+    );
+    console.log(householdAddress, fromDate);
+    let deeds = utility.getDeeds(householdAddress, fromDate);
+    res.status(200);
+    res.end(deeds);
+  } catch (err) {
+    res.status(400);
+    res.send(err);
+  }
+});
 
 /**
  * GET request not supported

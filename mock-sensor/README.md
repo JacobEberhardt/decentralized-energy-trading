@@ -25,6 +25,10 @@ yarn run-sensor -i <interval>
 yarn run-sensor -e -
 # consumption < production
 yarn run-sensor -e +
+# add -m flag for sensor mode:
+# Mode 1: Sensor sends produce and consume values (default)
+# Mode 2: Sensor sends single meterReading value, which gets updated
+yarn run-sensor -m 2
 ```
 
 3. The settings for consumption and production can be set in `sensor-config.js`.
