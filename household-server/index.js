@@ -4,7 +4,7 @@ const commander = require("commander");
 
 const db = require("./apis/db");
 const ned = require("./apis/ned");
-// const deedHandler = require("./deed-handler");
+const deedHandler = require("./deed-handler");
 const energyHandler = require("./energy-handler");
 
 const web3Helper = require("../helpers/web3");
@@ -82,6 +82,9 @@ async function init() {
       .on("data", event => {
         console.log("Netting successful event received");
         nettingActive = false;
+
+        // making request to NED server to collect the deeds
+        deedHandler.collectDeeds(config);
       })
 
       // Listener on changed. Fires on each event which was removed from the blockchain.
