@@ -28,6 +28,7 @@
     "setup-zokrates": "./scripts/setup_zokrates.sh"
   },
   "devDependencies": {
+    "@gnosis.pm/mock-contract": "^3.0.7",
     "chai": "^4.2.0",
     "chai-bignumber": "^3.0.0",
     "chai-bn": "^0.1.1",
