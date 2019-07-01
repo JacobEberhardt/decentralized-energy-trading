@@ -212,7 +212,7 @@ app.put("/sensor-stats", async (req, res) => {
 
     // TODO Error handling
     await Promise.all([
-      energyHandler.putEnergy(config, web3, meterReading),
+      energyHandler.putSignedEnergy(config, web3, produce - consume),
       db.writeToDB(config.dbUrl, config.dbName, config.sensorDataCollection, {
         produce,
         consume

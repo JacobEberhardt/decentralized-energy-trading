@@ -22,12 +22,12 @@ module.exports = {
    *  hash: string,
    *  timestamp: number,
    *  signature: string
-   * }} json Energy json.
+   * }} payload Energy json.
    */
-  putEnergy: (nedUrl, householdAddress, json) => {
+  putEnergy: (nedUrl, householdAddress, payload) => {
     return request(`${nedUrl}/energy/${householdAddress}`, {
       method: "PUT",
-      json
+      json: payload
     });
   },
   /**

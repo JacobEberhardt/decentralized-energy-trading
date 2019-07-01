@@ -22,7 +22,7 @@ module.exports = {
    * @param {Object} web3 Web3 instance.
    * @param {number} meterReading current meter Reading.
    */
-  putEnergy: async (config, web3, energy) => {
+  putSignedEnergy: async (config, web3, energy) => {
     const { address, password } = config;
     const timestamp = Date.now();
     const hash = web3Utils.soliditySha3(
