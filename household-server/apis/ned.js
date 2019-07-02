@@ -24,7 +24,7 @@ module.exports = {
    *  signature: string
    * }} payload Energy json.
    */
-  putEnergy: (nedUrl, householdAddress, payload) => {
+  putSignedMeterReading: (nedUrl, householdAddress, payload) => {
     return request(`${nedUrl}/energy/${householdAddress}`, {
       method: "PUT",
       json: payload

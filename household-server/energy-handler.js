@@ -1,7 +1,6 @@
 const web3Utils = require("web3-utils");
 const sha256 = require("js-sha256");
 
-const conversionHelper = require("../helpers/conversion");
 const web3Helper = require("../helpers/web3");
 const ned = require("./apis/ned");
 
@@ -21,27 +20,34 @@ module.exports = {
    *   utilityDataCollection: string
    * }} config Server configuration.
    * @param {Object} web3 Web3 instance.
-   * @param {number} meterReading current meter Reading.
+   * @param {number} meterReading Current meter reading in kWh.
    */
-  putSignedEnergy: async (config, web3, energy) => {
+  putMeterReading: async (config, web3, meterReading) => {
     const { address, password } = config;
     const timestamp = Date.now();
-    const encodedParams = web3.eth.abi.encodeParameters(
-      ["int256", "uint64", "address"],
-      [conversionHelper.kWhToWs(energy), timestamp, address]
-    );
-    const hash = sha256(web3Utils.padLeft(encodedParams, 512));
-    const { signature, signerAddress } = await web3Helper.signData(
+
+    const meterReadingHex = web3Utils.numberToHex(meterReading);
+    const timestampHex = web3Utils.numberToHex(timestamp);
+    const paramsHex = `${meterReadingHex}${web3Utils.stripHexPrefix(
+      timestampHex
+    )}${web3Utils.stripHexPrefix(address)}`;
+
+    // Pad concatenated hex params string to have length of 512 bits (128 hex digits).
+    const paddedParamsHex = web3Utils.padLeft(paramsHex, 128);
+    const bytesParams = web3Utils.hexToBytes(paddedParamsHex);
+    const hash = sha256(bytesParams);
+
+    const { signature } = await web3Helper.signData(
       web3,
       address,
       password,
       hash
     );
-    return ned.putEnergy(config.nedUrl, signerAddress, {
+    return ned.putSignedMeterReading(config.nedUrl, address, {
       signature,
       hash,
       timestamp,
-      energy
+      meterReading
     });
   }
 };
