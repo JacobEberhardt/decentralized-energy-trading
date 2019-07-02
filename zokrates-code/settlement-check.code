@@ -91,9 +91,15 @@ def sum(field[2] hh) -> (field):
 // @param {private field[2]} hhWithEnergyNet after settlement
 // Index represents household and hhWithEnergyNet[index] := produce-consume > 0 
 // @param {private field[2]} hhNoEnergyNet after settlement
-// Index represents household and hhNoEnergyNet[index] := produce-consume < 0 
-// @returns {field[2]} sha256packed hash of inputs if settlement is correct and fair.
-def main(private field[2] hhWithEnergy, private field[2] hhNoEnergy, private field[2] hhWithEnergyNet, private field[2] hhNoEnergyNet) -> (field[2]):
+// Index represents household and hhNoEnergyNet[index] := produce-consume < 0
+// @param {private field[8]} hhWithEnergyPacked Packed inputs energy + nonce + address of hh with energy surplus
+// Index 0 to 3 are packed inputs of hh1 with energy surplus
+// Index 4 to 7 are packed inputs of hh2 with energy surplus
+// @param {private field[8]} hhNoEnergyPacked Packed inputs energy + nonce + address of hh with energy deficit
+// Index 0 to 3 are packed inputs of hh1 with energy deficit
+// Index 4 to 7 are packed inputs of hh2 with energy deficit
+// @returns {field[2], field[2], field[2], field[2]} sha256packed hashes of hhWithEnergyPacked / hhNoEnergyPacked
+def main(private field[2] hhWithEnergy, private field[2] hhNoEnergy, private field[2] hhWithEnergyNet, private field[2] hhNoEnergyNet, private field[8] hhWithEnergyPacked, private field[8] hhNoEnergyPacked) -> (field[2], field[2], field[2], field[2]):
   // Correctness: Energy balance in the system stays the same
   totalEnergy = calculateTotalEnergy(hhWithEnergy, hhNoEnergy)
   totalEnergyNet = calculateTotalEnergy(hhWithEnergyNet, hhNoEnergyNet)
@@ -114,8 +120,11 @@ def main(private field[2] hhWithEnergy, private field[2] hhNoEnergy, private fie
   field[2] zeroNetParty = if sumWithEnergy <= sumNoEnergy then hhWithEnergyNet else hhNoEnergyNet fi
   0 == validateZeroNet(zeroNetParty, 15) // Can make epsilon more accurate in the future
   
-  // Return sha256packed hash that depends on inputs
-  field sum = hhWithEnergy[0] + hhWithEnergy[1] + hhNoEnergy[0] + hhNoEnergy[1] + hhWithEnergyNet[0] + hhWithEnergyNet[1] + hhNoEnergyNet[0] + hhNoEnergyNet[1]
-  h = sha256packed([sum, 0, 0, 0])
+  // Return sha256packed hash of energy + nonce + address of each household
+  hh1WithEnergyHash = sha256packed([hhWithEnergyPacked[0], hhWithEnergyPacked[1], hhWithEnergyPacked[2], hhWithEnergyPacked[3]])
+  hh2WithEnergyHash = sha256packed([hhWithEnergyPacked[4], hhWithEnergyPacked[5], hhWithEnergyPacked[6], hhWithEnergyPacked[7]])
+  hh1NoEnergyHash = sha256packed([hhNoEnergyPacked[0], hhNoEnergyPacked[1], hhNoEnergyPacked[2], hhNoEnergyPacked[3]])
+  hh2NoEnergyHash = sha256packed([hhNoEnergyPacked[4], hhNoEnergyPacked[5], hhNoEnergyPacked[6], hhNoEnergyPacked[7]])
+  
 
-  return h
+  return hh1WithEnergyHash, hh2WithEnergyHash, hh1NoEnergyHash, hh2NoEnergyHash
