@@ -152,4 +152,66 @@ contract("dUtility", ([owner, household, household2, other]) => {
       expect(this.logs).to.be.empty;
     });
   });
+
+  describe("Hash checking", () => {
+    const energyHashes = [
+      "0xa5b9d60f32436310afebcfda832817a68921beb782fabf7915cc0460b443116a",
+      "0xa5b9d60f32436310afebcfda832817a68921beb782fabf7915cc0460b443116b"
+    ];
+    beforeEach(async () => {
+      await this.instance.addHousehold(household, {
+        from: owner
+      }); // Add dummy household
+      await this.instance.addHousehold(household2, {
+        from: owner
+      }); // Add dummy household
+
+      await this.instance.updateRenewableEnergy(household, energyHashes[0], {
+        from: household
+      });
+
+      await this.instance.updateRenewableEnergy(household2, energyHashes[1], {
+        from: household2
+      });
+    });
+
+    const CHECK_SUCCESS = "CheckHashesSuccess";
+    it(`should emit ${CHECK_SUCCESS} event on success`, async () => {
+      ({ logs: this.logs } = await this.instance.checkHashes(
+        [household, household2],
+        energyHashes,
+        { from: owner }
+      ));
+      expectEvent.inLogs(this.logs, CHECK_SUCCESS);
+    });
+
+    it(`should throw when not called by contract owner`, async () => {
+      await shouldFail.reverting(
+        this.instance.checkHashes([household, household2], energyHashes, {
+          from: other
+        })
+      );
+    });
+
+    it(`should throw when input lengths are not equal`, async () => {
+      await shouldFail.reverting(
+        this.instance.checkHashes([household], energyHashes, {
+          from: other
+        })
+      );
+    });
+
+    it(`should throw on energy hash mismatch`, async () => {
+      const mismatchedEnergyHashes = ["0xdeadbeef", "0x0"];
+      await shouldFail.reverting(
+        this.instance.checkHashes(
+          [household, household2],
+          mismatchedEnergyHashes,
+          {
+            from: owner
+          }
+        )
+      );
+    });
+  });
 });
