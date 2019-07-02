@@ -2,6 +2,7 @@ const web3Utils = require("web3-utils");
 const sha256 = require("js-sha256");
 
 const web3Helper = require("../helpers/web3");
+const zokratesHelper = require("../helpers/zokrates");
 const ned = require("./apis/ned");
 
 module.exports = {
@@ -26,14 +27,12 @@ module.exports = {
     const { address, password } = config;
     const timestamp = Date.now();
 
-    const meterReadingHex = web3Utils.numberToHex(meterReading);
-    const timestampHex = web3Utils.numberToHex(timestamp);
-    const paramsHex = `${meterReadingHex}${web3Utils.stripHexPrefix(
-      timestampHex
-    )}${web3Utils.stripHexPrefix(address)}`;
+    const paddedParamsHex = zokratesHelper.padPackParams512(
+      meterReading,
+      timestamp,
+      address
+    );
 
-    // Pad concatenated hex params string to have length of 512 bits (128 hex digits).
-    const paddedParamsHex = web3Utils.padLeft(paramsHex, 128);
     const bytesParams = web3Utils.hexToBytes(paddedParamsHex);
     const hash = sha256(bytesParams);
 
