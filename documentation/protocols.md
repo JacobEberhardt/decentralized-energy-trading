@@ -24,12 +24,12 @@ You can find the agenda [here](https://docs.google.com/document/d/1XQ4bXn_yHIRhf
   - ZoKrates - energy delta (netting), meter reading (hash)
   - Mock Sensor - sends meter reading, produce/consume (for HHS)
 - Hashing approach
-  - analogical to ZoKrates pre-image tutorial
-  - concatenating first
-  - compliance through padding
+  - Analogical to ZoKrates pre-image tutorial
+  - Concatenating first
+  - Compliance through padding
     - 2 field elements (will be unpacked) each encoding 128 bit
-    - remember padding to ensure correct computation
-  - no ZoKrates on HPU (too much overhead) but use the same hashing approach
+    - Remember padding to ensure correct computation
+  - No ZoKrates on HPU (too much overhead) but use the same hashing approach
 
 **ToDo:**
 
