@@ -144,7 +144,7 @@ setInterval(() => {
   }
 
   currentMeterReading +=
-  Number(payload["produce"]) - Number(payload["consume"]);
+    Number(payload["produce"]) - Number(payload["consume"]);
   payload["meterReading"] = currentMeterReading;
 
   /**
