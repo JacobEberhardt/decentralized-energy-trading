@@ -15,7 +15,9 @@ class Utility {
       // placeholder address
       [ZERO_ADDRESS]: {
         renewableEnergy: 0,
-        nonRenewableEnergy: 0
+        nonRenewableEnergy: 0,
+        meterReading: 0,
+        lastUpdate: Date.now()
       }
     };
     this.checkpoint = 0;
@@ -33,7 +35,9 @@ class Utility {
 
     this.households[hhAddress] = {
       renewableEnergy: 0,
-      nonRenewableEnergy: 0
+      nonRenewableEnergy: 0,
+      meterReading: 0,
+      lastUpdate: Date.now()
     };
 
     return true;

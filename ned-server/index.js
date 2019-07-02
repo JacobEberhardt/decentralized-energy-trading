@@ -23,7 +23,7 @@ commander
 commander.parse(process.argv);
 
 const config = {
-  nettingInterval: commander.nettingInterval || serverConfig.nettingInterval,
+  nettingInterval: commander.interval || serverConfig.nettingInterval,
   host: commander.host || serverConfig.host,
   port: commander.port || serverConfig.port,
   network: commander.network || serverConfig.network
@@ -44,7 +44,7 @@ async function init() {
   //   contractHelper.getDeployedAddress("utility", await web3.eth.net.getId())
   // );
 
-  setInterval(async () => {
+  function runZokrates() {
     const utilityCopy = { ...utility };
     Object.setPrototypeOf(utilityCopy, Utility.prototype);
     const utilityBeforeNetting = { ...utilityCopy };
@@ -57,6 +57,12 @@ async function init() {
     // console.log(txReceipt);
     // TODO Set new utility state on successful verification. E.g. event is emitted.
     utility = utilityCopy;
+  }
+
+  runZokrates();
+
+  setInterval(() => {
+    runZokrates();
   }, config.nettingInterval);
 }
 
