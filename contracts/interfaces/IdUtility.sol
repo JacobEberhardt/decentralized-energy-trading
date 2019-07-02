@@ -10,6 +10,8 @@ contract IdUtility {
 
   event NettingSuccess();
 
+  event CheckHashesSuccess();
+
   event RenewableEnergyChanged(address indexed household, bytes32 newDeltaEnergy);
 
   event NonRenewableEnergyChanged(address indexed household, bytes32 newDeltaEnergy);
@@ -29,6 +31,8 @@ contract IdUtility {
     uint256[2][2] calldata _b,
     uint256[2] calldata _c,
     uint256[2] calldata _input) external returns (bool success);
+
+  function checkHashes(address[] memory _households, bytes32[] memory _householdEnergyHashes) public returns (bool);
 
   function getDeedsLength() external view returns (uint256);
 
