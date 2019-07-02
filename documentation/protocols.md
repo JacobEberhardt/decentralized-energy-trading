@@ -52,7 +52,7 @@ You can find the agenda [here](https://docs.google.com/document/d/1XQ4bXn_yHIRhf
 - What if netting fails?
   - No status update
   - Therefore, just waiting for next successful netting   
-- NED: Default meter update if HPU does not send = last meter value 
+- NED: Default meter value if HPU does not send = last meter value 
 - Next meetings
   - Team meeting 07/08/19 3pm
   - Team meeting 07/09/19 12-2pm
