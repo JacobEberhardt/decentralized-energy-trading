@@ -198,7 +198,7 @@ app.get("/network-stats", async (req, res, next) => {
  * PUT /sensor-stats
  */
 app.put("/sensor-stats", async (req, res) => {
-  const { produce, consume } = req.body;
+  const { produce, consume, meterReading } = req.body;
   try {
     if (typeof produce !== "number" || typeof consume !== "number") {
       throw new Error("Invalid payload");
@@ -212,7 +212,7 @@ app.put("/sensor-stats", async (req, res) => {
 
     // TODO Error handling
     await Promise.all([
-      energyHandler.putEnergy(config, web3, produce - consume),
+      energyHandler.putEnergy(config, web3, meterReading),
       db.writeToDB(config.dbUrl, config.dbName, config.sensorDataCollection, {
         produce,
         consume
