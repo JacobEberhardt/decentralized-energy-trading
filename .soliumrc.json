@@ -1,5 +1,5 @@
 {
-  "extends": "solium:all",
+  "extends": "solium:recommended",
   "plugins": [
     "security"
   ],
@@ -15,6 +15,7 @@
     "linebreak-style": [
       "error",
       "unix"
-    ]
+    ],
+    "arg-overflow": "off"
   }
 }

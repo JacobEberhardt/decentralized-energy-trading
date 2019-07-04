@@ -1,3 +1,5 @@
+const { ZERO_ADDRESS } = require("../helpers/constants");
+
 const RENEWABLE_ENERGY = "renewableEnergy";
 const NONRENEWABLE_ENERGY = "nonRenewableEnergy";
 
@@ -9,7 +11,13 @@ class Utility {
     // total produced and consumed renewable energy
     this[RENEWABLE_ENERGY] = 0;
     this[NONRENEWABLE_ENERGY] = 0;
-    this.households = {};
+    this.households = {
+      // placeholder address
+      [ZERO_ADDRESS]: {
+        renewableEnergy: 0,
+        nonRenewableEnergy: 0
+      }
+    };
     this.checkpoint = 0;
     this.deeds = {};
   }
@@ -29,6 +37,44 @@ class Utility {
     };
 
     return true;
+  }
+  /**
+   * Retrieves the renewable & non renewable energy from a given household
+   * @param {string} hhAddress Household address to return its deeds
+   * @param {Date} fromDate Date in the format of Date.now() of the first deed to retrieve
+   * @returns {Object} returns an Object of Deeds
+   */
+  getDeeds(hhAddress, fromDate) {
+    if (!this._householdExists(hhAddress)) return false;
+    return this.deeds
+      .filter(deed => deed.date >= fromDate)
+      .filter(deed => deed.hhFrom === hhAddress || deed.hhTo === hhAddress);
+  }
+
+  /**
+   * Retrieves the Energy Balances of a given Household
+   * @param {String} hhAddress of the Household whose energy Balance should be retrieved
+   * @returns {Object} returns an object of {renewableEnergy, nonRenewableEnergy}
+   */
+  getHousehold(hhAddress) {
+    if (!this._householdExists(hhAddress)) return false;
+    return this.households[hhAddress];
+  }
+
+  /**
+   * Getter for the global Renewable Energy
+   * @returns {Number} the current value of the global Renewable Energy
+   */
+  getRenewableEnergy() {
+    return this[RENEWABLE_ENERGY];
+  }
+
+  /**
+   * Getter for the global Non-Renewable Energy
+   * @returns {Number} the current value of the global Non-Renewable Energy
+   */
+  getNonRenewableEnergy() {
+    return this[NONRENEWABLE_ENERGY];
   }
 
   /**
@@ -121,6 +167,16 @@ class Utility {
 
     this.checkpoint++;
     return true;
+  }
+
+  getHouseholdAddressesWithEnergy() {
+    const entries = Object.entries(this.households);
+    return entries.filter(hh => hh[1].renewableEnergy > 0).map(hh => hh[0]);
+  }
+
+  getHouseholdAddressesNoEnergy() {
+    const entries = Object.entries(this.households);
+    return entries.filter(hh => hh[1].renewableEnergy > 0).map(hh => hh[0]);
   }
 
   /**

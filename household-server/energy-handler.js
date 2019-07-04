@@ -17,14 +17,14 @@ module.exports = {
    *   utilityDataCollection: string
    * }} config Server configuration.
    * @param {Object} web3 Web3 instance.
-   * @param {number} energy Delta of produced and consumed.
+   * @param {number} meterReading current meter Reading.
    */
-  putEnergy: async (config, web3, energy) => {
+  putEnergy: async (config, web3, meterReading) => {
     const { signature, signerAddress, data } = await web3Helper.signData(
       web3,
       config.address,
       config.password,
-      energy
+      meterReading
     );
     return ned.putEnergy(config.nedUrl, signerAddress, signature, data);
   }
