@@ -23,9 +23,10 @@ module.exports = {
    *   utilityDataCollection: string
    * }} config Server configuration.
    * @param {Object} web3 Web3 instance.
+   * @param {Object} utilityContract web3 contract instance.
    * @param {number} meterReading Current meter reading in kWh.
    */
-  putMeterReading: async (config, web3, meterReading) => {
+  putMeterReading: async (config, web3, utilityContract, meterReading) => {
     const { address, password } = config;
     const timestamp = Date.now();
 
@@ -38,7 +39,15 @@ module.exports = {
     const bytesParams = web3Utils.hexToBytes(paddedParamsHex);
     const hash = `0x${sha256(bytesParams)}`;
 
-    // TODO send hash to dUtility contract
+    await web3.eth.personal.unlockAccount(address, password, null);
+    utilityContract.methods
+      .updateRenewableEnergy(address, web3Utils.hexToBytes(hash))
+      .send({ from: address }, (error, txHash) => {
+        if (error) {
+          throw error;
+        }
+        console.log("dUtility.updateRenewableEnergy txHash", txHash);
+      });
 
     const { signature } = await web3Helper.signData(
       web3,

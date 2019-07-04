@@ -208,23 +208,25 @@ app.put("/sensor-stats", async (req, res) => {
       throw new Error("Invalid payload");
     }
 
-    if (nettingActive) {
-      throw new Error(
-        "Netting process is still active. Not sending Transaction... "
+    if (!nettingActive) {
+      nettingActive = true;
+      await energyHandler.putMeterReading(
+        config,
+        web3,
+        utilityContract,
+        meterReading
       );
     }
 
-    // TODO Error handling
-    await Promise.all([
-      energyHandler.putMeterReading(config, web3, meterReading),
-      db.writeToDB(config.dbUrl, config.dbName, config.sensorDataCollection, {
+    await db.writeToDB(
+      config.dbUrl,
+      config.dbName,
+      config.sensorDataCollection,
+      {
         produce,
         consume
-      })
-    ]);
-
-    // set the nettingActive flag so we do not send another Energy update within this netting period
-    nettingActive = true;
+      }
+    );
 
     res.status(200);
     res.send();
