@@ -1,6 +1,6 @@
 const chalk = require("chalk");
 
-const Utility = artifacts.require("Utility");
+const Utility = artifacts.require("dUtility");
 const OwnedSet = artifacts.require("OwnedSet");
 const UtilityBenchmark = artifacts.require("UtilityBenchmark");
 

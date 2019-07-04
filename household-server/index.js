@@ -50,50 +50,35 @@ db.createDB(config.dbUrl, config.dbName, [
 
 let web3;
 let utilityContract;
-// let utilityEventListener;
-
-// Boolean flag whether the netting is currently active or not. If true no transaction must be send!
 let nettingActive = false;
 
 async function init() {
-  // Set up the DB
-  db.createDB(config.dbUrl, config.dbName, [
-    config.sensorDataCollection,
-    config.utilityDataCollection
-  ]).catch(err => {
-    console.log("Error while creating DB", err);
-  });
-
-  // Set up web3
-  const web3 = web3Helper.initWeb3(config.network);
+  web3 = web3Helper.initWeb3(config.network);
   utilityContract = new web3.eth.Contract(
     contractHelper.getAbi("dUtility"),
     contractHelper.getDeployedAddress("dUtility", await web3.eth.net.getId())
   );
 
-  // Set up the event Listener on the dUtility contract to control the data flow until the netting was successful
-  // TODO Rename Event to actual name from the dUtility contract
-  utilityContract.events.NettingSuccess(
-    { filter: {}, fromBlock: 0 },
-    ((error, event) => {
-      console.log(error, event);
-    })
-      // Listener on data. Fires on each incoming event with the event object as argument.
-      .on("data", event => {
-        console.log("Netting successful event received");
-        nettingActive = false;
+  async function pollEvents(fromBlock = 0) {
+    utilityContract.getPastEvents(
+      "NettingSuccess",
+      {
+        filter: {},
+        fromBlock,
+        toBlock: "latest"
+      },
+      error => {
+        if (error) {
+          throw error;
+        }
+      }
+    );
+  }
 
-        // making request to NED server to collect the deeds
-        deedHandler.collectDeeds(config);
-      })
-
-      // Listener on changed. Fires on each event which was removed from the blockchain.
-      // The event will have the additional property "removed: true".
-      .on("changed", event => console.error(event))
-
-      // Listener on error. Fires when an error in the subscription occurs.
-      .on("error", err => console.error(err))
-  );
+  setInterval(async () => {
+    const events = await pollEvents(0);
+    console.log({ events });
+  }, 5000);
 }
 
 init();
