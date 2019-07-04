@@ -82,21 +82,30 @@ class Utility {
   }
 
   /**
+   * Updates meter reading of household.
+   * @param {string} hhAddress Address of an existing household
+   * @param {number} meterReading New meter reading of household
+   * @param {number} timestamp Last update timestamp sent from HHS.
+   */
+  updateMeterReading(hhAddress, meterReading, timestamp) {
+    if (!this._householdExists(hhAddress)) return false;
+    const meterReadingBefore = this.households[hhAddress].meterReading;
+    const energyDelta = meterReading - meterReadingBefore;
+    this.households[hhAddress].meterReading = meterReading;
+    this.households[hhAddress].lastUpdate = timestamp;
+    this.updateRenewableEnergy(hhAddress, energyDelta);
+  }
+
+  /**
    * Updates a household's renewable energy state.
    *
    * Calls _updateEnergy.
    *
    * @param {string} hhAddress Address of an existing household
    * @param {number} energyDelta Amount of energy to be added to the household's current state
-   * @param {number} timestamp Last update timestamp sent from HHS.
    */
-  updateRenewableEnergy(hhAddress, energyDelta, timestamp) {
-    return this._updateEnergy(
-      hhAddress,
-      energyDelta,
-      RENEWABLE_ENERGY,
-      timestamp
-    );
+  updateRenewableEnergy(hhAddress, energyDelta) {
+    return this._updateEnergy(hhAddress, energyDelta, RENEWABLE_ENERGY);
   }
 
   /**
@@ -106,15 +115,9 @@ class Utility {
    *
    * @param {string} hhAddress Address of an existing household
    * @param {number} energyDelta Amount of energy to be added to the household's current state
-   * @param {number} timestamp Last update timestamp sent from HHS.
    */
-  updateNonRenewableEnergy(hhAddress, energyDelta, timestamp) {
-    return this._updateEnergy(
-      hhAddress,
-      energyDelta,
-      NONRENEWABLE_ENERGY,
-      timestamp
-    );
+  updateNonRenewableEnergy(hhAddress, energyDelta) {
+    return this._updateEnergy(hhAddress, energyDelta, NONRENEWABLE_ENERGY);
   }
 
   /**
@@ -123,13 +126,11 @@ class Utility {
    * @param {string} hhAddress Address of an existing household
    * @param {number} energyDelta Amount of energy to be added to the household's current state
    * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY
-   * @param {number} timestamp Last update timestamp sent from HHS.
    */
-  _updateEnergy(hhAddress, energyDelta, energyType, timestamp = Date.now()) {
+  _updateEnergy(hhAddress, energyDelta, energyType) {
     if (!this._householdExists(hhAddress)) return false;
     this[energyType] += energyDelta;
     this.households[hhAddress][energyType] += energyDelta;
-    this.households[hhAddress][energyType].lastUpdate = timestamp;
   }
 
   /**

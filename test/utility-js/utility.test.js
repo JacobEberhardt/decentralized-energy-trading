@@ -40,6 +40,25 @@ describe("Utility", () => {
       });
     });
 
+    describe("update meter reading", () => {
+      it("updateMeterReading by 100", () => {
+        instance.updateMeterReading(hhAddress1, 100, Date.now());
+        expect(instance.households[hhAddress1].meterReading).to.equal(100);
+        expect(instance.households[hhAddress1][RENEWABLE_ENERGY]).to.equal(100);
+        expect(instance[RENEWABLE_ENERGY]).to.equal(100);
+      });
+
+      it("reverts when attempting to update meter reading of not existing household", () => {
+        expect(
+          instance._updateEnergy(
+            "0x45D4b6e19b3fee56bA93972d8d72aC65FeF26b00",
+            100,
+            RENEWABLE_ENERGY
+          )
+        ).to.be.false;
+      });
+    });
+
     describe("update energy", () => {
       it("updateRenewableEnergy by 100", () => {
         instance.updateRenewableEnergy(hhAddress1, 100);
