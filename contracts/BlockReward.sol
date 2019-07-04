@@ -15,18 +15,10 @@
 pragma solidity ^0.5.0;
 
 import "./interfaces/IBlockReward.sol";
-import "./interfaces/IUtility.sol";
-
 
 contract BlockReward is IBlockReward {
   // Amount of eth that is rewarded to block producers
   uint256 public constant REWARD_AMOUNT = 10000000000000000 wei;
-  // Address of utility contract
-  address public constant UTILITY_CONTRACT = 0x0000000000000000000000000000000000000042;
-  // Interval in blocks when netting function should be triggered
-  uint8 public constant NETTING_INTERVAL = 5;
-
-  uint256 public latestNettingBlockNumber = 0;
 
   modifier onlySystem {
     require(
@@ -57,12 +49,6 @@ contract BlockReward is IBlockReward {
 
     for (uint i = 0; i < rewards.length; i++) {
       rewards[i] = REWARD_AMOUNT;
-    }
-
-    if (block.number - latestNettingBlockNumber >= NETTING_INTERVAL) {
-      latestNettingBlockNumber = block.number;
-      IUtility utility = IUtility(UTILITY_CONTRACT);
-      utility.settle();
     }
 
     return (benefactors, rewards);
