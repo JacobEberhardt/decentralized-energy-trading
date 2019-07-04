@@ -2,6 +2,131 @@
 
 All meeting protocols are listed below ordered by date (descending).
 
+### 07/02/19, 12-3pm: Team meeting and meeting with Jacob
+
+with Jacob from 2pm
+
+You can find the agenda [here](https://docs.google.com/document/d/1XQ4bXn_yHIRhfa8-JAqrDXvk7lP3wkP-XHCPbtvk4vA/edit#).
+
+**Done:**
+
+- Emo round
+- Updates on the different components
+  - NED Server
+  - ZoKrates
+    - New constraint: either consuming households or producing household are satisfied (energy = 0; +- error tolerance)
+  - dUtility contract
+  - HPU
+- Discussion on data consistency
+  - HPU - meter reading (produce/consume for UI)
+  - NED - meter reading
+  - dUtility - meter reading, computes energy delta itself
+  - ZoKrates - energy delta (netting), meter reading (hash)
+  - Mock Sensor - sends meter reading, produce/consume (for HHS)
+- Hashing approach
+  - Analogical to ZoKrates pre-image tutorial
+  - Concatenating first
+  - Compliance through padding
+    - 2 field elements (will be unpacked) each encoding 128 bit
+    - Remember padding to ensure correct computation
+  - No ZoKrates on HPU (too much overhead) but use the same hashing approach
+
+**ToDo:**
+
+- HPU
+  - Send hashed data to dUtility
+  - Send data to NED
+- NED
+  - Send proof to dUtility
+- ZoKrates
+  - Add new constraint
+  - Compute hash
+- dUtility
+  - Check hashes
+  - Throw events dependent on success of comparison
+- Integration of components
+- Connection of Docker images   
+    
+**Remark:**
+
+- What if netting fails?
+  - No status update
+  - Therefore, just waiting for next successful netting   
+- NED: Default meter value if HPU does not send = last meter value 
+- Next meetings
+  - Team meeting 07/08/19 3pm
+  - Team meeting 07/09/19 12-2pm
+  - Final presentation 07/09/19 2-4pm
+
+### 06/26/19, 12-2pm: Team meeting and meeting with Jacob
+
+with Jacob from 1-2pm
+
+You can find the agenda [here](https://docs.google.com/document/d/1b45EfrC5g6ao5BvzjNiTZcvzyas-LA37cQf5mBW1xQ0/edit#).
+
+**Done:**
+
+- Emo round
+- Updates on the different components
+  - NED Server
+  - ZoKrates
+  - dUtility contract
+  - HPU
+- Discussion on current architecture
+  - HPU 
+    - Send plain values to NED
+    - Put hashed values on the blockchain
+  - NED
+    - Execute netting 
+    - Does not hash values
+  - ZoKrates
+    - Plain meter values from NED as private input
+    - ZoKrates hashes meter values
+    - Hash as public output (can be treated as public input by the dUtility contract)
+  - Check if hash value on-chain is the same as the one from ZoKrates 
+
+**ToDo:**
+
+- NED
+  - Send proof to dUtility contract
+  - EventListener for Verification Contract
+  - Docker-setup
+- ZoKrates
+  - Revise constraints (invariants stronger if possible)
+  - Hash private input
+- dUtility contract
+  - Check correctness of hashes
+- HPU 
+  - Write hashed meter values to blockchain
+  - Listening to events
+    - HPU is only allowed to send transaction if verification event received
+  - Collect deeds from NED (and writes into DB)
+    
+**Remark:**
+
+- Short follow-up meeting with Jacob on 06/28/19 2pm regarding current architecture
+- Case of wrong netting/no netting
+  - Proof invalid = should not occur, as ZoKrates does not generate invalid proofs
+  - Do the netting later (netting is done after consumption either way)
+- Hash computation
+  - Example in ZoKrates (proof of pre-image)
+  - Sha uses different number of rounds, could lead to different hashes with similar input
+- Trust NED only with data privacy, not with correct netting 
+- Final presentation (07/09/19 2-4pm)
+  - 20-30 min. 
+  - Slides English, Language German is ok
+  - Content
+    - Motivation (specific)
+    - Recap: Milestone presentation
+    - How privacy is introduced
+  - Demo
+    - UI (with meter data)
+    - Blockchain (no clear data, only hashes)
+    - Show that netting works    
+- Next meetings
+  - Team meeting 07/02/19 12-2pm
+  - Meeting with Jacob 07/02/19 2-4pm
+
 ### 06/18/19, 12-2pm: Team meeting
 
 You can find the agenda [here](https://docs.google.com/document/d/15s6lRSq7oatCTWKJ3v5tNRI-DcVb6m5ThTweFFfA-_g/edit#).

@@ -12,6 +12,10 @@ commander
   .option("-r, --route <type>", "route/path of household server")
   .option("-i, --interval <type>", "time interval of the of the sensor in ms")
   .option(
+    "-s, --startValue <Number>",
+    "starting value of the meter in case of single continous meter reading"
+  )
+  .option(
     "-e, --energybalance <type>",
     "+ for energy consumption < production, - for consumption > production, = for consumption = production"
   );
@@ -22,6 +26,7 @@ const port = commander.port || serverConfig.port;
 const path = commander.endpoint || "/sensor-stats";
 const sensorInterval = commander.interval || serverConfig.sensorInterval;
 const energyBalance = commander.energybalance || "=";
+let currentMeterReading = Number(commander.startValue) || 0;
 
 /**
  * Importing the regular consume and produce factors based on the given energy balance
@@ -138,8 +143,13 @@ setInterval(() => {
     );
   }
 
+  currentMeterReading +=
+    Number(payload["produce"]) - Number(payload["consume"]);
+  payload["meterReading"] = currentMeterReading;
+
   /**
    * Sending the request with the payload to the Household server
    */
+  console.log(payload);
   req.end(JSON.stringify(payload));
-}, sensorInterval);
+}, 1000);
