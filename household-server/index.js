@@ -198,9 +198,13 @@ app.get("/network-stats", async (req, res, next) => {
  * PUT /sensor-stats
  */
 app.put("/sensor-stats", async (req, res) => {
-  const { produce, consume, meterReading = 1000 } = req.body;
+  const { produce, consume, meterReading } = req.body;
   try {
-    if (typeof produce !== "number" || typeof consume !== "number") {
+    if (
+      typeof produce !== "number" ||
+      typeof consume !== "number" ||
+      typeof meterReading !== "number"
+    ) {
       throw new Error("Invalid payload");
     }
 

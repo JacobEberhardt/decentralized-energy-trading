@@ -7,6 +7,7 @@ const Utility = require("../utility-js/Utility");
 const hhHandler = require("./household-handler");
 const zkHandler = require("./zk-handler");
 const web3Helper = require("../helpers/web3");
+const contractHelper = require("../helpers/contract");
 // const dUtilityHandler = require("./utility-contract-handler");
 
 const serverConfig = require("../ned-server-config");
@@ -43,6 +44,10 @@ async function init() {
   //   contractHelper.getAbi("utility"),
   //   contractHelper.getDeployedAddress("utility", await web3.eth.net.getId())
   // );
+  ownedSetContract = new web3.eth.Contract(
+    contractHelper.getAbi("ownedSet"),
+    contractHelper.getDeployedAddress("ownedSet", await web3.eth.net.getId())
+  );
 
   function runZokrates() {
     const utilityCopy = { ...utility };

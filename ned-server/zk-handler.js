@@ -1,8 +1,10 @@
 const shell = require("shelljs");
 const web3Utils = require("web3-utils");
+const chalk = require("chalk");
 
 const addressHelper = require("../helpers/address-arr");
 const zokratesHelper = require("../helpers/zokrates");
+const conversionHelper = require("../helpers/conversion");
 
 /**
  * This handler manages the communication of the NED Server and the ZoKrates environment
@@ -21,14 +23,22 @@ module.exports = {
       ...hhAddressesWithEnergyBefore,
       ...hhAddressesNoEnergyBefore
     ]
-      .map(address => utilityBeforeNetting.households[address].renewableEnergy)
+      .map(address =>
+        conversionHelper.kWhToWs(
+          utilityBeforeNetting.households[address].renewableEnergy
+        )
+      )
       .join(" ");
     const balancesAfter = [
       ...hhAddressesWithEnergyBefore,
       ...hhAddressesNoEnergyBefore
     ]
       .map(address =>
-        Math.abs(utilityAfterNetting.households[address].renewableEnergy)
+        Math.abs(
+          conversionHelper.kWhToWs(
+            utilityAfterNetting.households[address].renewableEnergy
+          )
+        )
       )
       .join(" ");
 
@@ -38,7 +48,9 @@ module.exports = {
     ]
       .map(address => {
         const packedParamsOfHH = zokratesHelper.padPackParams512(
-          utilityBeforeNetting.households[address].meterReading,
+          conversionHelper.kWhToWs(
+            utilityBeforeNetting.households[address].meterReading
+          ),
           utilityBeforeNetting.households[address].lastUpdate,
           address
         );
@@ -51,7 +63,7 @@ module.exports = {
       })
       .join(" ");
 
-    console.log("Computing witness...");
+    process.stdout.write("Computing witness...");
     const witnessShellStr = shell
       .cd("./zokrates-code")
       .exec(
@@ -60,8 +72,10 @@ module.exports = {
       .grep("--", "^~out_*", "witness");
 
     if (witnessShellStr.code !== 0) {
+      process.stdout.write(chalk.red("failed\n"));
       throw new Error("zokrates compute-witness failed");
     }
+    process.stdout.write(chalk.green("done\n"));
 
     const hashArr = witnessShellStr.stdout
       .split("\n")
@@ -80,12 +94,14 @@ module.exports = {
       return hashes;
     }, []);
 
-    console.log("Generating proof...");
+    process.stdout.write("Generating proof...");
     const proofShellStr = shell.exec("zokrates generate-proof > /dev/null");
 
     if (proofShellStr.code !== 0) {
+      process.stdout.write(chalk.red("failed\n"));
       throw new Error("zokrates generate-proof failed");
     }
+    process.stdout.write(chalk.green("done\n"));
 
     return hashOutHex;
   }

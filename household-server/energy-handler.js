@@ -3,6 +3,8 @@ const sha256 = require("js-sha256");
 
 const web3Helper = require("../helpers/web3");
 const zokratesHelper = require("../helpers/zokrates");
+const conversionHelper = require("../helpers/conversion");
+
 const ned = require("./apis/ned");
 
 module.exports = {
@@ -28,13 +30,15 @@ module.exports = {
     const timestamp = Date.now();
 
     const paddedParamsHex = zokratesHelper.padPackParams512(
-      meterReading,
+      conversionHelper.kWhToWs(meterReading),
       timestamp,
       address
     );
 
     const bytesParams = web3Utils.hexToBytes(paddedParamsHex);
-    const hash = sha256(bytesParams);
+    const hash = `0x${sha256(bytesParams)}`;
+
+    // TODO send hash to dUtility contract
 
     const { signature } = await web3Helper.signData(
       web3,
@@ -42,6 +46,7 @@ module.exports = {
       password,
       hash
     );
+
     return ned.putSignedMeterReading(config.nedUrl, address, {
       signature,
       hash,
