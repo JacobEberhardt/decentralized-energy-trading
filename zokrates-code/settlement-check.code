@@ -59,6 +59,10 @@ def validateFairness(field[2] hh, field[2] hhNet) -> (field):
 
   return errorCounter
 
+// Validates the zero-net property (one set of household will be 0 (up to an epislon error) after netting)
+// Is valid, only if returns 0.
+// @param {field[2]} household party (either needing or having energy)
+// @param epsilon the error tolerance value
 def validateZeroNet(field[2] hh, field epsilon) -> (field):
   field errorCounter = 0
   for field i in 0..1 do
