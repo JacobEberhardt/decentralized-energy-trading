@@ -50,16 +50,14 @@ async function init() {
     const utilityBeforeNetting = { ...utilityCopy };
     Object.setPrototypeOf(utilityBeforeNetting, Utility.prototype);
     utilityCopy.settle();
-    const hash = zkHandler.generateProof(utilityBeforeNetting, utilityCopy);
-    console.log(hash);
+    const hashes = zkHandler.generateProof(utilityBeforeNetting, utilityCopy);
+    console.log(hashes);
     // TODO Call contract method of dUtility.sol contract
     // const txReceipt = await dUtilityHandler.sendProof(utilityContract, hash);
     // console.log(txReceipt);
     // TODO Set new utility state on successful verification. E.g. event is emitted.
     utility = utilityCopy;
   }
-
-  runZokrates();
 
   setInterval(() => {
     runZokrates();
@@ -81,9 +79,9 @@ app.put("/energy/:householdAddress", async (req, res) => {
     const householdAddress = web3Utils.toChecksumAddress(
       req.params.householdAddress
     );
-    const { signature, hash, timestamp, energy } = req.body;
+    const { signature, hash, timestamp, meterReading } = req.body;
 
-    if (typeof energy !== "number") {
+    if (typeof meterReading !== "number") {
       throw new Error("Invalid payload");
     }
 
@@ -105,7 +103,9 @@ app.put("/energy/:householdAddress", async (req, res) => {
     }
 
     utility.addHousehold(householdAddress);
-    utility.updateRenewableEnergy(householdAddress, energy, timestamp);
+    utility.updateMeterReading(householdAddress, meterReading, timestamp);
+
+    console.log(utility.households);
 
     res.status(200);
     res.send();

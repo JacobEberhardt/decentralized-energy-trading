@@ -73,9 +73,9 @@ module.exports = {
       }
       const hashOut0 = hashArr[i].substr(7);
       const hashOut1 = hashArr[i + 1].substr(7);
-      const hashHex = `0x
-        ${web3Utils.toBN(hashOut0).toString("hex")}
-        ${web3Utils.toBN(hashOut1).toString("hex")}`;
+      const hashHex = `0x${web3Utils
+        .toBN(hashOut0)
+        .toString("hex")}${web3Utils.toBN(hashOut1).toString("hex")}`;
       hashes.push(hashHex);
       return hashes;
     }, []);
