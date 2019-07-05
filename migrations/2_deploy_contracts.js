@@ -72,24 +72,19 @@ module.exports = async (deployer, network, [authority]) => {
         from: AUTHORITY_ADDRESS
       });
       process.stdout.write(chalk.green("done\n"));
-      await finalizeChange(ownedSetInstanceInAuthority);
-
+      await finalizeChange(ownedSetInstanceInAuthority, web3);
       break;
     }
     case "authority_docker": {
       const otherAuthorityAddress = process.env.AUTHORITY_ADDRESS;
       const web3 = web3Helper.initWeb3("authority_docker");
       const ownedSetInstanceInAuthority = await OwnedSet.at(OWNED_SET_ADDRESS);
-      await web3.eth.personal.unlockAccount(address, password, null);
-      await ownedSetInstanceInAuthority.addValidator(otherAuthorityAddress, {
-        from: AUTHORITY_ADDRESS
-      });
-
-      const utilityInstanceInAuthority = await Utility.at(UTILITY_ADDRESS);
-      await web3.eth.personal.unlockAccount(address, password, null);
-      await utilityInstanceInAuthority.addHousehold(otherAuthorityAddress, {
-        from: AUTHORITY_ADDRESS
-      });
+      await addValidator(
+        otherAuthorityAddress,
+        ownedSetInstanceInAuthority,
+        web3
+      );
+      await finalizeChange(ownedSetInstanceInAuthority, web3);
       break;
     }
     case "benchmark": {

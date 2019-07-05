@@ -18,13 +18,10 @@ async function callRPC(methodSignature, port, params = []) {
   return { statusCode, body };
 }
 
-export async function runMigrations(otherAccount) {
-  shell.exec("./path_to_ur_file");
-}
-
 async function main() {
   console.log("Adding new peer ...");
   const enode = (await callRPC("parity_enode", 8556)).body.result;
+  console.log(enode);
   const isPeerAdded = (await callRPC("parity_addReservedPeer", 8555, [enode]))
     .body.result;
   console.log(`Peer added: ${isPeerAdded}`);

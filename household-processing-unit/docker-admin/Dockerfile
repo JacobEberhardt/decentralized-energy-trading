@@ -20,20 +20,23 @@ COPY household-server ./household-server
 COPY household-ui ./household-ui
 COPY migrations ./migrations
 
-COPY household-processing-unit/docker-admin/household-server-config.js ./
+COPY household-server-config.js ./
 COPY package.json ./
 COPY truffle-config.js ./
 COPY yarn.lock ./
-COPY household-processing-unit/parity ./parity
+COPY parity-authority/parity/config/chain.json ./parity/config/chain.json
+COPY parity-authority/parity/config/authority.toml ./parity/authority.toml
+COPY parity-authority/parity/authorities/authority0.json ./parity/authority.json
+COPY parity-authority/parity/authorities/authority0.pwd ./parity/authority.pwd
 COPY household-processing-unit/scripts/start_admin.sh ./
-COPY household-processing-unit/scripts/setup_parity.sh ./
+COPY scripts/install_parity.sh ./
 
 RUN yarn install --network-concurrency 1
 WORKDIR /household_procesing_unit/household-ui
 RUN yarn install --network-concurrency 1
 
 WORKDIR /household_procesing_unit
-RUN ./setup_parity.sh
+RUN ./install_parity.sh
 RUN parity account import --config ./parity/authority.toml ./parity/authority.json
 WORKDIR /household_procesing_unit
 
