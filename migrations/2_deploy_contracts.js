@@ -73,7 +73,6 @@ module.exports = async (deployer, network, [authority]) => {
       });
       process.stdout.write(chalk.green("done\n"));
       await finalizeChange(ownedSetInstanceInAuthority, web3);
-
       break;
     }
     case "authority_docker": {

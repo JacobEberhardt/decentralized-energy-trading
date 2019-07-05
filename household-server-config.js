@@ -20,7 +20,5 @@ module.exports = {
   // Name of JSON RPC interface specified in `truffle-config.js`
   network: "authority",
   // Time Interval of the Mock-Sensor sending Data to the Household Server in ms
-  sensorInterval: 10000,
-  // Mode of the sensor. Mode 1: Sensor send consume and produce values. Mode 2 sensor send one meterReading value that updates
-  sensorMode: 1
+  sensorInterval: 10000
 };
