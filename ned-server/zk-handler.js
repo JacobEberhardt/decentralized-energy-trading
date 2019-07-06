@@ -19,40 +19,48 @@ module.exports = {
       utilityBeforeNetting.getHouseholdAddressesNoEnergy(),
       2
     );
-    const balancesBefore = [
+    const hhAddresses = [
       ...hhAddressesWithEnergyBefore,
       ...hhAddressesNoEnergyBefore
-    ]
+    ];
+    const balancesWithEnergyBefore = hhAddressesWithEnergyBefore
       .map(address =>
         conversionHelper.kWhToWs(
           utilityBeforeNetting.households[address].renewableEnergy
         )
       )
       .join(" ");
-    const balancesAfter = [
-      ...hhAddressesWithEnergyBefore,
-      ...hhAddressesNoEnergyBefore
-    ]
+    const balancesNoEnergyBefore = hhAddressesNoEnergyBefore
       .map(address =>
-        Math.abs(
-          conversionHelper.kWhToWs(
-            utilityAfterNetting.households[address].renewableEnergy
-          )
+        conversionHelper.kWhToWs(
+          Math.abs(utilityBeforeNetting.households[address].renewableEnergy)
+        )
+      )
+      .join(" ");
+    const balancesWithEnergyAfter = hhAddressesWithEnergyBefore
+      .map(address =>
+        conversionHelper.kWhToWs(
+          utilityAfterNetting.households[address].renewableEnergy
+        )
+      )
+      .join(" ");
+    const balancesNoEnergyAfter = hhAddressesNoEnergyBefore
+      .map(address =>
+        conversionHelper.kWhToWs(
+          Math.abs(utilityAfterNetting.households[address].renewableEnergy)
         )
       )
       .join(" ");
 
-    const packedParams = [
-      ...hhAddressesWithEnergyBefore,
-      ...hhAddressesNoEnergyBefore
-    ]
+    const packedParams = hhAddresses
       .map(address => {
         const packedParamsOfHH = zokratesHelper.padPackParams512(
           conversionHelper.kWhToWs(
-            utilityBeforeNetting.households[address].meterReading
+            // TODO: Handle negative meter readings
+            Math.abs(utilityBeforeNetting.households[address].meterReading)
           ),
           utilityBeforeNetting.households[address].lastUpdate,
-          address
+          address.toLowerCase()
         );
         return [
           web3Utils.hexToNumberString(packedParamsOfHH.substr(2, 32)),
@@ -67,7 +75,7 @@ module.exports = {
     const witnessShellStr = shell
       .cd("./zokrates-code")
       .exec(
-        `zokrates compute-witness -a ${balancesBefore} ${balancesAfter} ${packedParams} > /dev/null`
+        `zokrates compute-witness -a ${balancesWithEnergyBefore} ${balancesNoEnergyBefore} ${balancesWithEnergyAfter} ${balancesNoEnergyAfter} ${packedParams} > /dev/null`
       )
       .grep("--", "^~out_*", "witness");
 
@@ -103,6 +111,9 @@ module.exports = {
     }
     process.stdout.write(chalk.green("done\n"));
 
-    return hashOutHex;
+    return hhAddresses.reduce((addressToHashMap, address, i) => {
+      addressToHashMap[address] = hashOutHex[i];
+      return addressToHashMap;
+    }, {});
   }
 };

@@ -8,7 +8,7 @@ const hhHandler = require("./household-handler");
 const zkHandler = require("./zk-handler");
 const web3Helper = require("../helpers/web3");
 const contractHelper = require("../helpers/contract");
-// const dUtilityHandler = require("./utility-contract-handler");
+const { ZERO_ADDRESS } = require("../helpers/constants");
 
 const serverConfig = require("../ned-server-config");
 
@@ -27,41 +27,109 @@ const config = {
   nettingInterval: commander.interval || serverConfig.nettingInterval,
   host: commander.host || serverConfig.host,
   port: commander.port || serverConfig.port,
-  network: commander.network || serverConfig.network
+  network: commander.network || serverConfig.network,
+  address: serverConfig.address,
+  password: serverConfig.password
 };
 
 let web3;
 let utility;
+let utilityAfterNetting;
 let ownedSetContract;
-// let utilityContract;
+let utilityContract;
+let latestBlockNumber;
 
 async function init() {
   web3 = web3Helper.initWeb3(config.network);
+  latestBlockNumber = await web3.eth.getBlockNumber();
 
   // Off-chain utility instance
   utility = new Utility();
-  // utilityContract = new web3.eth.Contract(
-  //   contractHelper.getAbi("utility"),
-  //   contractHelper.getDeployedAddress("utility", await web3.eth.net.getId())
-  // );
+  utilityContract = new web3.eth.Contract(
+    contractHelper.getAbi("dUtility"),
+    contractHelper.getDeployedAddress("dUtility", await web3.eth.net.getId())
+  );
   ownedSetContract = new web3.eth.Contract(
     contractHelper.getAbi("ownedSet"),
     contractHelper.getDeployedAddress("ownedSet", await web3.eth.net.getId())
   );
 
-  function runZokrates() {
-    const utilityCopy = { ...utility };
-    Object.setPrototypeOf(utilityCopy, Utility.prototype);
-    const utilityBeforeNetting = { ...utilityCopy };
+  utilityContract.events.NettingSuccess(
+    {
+      fromBlock: latestBlockNumber
+    },
+    async (error, event) => {
+      if (error) {
+        console.error(error);
+        throw error;
+      }
+      console.log("NettingSuccess event", event);
+      latestBlockNumber = event.blockNumber;
+      utility = utilityAfterNetting;
+    }
+  );
+
+  utilityContract.events.CheckHashesSuccess(
+    {
+      fromBlock: latestBlockNumber
+    },
+    async (error, event) => {
+      if (error) {
+        console.error(error);
+        throw error;
+      }
+      console.log("CheckHashesSuccess event", event);
+      latestBlockNumber = event.blockNumber;
+      const { proof, inputs } = require("../zokrates-code/proof.json");
+      await web3.eth.personal.unlockAccount(
+        config.address,
+        config.password,
+        null
+      );
+      utilityContract.methods
+        .verifyNetting(proof.a, proof.b, proof.c, inputs)
+        .send({ from: config.address }, (error, txHash) => {
+          if (error) {
+            console.error(error);
+            throw error;
+          }
+          console.log("dUtility.verifyNetting txHash", txHash);
+        });
+    }
+  );
+
+  async function runZokrates() {
+    const utilityBeforeNetting = { ...utility };
     Object.setPrototypeOf(utilityBeforeNetting, Utility.prototype);
-    utilityCopy.settle();
-    const hashes = zkHandler.generateProof(utilityBeforeNetting, utilityCopy);
-    console.log(hashes);
-    // TODO Call contract method of dUtility.sol contract
-    // const txReceipt = await dUtilityHandler.sendProof(utilityContract, hash);
-    // console.log(txReceipt);
-    // TODO Set new utility state on successful verification. E.g. event is emitted.
-    utility = utilityCopy;
+    utilityAfterNetting = { ...utility };
+    Object.setPrototypeOf(utilityAfterNetting, Utility.prototype);
+    utilityAfterNetting.settle();
+    const hhAddressToHash = zkHandler.generateProof(
+      utilityBeforeNetting,
+      utilityAfterNetting
+    );
+    delete hhAddressToHash[ZERO_ADDRESS];
+    if (Object.keys(hhAddressToHash).length > 0) {
+      await web3.eth.personal.unlockAccount(
+        config.address,
+        config.password,
+        null
+      );
+      utilityContract.methods
+        .checkHashes(
+          Object.keys(hhAddressToHash),
+          Object.values(hhAddressToHash).map(hexHash =>
+            web3Utils.hexToBytes(hexHash)
+          )
+        )
+        .send({ from: config.address }, (error, txHash) => {
+          if (error) {
+            console.error(error);
+            throw error;
+          }
+          console.log("dUtility.checkHashes txHash", txHash);
+        });
+    }
   }
 
   setInterval(() => {
@@ -110,8 +178,6 @@ app.put("/energy/:householdAddress", async (req, res) => {
     utility.addHousehold(householdAddress);
     utility.updateMeterReading(householdAddress, meterReading, timestamp);
 
-    console.log(utility.households);
-
     res.status(200);
     res.send();
   } catch (err) {
@@ -154,18 +220,17 @@ app.get("/household/:householdAddress", function(req, res, next) {
 
 /**
  * GET endpoint returning the deeds of a specific Household and a given day from Utility.js
- * Access this like: http://127.0.0.1:3005/deeds/123456789?fromDate=1122465557 (= Date.now())
+ * Access this like: http://127.0.0.1:3005/deeds/123456789?from=1122465557 (= Date.now())
  */
-app.get("/deeds/:householdAddress", function(req, res, next) {
+app.get("/deeds/:householdAddress", (req, res) => {
   try {
-    const fromDate = req.query.fromDate;
+    const { from = 0 } = req.query;
     const householdAddress = web3Utils.toChecksumAddress(
       req.params.householdAddress
     );
-    console.log(householdAddress, fromDate);
-    let deeds = utility.getDeeds(householdAddress, fromDate);
+    const deeds = utility.getDeeds(householdAddress, from);
     res.status(200);
-    res.end(deeds);
+    res.json(deeds || []);
   } catch (err) {
     res.status(400);
     res.send(err);

@@ -50,35 +50,30 @@ db.createDB(config.dbUrl, config.dbName, [
 
 let web3;
 let utilityContract;
+let latestBlockNumber;
 let nettingActive = false;
 
 async function init() {
   web3 = web3Helper.initWeb3(config.network);
+  latestBlockNumber = await web3.eth.getBlockNumber();
   utilityContract = new web3.eth.Contract(
     contractHelper.getAbi("dUtility"),
     contractHelper.getDeployedAddress("dUtility", await web3.eth.net.getId())
   );
-
-  async function pollEvents(fromBlock = 0) {
-    utilityContract.getPastEvents(
-      "NettingSuccess",
-      {
-        filter: {},
-        fromBlock,
-        toBlock: "latest"
-      },
-      error => {
-        if (error) {
-          throw error;
-        }
+  utilityContract.events.NettingSuccess(
+    {
+      fromBlock: latestBlockNumber
+    },
+    (error, event) => {
+      if (error) {
+        console.error(error);
+        throw error;
       }
-    );
-  }
-
-  setInterval(async () => {
-    const events = await pollEvents(0);
-    console.log({ events });
-  }, 5000);
+      console.log("NettingSuccess event", event);
+      latestBlockNumber = event.blockNumber;
+      deedHandler.collectDeeds(config);
+    }
+  );
 }
 
 init();
@@ -216,6 +211,7 @@ app.put("/sensor-stats", async (req, res) => {
     res.status(200);
     res.send();
   } catch (err) {
+    console.error(err);
     res.status(500);
     res.send(err);
   }

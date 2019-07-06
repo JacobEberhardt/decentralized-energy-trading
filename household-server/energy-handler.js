@@ -31,7 +31,7 @@ module.exports = {
     const timestamp = Date.now();
 
     const paddedParamsHex = zokratesHelper.padPackParams512(
-      conversionHelper.kWhToWs(meterReading),
+      conversionHelper.kWhToWs(Math.abs(meterReading)),
       timestamp,
       address
     );
@@ -44,6 +44,7 @@ module.exports = {
       .updateRenewableEnergy(address, web3Utils.hexToBytes(hash))
       .send({ from: address }, (error, txHash) => {
         if (error) {
+          console.error(error);
           throw error;
         }
         console.log("dUtility.updateRenewableEnergy txHash", txHash);
