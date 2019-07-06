@@ -71,6 +71,7 @@ async function init() {
       }
       console.log("NettingSuccess event", event);
       latestBlockNumber = event.blockNumber;
+      nettingActive = false;
       deedHandler.collectDeeds(config);
     }
   );
