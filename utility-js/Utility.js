@@ -20,8 +20,7 @@ class Utility {
         lastUpdate: Date.now()
       }
     };
-    this.checkpoint = 0;
-    this.deeds = {};
+    this.deeds = [];
   }
 
   /**
@@ -48,11 +47,11 @@ class Utility {
    * @param {Date} fromDate Date in the format of Date.now() of the first deed to retrieve
    * @returns {Object} returns an Object of Deeds
    */
-  getDeeds(hhAddress, fromDate) {
+  getDeeds(hhAddress, fromDate = 0) {
     if (!this._householdExists(hhAddress)) return false;
     return this.deeds
       .filter(deed => deed.date >= fromDate)
-      .filter(deed => deed.hhFrom === hhAddress || deed.hhTo === hhAddress);
+      .filter(deed => deed.from === hhAddress || deed.to === hhAddress);
   }
 
   /**
@@ -166,8 +165,6 @@ class Utility {
       neededEnergy += this.households[noEnergy[i]][RENEWABLE_ENERGY];
     }
 
-    this.deeds[this.checkpoint] = [];
-
     if (this[RENEWABLE_ENERGY] <= 0) {
       this._proportionalDistribution(
         availableEnergy,
@@ -184,7 +181,6 @@ class Utility {
       );
     }
 
-    this.checkpoint++;
     return true;
   }
 
@@ -276,7 +272,7 @@ class Utility {
       return false;
 
     if (amount < 0) {
-      this.deeds[this.checkpoint].push({
+      this.deeds.push({
         from: to,
         to: from,
         amount: Math.abs(amount),
@@ -284,7 +280,7 @@ class Utility {
         date: Date.now()
       });
     } else {
-      this.deeds[this.checkpoint].push({
+      this.deeds.push({
         from: from,
         to: to,
         amount: amount,
