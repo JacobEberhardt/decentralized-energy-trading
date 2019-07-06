@@ -185,14 +185,6 @@ contract("dUtility", ([owner, household, household2, other]) => {
       expectEvent.inLogs(this.logs, CHECK_SUCCESS);
     });
 
-    it(`should throw when not called by contract owner`, async () => {
-      await shouldFail.reverting(
-        this.instance.checkHashes([household, household2], energyHashes, {
-          from: other
-        })
-      );
-    });
-
     it(`should throw when input lengths are not equal`, async () => {
       await shouldFail.reverting(
         this.instance.checkHashes([household], energyHashes, {
