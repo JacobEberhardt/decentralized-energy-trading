@@ -75,7 +75,7 @@ describe("Test Network Properties", () => {
         );
 
         const validators = await contract.methods.getValidators().call();
-        assert.strictEqual(validators, 3);
+        assert.strictEqual(validators.length, 3);
       });
 
       it("has 3 pending validators", async () => {
@@ -86,7 +86,7 @@ describe("Test Network Properties", () => {
           OWNED_SET_ADDRESS
         );
         const pendingValidators = await contract.methods.getPending().call();
-        assert.strictEqual(pendingValidators, 3);
+        assert.strictEqual(pendingValidators.length, 3);
       });
     });
   });
