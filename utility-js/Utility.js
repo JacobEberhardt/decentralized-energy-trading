@@ -195,7 +195,7 @@ class Utility {
 
   getHouseholdAddressesNoEnergy() {
     const entries = Object.entries(this.households);
-    return entries.filter(hh => hh[1].renewableEnergy > 0).map(hh => hh[0]);
+    return entries.filter(hh => hh[1].renewableEnergy < 0).map(hh => hh[0]);
   }
 
   /**
