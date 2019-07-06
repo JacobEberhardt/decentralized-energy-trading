@@ -59,6 +59,27 @@ def validateFairness(field[2] hh, field[2] hhNet) -> (field):
 
   return errorCounter
 
+// Validates the zero-net property (one set of household will be 0 (up to an epislon error) after netting)
+// Is valid, only if returns 0.
+// @param {field[2]} household party (either needing or having energy)
+// @param epsilon the error tolerance value
+def validateZeroNet(field[2] hh, field epsilon) -> (field):
+  field errorCounter = 0
+  for field i in 0..1 do
+    errorCounter = errorCounter + if hh[i] > epsilon then 1 else 0 fi
+  endfor
+  
+  return errorCounter
+
+def sum(field[2] hh) -> (field):
+  field s = 0
+  for field i in 0..1 do
+    s = s + hh[i]
+  endfor
+  
+  return s
+
+
 // Returns sha256packed hash if settlement (netting) result is correct.
 // Checks for correctness and weak fairness.
 // Assume n = 4 households, where |householdListWithEnergy| = 2 and |householdListNoEnergy| = 2
@@ -86,6 +107,12 @@ def main(private field[2] hhWithEnergy, private field[2] hhNoEnergy, private fie
   // Weak fairness
   0 == validateFairness(hhWithEnergy, hhWithEnergyNet)
   0 == validateFairness(hhNoEnergy, hhNoEnergyNet)
+
+  // One party zero-net energy
+  field sumWithEnergy = sum(hhWithEnergyNet)
+  field sumNoEnergy = sum(hhNoEnergyNet)
+  field[2] zeroNetParty = if sumWithEnergy <= sumNoEnergy then hhWithEnergyNet else hhNoEnergyNet fi
+  0 == validateZeroNet(zeroNetParty, 15) // Can make epsilon more accurate in the future
   
   // Return sha256packed hash that depends on inputs
   field sum = hhWithEnergy[0] + hhWithEnergy[1] + hhNoEnergy[0] + hhNoEnergy[1] + hhWithEnergyNet[0] + hhWithEnergyNet[1] + hhNoEnergyNet[0] + hhNoEnergyNet[1]
