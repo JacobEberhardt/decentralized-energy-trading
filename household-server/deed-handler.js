@@ -21,7 +21,7 @@ module.exports = {
     const latestSavedTimestamp = await db.getLatestTimestamp(
       config.dbUrl,
       config.dbName,
-      config.collection
+      config.utilityDataCollection
     );
     const deeds = await ned.getDeeds(
       config.nedUrl,

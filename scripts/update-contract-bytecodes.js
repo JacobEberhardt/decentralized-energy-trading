@@ -3,6 +3,7 @@ const path = require("path");
 
 const chainSpec = require("../parity-authority/parity/config/chain.json");
 const utilityArtefact = require("../build/contracts/Utility.json");
+const dUtilityArtefact = require("../build/contracts/dUtility.json");
 const validatorSetArtefact = require("../build/contracts/OwnedSet.json");
 const verifierArtefact = require("../build/contracts/Verifier.json");
 
@@ -18,6 +19,10 @@ const ENCODED_INITIAL_VALIDATOR_ADDRESSES =
 
 if (!utilityArtefact) {
   throw new Error("No contract artefact for Utility found.");
+}
+
+if (!dUtilityArtefact) {
+  throw new Error("No contract artefact for dUtility found.");
 }
 
 if (!validatorSetArtefact) {
@@ -37,7 +42,7 @@ fs.writeFile(
         ...chainSpec.accounts,
         [UTILITY_ADDRESS]: {
           balance: "1",
-          constructor: utilityArtefact.bytecode
+          constructor: dUtilityArtefact.bytecode
         },
         [OWNED_SET_ADDRESS]: {
           balance: "1",

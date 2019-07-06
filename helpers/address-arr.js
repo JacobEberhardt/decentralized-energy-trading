@@ -4,9 +4,10 @@ module.exports = {
   /**
    * Hack function to enforce address array length of 2.
    * @param {string[]} addressArr List of HH addresses.
+   * @param {number} length Length to enforce.
    */
-  enforceAddressArrLength: addressArr => {
-    const zeroAddressArr = new Array(2).fill(ZERO_ADDRESS);
+  enforceAddressArrLength: (addressArr, length = 2) => {
+    const zeroAddressArr = new Array(length).fill(ZERO_ADDRESS);
     return zeroAddressArr.map((zeroAddress, i) => addressArr[i] || zeroAddress);
   }
 };

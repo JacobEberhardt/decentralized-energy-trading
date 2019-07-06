@@ -1,6 +1,6 @@
 const chalk = require("chalk");
 
-const Utility = artifacts.require("Utility");
+const Utility = artifacts.require("dUtility");
 const OwnedSet = artifacts.require("OwnedSet");
 const UtilityBenchmark = artifacts.require("UtilityBenchmark");
 
@@ -12,7 +12,8 @@ const {
   AUTHORITY_ADDRESS,
   OTHER_AUTHORITY_ADDRESSES,
   OWNED_SET_ADDRESS,
-  TESTS_FAKE_ADDRESS
+  TESTS_FAKE_ADDRESS,
+  VERIFIER_ADDRESS
 } = require("../helpers/constants");
 
 async function addValidator(validator, ownedSetInstance, web3) {
@@ -43,6 +44,13 @@ module.exports = async (deployer, network, [authority]) => {
       const utilityInstanceInAuthority = await Utility.at(UTILITY_ADDRESS);
       const ownedSetInstanceInAuthority = await OwnedSet.at(OWNED_SET_ADDRESS);
       const web3 = web3Helper.initWeb3("authority");
+
+      process.stdout.write("  Set verifier contract address ... ");
+      await web3.eth.personal.unlockAccount(address, password, null);
+      await utilityInstanceInAuthority.setVerifier(VERIFIER_ADDRESS, {
+        from: AUTHORITY_ADDRESS
+      });
+      process.stdout.write(chalk.green("done\n"));
 
       process.stdout.write("  Adding admin node to Utility contract ... ");
       await web3.eth.personal.unlockAccount(address, password, null);

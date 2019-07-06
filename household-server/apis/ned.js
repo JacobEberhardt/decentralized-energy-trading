@@ -17,16 +17,17 @@ module.exports = {
    * Send PUT signed energy data to NED server.
    * @param {string} nedUrl Base URL of NED server.
    * @param {string} householdAddress Address of sending household.
-   * @param {string} signature Signature.
-   * @param {number} energy Energy delta.
+   * @param {{
+   *  energy: number,
+   *  hash: string,
+   *  timestamp: number,
+   *  signature: string
+   * }} payload Energy json.
    */
-  putEnergy: (nedUrl, householdAddress, signature, energy) => {
+  putSignedMeterReading: (nedUrl, householdAddress, payload) => {
     return request(`${nedUrl}/energy/${householdAddress}`, {
       method: "PUT",
-      json: {
-        signature,
-        energy
-      }
+      json: payload
     });
   },
   /**

@@ -1,4 +1,5 @@
 const UtilityArtifact = require("../build/contracts/Utility.json");
+const dUtilityArtifact = require("../build/contracts/dUtility.json");
 const OwnedSet = require("../build/contracts/OwnedSet.json");
 const { UTILITY_ADDRESS, OWNED_SET_ADDRESS } = require("../helpers/constants");
 
@@ -9,6 +10,10 @@ const CONTRACTS_MAP = {
   utility: {
     addressInAuthority: UTILITY_ADDRESS,
     artifact: UtilityArtifact
+  },
+  dUtility: {
+    addressInAuthority: UTILITY_ADDRESS,
+    artifact: dUtilityArtifact
   },
   ownedSet: {
     addressInAuthority: OWNED_SET_ADDRESS,

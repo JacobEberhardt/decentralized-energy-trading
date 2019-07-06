@@ -1,59 +1,118 @@
 const shell = require("shelljs");
 const web3Utils = require("web3-utils");
+const chalk = require("chalk");
 
-const { enforceAddressArrLength } = require("../helpers/address-arr");
-const { kWhToWs } = require("../helpers/conversion");
+const addressHelper = require("../helpers/address-arr");
+const zokratesHelper = require("../helpers/zokrates");
+const conversionHelper = require("../helpers/conversion");
 
 /**
  * This handler manages the communication of the NED Server and the ZoKrates environment
  */
 module.exports = {
   generateProof: (utilityBeforeNetting, utilityAfterNetting) => {
-    const hhAddressesWithEnergyBefore = enforceAddressArrLength(
-      utilityBeforeNetting.getHouseholdAddressesWithEnergy()
+    const hhAddressesWithEnergyBefore = addressHelper.enforceAddressArrLength(
+      utilityBeforeNetting.getHouseholdAddressesWithEnergy(),
+      2
     );
-    const hhAddressesNoEnergyBefore = enforceAddressArrLength(
-      utilityBeforeNetting.getHouseholdAddressesNoEnergy()
+    const hhAddressesNoEnergyBefore = addressHelper.enforceAddressArrLength(
+      utilityBeforeNetting.getHouseholdAddressesNoEnergy(),
+      2
     );
-    const balancesBefore = [
+    const hhAddresses = [
       ...hhAddressesWithEnergyBefore,
       ...hhAddressesNoEnergyBefore
-    ].map(address =>
-      kWhToWs(utilityBeforeNetting.households[address].renewableEnergy)
-    );
-    const balancesAfter = [
-      ...hhAddressesWithEnergyBefore,
-      ...hhAddressesNoEnergyBefore
-    ].map(address =>
-      kWhToWs(Math.abs(utilityAfterNetting.households[address].renewableEnergy))
-    );
-    const shellStr = shell
-      .cd("./zokrates-code")
-      .exec(
-        `zokrates compute-witness -a ${balancesBefore.join(
-          " "
-        )} ${balancesAfter.join(" ")}`
+    ];
+    const balancesWithEnergyBefore = hhAddressesWithEnergyBefore
+      .map(address =>
+        conversionHelper.kWhToWs(
+          utilityBeforeNetting.households[address].renewableEnergy
+        )
       )
-      .grep("--", "^~out_*");
+      .join(" ");
+    const balancesNoEnergyBefore = hhAddressesNoEnergyBefore
+      .map(address =>
+        conversionHelper.kWhToWs(
+          Math.abs(utilityBeforeNetting.households[address].renewableEnergy)
+        )
+      )
+      .join(" ");
+    const balancesWithEnergyAfter = hhAddressesWithEnergyBefore
+      .map(address =>
+        conversionHelper.kWhToWs(
+          utilityAfterNetting.households[address].renewableEnergy
+        )
+      )
+      .join(" ");
+    const balancesNoEnergyAfter = hhAddressesNoEnergyBefore
+      .map(address =>
+        conversionHelper.kWhToWs(
+          Math.abs(utilityAfterNetting.households[address].renewableEnergy)
+        )
+      )
+      .join(" ");
 
-    if (shellStr.code !== 0) {
+    const packedParams = hhAddresses
+      .map(address => {
+        const packedParamsOfHH = zokratesHelper.padPackParams512(
+          conversionHelper.kWhToWs(
+            // TODO: Handle negative meter readings
+            Math.abs(utilityBeforeNetting.households[address].meterReading)
+          ),
+          utilityBeforeNetting.households[address].lastUpdate,
+          address.toLowerCase()
+        );
+        return [
+          web3Utils.hexToNumberString(packedParamsOfHH.substr(2, 32)),
+          web3Utils.hexToNumberString(packedParamsOfHH.substr(34, 3)),
+          web3Utils.hexToNumberString(packedParamsOfHH.substr(66, 32)),
+          web3Utils.hexToNumberString(packedParamsOfHH.substr(98, 32))
+        ].join(" ");
+      })
+      .join(" ");
+
+    process.stdout.write("Computing witness...");
+    const witnessShellStr = shell
+      .exec(
+        `zokrates compute-witness -a ${balancesWithEnergyBefore} ${balancesNoEnergyBefore} ${balancesWithEnergyAfter} ${balancesNoEnergyAfter} ${packedParams} > /dev/null`
+      )
+      .grep("--", "^~out_*", "witness");
+
+    if (witnessShellStr.code !== 0) {
+      process.stdout.write(chalk.red("failed\n"));
       throw new Error("zokrates compute-witness failed");
     }
+    process.stdout.write(chalk.green("done\n"));
 
-    const hashArr = shellStr.stdout.split("\n").filter(str => str);
-    const hashOut0 = hashArr
-      .find(hashPart => hashPart.indexOf("~out_0 ") !== -1)
-      .substr(7);
-    const hashOut1 = hashArr
-      .find(hashPart => hashPart.indexOf("~out_1 ") !== -1)
-      .substr(7);
-    const hashOut0Hex = web3Utils.toBN(hashOut0).toString("hex");
-    const hashOut1Hex = web3Utils.toBN(hashOut1).toString("hex");
+    const hashArr = witnessShellStr.stdout
+      .split("\n")
+      .filter(str => str)
+      .sort((a, b) => (a.charAt[5] < b.charAt[5] ? 1 : -1));
+    const hashOutHex = hashArr.reduce((hashes, hashPart, i) => {
+      if (i % 2 !== 0) {
+        return hashes;
+      }
+      const hashOut0 = hashArr[i].substr(7);
+      const hashOut1 = hashArr[i + 1].substr(7);
+      const hashHex = `0x${web3Utils
+        .toBN(hashOut0)
+        .toString("hex")}${web3Utils.toBN(hashOut1).toString("hex")}`;
+      hashes.push(hashHex);
+      return hashes;
+    }, []);
 
-    if (shell.exec("zokrates generate-proof").code !== 0) {
+    process.stdout.write("Generating proof...");
+    const proofShellStr = shell.exec("zokrates generate-proof  > /dev/null");
+
+    if (proofShellStr.code !== 0) {
+      process.stdout.write(chalk.red("failed\n"));
       throw new Error("zokrates generate-proof failed");
     }
+    process.stdout.write(chalk.green("done\n"));
 
-    return `0x${hashOut0Hex}${hashOut1Hex}`;
+    return hhAddresses.reduce((addressToHashMap, address, i) => {
+      addressToHashMap[address] = hashOutHex[i];
+      return addressToHashMap;
+    }, {});
   }
 };

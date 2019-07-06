@@ -130,7 +130,7 @@ contract("dUtility", ([owner, household, household2, other]) => {
           [0, 1],
           [[2, 3], [4, 5]],
           [6, 7],
-          [8, 9],
+          [8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
           { from: household }
         ));
       });
@@ -146,7 +146,7 @@ contract("dUtility", ([owner, household, household2, other]) => {
         [0, 1],
         [[2, 3], [4, 5]],
         [6, 7],
-        [8, 9],
+        [8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
         { from: household }
       ));
       expect(this.logs).to.be.empty;
@@ -183,14 +183,6 @@ contract("dUtility", ([owner, household, household2, other]) => {
         { from: owner }
       ));
       expectEvent.inLogs(this.logs, CHECK_SUCCESS);
-    });
-
-    it(`should throw when not called by contract owner`, async () => {
-      await shouldFail.reverting(
-        this.instance.checkHashes([household, household2], energyHashes, {
-          from: other
-        })
-      );
     });
 
     it(`should throw when input lengths are not equal`, async () => {
