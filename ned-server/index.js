@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const commander = require("commander");
 const web3Utils = require("web3-utils");
+const shell = require("shelljs");
 
 const Utility = require("../utility-js/Utility");
 const hhHandler = require("./household-handler");
@@ -42,7 +43,6 @@ let latestBlockNumber;
 async function init() {
   web3 = web3Helper.initWeb3(config.network);
   latestBlockNumber = await web3.eth.getBlockNumber();
-
   // Off-chain utility instance
   utility = new Utility();
   utilityContract = new web3.eth.Contract(
@@ -53,6 +53,7 @@ async function init() {
     contractHelper.getAbi("ownedSet"),
     contractHelper.getDeployedAddress("ownedSet", await web3.eth.net.getId())
   );
+  shell.cd("zokrates-code");
 
   utilityContract.events.NettingSuccess(
     {

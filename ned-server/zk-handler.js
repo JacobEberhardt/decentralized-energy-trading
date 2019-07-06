@@ -73,7 +73,6 @@ module.exports = {
 
     process.stdout.write("Computing witness...");
     const witnessShellStr = shell
-      .cd("./zokrates-code")
       .exec(
         `zokrates compute-witness -a ${balancesWithEnergyBefore} ${balancesNoEnergyBefore} ${balancesWithEnergyAfter} ${balancesNoEnergyAfter} ${packedParams} > /dev/null`
       )
@@ -103,7 +102,7 @@ module.exports = {
     }, []);
 
     process.stdout.write("Generating proof...");
-    const proofShellStr = shell.exec("zokrates generate-proof > /dev/null");
+    const proofShellStr = shell.exec("zokrates generate-proof  > /dev/null");
 
     if (proofShellStr.code !== 0) {
       process.stdout.write(chalk.red("failed\n"));
