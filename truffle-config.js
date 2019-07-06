@@ -7,8 +7,9 @@ module.exports = {
     },
     authority: {
       host: "127.0.0.1",
-      port: 8545,
-      network_id: "8995"
+      port: 8546,
+      network_id: "8995",
+      websockets: true
     },
     authority_docker: {
       host: "127.0.0.1",
