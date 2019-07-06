@@ -67,12 +67,6 @@ This will generate / update the contract artifacts in `<PROJECT_ROOT>/build/cont
       // Paste copied byte code here if the Utility contract was updated
       "constructor": <UTILITY_CONTRACT_BYTE_CODE>
     },
-    // Address of BlockReward contract
-    "0x0000000000000000000000000000000000000043": {
-      "balance": 1,
-      // Paste copied byte code here if the BlockReward contract was updated
-      "constructor": <BLOCK_REWARD_CONTRACT_BYTE_CODE>
-    },
     // Address of ValidatorSet contract
     "0x0000000000000000000000000000000000000044": {
       "balance": 1,
