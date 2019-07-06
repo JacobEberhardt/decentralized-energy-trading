@@ -29,7 +29,12 @@ module.exports = {
       latestSavedTimestamp + 1
     );
     return deeds.length > 0
-      ? db.bulkWriteToDB(config.dbUrl, config.dbName, config.collection, deeds)
+      ? db.bulkWriteToDB(
+          config.dbUrl,
+          config.dbName,
+          config.utilityDataCollection,
+          deeds
+        )
       : [];
   }
 };
