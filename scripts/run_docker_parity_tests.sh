@@ -5,6 +5,8 @@ export PROJECT_ROOT=$(git rev-parse --show-toplevel)
 
 echo "Starting test network using docker ..."
 cd $PROJECT_ROOT/parity-authority
+[ -d "$PROJECT_ROOT/build" ] && rm -rf $PROJECT_ROOT/build
+
 docker-compose up -d &> /dev/null
 
 export NODE_0="http://$(docker-compose port authority0 8545)"
