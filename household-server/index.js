@@ -108,7 +108,7 @@ app.get("/sensor-stats", async (req, res) => {
     );
     res.setHeader("Content-Type", "application/json");
     res.status(200);
-    res.end(JSON.stringify(data));
+    res.json(data);
   } catch (error) {
     console.log(error);
     res.status(500);
@@ -135,7 +135,7 @@ app.get("/deeds", async (req, res) => {
     );
     res.setHeader("Content-Type", "application/json");
     res.status(200);
-    res.end(JSON.stringify(data));
+    res.json(data);
   } catch (error) {
     console.log(error);
     res.status(500);
@@ -151,7 +151,7 @@ app.get("/household-stats", async (req, res, next) => {
     const data = await ned.getHousehold(config.nedUrl, config.address);
     res.setHeader("Content-Type", "application/json");
     res.status(200);
-    res.end(JSON.stringify(data));
+    res.json(data);
   } catch (error) {
     console.log(error);
     res.status(500);
@@ -167,7 +167,7 @@ app.get("/network-stats", async (req, res, next) => {
     const data = await ned.getNetwork(config.nedUrl, config.address);
     res.setHeader("Content-Type", "application/json");
     res.status(200);
-    res.end(JSON.stringify(data));
+    res.json(data);
   } catch (error) {
     console.log(error);
     res.status(500);

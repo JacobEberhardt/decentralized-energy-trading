@@ -48,10 +48,11 @@ class Utility {
    * @returns {Object} returns an Object of Deeds
    */
   getDeeds(hhAddress, fromDate = 0) {
-    if (!this._householdExists(hhAddress)) return false;
-    return this.deeds
-      .filter(deed => deed.date >= fromDate)
-      .filter(deed => deed.from === hhAddress || deed.to === hhAddress);
+    return this._householdExists(hhAddress)
+      ? this.deeds
+          .filter(deed => deed.date >= fromDate)
+          .filter(deed => deed.from === hhAddress || deed.to === hhAddress)
+      : [];
   }
 
   /**
@@ -60,8 +61,7 @@ class Utility {
    * @returns {Object} returns an object of {renewableEnergy, nonRenewableEnergy}
    */
   getHousehold(hhAddress) {
-    if (!this._householdExists(hhAddress)) return false;
-    return this.households[hhAddress];
+    return this._householdExists(hhAddress) ? this.households[hhAddress] : {};
   }
 
   /**
