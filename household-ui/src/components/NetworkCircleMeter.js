@@ -1,21 +1,8 @@
-import React, { useState } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { Box, Stack, Meter, Text } from "grommet";
 
-const NetworkCircleMeter = ({
-  total,
-  householdShare,
-  colors,
-  totalLabel = "total"
-}) => {
-  const [value, setValue] = useState(total);
-  const [label, setLabel] = useState(totalLabel);
-
-  const handleHover = (isHovering, valueToShow, labelToShow) => {
-    setValue(isHovering ? valueToShow : 0);
-    setLabel(isHovering ? labelToShow : null);
-  };
-
+const NetworkCircleMeter = ({ value = 0, color, label }) => {
   return (
     <Box align="center" pad="large">
       <Stack anchor="center">
@@ -23,30 +10,22 @@ const NetworkCircleMeter = ({
           type="circle"
           values={[
             {
-              value: householdShare,
-              color: colors[1],
-              onHover: isHovering =>
-                handleHover(isHovering, householdShare, "by you")
-            },
-            {
-              value: total - householdShare,
-              color: colors[0],
-              onHover: isHovering =>
-                handleHover(isHovering, total - householdShare, "by others")
+              value,
+              color
             }
           ]}
-          max={total}
+          max={value}
           size="small"
           thickness="medium"
         />
         <Box align="center">
           <Box direction="row" align="center" pad={{ bottom: "xsmall" }}>
             <Text size="xxlarge" weight="bold">
-              {value || total}
+              {value.toFixed(2)}
             </Text>
             <Text>kWh</Text>
           </Box>
-          <Text size={"xsmall"}>{label || totalLabel}</Text>
+          <Text size={"xsmall"}>{label}</Text>
         </Box>
       </Stack>
     </Box>
@@ -54,10 +33,9 @@ const NetworkCircleMeter = ({
 };
 
 NetworkCircleMeter.propTypes = {
-  total: PropTypes.number,
-  totalLabel: PropTypes.string,
-  householdShare: PropTypes.number,
-  colors: PropTypes.arrayOf(PropTypes.string)
+  value: PropTypes.number,
+  label: PropTypes.string,
+  color: PropTypes.string
 };
 
 export default NetworkCircleMeter;
