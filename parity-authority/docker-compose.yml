@@ -11,7 +11,7 @@ services:
     volumes:
       - data-volume:/home/parity/.local/share/io.parity.ethereum/chains/${NETWORK_NAME}/db
     command:
-      --config /parity/config/authority.toml
+      --config parity/config/authority.toml
       --engine-signer 0x00bd138abd70e2f00903268f3db08f2d25677c9e
       --ws-interface 0.0.0.0
       --unsafe-expose
@@ -37,7 +37,7 @@ services:
         NETWORK_NAME: ${NETWORK_NAME}
         ID: 1
     command:
-      --config /parity/config/authority.toml
+      --config parity/config/authority.toml
       --engine-signer 0x00aa39d30f0d20ff03a22ccfc30b7efbfca597c2
       --no-persistent-txqueue
       --fast-unlock
@@ -57,7 +57,7 @@ services:
         NETWORK_NAME: ${NETWORK_NAME}
         ID: 2
     command:
-      --config /parity/config/authority.toml
+      --config parity/config/authority.toml
       --engine-signer 0x002e28950558fbede1a9675cb113f0bd20912019
       --no-persistent-txqueue
       --fast-unlock
