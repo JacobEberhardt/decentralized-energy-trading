@@ -37,7 +37,7 @@ RUN yarn install --network-concurrency 1
 
 WORKDIR /household_procesing_unit
 RUN ./install_parity.sh
-RUN parity account import --config ./parity/authority.toml ./parity/authority.json
+RUN parity account import --config parity/authority.toml parity/authority.json
 WORKDIR /household_procesing_unit
 
 CMD ./start_admin.sh

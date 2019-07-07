@@ -20,16 +20,16 @@ async function callRPC(methodSignature, port, params = []) {
 
 async function main() {
   console.log("Adding new peer ...");
-  const enode = (await callRPC("parity_enode", 8556)).body.result;
+  const enode = (await callRPC("parity_enode", 8145)).body.result;
   console.log(enode);
-  const isPeerAdded = (await callRPC("parity_addReservedPeer", 8555, [enode]))
+  const isPeerAdded = (await callRPC("parity_addReservedPeer", 8045, [enode]))
     .body.result;
   console.log(`Peer added: ${isPeerAdded}`);
 
   console.log("Getting accounts ...");
-  const adminAccount = (await callRPC("personal_listAccounts", 8555)).body
+  const adminAccount = (await callRPC("personal_listAccounts", 8045)).body
     .result[0];
-  const otherAccount = (await callRPC("personal_listAccounts", 8556)).body
+  const otherAccount = (await callRPC("personal_listAccounts", 8145)).body
     .result[0];
   console.log(`Sending ether from ${adminAccount} to ${otherAccount} ...`);
   const params = [
@@ -42,7 +42,7 @@ async function main() {
   ];
   const transactionAddress = (await callRPC(
     "personal_sendTransaction",
-    8555,
+    8045,
     params
   )).body;
   console.log(transactionAddress);
