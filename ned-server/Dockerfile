@@ -16,11 +16,11 @@ RUN ./install_parity.sh
 RUN mkdir ../ned-processing-unit
 WORKDIR /home/ned-processing-unit
 
-COPY parity-authority/parity/config/chain.json /parity/config/chain.json
-COPY parity-authority/parity/config/authority.toml /parity/authority.toml
-COPY parity-authority/parity/authorities/authority0.json /parity/authority.json
-COPY parity-authority/parity/authorities/authority0.pwd /parity/authority.pwd
-RUN parity account import --config /parity/authority.toml /parity/authority.json
+COPY parity-authority/parity/config/chain.json ./parity/config/chain.json
+COPY parity-authority/parity/config/authority.toml ./parity/authority.toml
+COPY parity-authority/parity/authorities/authority0.json ./parity/authority.json
+COPY parity-authority/parity/authorities/authority0.pwd ./parity/authority.pwd
+RUN parity account import --config parity/authority.toml parity/authority.json
 
 COPY utility-js ./utility-js
 COPY contracts ./contracts
