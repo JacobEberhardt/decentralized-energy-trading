@@ -11,7 +11,10 @@ module.exports = {
    * @param {number} fromDate Optional from query.
    */
   getDeeds: (nedUrl, householdAddress, fromDate = 0) => {
-    return request(`${nedUrl}/deeds/${householdAddress}?from=${fromDate}`);
+    return request({
+      uri: `${nedUrl}/deeds/${householdAddress}?from=${fromDate}`,
+      json: true
+    });
   },
   /**
    * Send PUT signed energy data to NED server.
@@ -36,13 +39,19 @@ module.exports = {
    * @param {string} householdAddress Address of requesting household.
    */
   getHousehold: (nedUrl, householdAddress) => {
-    return request(`${nedUrl}/household/${householdAddress}`);
+    return request({
+      uri: `${nedUrl}/household/${householdAddress}`,
+      json: true
+    });
   },
   /**
    * Fetches current stats of whole network.
    * @param {string} nedUrl Base URL of NED server.
    */
   getNetwork: (nedUrl, householdAddress) => {
-    return request(`${nedUrl}/network`);
+    return request({
+      uri: `${nedUrl}/network`,
+      json: true
+    });
   }
 };
