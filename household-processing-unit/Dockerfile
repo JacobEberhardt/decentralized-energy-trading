@@ -25,14 +25,14 @@ COPY yarn.lock ./
 COPY parity-authority/parity/config/chain.json ./parity/config/chain.json
 COPY parity-authority/parity/config/authority.toml ./parity/authority.toml
 COPY household-processing-unit/scripts/start.sh ./
-COPY household-processing-unit/scripts/setup_parity.sh ./
+COPY scripts/install_parity.sh ./
 
 RUN yarn install --network-concurrency 1
 WORKDIR /household_procesing_unit/household-ui
 RUN yarn install --network-concurrency 1
 
 WORKDIR /household_procesing_unit
-RUN ./setup_parity.sh
+RUN ./install_parity.sh
 WORKDIR /household_procesing_unit
 
 CMD ./start.sh

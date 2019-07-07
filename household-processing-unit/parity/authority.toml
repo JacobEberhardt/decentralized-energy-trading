@@ -29,4 +29,8 @@ tx_queue_mem_limit = 4096
 tx_queue_per_sender = 16384
 
 [websockets]
-port = 8450
+disable = false
+port = 8546
+apis = ["pubsub","parity_pubsub","shh", "shh_pubsub", "web3", "eth", "net", "parity", "traces", "rpc", "personal", "parity_accounts", "signer", "parity_set"]
+interface = "0.0.0.0"
+hosts = ["all"]

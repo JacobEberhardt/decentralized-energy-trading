@@ -90,7 +90,7 @@ contract dUtility is Mortal, IdUtility {
     uint256[2] calldata _a,
     uint256[2][2] calldata _b,
     uint256[2] calldata _c,
-    uint256[2] calldata _input) external returns (bool success) {
+    uint256[10] calldata _input) external returns (bool success) {
     success = verifier.verifyTx(_a, _b, _c, _input);
     if (success) {
       uint256 record = block.number;
@@ -109,7 +109,7 @@ contract dUtility is Mortal, IdUtility {
    * @param _householdEnergyHashes array of the corresponding energy hashes.
    * @return true, iff, all given household energy hashes are mathes with the recorded energy hashes.
    */
-  function checkHashes(address[] memory _households, bytes32[] memory _householdEnergyHashes) public onlyOwner() returns (bool) {
+  function checkHashes(address[] memory _households, bytes32[] memory _householdEnergyHashes) public returns (bool) {
     require(_households.length == _householdEnergyHashes.length, "Households and energy hash array length must be equal.");
     for (uint256 i = 0; i < _households.length; ++i) {
       address addr = _households[i];

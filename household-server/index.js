@@ -50,49 +50,30 @@ db.createDB(config.dbUrl, config.dbName, [
 
 let web3;
 let utilityContract;
-// let utilityEventListener;
-
-// Boolean flag whether the netting is currently active or not. If true no transaction must be send!
+let latestBlockNumber;
 let nettingActive = false;
 
 async function init() {
-  // Set up the DB
-  db.createDB(config.dbUrl, config.dbName, [
-    config.sensorDataCollection,
-    config.utilityDataCollection
-  ]).catch(err => {
-    console.log("Error while creating DB", err);
-  });
-
-  // Set up web3
-  const web3 = web3Helper.initWeb3(config.network);
+  web3 = web3Helper.initWeb3(config.network);
+  latestBlockNumber = await web3.eth.getBlockNumber();
   utilityContract = new web3.eth.Contract(
     contractHelper.getAbi("dUtility"),
     contractHelper.getDeployedAddress("dUtility", await web3.eth.net.getId())
   );
-
-  // Set up the event Listener on the dUtility contract to control the data flow until the netting was successful
-  // TODO Rename Event to actual name from the dUtility contract
   utilityContract.events.NettingSuccess(
-    { filter: {}, fromBlock: 0 },
-    ((error, event) => {
-      console.log(error, event);
-    })
-      // Listener on data. Fires on each incoming event with the event object as argument.
-      .on("data", event => {
-        console.log("Netting successful event received");
-        nettingActive = false;
-
-        // making request to NED server to collect the deeds
-        deedHandler.collectDeeds(config);
-      })
-
-      // Listener on changed. Fires on each event which was removed from the blockchain.
-      // The event will have the additional property "removed: true".
-      .on("changed", event => console.error(event))
-
-      // Listener on error. Fires when an error in the subscription occurs.
-      .on("error", err => console.error(err))
+    {
+      fromBlock: latestBlockNumber
+    },
+    (error, event) => {
+      if (error) {
+        console.error(error);
+        throw error;
+      }
+      console.log("NettingSuccess event", event);
+      latestBlockNumber = event.blockNumber;
+      nettingActive = false;
+      deedHandler.collectDeeds(config);
+    }
   );
 }
 
@@ -200,32 +181,39 @@ app.get("/network-stats", async (req, res, next) => {
 app.put("/sensor-stats", async (req, res) => {
   const { produce, consume, meterReading } = req.body;
   try {
-    if (typeof produce !== "number" || typeof consume !== "number") {
+    if (
+      typeof produce !== "number" ||
+      typeof consume !== "number" ||
+      typeof meterReading !== "number"
+    ) {
       throw new Error("Invalid payload");
     }
 
-    if (nettingActive) {
-      throw new Error(
-        "Netting process is still active. Not sending Transaction... "
+    if (!nettingActive) {
+      nettingActive = true;
+      await energyHandler.putMeterReading(
+        config,
+        web3,
+        utilityContract,
+        meterReading
       );
     }
 
-    // TODO Error handling
-    await Promise.all([
-      energyHandler.putEnergy(config, web3, meterReading),
-      db.writeToDB(config.dbUrl, config.dbName, config.sensorDataCollection, {
+    await db.writeToDB(
+      config.dbUrl,
+      config.dbName,
+      config.sensorDataCollection,
+      {
         produce,
         consume
-      })
-    ]);
-
-    // set the nettingActive flag so we do not send another Energy update within this netting period
-    nettingActive = true;
+      }
+    );
 
     res.status(200);
     res.send();
   } catch (err) {
-    res.status = 400;
+    console.error(err);
+    res.status(500);
     res.send(err);
   }
 });

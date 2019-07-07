@@ -15,11 +15,12 @@ class Utility {
       // placeholder address
       [ZERO_ADDRESS]: {
         renewableEnergy: 0,
-        nonRenewableEnergy: 0
+        nonRenewableEnergy: 0,
+        meterReading: 0,
+        lastUpdate: Date.now()
       }
     };
-    this.checkpoint = 0;
-    this.deeds = {};
+    this.deeds = [];
   }
 
   /**
@@ -33,7 +34,9 @@ class Utility {
 
     this.households[hhAddress] = {
       renewableEnergy: 0,
-      nonRenewableEnergy: 0
+      nonRenewableEnergy: 0,
+      meterReading: 0,
+      lastUpdate: Date.now()
     };
 
     return true;
@@ -44,11 +47,11 @@ class Utility {
    * @param {Date} fromDate Date in the format of Date.now() of the first deed to retrieve
    * @returns {Object} returns an Object of Deeds
    */
-  getDeeds(hhAddress, fromDate) {
+  getDeeds(hhAddress, fromDate = 0) {
     if (!this._householdExists(hhAddress)) return false;
     return this.deeds
       .filter(deed => deed.date >= fromDate)
-      .filter(deed => deed.hhFrom === hhAddress || deed.hhTo === hhAddress);
+      .filter(deed => deed.from === hhAddress || deed.to === hhAddress);
   }
 
   /**
@@ -75,6 +78,21 @@ class Utility {
    */
   getNonRenewableEnergy() {
     return this[NONRENEWABLE_ENERGY];
+  }
+
+  /**
+   * Updates meter reading of household.
+   * @param {string} hhAddress Address of an existing household
+   * @param {number} meterReading New meter reading of household
+   * @param {number} timestamp Last update timestamp sent from HHS.
+   */
+  updateMeterReading(hhAddress, meterReading, timestamp) {
+    if (!this._householdExists(hhAddress)) return false;
+    const meterReadingBefore = this.households[hhAddress].meterReading;
+    const energyDelta = meterReading - meterReadingBefore;
+    this.households[hhAddress].meterReading = meterReading;
+    this.households[hhAddress].lastUpdate = timestamp;
+    this.updateRenewableEnergy(hhAddress, energyDelta);
   }
 
   /**
@@ -147,8 +165,6 @@ class Utility {
       neededEnergy += this.households[noEnergy[i]][RENEWABLE_ENERGY];
     }
 
-    this.deeds[this.checkpoint] = [];
-
     if (this[RENEWABLE_ENERGY] <= 0) {
       this._proportionalDistribution(
         availableEnergy,
@@ -165,7 +181,6 @@ class Utility {
       );
     }
 
-    this.checkpoint++;
     return true;
   }
 
@@ -176,7 +191,7 @@ class Utility {
 
   getHouseholdAddressesNoEnergy() {
     const entries = Object.entries(this.households);
-    return entries.filter(hh => hh[1].renewableEnergy > 0).map(hh => hh[0]);
+    return entries.filter(hh => hh[1].renewableEnergy < 0).map(hh => hh[0]);
   }
 
   /**
@@ -257,7 +272,7 @@ class Utility {
       return false;
 
     if (amount < 0) {
-      this.deeds[this.checkpoint].push({
+      this.deeds.push({
         from: to,
         to: from,
         amount: Math.abs(amount),
@@ -265,7 +280,7 @@ class Utility {
         date: Date.now()
       });
     } else {
-      this.deeds[this.checkpoint].push({
+      this.deeds.push({
         from: from,
         to: to,
         amount: amount,

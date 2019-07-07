@@ -1,4 +1,10 @@
+const web3Utils = require("web3-utils");
+const sha256 = require("js-sha256");
+
 const web3Helper = require("../helpers/web3");
+const zokratesHelper = require("../helpers/zokrates");
+const conversionHelper = require("../helpers/conversion");
+
 const ned = require("./apis/ned");
 
 module.exports = {
@@ -17,15 +23,45 @@ module.exports = {
    *   utilityDataCollection: string
    * }} config Server configuration.
    * @param {Object} web3 Web3 instance.
-   * @param {number} meterReading current meter Reading.
+   * @param {Object} utilityContract web3 contract instance.
+   * @param {number} meterReading Current meter reading in kWh.
    */
-  putEnergy: async (config, web3, meterReading) => {
-    const { signature, signerAddress, data } = await web3Helper.signData(
-      web3,
-      config.address,
-      config.password,
-      meterReading
+  putMeterReading: async (config, web3, utilityContract, meterReading) => {
+    const { address, password } = config;
+    const timestamp = Date.now();
+
+    const paddedParamsHex = zokratesHelper.padPackParams512(
+      conversionHelper.kWhToWs(Math.abs(meterReading)),
+      timestamp,
+      address
     );
-    return ned.putEnergy(config.nedUrl, signerAddress, signature, data);
+
+    const bytesParams = web3Utils.hexToBytes(paddedParamsHex);
+    const hash = `0x${sha256(bytesParams)}`;
+
+    await web3.eth.personal.unlockAccount(address, password, null);
+    utilityContract.methods
+      .updateRenewableEnergy(address, web3Utils.hexToBytes(hash))
+      .send({ from: address }, (error, txHash) => {
+        if (error) {
+          console.error(error);
+          throw error;
+        }
+        console.log("dUtility.updateRenewableEnergy txHash", txHash);
+      });
+
+    const { signature } = await web3Helper.signData(
+      web3,
+      address,
+      password,
+      hash
+    );
+
+    return ned.putSignedMeterReading(config.nedUrl, address, {
+      signature,
+      hash,
+      timestamp,
+      meterReading
+    });
   }
 };

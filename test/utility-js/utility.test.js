@@ -40,6 +40,25 @@ describe("Utility", () => {
       });
     });
 
+    describe("update meter reading", () => {
+      it("updateMeterReading by 100", () => {
+        instance.updateMeterReading(hhAddress1, 100, Date.now());
+        expect(instance.households[hhAddress1].meterReading).to.equal(100);
+        expect(instance.households[hhAddress1][RENEWABLE_ENERGY]).to.equal(100);
+        expect(instance[RENEWABLE_ENERGY]).to.equal(100);
+      });
+
+      it("reverts when attempting to update meter reading of not existing household", () => {
+        expect(
+          instance._updateEnergy(
+            "0x45D4b6e19b3fee56bA93972d8d72aC65FeF26b00",
+            100,
+            RENEWABLE_ENERGY
+          )
+        ).to.be.false;
+      });
+    });
+
     describe("update energy", () => {
       it("updateRenewableEnergy by 100", () => {
         instance.updateRenewableEnergy(hhAddress1, 100);
@@ -213,7 +232,7 @@ describe("Utility", () => {
     });
   });
 
-  context("Deeds and checkpoint", () => {
+  context("Deeds", () => {
     beforeEach(
       "with 4 households, totalRenewableEnergy = 0, availableRenewableEnergy = 200, neededRenewableEnergy = -200",
       () => {
@@ -238,29 +257,32 @@ describe("Utility", () => {
 
     describe("deeds", () => {
       it("are created correctly", () => {
-        const checkpoint = 1;
-        instance.deeds[checkpoint] = [];
+        instance.deeds = [];
         instance._addDeed(hhAddress1, hhAddress2, 101, RENEWABLE_ENERGY);
-
-        expect(instance.deeds[checkpoint].length).to.equal(1);
-        expect(instance.deeds[checkpoint][0].from).to.equal(hhAddress1);
-        expect(instance.deeds[checkpoint][0].to).to.equal(hhAddress2);
-        expect(instance.deeds[checkpoint][0].amount).to.equal(101);
-        expect(instance.deeds[checkpoint][0].type).to.equal(RENEWABLE_ENERGY);
+        const latestIndex = instance.deeds.length - 1;
+        expect(instance.deeds[latestIndex].from).to.equal(hhAddress1);
+        expect(instance.deeds[latestIndex].to).to.equal(hhAddress2);
+        expect(instance.deeds[latestIndex].amount).to.equal(101);
+        expect(instance.deeds[latestIndex].type).to.equal(RENEWABLE_ENERGY);
       });
 
       it("within settlement are created correctly", () => {
-        expect(instance.deeds[instance.checkpoint - 1].length).to.equal(2);
-        expect(instance.deeds[instance.checkpoint - 1][0].from).to.equal(
-          hhAddress1
-        );
-        expect(instance.deeds[instance.checkpoint - 1][0].to).to.equal(
-          hhAddress3
-        );
-        expect(instance.deeds[instance.checkpoint - 1][0].amount).to.equal(100);
-        expect(instance.deeds[instance.checkpoint - 1][0].type).to.equal(
-          RENEWABLE_ENERGY
-        );
+        const preLatestIndex = instance.deeds.length - 2;
+        expect(instance.deeds[preLatestIndex].from).to.equal(hhAddress1);
+        expect(instance.deeds[preLatestIndex].to).to.equal(hhAddress3);
+        expect(instance.deeds[preLatestIndex].amount).to.equal(100);
+        expect(instance.deeds[preLatestIndex].type).to.equal(RENEWABLE_ENERGY);
+      });
+    });
+
+    describe("getDeeds", () => {
+      it("should return all created deeds", () => {
+        const deeds = instance.getDeeds(hhAddress1);
+        expect(deeds.length).to.equal(1);
+        expect(deeds[0].from).to.equal(hhAddress1);
+        expect(deeds[0].to).to.equal(hhAddress3);
+        expect(deeds[0].amount).to.equal(100);
+        expect(deeds[0].type).to.equal(RENEWABLE_ENERGY);
       });
     });
   });

@@ -12,7 +12,10 @@ module.exports = {
   kWhToWs: kWh => {
     const kWhBN = new BN(kWh);
     const kWhInWsBN = new BN(3600000);
-    return kWhBN.mul(kWhInWsBN).toString();
+    return kWhBN
+      .mul(kWhInWsBN)
+      .divRound(new BN(1))
+      .toString();
   },
   /**
    * Converts kWh to Ws and returns result as string.
