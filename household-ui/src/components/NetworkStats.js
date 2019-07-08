@@ -6,70 +6,42 @@ import DashboardBox from "./DashboardBox";
 import NetworkCircleMeter from "./NetworkCircleMeter";
 import NetworkBarMeter from "./NetworkBarMeter";
 
-const NetworkStats = React.memo(
-  ({
-    producedEnergyByHousehold,
-    consumedEnergyByHousehold,
-    balanceOfHousehold,
-    producedEnergyByNetwork,
-    consumedEnergyByNetwork,
-    balanceOfNetwork
-  }) => {
-    const maxBarMeterValue =
-      Math.max(producedEnergyByHousehold, consumedEnergyByHousehold) * 1.5;
-    return (
-      <DashboardBox title={"Network Overview"}>
-        <Box>
-          <NetworkBarMeter
-            value={producedEnergyByHousehold}
-            maxValue={maxBarMeterValue}
-            label={"Your total production"}
-            color={"#55fcc2"}
-          />
-          <NetworkBarMeter
-            value={consumedEnergyByHousehold}
-            maxValue={maxBarMeterValue}
-            label={"Your total consumption"}
-            color={"#f9a7a7"}
-          />
-        </Box>
-        <Box
-          direction={"row"}
-          justify={"evenly"}
-          align={"center"}
-          height={"100%"}
-        >
-          <NetworkCircleMeter
-            total={producedEnergyByNetwork}
-            householdShare={producedEnergyByHousehold}
-            totalLabel={"network production"}
-            colors={["#00C781", "#55fcc2"]}
-          />
-          <NetworkCircleMeter
-            total={balanceOfNetwork}
-            householdShare={balanceOfHousehold}
-            totalLabel={"network balance"}
-            colors={["#2dadfc", "#81fced"]}
-          />
-          <NetworkCircleMeter
-            total={consumedEnergyByNetwork}
-            householdShare={consumedEnergyByHousehold}
-            totalLabel={"network consumption"}
-            colors={["#f94848", "#f9a7a7"]}
-          />
-        </Box>
-      </DashboardBox>
-    );
-  }
-);
+const NetworkStats = props => {
+  return (
+    <DashboardBox title={"Network Overview"}>
+      <Box>
+        <NetworkBarMeter
+          value={props.householdMeterReading}
+          maxValue={props.householdMeterReading * 1.5}
+          label={"Your submitted meter reading"}
+          color={props.householdMeterReading >= 0 ? "#55fcc2" : "#f9a7a7"}
+        />
+      </Box>
+      <Box
+        direction={"row"}
+        justify={"evenly"}
+        align={"center"}
+        height={"100%"}
+      >
+        <NetworkCircleMeter
+          value={props.networkEnergyBalance}
+          label={"network energy balance"}
+          color={"#00C781"}
+        />
+        <NetworkCircleMeter
+          value={props.householdEnergyBalance}
+          label={"your energy balance"}
+          color={"#55fcc2"}
+        />
+      </Box>
+    </DashboardBox>
+  );
+};
 
 NetworkStats.propTypes = {
-  producedEnergyByHousehold: PropTypes.number,
-  consumedEnergyByHousehold: PropTypes.number,
-  balanceOfHousehold: PropTypes.number,
-  producedEnergyByNetwork: PropTypes.number,
-  consumedEnergyByNetwork: PropTypes.number,
-  balanceOfNetwork: PropTypes.number
+  householdMeterReading: PropTypes.number,
+  householdEnergyBalance: PropTypes.number,
+  networkEnergyBalance: PropTypes.number
 };
 
 export default NetworkStats;

@@ -190,10 +190,10 @@ app.put("/energy/:householdAddress", async (req, res) => {
 /**
  * GET endpoint returning the current energy balance of renewableEnergy from Utility.js
  */
-app.get("/network", function(req, res, next) {
+app.get("/network", (req, res) => {
   try {
     res.status(200);
-    res.end({
+    res.json({
       renewableEnergy: utility.getRenewableEnergy(),
       nonRenewableEnergy: utility.getNonRenewableEnergy()
     });
@@ -206,14 +206,14 @@ app.get("/network", function(req, res, next) {
 /**
  * GET endpoint returning the current energy balance of the requested Household form Utility.js
  */
-app.get("/household/:householdAddress", function(req, res, next) {
+app.get("/household/:householdAddress", (req, res) => {
   try {
     const householdAddress = web3Utils.toChecksumAddress(
       req.params.householdAddress
     );
-    let energyBalance = utility.getHousehold(householdAddress);
+    const energyBalance = utility.getHousehold(householdAddress);
     res.status(200);
-    res.end(energyBalance);
+    res.json(energyBalance);
   } catch (err) {
     res.status(400);
     res.send(err);

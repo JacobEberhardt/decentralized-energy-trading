@@ -59,12 +59,9 @@ function App() {
       >
         <SensorStats sensorData={sensorData} />
         <NetworkStats
-          producedEnergyByHousehold={householdStats.producedRenewableEnergy}
-          consumedEnergyByHousehold={householdStats.consumedRenewableEnergy}
-          balanceOfHousehold={householdStats.renewableEnergy}
-          producedEnergyByNetwork={networkStats.totalProducedRenewableEnergy}
-          consumedEnergyByNetwork={networkStats.totalConsumedRenewableEnergy}
-          balanceOfNetwork={networkStats.totalEnergy}
+          householdMeterReading={householdStats.meterReading}
+          householdEnergyBalance={householdStats.renewableEnergy}
+          networkEnergyBalance={networkStats.renewableEnergy}
         />
         <DeedsTicker deeds={deeds} />
         <Savings address={householdStats.address} deeds={deeds} />

@@ -23,7 +23,7 @@ const NetworkBarMeter = ({ maxValue, value, color, label }) => {
           <Text size={"xsmall"}>{label}</Text>
           <Box direction="row" align="center">
             <Text size="xxlarge" weight="bold">
-              {value}
+              {value ? value.toFixed(3) : "--"}
             </Text>
             <Text>kWh</Text>
           </Box>
