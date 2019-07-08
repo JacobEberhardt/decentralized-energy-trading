@@ -61,7 +61,7 @@ async function init() {
     },
     async (error, event) => {
       if (error) {
-        console.error(error);
+        console.error(error.msg);
         throw error;
       }
       console.log("NettingSuccess event", event);
@@ -76,7 +76,7 @@ async function init() {
     },
     async (error, event) => {
       if (error) {
-        console.error(error);
+        console.error(error.msg);
         throw error;
       }
       console.log("CheckHashesSuccess event", event);
@@ -125,7 +125,7 @@ async function init() {
         )
         .send({ from: config.address }, (error, txHash) => {
           if (error) {
-            console.error(error);
+            console.error(error.message);
             throw error;
           }
           console.log("dUtility.checkHashes txHash", txHash);
@@ -182,7 +182,7 @@ app.put("/energy/:householdAddress", async (req, res) => {
     res.status(200);
     res.send();
   } catch (err) {
-    console.log(err.message);
+    console.error("PUT /energy/:householdAddress", err.message);
     res.status(400);
     res.send(err);
   }
@@ -198,6 +198,7 @@ app.get("/network", (req, res) => {
       nonRenewableEnergy: utility.getNonRenewableEnergy()
     });
   } catch (err) {
+    console.error("GET /network", err.message);
     res.status(400);
     res.send(err);
   }
@@ -215,6 +216,7 @@ app.get("/household/:householdAddress", (req, res) => {
     res.status(200);
     res.json(energyBalance);
   } catch (err) {
+    console.error("GET /household/:householdAddress", err.message);
     res.status(400);
     res.send(err);
   }
@@ -234,6 +236,7 @@ app.get("/deeds/:householdAddress", (req, res) => {
     res.status(200);
     res.json(deeds || []);
   } catch (err) {
+    console.error("GET /deeds/:householdAddress", err.message);
     res.status(400);
     res.send(err);
   }
