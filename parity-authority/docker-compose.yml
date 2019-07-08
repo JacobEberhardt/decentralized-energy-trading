@@ -39,10 +39,14 @@ services:
     command:
       --config parity/config/authority.toml
       --engine-signer 0x00aa39d30f0d20ff03a22ccfc30b7efbfca597c2
+      --ws-interface 0.0.0.0
+      --unsafe-expose
+      --jsonrpc-cors all
       --no-persistent-txqueue
       --fast-unlock
     ports:
-      - 8545
+      - 8555:8545
+      - 8556:8546
     networks:
       app_net:
         ipv4_address: 172.16.0.11
