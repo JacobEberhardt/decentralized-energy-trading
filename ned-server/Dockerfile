@@ -24,6 +24,7 @@ RUN parity account import --config parity/authority.toml parity/authority.json
 
 COPY utility-js ./utility-js
 COPY contracts ./contracts
+COPY migrations ./migrations
 COPY helpers ./helpers
 COPY zokrates-code/ ./zokrates-code
 
@@ -38,6 +39,7 @@ COPY yarn.lock ./
 COPY package.json ./
 COPY truffle-config.js ./
 COPY ned-server-config.js ./
+COPY household-server-config.js ./
 
 # Install node packages
 RUN yarn install
