@@ -66,7 +66,7 @@ async function init() {
     },
     (error, event) => {
       if (error) {
-        console.error(error);
+        console.error(error.message);
         throw error;
       }
       console.log("NettingSuccess event", event);
@@ -110,7 +110,7 @@ app.get("/sensor-stats", async (req, res) => {
     res.status(200);
     res.end(JSON.stringify(data));
   } catch (error) {
-    console.log(error);
+    console.error("GET /sensor-stats", error.message);
     res.status(500);
     res.end(error);
   }
@@ -137,7 +137,7 @@ app.get("/deeds", async (req, res) => {
     res.status(200);
     res.end(JSON.stringify(data));
   } catch (error) {
-    console.log(error);
+    console.error("GET /deeds", error.message);
     res.status(500);
     res.end(error);
   }
@@ -153,7 +153,7 @@ app.get("/household-stats", async (req, res, next) => {
     res.status(200);
     res.end(JSON.stringify(data));
   } catch (error) {
-    console.log(error);
+    console.error("GET /household-stats", error.message);
     res.status(500);
     res.end(error);
   }
@@ -169,7 +169,7 @@ app.get("/network-stats", async (req, res, next) => {
     res.status(200);
     res.end(JSON.stringify(data));
   } catch (error) {
-    console.log(error);
+    console.error("GET /network-stats", error.message);
     res.status(500);
     res.end(error);
   }
@@ -212,7 +212,7 @@ app.put("/sensor-stats", async (req, res) => {
     res.status(200);
     res.send();
   } catch (err) {
-    console.error(err);
+    console.error("GET /sensor-stats", err.message);
     res.status(500);
     res.send(err);
   }
