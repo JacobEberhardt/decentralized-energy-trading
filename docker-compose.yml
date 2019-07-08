@@ -9,7 +9,8 @@ services:
     volumes:
       - node0
     ports:
-      - 8555:8545
+      - 8045:8545
+      - 8046:8546
       - 3010:3000
       - 3002:3002
   household_processing_unit_1:
@@ -20,7 +21,8 @@ services:
       - HHS_PORT=3003
       - PASSWORD=somepass
     ports:
-      - 8556:8545
+      - 8145:8545
+      - 8146:8546
       - 3011:3000
       - 3003:3002
     volumes:
