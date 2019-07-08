@@ -182,6 +182,7 @@ app.put("/energy/:householdAddress", async (req, res) => {
     res.status(200);
     res.send();
   } catch (err) {
+    console.log(err.message);
     res.status(400);
     res.send(err);
   }
