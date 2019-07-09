@@ -23,12 +23,15 @@ async function main() {
   console.log("Adding new peer ...");
   const enode = (await callRPC("parity_enode", HHPU_RPC_PORT)).body.result;
   console.log(enode);
-  const isPeerAdded = (await callRPC("parity_addReservedPeer", 8045, [enode])).body.result;
+  const isPeerAdded = (await callRPC("parity_addReservedPeer", 8045, [enode]))
+    .body.result;
   console.log(`Peer added: ${isPeerAdded}`);
 
   console.log("Getting accounts ...");
-  const adminAccount = (await callRPC("personal_listAccounts", 8045)).body.result[0];
-  const otherAccount = (await callRPC("personal_listAccounts", HHPU_RPC_PORT)).body.result[0];
+  const adminAccount = (await callRPC("personal_listAccounts", 8045)).body
+    .result[0];
+  const otherAccount = (await callRPC("personal_listAccounts", HHPU_RPC_PORT))
+    .body.result[0];
   console.log(`Sending ether from ${adminAccount} to ${otherAccount} ...`);
   const params = [
     {
@@ -38,7 +41,11 @@ async function main() {
     },
     "node0"
   ];
-  const transactionAddress = (await callRPC("personal_sendTransaction", 8045, params)).body;
+  const transactionAddress = (await callRPC(
+    "personal_sendTransaction",
+    8045,
+    params
+  )).body;
   console.log(transactionAddress);
   console.log(`Running migration for ${otherAccount} ...`);
   shell.exec(`AUTHORITY_ADDRESS=${otherAccount} yarn migrate-contracts-docker`);
