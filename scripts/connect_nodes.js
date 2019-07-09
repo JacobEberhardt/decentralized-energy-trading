@@ -19,8 +19,9 @@ async function callRPC(methodSignature, port, params = []) {
 }
 
 async function main() {
+  const HHPU_RPC_PORT = process.env.HHPU_RPC_PORT || 8145;
   console.log("Adding new peer ...");
-  const enode = (await callRPC("parity_enode", 8145)).body.result;
+  const enode = (await callRPC("parity_enode", HHPU_RPC_PORT)).body.result;
   console.log(enode);
   const isPeerAdded = (await callRPC("parity_addReservedPeer", 8045, [enode]))
     .body.result;
@@ -29,8 +30,8 @@ async function main() {
   console.log("Getting accounts ...");
   const adminAccount = (await callRPC("personal_listAccounts", 8045)).body
     .result[0];
-  const otherAccount = (await callRPC("personal_listAccounts", 8145)).body
-    .result[0];
+  const otherAccount = (await callRPC("personal_listAccounts", HHPU_RPC_PORT))
+    .body.result[0];
   console.log(`Sending ether from ${adminAccount} to ${otherAccount} ...`);
   const params = [
     {
