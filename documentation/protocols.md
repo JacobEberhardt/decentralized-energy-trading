@@ -24,6 +24,7 @@ All meeting protocols are listed below ordered by date (descending).
   - Scalability
   - Gas costs
   - Durations
+  - Latency
   - Hardware requirements
   - Availability
 - Documentation/ Report
