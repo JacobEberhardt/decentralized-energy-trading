@@ -2,6 +2,69 @@
 
 All meeting protocols are listed below ordered by date (descending).
 
+### 07/09/19, 12-4pm: Team meeting and final presentation
+
+**Done:**
+
+- Final preparation for live demo and presentation
+  - first preparation in Team meeting on 07/08/19
+- Presentation of privacy aware system
+- Discussion and feedback on presentation
+  - Signing of meter data
+    - Hash and sign sensor data in the smart meter
+    - Verify signature in dUtility contract
+  - Benchmarks
+  - Host of NED-Server = trusted entity (e.g. utility)
+  - Motivation
+    - Transformation of the current analog model into a digital model
+  
+**ToDo:**
+
+- Benchmarks
+  - Scalability
+  - Gas costs
+  - Durations
+  - Latency
+  - Hardware requirements
+  - Availability
+- Documentation/ Report
+  - Structure: scientific paper
+    1. Abstract (optional: results)
+    2. Introduction 
+    3. Background and related work
+        - No standard tooling (e.g. Node.js), explain not-standard tooling (e.g. ZoKrates, Ethereum PoA)
+        - Related work: focus on privacy in blockchain
+    4. Main part
+        - Requirements
+        - Design phase, architecture
+        - 2 phases (components)
+        - Flows, Sequence diagrams
+        - Setup guide (maybe refer to GitHub)
+    5. Evaluation 
+        - Benchmarks
+        - Trust assumptions
+    6. Projectmanagement/-organization
+        - Our take away (what works, whats didn't work, meeting frequency)
+        - Not focused on technologies
+    7. Conclusion
+    8. Appendix
+        - Logs
+        - Protocols
+  - Include authors and reviewers of each section (on extra sheet)
+  - Logs and protocols in appendix
+  - ~50-100 pages 
+    
+**Remark:**
+
+- GitHub
+  - Clean up repository
+  - 2 repositories or 2 branches for the 2 Milestones
+- One feedback round 
+- Next meetings
+  - Team meeting 07/16/19 12pm
+  - 15min. individual feedback slots with Jacob: End of September
+
+
 ### 07/02/19, 12-3pm: Team meeting and meeting with Jacob
 
 with Jacob from 2pm
