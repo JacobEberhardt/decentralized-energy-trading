@@ -2,6 +2,25 @@
 
 All meeting protocols are listed below ordered by date (descending).
 
+### 07/16/19, 12-2pm: Team meeting
+
+**Done:**
+
+- Discussion on structure of the report 
+  - see Google Doc [here](https://docs.google.com/document/d/1Ua2dxS52odjwONiWpZzMuLzdH-isngYtMxZI6UZe7A8/edit)
+  - New GitHub repository for report [here](https://github.com/paguos/decentralized-energy-trading-report)
+    - One issue per chapter
+    - One TeX document per chapter
+    - Try to do small to middle sized PRs to enable fast reviews
+- Determining design guidelines
+   - TeX-template (see GitHub)
+- Determining a rough schedule  
+    
+**Remark:**
+
+- Team-internal deadline for first draft of the report: 08/15/19
+- Google Calendar for absences of all Team-members
+
 ### 07/09/19, 12-4pm: Team meeting and final presentation
 
 **Done:**
