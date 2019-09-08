@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 import "./Ownable.sol";
-import "./interfaces/IUtility.sol";
+import "./dUtility.sol";
 import "./interfaces/IValidatorSet.sol";
 
 
@@ -113,8 +113,8 @@ contract BaseOwnedSet is Ownable, IValidatorSet {
     status[_validator].index = pending.length;
     pending.push(_validator);
     finalized = false;
-    IUtility utility = IUtility(UTILITY_CONTRACT);
-    utility.addHousehold(_validator);
+    dUtility dUtility = dUtility(UTILITY_CONTRACT);
+    dUtility.addHousehold(_validator);
   }
 
   // Remove a validator.
@@ -135,8 +135,8 @@ contract BaseOwnedSet is Ownable, IValidatorSet {
     delete status[_validator];
     finalized = false;
 
-    IUtility utility = IUtility(UTILITY_CONTRACT);
-    utility.removeHousehold(_validator);
+    dUtility dUtility = dUtility(UTILITY_CONTRACT);
+    dUtility.removeHousehold(_validator);
   }
 
   function setRecentBlocks(uint _recentBlocks)
