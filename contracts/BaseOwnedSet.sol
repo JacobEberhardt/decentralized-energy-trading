@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 import "./Ownable.sol";
-import "./dUtility.sol";
+import "./interfaces/IdUtility.sol";
 import "./interfaces/IValidatorSet.sol";
 
 
@@ -113,7 +113,7 @@ contract BaseOwnedSet is Ownable, IValidatorSet {
     status[_validator].index = pending.length;
     pending.push(_validator);
     finalized = false;
-    dUtility dUtility = dUtility(UTILITY_CONTRACT);
+    IdUtility dUtility = IdUtility(UTILITY_CONTRACT);
     dUtility.addHousehold(_validator);
   }
 
@@ -135,7 +135,7 @@ contract BaseOwnedSet is Ownable, IValidatorSet {
     delete status[_validator];
     finalized = false;
 
-    dUtility dUtility = dUtility(UTILITY_CONTRACT);
+    IdUtility dUtility = IdUtility(UTILITY_CONTRACT);
     dUtility.removeHousehold(_validator);
   }
 
