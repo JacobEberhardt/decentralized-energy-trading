@@ -38,18 +38,18 @@ async function utilityBenchmark(households, maxHouseholds) {
       })
       .send({
         from: address,
-        gas: 200000000000000,
+        gas: 5000000000,
         gasPrice: "300000000000"
       })
       .catch(err => console.log(err));
 
     console.log(
-      "UtilityBenchmark Contract Address: " + deployedContract.address
+      "UtilityBenchmark Contract Address: " + deployedContract.options.address
     );
     var start = new Date();
     await deployedContract.methods
       .settle()
-      .estimateGas({ gas: 3061084102 }, function(error, gasAmount) {
+      .estimateGas({ gas: 5000000000 }, function(error, gasAmount) {
         if (error) {
           throw error;
         }
@@ -61,10 +61,11 @@ async function utilityBenchmark(households, maxHouseholds) {
           time: end - start
         });
       });
-    households = households * 2;
+    households = households + 10;
   }
   await generateCsv();
   console.log("Utility Benchmark completed!");
+  web3.currentProvider.connection.close();
 }
 
-utilityBenchmark(25, 26000);
+utilityBenchmark(10, 100);
