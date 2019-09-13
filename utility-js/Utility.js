@@ -4,7 +4,9 @@ const RENEWABLE_ENERGY = "renewableEnergy";
 const NONRENEWABLE_ENERGY = "nonRenewableEnergy";
 
 /**
- * Offchain utility.
+ * Off-chain utility, JS implementation of the utility contracts.
+ * Tracks energy production and consumption participating households.
+ * Settles energy requests by distributing existing energy as fair as possible (netting).
  */
 class Utility {
   constructor() {
@@ -25,7 +27,6 @@ class Utility {
 
   /**
    * Adds a household to the utility.
-   *
    * @param {string} hhAddress Household address to be added
    * @returns {boolean} `false` if household already exists, `true` on success
    */
@@ -41,11 +42,12 @@ class Utility {
 
     return true;
   }
+
   /**
-   * Retrieves the renewable & non renewable energy from a given household
+   * Retrieves all deeds from a given household and date.
    * @param {string} hhAddress Household address to return its deeds
    * @param {Date} fromDate Date in the format of Date.now() of the first deed to retrieve
-   * @returns {Object} returns an Object of Deeds
+   * @returns {Object} returns an object of deeds
    */
   getDeeds(hhAddress, fromDate = 0) {
     return this._householdExists(hhAddress)
@@ -56,35 +58,35 @@ class Utility {
   }
 
   /**
-   * Retrieves the Energy Balances of a given Household
-   * @param {String} hhAddress of the Household whose energy Balance should be retrieved
-   * @returns {Object} returns an object of {renewableEnergy, nonRenewableEnergy}
+   * Retrieves the energy balances of a given Household.
+   * @param {String} hhAddress Household address to return its energy balances
+   * @returns {Object} returns an object of {renewableEnergy, nonRenewableEnergy, meterReading, lastUpdate}
    */
   getHousehold(hhAddress) {
     return this._householdExists(hhAddress) ? this.households[hhAddress] : {};
   }
 
   /**
-   * Getter for the global Renewable Energy
-   * @returns {Number} the current value of the global Renewable Energy
+   * Getter for the global renewable energy balance.
+   * @returns {Number} The current value of the global renewable energy
    */
   getRenewableEnergy() {
     return this[RENEWABLE_ENERGY];
   }
 
   /**
-   * Getter for the global Non-Renewable Energy
-   * @returns {Number} the current value of the global Non-Renewable Energy
+   * Getter for the global non-renewable energy balance.
+   * @returns {Number} The current value of the global non-renewable energy
    */
   getNonRenewableEnergy() {
     return this[NONRENEWABLE_ENERGY];
   }
 
   /**
-   * Updates meter reading of household.
+   * Updates meter reading of a given household.
    * @param {string} hhAddress Address of an existing household
    * @param {number} meterReading New meter reading of household
-   * @param {number} timestamp Last update timestamp sent from HHS.
+   * @param {number} timestamp Last update timestamp sent from HHS
    */
   updateMeterReading(hhAddress, meterReading, timestamp) {
     if (!this._householdExists(hhAddress)) return false;
@@ -97,9 +99,7 @@ class Utility {
 
   /**
    * Updates a household's renewable energy state.
-   *
    * Calls _updateEnergy.
-   *
    * @param {string} hhAddress Address of an existing household
    * @param {number} energyDelta Amount of energy to be added to the household's current state
    */
@@ -109,9 +109,7 @@ class Utility {
 
   /**
    * Updates a household's non-renewable energy state.
-   *
    * Calls _updateEnergy.
-   *
    * @param {string} hhAddress Address of an existing household
    * @param {number} energyDelta Amount of energy to be added to the household's current state
    */
@@ -121,10 +119,9 @@ class Utility {
 
   /**
    * Generic household energy state update method.
-   *
    * @param {string} hhAddress Address of an existing household
    * @param {number} energyDelta Amount of energy to be added to the household's current state
-   * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY
+   * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY.
    */
   _updateEnergy(hhAddress, energyDelta, energyType) {
     if (!this._householdExists(hhAddress)) return false;
@@ -133,6 +130,7 @@ class Utility {
   }
 
   /**
+   * Checks if household exists.
    * @param {string} hhAddress Address of an existing household
    * @returns {boolean} `true`, iff given household exists
    */
@@ -142,8 +140,7 @@ class Utility {
 
   /**
    * Settlement function for netting.
-   * Note focus on renewable energy only.
-   *
+   * Note, this settle function focuses on renewable energy only.
    * @returns {boolean} `true`
    */
   settle() {
@@ -184,20 +181,27 @@ class Utility {
     return true;
   }
 
+  /**
+   * Returns all households with positive renewable energy balance.
+   * @returns {Array.<string>} Array of addresses of households with positive renewable energy balance
+   */
   getHouseholdAddressesWithEnergy() {
     const entries = Object.entries(this.households);
     return entries.filter(hh => hh[1].renewableEnergy > 0).map(hh => hh[0]);
   }
 
+  /**
+   * Returns all households with negative renewable energy balance.
+   * @returns {Array.<string>} Array of addresses of households with negative renewable energy balance
+   */
   getHouseholdAddressesNoEnergy() {
     const entries = Object.entries(this.households);
     return entries.filter(hh => hh[1].renewableEnergy < 0).map(hh => hh[0]);
   }
 
   /**
-   * Distributes renewable energy by proportionally requesting/responding energy so that
+   * Distributes renewable energy by proportionally requesting or responding energy such that
    * _neededAvailableEnergy equals 0.
-   *
    * @param {number} availableEnergy Available energy. Assumed to be positive.
    * @param {number} neededEnergy Needed renewable energy. Assumed to be negative.
    * @param {Array.<string>} hhFrom Array of addresses {string} with positive renewable energy amount.
@@ -261,11 +265,10 @@ class Utility {
 
   /**
    * Adds a new deed.
-   *
    * @param {string} from Address of an existing household from where the energy is transferred
    * @param {string} to Address of an existing household to which the energy is transferred
    * @param {number} amount Amount of energy to be transferred
-   * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY
+   * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY.
    */
   _addDeed(from, to, amount, energyType) {
     if (!this._householdExists(from) || !this._householdExists(to))
@@ -292,11 +295,10 @@ class Utility {
 
   /**
    * Transfer energy from a household address to a household address.
-   *
    * @param {string} from Address of an existing household from where the energy is transferred
    * @param {string} to Address of an existing household to which the energy is transferred
    * @param {number} amount Amount of energy to be transferred
-   * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY
+   * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY.
    */
   _transfer(from, to, amount, energyType) {
     if (!this._householdExists(from) || !this._householdExists(to))
