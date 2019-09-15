@@ -41,9 +41,9 @@ async function callRPC(methodSignature, port, params = []) {
       jsonrpc: "2.0",
       method: methodSignature,
       params: params,
-      id: 0,
+      id: 0
     },
-    ...options,
+    ...options
   });
 
   return { statusCode, body };
@@ -87,16 +87,18 @@ module.exports = async (deployer, network, [authority]) => {
       await asyncUtils.asyncForEach(OTHER_AUTHORITY_ADDRESSES, async a => {
         await addValidator(a, ownedSetInstanceInAuthority, web3);
         await web3.eth.personal.unlockAccount(address, password, null);
-        process.stdout.write(`Sending ether from ${AUTHORITY_ADDRESS} to ${a} ...`);
+        process.stdout.write(
+          `Sending ether from ${AUTHORITY_ADDRESS} to ${a} ...`
+        );
         const params = [
           {
             from: AUTHORITY_ADDRESS,
             to: "0x" + a,
-            value: "0xde0b6b3a7640000",
+            value: "0xde0b6b3a7640000"
           },
           "node0"
         ];
-        const transactionAddress = (await callRPC("personal_sendTransaction", 8545, params)).body;
+        await callRPC("personal_sendTransaction", 8545, params).body;
         process.stdout.write(chalk.green("done\n"));
       });
 
@@ -116,7 +118,11 @@ module.exports = async (deployer, network, [authority]) => {
       const otherAuthorityAddress = process.env.AUTHORITY_ADDRESS;
       const web3 = web3Helper.initWeb3("authority_docker");
       const ownedSetInstanceInAuthority = await OwnedSet.at(OWNED_SET_ADDRESS);
-      await addValidator(otherAuthorityAddress, ownedSetInstanceInAuthority, web3);
+      await addValidator(
+        otherAuthorityAddress,
+        ownedSetInstanceInAuthority,
+        web3
+      );
       await finalizeChange(ownedSetInstanceInAuthority, web3);
       break;
     }

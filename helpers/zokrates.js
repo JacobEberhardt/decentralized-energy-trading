@@ -1,5 +1,5 @@
 const web3Utils = require("web3").utils;
-const stripHexPrefix = require('strip-hex-prefix');
+const stripHexPrefix = require("strip-hex-prefix");
 
 module.exports = {
   padPackParams512: (meterReading, timestamp, address) => {
@@ -11,5 +11,5 @@ module.exports = {
 
     // Pad concatenated hex params string to have length of 512 bits (128 hex digits).
     return web3Utils.padLeft(paramsHex, 128);
-  },
+  }
 };
