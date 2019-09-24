@@ -4,43 +4,94 @@ Repository of ISE CP Project Summer 2019.
 
 ## Requirements
 
+- [Docker](https://docs.docker.com/install/) >= v19.03.2
 - [NodeJS](https://nodejs.org/en/download/) >= v10.15.3
-- [yarn](https://yarnpkg.com/lang/en/docs/install) >= v1.16
+- [Yarn](https://yarnpkg.com/lang/en/docs/install) >= v1.16
+- [ZoKrates](https://github.com/Zokrates/ZoKrates) >= v0.4.6
 
 ## Get started
 
-1. Install dependencies
+**1.)** Install dependencies
 
 ```bash
 yarn install
+yarn --cwd household-ui/ install
 ```
 
-2. Start an ethereum client (ganache, parity, truffle develop, etc.) depending on what you want to do
+**2.)** Start the ethereum parity chain:
+```bash
+cd parity-authority
+docker-compose up -d
+```
+**ethstats** is available at: http://localhost:3001
 
-- If you want to use a **docker parity authority** setup see [./parity-authority/README.md](./parity-authority/README.md)
-- If you want to use **ganache** run `yarn run-ganache`
-- If you want to use **truffle develop** run `truffle develop`
+**3.)** Configure the contracts using truffle migrations:
 
-1. Adjust config files according to your setup: `./truffle-config.js` and `./household-server-config.js`
-2. Migrate contracts to your setup
+```bash
+yarn migrate-contracts-authority
+```
 
-- `yarn migrate-contracts-authority` when using a **parity authority** setup
-  - This will not actually deploy any contracts as they are specified in the chain spec but will add the address of the authority / owner (0x00bd138abd70e2f00903268f3db08f2d25677c9e) as a household
-- `yarn migrate-contracts-ganache` when using a **ganache** setup
-  - This will deploy a `FifsUtility` contract with the address `0x00bd138abd70e2f00903268f3db08f2d25677c9e` which is then the owner and also add this address as a household. Note that in this setup no `BlockReward` nor a `ValidatorSet` is included.
+**4.)** Start the NED server:
 
-5. Start the `household server` see [./household-server/README.md](./household-server/README.md)
+```bash
+yarn run-ned
+```
 
-## Run tests
+**5.)** Create two databases for both household servers:
+```bash
+docker-compose -f mongo/docker-compose.yml up -d
+```
+
+**6.)** Start two household servers:
+```bash
+# Household 1
+yarn run-server \
+  -a 0x00aa39d30f0d20ff03a22ccfc30b7efbfca597c2 \
+  -P node1 -n authority_1 \
+  -d mongodb://127.0.0.1:27011
+```
+
+```bash
+# Household 2
+yarn run-server -p 3003 \
+  -a 0x002e28950558fbede1a9675cb113f0bd20912019 \
+  -P node2 -n authority_2 \
+  -d mongodb://127.0.0.1:27012
+```
+
+**Note:** Depending on your network settings an extra flag `-h 127.0.0.1` could be needed for both households.
+
+**7.)** Start a mocked sensor for each household:
+```bash
+# Household 1 with positive energy balance
+yarn run-sensor -p 3002 -e +
+```
+
+```bash
+# Household 2 with negative energy balance
+yarn run-sensor -p 3003 -e -
+```
+
+**8.)** Start two household-ui applications:
+
+```bash
+# Household 1
+yarn --cwd household-ui/ star
+```
+
+```bash
+# Household 2 with negative energy balance
+REACT_APP_HSS_PORT=3003 \
+ PORT=3010 \
+ yarn --cwd household-ui/ star
+```
+## Tests
 
 - `yarn test-contracts` to test contracts
 - `yarn test-parity-docker` to test docker parity authority setup
 - `yarn test-helpers` to test helper functions
 - `yarn test-utility-js` to test off-chain utility functionality
 
-## Household Processing Unit
-
-To setup a dockerized version of the complete setup see [./household-processing-unit/README.md](./household-processing-unit/README.md).
 
 ## Benchmarks
 
