@@ -76,7 +76,7 @@ yarn run-sensor -p 3003 -e -
 
 ```bash
 # Household 1
-yarn --cwd household-ui/ star
+yarn --cwd household-ui/ start
 ```
 
 ```bash
