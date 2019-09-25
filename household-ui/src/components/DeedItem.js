@@ -20,7 +20,7 @@ const DeedItem = props => {
       </Box>
       <Box direction={"column"} align={"center"}>
         <FastForward />
-        <Text>{props.transferredEnergy} kWh</Text>
+        <Text>{props.amount} kWh</Text>
       </Box>
       <Box width={"small"}>
         <Text size={"small"} truncate>
@@ -36,7 +36,7 @@ DeedItem.propTypes = {
   timestamp: PropTypes.number,
   from: PropTypes.string,
   to: PropTypes.string,
-  transferredEnergy: PropTypes.number
+  amount: PropTypes.number
 };
 
 export default DeedItem;
