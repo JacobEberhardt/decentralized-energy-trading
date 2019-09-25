@@ -18,31 +18,42 @@ yarn install
 yarn --cwd household-ui/ install
 ```
 
-**2.)** Start the ethereum parity chain:
+**2.)** Setup ZoKrates contract
+
+```bash
+yarn setup-zokrates
+yarn update-contract-bytecodes
+```
+
+**3.)** Start the ethereum parity chain:
+
 ```bash
 cd parity-authority
-docker-compose up -d
+docker-compose up -d --build
 ```
+
 **ethstats** is available at: http://localhost:3001
 
-**3.)** Configure the contracts using truffle migrations:
+**4.)** Configure the contracts using truffle migrations:
 
 ```bash
 yarn migrate-contracts-authority
 ```
 
-**4.)** Start the NED server:
+**5.)** Start the NED server:
 
 ```bash
 yarn run-ned
 ```
 
-**5.)** Create two databases for both household servers:
+**6.)** Create two databases for both household servers:
+
 ```bash
 docker-compose -f mongo/docker-compose.yml up -d
 ```
 
-**6.)** Start two household servers:
+**7.)** Start two household servers:
+
 ```bash
 # Household 1
 yarn run-server \
@@ -61,7 +72,8 @@ yarn run-server -p 3003 \
 
 **Note:** Depending on your network settings an extra flag `-h 127.0.0.1` could be needed for both households.
 
-**7.)** Start a mocked sensor for each household:
+**8.)** Start a mocked sensor for each household:
+
 ```bash
 # Household 1 with positive energy balance
 yarn run-sensor -p 3002 -e +
@@ -72,7 +84,7 @@ yarn run-sensor -p 3002 -e +
 yarn run-sensor -p 3003 -e -
 ```
 
-**8.)** Start two household-ui applications:
+**9.)** Start two household-ui applications:
 
 ```bash
 # Household 1
@@ -85,6 +97,7 @@ REACT_APP_HSS_PORT=3003 \
  PORT=3010 \
  yarn --cwd household-ui/ star
 ```
+
 ## Tests
 
 - `yarn test-contracts` to test contracts
@@ -92,7 +105,12 @@ REACT_APP_HSS_PORT=3003 \
 - `yarn test-helpers` to test helper functions
 - `yarn test-utility-js` to test off-chain utility functionality
 
-
 ## Benchmarks
 
 - `yarn utility-benchmark` to benchmark the `settle` method of the `Utility` contract
+
+## Development
+
+- `yarn update-contract-bytecodes` to update the contracts code in the `chain.json` file
+- `yarn setup-zokrates` to generate a new `Verifier` contract
+- `yarn format-all` fix linting issues
