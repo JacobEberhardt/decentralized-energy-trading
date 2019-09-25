@@ -83,7 +83,7 @@ yarn --cwd household-ui/ star
 # Household 2 with negative energy balance
 REACT_APP_HSS_PORT=3003 \
  PORT=3010 \
- yarn --cwd household-ui/ star
+ yarn --cwd household-ui/ start
 ```
 ## Tests
 
