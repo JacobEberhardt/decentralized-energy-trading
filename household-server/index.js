@@ -247,4 +247,5 @@ app.listen(config.port, () => {
   console.log(
     `Household Server running at http://${config.host}:${config.port}/`
   );
+  console.log(`I am authority node ${config.address}.`);
 });

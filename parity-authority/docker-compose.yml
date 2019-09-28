@@ -18,6 +18,7 @@ services:
       --jsonrpc-cors all
       --no-persistent-txqueue
       --fast-unlock
+      --tracing on
     ports:
       - 8545:8545
       - 8546:8546

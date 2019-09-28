@@ -116,12 +116,11 @@ async function init() {
         config.password,
         null
       );
+      console.log(`Hashes: ${JSON.stringify(hhAddressToHash)}`);
       utilityContract.methods
         .checkHashes(
           Object.keys(hhAddressToHash),
-          Object.values(hhAddressToHash).map(hexHash =>
-            web3Utils.hexToBytes(hexHash)
-          )
+          Object.values(hhAddressToHash)
         )
         .send({ from: config.address }, (error, txHash) => {
           if (error) {
@@ -129,11 +128,21 @@ async function init() {
             throw error;
           }
           console.log("dUtility.checkHashes txHash", txHash);
+          console.log(`Sleep for ${config.nettingInterval}ms ...`);
+          setTimeout(() => {
+            runZokrates();
+          }, config.nettingInterval);
         });
+    } else {
+      console.log("No households to hash.");
+      console.log(`Sleep for ${config.nettingInterval}ms ...`);
+      setTimeout(() => {
+        runZokrates();
+      }, config.nettingInterval);
     }
   }
 
-  setInterval(() => {
+  setTimeout(() => {
     runZokrates();
   }, config.nettingInterval);
 }
@@ -176,7 +185,12 @@ app.put("/energy/:householdAddress", async (req, res) => {
       throw new Error("Invalid signature");
     }
 
-    utility.addHousehold(householdAddress);
+    if (utility.addHousehold(householdAddress)) {
+      console.log(`New household ${householdAddress} added`);
+    }
+    console.log(
+      `Incoming meter reading for ${householdAddress}: ${meterReading}@${timestamp}`
+    );
     utility.updateMeterReading(householdAddress, meterReading, timestamp);
 
     res.status(200);

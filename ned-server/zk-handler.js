@@ -94,9 +94,15 @@ module.exports = {
       }
       const hashOut0 = hashArr[i].substr(7);
       const hashOut1 = hashArr[i + 1].substr(7);
-      const hashHex = `0x${web3Utils
-        .toBN(hashOut0)
-        .toString("hex")}${web3Utils.toBN(hashOut1).toString("hex")}`;
+      const hashOut0Padded = web3Utils.padLeft(
+        web3Utils.toBN(hashOut0).toString("hex"),
+        32
+      );
+      const hashOut1Padded = web3Utils.padLeft(
+        web3Utils.toBN(hashOut1).toString("hex"),
+        32
+      );
+      const hashHex = `0x${hashOut0Padded}${hashOut1Padded}`;
       hashes.push(hashHex);
       return hashes;
     }, []);
