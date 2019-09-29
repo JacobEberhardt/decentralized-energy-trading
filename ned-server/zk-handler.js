@@ -87,7 +87,7 @@ module.exports = {
     const hashArr = witnessShellStr.stdout
       .split("\n")
       .filter(str => str)
-      .sort((a, b) => (a.charAt[5] < b.charAt[5] ? 1 : -1));
+      .reverse()
     const hashOutHex = hashArr.reduce((hashes, hashPart, i) => {
       if (i % 2 !== 0) {
         return hashes;
