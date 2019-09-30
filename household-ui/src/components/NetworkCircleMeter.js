@@ -10,11 +10,11 @@ const NetworkCircleMeter = ({ value = 0, color, label }) => {
           type="circle"
           values={[
             {
-              value,
+              value: Math.abs(value),
               color
             }
           ]}
-          max={value}
+          max={Math.abs(value)}
           size="small"
           thickness="medium"
         />
