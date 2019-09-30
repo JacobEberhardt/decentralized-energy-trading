@@ -92,7 +92,7 @@ yarn --cwd household-ui/ start
 ```
 
 ```bash
-# Household 2 with negative energy balance
+# Household 2
 REACT_APP_HSS_PORT=3003 \
  PORT=3010 \
  yarn --cwd household-ui/ start
