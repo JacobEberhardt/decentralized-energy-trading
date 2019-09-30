@@ -22,7 +22,7 @@ const convertToEur = cents => {
 
 const Savings = React.memo(({ address, deeds }) => {
   const totalReceivedEnergy = deeds
-    .filter(deed => deed.to === address)
+    .filter(deed => deed.to.toLowerCase().trim() === address.toLowerCase().trim())
     .reduce((acc, deed) => (acc += deed.amount), 0);
   const costsWithUmlage = ENERGY_COSTS * totalReceivedEnergy;
   const costsWithoutUmlage = (ENERGY_COSTS - EEG_UMLAGE) * totalReceivedEnergy;
