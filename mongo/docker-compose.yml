@@ -5,10 +5,10 @@ services:
     ports:
       - 27011:27017
     volumes:
-     - "/var/lib/mongodb-1:/data/db"
+     - "/tmp/var/lib/mongodb-1:/data/db"
   mongodb_2:
     image: mongo:latest
     ports:
       - 27012:27017
     volumes:
-     - "/var/lib/mongodb-2:/data/db"
+     - "/tmp/var/lib/mongodb-2:/data/db"
