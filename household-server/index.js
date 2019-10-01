@@ -149,6 +149,7 @@ app.get("/deeds", async (req, res) => {
 app.get("/household-stats", async (req, res, next) => {
   try {
     const data = await ned.getHousehold(config.nedUrl, config.address);
+    data.address = config.address;
     res.setHeader("Content-Type", "application/json");
     res.status(200);
     res.json(data);
