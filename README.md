@@ -43,7 +43,7 @@ yarn migrate-contracts-authority
 **5.)** Start the NED server:
 
 ```bash
-yarn run-ned
+yarn run-ned -i 60000
 ```
 
 **6.)** Create two databases for both household servers:
