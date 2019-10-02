@@ -5,7 +5,7 @@ Repository of ISE CP Project Summer 2019.
 ## Requirements
 
 - [Docker](https://docs.docker.com/install/) >= v19.03.2
-- [NodeJS](https://nodejs.org/en/download/) >= v10.15.3
+- [NodeJS 10](https://nodejs.org/en/download/) = v10.x.x >= v10.15.3
 - [Yarn](https://yarnpkg.com/lang/en/docs/install) >= v1.16
 - [ZoKrates](https://github.com/Zokrates/ZoKrates) >= v0.4.6
 
