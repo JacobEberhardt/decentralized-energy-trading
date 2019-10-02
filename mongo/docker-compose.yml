@@ -1,0 +1,14 @@
+version: "3.1"
+services:
+  mongodb_1:
+    image: mongo:latest
+    ports:
+      - 27011:27017
+    volumes:
+     - "/tmp/var/lib/mongodb-1:/data/db"
+  mongodb_2:
+    image: mongo:latest
+    ports:
+      - 27012:27017
+    volumes:
+     - "/tmp/var/lib/mongodb-2:/data/db"

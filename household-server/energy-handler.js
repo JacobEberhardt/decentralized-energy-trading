@@ -47,6 +47,7 @@ module.exports = {
           console.error(error);
           throw error;
         }
+        console.log(`Energy hash = ${hash}`);
         console.log("dUtility.updateRenewableEnergy txHash", txHash);
       });
 

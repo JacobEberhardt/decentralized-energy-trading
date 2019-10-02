@@ -18,6 +18,7 @@ services:
       --jsonrpc-cors all
       --no-persistent-txqueue
       --fast-unlock
+      --tracing on
     ports:
       - 8545:8545
       - 8546:8546
@@ -66,7 +67,8 @@ services:
       --no-persistent-txqueue
       --fast-unlock
     ports:
-      - 8545
+      - 8565:8545
+      - 8566:8546
     networks:
       app_net:
         ipv4_address: 172.16.0.12

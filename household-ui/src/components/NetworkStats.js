@@ -26,12 +26,12 @@ const NetworkStats = props => {
         <NetworkCircleMeter
           value={props.networkEnergyBalance}
           label={"network energy balance"}
-          color={"#00C781"}
+          color={props.networkEnergyBalance >= 0 ? "#55fcc2" : "#f9a7a7"}
         />
         <NetworkCircleMeter
           value={props.householdEnergyBalance}
           label={"your energy balance"}
-          color={"#55fcc2"}
+          color={props.householdEnergyBalance >= 0 ? "#55fcc2" : "#f9a7a7"}
         />
       </Box>
     </DashboardBox>

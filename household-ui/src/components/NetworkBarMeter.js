@@ -10,11 +10,11 @@ const NetworkBarMeter = ({ maxValue, value, color, label }) => {
           type="bar"
           values={[
             {
-              value,
-              color
+              value: Math.abs(value),
+              color: color
             }
           ]}
-          max={maxValue}
+          max={Math.abs(maxValue)}
           size="medium"
           thickness="65px"
           background={"light-3"}
