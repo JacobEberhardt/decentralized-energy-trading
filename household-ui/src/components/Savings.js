@@ -76,7 +76,7 @@ const Savings = React.memo(({ address, deeds }) => {
             <Box direction={"row"} align={"start"}>
               <Trigger size={"medium"} />
               <Text size={"xxlarge"} weight={"bold"}>
-                {totalReceivedEnergy}
+                {Math.round(totalReceivedEnergy * 100) / 100}
               </Text>
               <Text size={"medium"}>kWh</Text>
             </Box>
