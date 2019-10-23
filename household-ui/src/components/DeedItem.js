@@ -20,7 +20,7 @@ const DeedItem = props => {
       </Box>
       <Box direction={"column"} align={"center"}>
         <FastForward />
-        <Text>{props.amount} kWh</Text>
+        <Text>{Math.round(props.amount * 100) / 100} kWh</Text>
       </Box>
       <Box width={"small"}>
         <Text size={"small"} truncate>
