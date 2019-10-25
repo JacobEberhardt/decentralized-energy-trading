@@ -84,7 +84,7 @@ contract dUtility is Mortal, IdUtility {
 
   /**
    * @dev Verifies netting by using ZoKrates verifier contract.
-   * Emits NettingSuccess when netting could be verified
+   * Emits  when netting could be verified
    */
   function verifyNetting(
     uint256[2] calldata _a,
@@ -99,27 +99,27 @@ contract dUtility is Mortal, IdUtility {
     }
   }
 
-  /**
-   * @dev Validates the equality of the given households and their energy hashes against
-   * dUtility's own recorded energy hashes (that the household server sent).
-   * Emits CheckHashesSuccess on successful validation.
-   * Throws when _households and _householdEnergyHashes length are not equal.
-   * Throws when an energy change hash mismatch has been found.
-   * @param _households array of household addresses to be checked.
-   * @param _householdEnergyHashes array of the corresponding energy hashes.
-   * @return true, iff, all given household energy hashes are mathes with the recorded energy hashes.
-   */
-  function checkHashes(address[] memory _households, bytes32[] memory _householdEnergyHashes) public returns (bool) {
-    require(_households.length == _householdEnergyHashes.length, "Households and energy hash array length must be equal.");
-    for (uint256 i = 0; i < _households.length; ++i) {
-      address addr = _households[i];
-      bytes32 energyHash = _householdEnergyHashes[i];
-      Household storage hh = households[addr];
-      require(hh.renewableEnergy == energyHash, "Household energy hash mismatch.");
-    }
-    emit CheckHashesSuccess();
-    return true;
-  }
+  // /**
+  //  * @dev Validates the equality of the given households and their energy hashes against
+  //  * dUtility's own recorded energy hashes (that the household server sent).
+  //  * Emits CheckHashesSuccess on successful validation.
+  //  * Throws when _households and _householdEnergyHashes length are not equal.
+  //  * Throws when an energy change hash mismatch has been found.
+  //  * @param _households array of household addresses to be checked.
+  //  * @param _householdEnergyHashes array of the corresponding energy hashes.
+  //  * @return true, iff, all given household energy hashes are mathes with the recorded energy hashes.
+  //  */
+  // function checkHashes(address[] memory _households, bytes32[] memory _householdEnergyHashes) public returns (bool) {
+  //   require(_households.length == _householdEnergyHashes.length, "Households and energy hash array length must be equal.");
+  //   for (uint256 i = 0; i < _households.length; ++i) {
+  //     address addr = _households[i];
+  //     bytes32 energyHash = _householdEnergyHashes[i];
+  //     Household storage hh = households[addr];
+  //     require(hh.renewableEnergy == energyHash, "Household energy hash mismatch.");
+  //   }
+  //   emit CheckHashesSuccess();
+  //   return true;
+  // }
 
   /**
    * @return uint256 length of all successfully verified settlements

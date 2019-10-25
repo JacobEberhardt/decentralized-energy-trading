@@ -1,5 +1,7 @@
 import "hashes/sha256/512bitPacked" as sha256packed
 
+def checkDataValidity(field) ->
+
 // Simply return hh[0] + hh[1] for any array of households.
 // @param {field[2]} hh
 // @returns {field} energy of provided households
@@ -75,10 +77,13 @@ def sum(field[2] hh) -> (field):
 // Before settlement, households with produce-consume = 0 are not part of the settlement
 // @param {private field[2]} hhWithEnergy before settlement
 // Index represents household and hhWithEnergy[index] := produce-consume > 0 
+
 // @param {private field[2]} hhNoEnergy before settlement
 // Index represents household and hhNoEnergy[index] := produce-consume < 0 
+
 // @param {private field[2]} hhWithEnergyNet after settlement
 // Index represents household and hhWithEnergyNet[index] := produce-consume > 0 
+
 // @param {private field[2]} hhNoEnergyNet after settlement
 // Index represents household and hhNoEnergyNet[index] := produce-consume < 0
 // @param {private field[8]} hhWithEnergyPacked Packed inputs energy + nonce + address of hh with energy surplus
