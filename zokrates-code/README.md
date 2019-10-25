@@ -14,7 +14,7 @@ From [ZoKrates](https://github.com/Zokrates/ZoKrates/blob/master/zokrates_book/s
 
 ```shell
 # compile
-./zokrates compile -i settlement-check.code
+./zokrates compile -i settlement-check.zok
 # perform the setup phase
 ./zokrates setup
 # execute the program
@@ -25,14 +25,14 @@ From [ZoKrates](https://github.com/Zokrates/ZoKrates/blob/master/zokrates_book/s
 ./zokrates export-verifier
 ```
 
-## `settle.code` and `settlement-check.code`
+## `settle.zok` and `settlement-check.zok`
 
 During milestone two, we introduced two design pattern in ZoKrates that match the requirements of the project according to the privacy of household's energy flow.
-The first approach `settle.code` dealt with the implementation of a netting algorithm in ZoKrates high level programming language, mirroring the netting algorithm of the utility contracts of milestone one.
+The first approach `settle.zok` dealt with the implementation of a netting algorithm in ZoKrates high level programming language, mirroring the netting algorithm of the utility contracts of milestone one.
 This approach is deprecated, refer to the official documentation for more information on the first approach.
 
 For the rest of this short description, we refer to the second approach.
-The second approach `settlement-check.code` assumes netting as being similar of how NP-complete problems are described: an algorithm that is hard to compute, but relatively easy to verify.
+The second approach `settlement-check.zok` assumes netting as being similar of how NP-complete problems are described: an algorithm that is hard to compute, but relatively easy to verify.
 Here, netting is performed off-chain whereas the ZoKrates code is implemented to merely validate certain key properties, or invariants, that describe a valid settlement algorithm.
 A total of four invariants are defined to describe a set of settlement algorithms in which our netting algorithm is an element of it without being too lax or too strict.
 
@@ -69,5 +69,5 @@ This final invariant causes fitting algorithms to guarantee that a set of househ
 
 ### Proportional fairness up to epsilon
 
-The ZoKrates `settlement-check.code` implements validation checks for two of the above described properties: **_consistency_** and **_proportional fairness_**.
-Given the required and contributed energy amount of participating households before and after a successful settlement, `settlement-check.code` validates whether the netting result is consistent and proportional fair up to a predefined static epsilon error.
+The ZoKrates `settlement-check.zok` implements validation checks for two of the above described properties: **_consistency_** and **_proportional fairness_**.
+Given the required and contributed energy amount of participating households before and after a successful settlement, `settlement-check.zok` validates whether the netting result is consistent and proportional fair up to a predefined static epsilon error.

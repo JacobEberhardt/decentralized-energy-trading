@@ -1,4 +1,4 @@
-import "hashes/sha256/512bitPacked.code" as sha256packed
+import "hashes/sha256/512bitPacked" as sha256packed
 
 // Simply return hh[0] + hh[1] for any array of households.
 // @param {field[2]} hh
