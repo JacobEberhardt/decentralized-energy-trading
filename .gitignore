@@ -85,7 +85,7 @@ utility_benchmark.csv
 
 # ZoKrates
 zokrates-code/out
-zokrates-code/out.ztk
+zokrates-code/out.ztf
 zokrates-code/proving.key
 zokrates-code/verification.key
 zokrates-code/witness
