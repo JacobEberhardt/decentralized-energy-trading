@@ -7,7 +7,7 @@ Repository of ISE CP Project Summer 2019.
 - [Docker](https://docs.docker.com/install/) >= v19.03.2
 - [NodeJS 10](https://nodejs.org/en/download/) = v10.x.x >= v10.15.3
 - [Yarn](https://yarnpkg.com/lang/en/docs/install) >= v1.16
-- [ZoKrates](https://github.com/Zokrates/ZoKrates) >= v0.4.6 < 0.5.x
+- [ZoKrates](https://github.com/Zokrates/ZoKrates) >= 0.5.0
 
 ## Get started
 
