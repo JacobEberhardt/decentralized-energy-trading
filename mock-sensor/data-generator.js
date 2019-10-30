@@ -1,24 +1,5 @@
 module.exports = {
   /**
-   * Deprecated. This function draws random samples from an uniform distribution.
-   * @param {number} samples Amount of Samples to draw from the random distribution
-   * @param {number} min Minimum value of the random distribution
-   * @param {number} max Maximum value of the random distribution
-   * @returns {Object} mock data within an object
-   */
-
-  getUniformMockData: (samples, min, max) => {
-    let mockData = {};
-    for (let i = 0; i < samples; i++) {
-      let rndm = Math.random() * (max - min) + min;
-      // rounding the samples
-      rndm = Math.round(rndm * 100) / 100;
-      mockData[i] = rndm;
-    }
-    return mockData;
-  },
-
-  /**
    * @param {number} consumption mean of the energy consumption
    * @param {number} production mean of the energy production
    * @returns {{produce: number, consume: number}} mock data within an object
