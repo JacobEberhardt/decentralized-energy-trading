@@ -30,14 +30,22 @@ module.exports = {
     const { address, password } = config;
     const timestamp = Date.now();
 
-    const paddedParamsHex = zokratesHelper.padPackParams512(
-      conversionHelper.kWhToWs(Math.abs(meterReading)),
-      timestamp,
-      address
+    // const paddedParamsHex = zokratesHelper.padPackParams512(
+    //   conversionHelper.kWhToWs(Math.abs(meterReading)),
+    //   timestamp,
+    //   address
+    // );
+
+    // const bytesParams = web3Utils.hexToBytes(paddedParamsHex);
+    // const hash = `0x${sha256(bytesParams)}`;
+
+    const paddedMeterDeltaHex = zokratesHelper.padPackParams256(
+      conversionHelper.kWhToWs(Math.abs(meterReading))
     );
 
-    const bytesParams = web3Utils.hexToBytes(paddedParamsHex);
-    const hash = `0x${sha256(bytesParams)}`;
+    const paddedMeterDeltaBytes = web3Utils.hexToBytes(paddedMeterDeltaHex);
+    const hash = `0x${sha256(paddedMeterDeltaBytes)}`;
+    
 
     await web3.eth.personal.unlockAccount(address, password, null);
     utilityContract.methods
