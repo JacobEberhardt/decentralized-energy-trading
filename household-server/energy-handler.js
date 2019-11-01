@@ -24,9 +24,9 @@ module.exports = {
    * }} config Server configuration.
    * @param {Object} web3 Web3 instance.
    * @param {Object} utilityContract web3 contract instance.
-   * @param {number} meterReading Current meter reading in kWh.
+   * @param {number} meterDelta Current meter change in kWh.
    */
-  putMeterReading: async (config, web3, utilityContract, meterReading) => {
+  putMeterReading: async (config, web3, utilityContract, meterDelta) => {
     const { address, password } = config;
     const timestamp = Date.now();
 
@@ -40,7 +40,7 @@ module.exports = {
     // const hash = `0x${sha256(bytesParams)}`;
 
     const paddedMeterDeltaHex = zokratesHelper.padPackParams256(
-      conversionHelper.kWhToWs(Math.abs(meterReading))
+      conversionHelper.kWhToWs(Math.abs(meterDelta))
     );
 
     const paddedMeterDeltaBytes = web3Utils.hexToBytes(paddedMeterDeltaHex);
@@ -70,7 +70,7 @@ module.exports = {
       signature,
       hash,
       timestamp,
-      meterReading
+      meterDelta
     });
   }
 };

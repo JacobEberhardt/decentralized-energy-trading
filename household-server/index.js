@@ -180,12 +180,10 @@ app.get("/network-stats", async (req, res, next) => {
  * PUT /sensor-stats
  */
 app.put("/sensor-stats", async (req, res) => {
-  const { produce, consume, meterReading } = req.body;
+  const { meterDelta, produce, consume } = req.body;
   try {
     if (
-      typeof produce !== "number" ||
-      typeof consume !== "number" ||
-      typeof meterReading !== "number"
+      typeof meterDelta !== "number"
     ) {
       throw new Error("Invalid payload");
     }
@@ -196,7 +194,7 @@ app.put("/sensor-stats", async (req, res) => {
         config,
         web3,
         utilityContract,
-        meterReading
+        meterDelta
       );
     }
 

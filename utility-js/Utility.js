@@ -18,7 +18,7 @@ class Utility {
       [ZERO_ADDRESS]: {
         renewableEnergy: 0,
         nonRenewableEnergy: 0,
-        meterReading: 0,
+        meterDelta: 0,
         lastUpdate: Date.now()
       }
     };
@@ -36,7 +36,7 @@ class Utility {
     this.households[hhAddress] = {
       renewableEnergy: 0,
       nonRenewableEnergy: 0,
-      meterReading: 0,
+      meterDelta: 0,
       lastUpdate: Date.now()
     };
 
@@ -85,16 +85,14 @@ class Utility {
   /**
    * Updates meter reading of a given household.
    * @param {string} hhAddress Address of an existing household
-   * @param {number} meterReading New meter reading of household
+   * @param {number} meterDelta New meter change of household
    * @param {number} timestamp Last update timestamp sent from HHS
    */
-  updateMeterReading(hhAddress, meterReading, timestamp) {
+  updateMeterDelta(hhAddress, meterDelta, timestamp) {
     if (!this._householdExists(hhAddress)) return false;
-    const meterReadingBefore = this.households[hhAddress].meterReading;
-    const energyDelta = meterReading - meterReadingBefore;
-    this.households[hhAddress].meterReading = meterReading;
+    this.households[hhAddress].meterDelta = meterDelta;
     this.households[hhAddress].lastUpdate = timestamp;
-    this.updateRenewableEnergy(hhAddress, energyDelta);
+    this.updateRenewableEnergy(hhAddress, meterDelta);
   }
 
   /**

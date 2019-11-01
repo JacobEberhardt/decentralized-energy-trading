@@ -15,10 +15,10 @@ module.exports = {
       Math.round(produceDistribution.ppf(Math.random()) * 100) / 100;
     let consume =
       Math.round(consumeDistribution.ppf(Math.random()) * 100) / 100;
-
     // Setting all negative values to 0 and writing values to mockData object
     mockData["produce"] = produce < 0 ? 0 : produce;
     mockData["consume"] = consume < 0 ? 0 : consume;
+    mockData["meterDelta"] = produce - consume
 
     return mockData;
   },

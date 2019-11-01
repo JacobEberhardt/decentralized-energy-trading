@@ -54,20 +54,14 @@ module.exports = {
 
     const packedParams = hhAddresses
       .map(address => {
-        const packedParamsOfHH = zokratesHelper.padPackParams512(
-          conversionHelper.kWhToWs(
-            // TODO: Handle negative meter readings
-            Math.abs(utilityBeforeNetting.households[address].meterReading)
-          ),
-          utilityBeforeNetting.households[address].lastUpdate,
-          address.toLowerCase()
-        );
-        return [
-          web3Utils.hexToNumberString(packedParamsOfHH.substr(2, 32)),
-          web3Utils.hexToNumberString(packedParamsOfHH.substr(34, 3)),
-          web3Utils.hexToNumberString(packedParamsOfHH.substr(66, 32)),
-          web3Utils.hexToNumberString(packedParamsOfHH.substr(98, 32))
-        ].join(" ");
+        return web3Utils.hexToNumber(
+          zokratesHelper.padPackParams256(
+            conversionHelper.kWhToWs(
+              // TODO: Handle negative meter readings
+              Math.abs(utilityBeforeNetting.households[address].meterDelta)
+            )
+          )
+        )
       })
       .join(" ");
 

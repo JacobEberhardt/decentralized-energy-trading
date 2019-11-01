@@ -162,9 +162,9 @@ app.put("/energy/:householdAddress", async (req, res) => {
     const householdAddress = web3Utils.toChecksumAddress(
       req.params.householdAddress
     );
-    const { signature, hash, timestamp, meterReading } = req.body;
+    const { signature, hash, timestamp, meterDelta } = req.body;
 
-    if (typeof meterReading !== "number") {
+    if (typeof meterDelta !== "number") {
       throw new Error("Invalid payload");
     }
 
@@ -189,9 +189,9 @@ app.put("/energy/:householdAddress", async (req, res) => {
       console.log(`New household ${householdAddress} added`);
     }
     console.log(
-      `Incoming meter reading for ${householdAddress}: ${meterReading}@${timestamp}`
+      `Incoming meter reading for ${householdAddress}: ${meterDelta}@${timestamp}`
     );
-    utility.updateMeterReading(householdAddress, meterReading, timestamp);
+    utility.updateMeterDelta(householdAddress, meterDelta, timestamp);
 
     res.status(200);
     res.send();
