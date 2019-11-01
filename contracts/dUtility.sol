@@ -90,7 +90,7 @@ contract dUtility is Mortal, IdUtility {
     uint256[2] calldata _a,
     uint256[2][2] calldata _b,
     uint256[2] calldata _c,
-    uint256[10] calldata _input) external returns (bool success) {
+    uint256[8] calldata _input) external returns (bool success) {
     success = verifier.verifyTx(_a, _b, _c, _input);
     if (success) {
       uint256 record = block.number;

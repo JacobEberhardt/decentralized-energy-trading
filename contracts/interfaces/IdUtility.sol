@@ -30,7 +30,7 @@ contract IdUtility {
     uint256[2] calldata _a,
     uint256[2][2] calldata _b,
     uint256[2] calldata _c,
-    uint256[10] calldata _input) external returns (bool success);
+    uint256[8] calldata _input) external returns (bool success);
 
   function checkHashes(address[] memory _households, bytes32[] memory _householdEnergyHashes) public returns (bool);
 
