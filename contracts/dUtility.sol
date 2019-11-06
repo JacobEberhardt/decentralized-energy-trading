@@ -86,15 +86,14 @@ contract dUtility is Mortal, IdUtility {
    * @dev Verifies netting by using ZoKrates verifier contract.
    * Emits  when netting could be verified
    */
-  function verifyNetting(
-    uint256[2] calldata _a,
-    uint256[2][2] calldata _b,
-    uint256[2] calldata _c,
-    uint256[8] calldata _input) external returns (bool success) {
+  function _verifyNetting(
+    uint256[2] memory _a,
+    uint256[2][2] memory _b,
+    uint256[2] memory _c,
+    uint256[8] memory _input) private returns (bool success) {
     success = verifier.verifyTx(_a, _b, _c, _input);
     if (success) {
       uint256 record = block.number;
-      emit NettingSuccess();
       deeds.push(record);
     }
   }
@@ -109,7 +108,10 @@ contract dUtility is Mortal, IdUtility {
    * @param _householdEnergyHashes array of the corresponding energy hashes.
    * @return true, iff, all given household energy hashes are mathes with the recorded energy hashes.
    */
-  function checkHashes(address[] memory _households, bytes32[] memory _householdEnergyHashes) public returns (bool) {
+  function _checkHashes(
+    address[] memory _households, 
+    bytes32[] memory _householdEnergyHashes
+  ) private returns (bool) {
     require(_households.length == _householdEnergyHashes.length, "Households and energy hash array length must be equal.");
     for (uint256 i = 0; i < _households.length; ++i) {
       address addr = _households[i];
@@ -117,9 +119,22 @@ contract dUtility is Mortal, IdUtility {
       Household storage hh = households[addr];
       require(hh.renewableEnergy == energyHash, "Household energy hash mismatch.");
     }
-    emit CheckHashesSuccess();
     return true;
   }
+
+  function checkNetting(
+    address[] calldata _households, 
+    bytes32[] calldata _householdEnergyHashes,
+    uint256[2] calldata _a,
+    uint256[2][2] calldata _b,
+    uint256[2] calldata _c,
+    uint256[8] calldata _input
+    ) external returns (bool){
+      require(_checkHashes(_households, _householdEnergyHashes) == true, "Hashes not matching!");
+      require(_verifyNetting(_a, _b, _c, _input) == true, "Netting proof failed!");
+      emit NettingSuccess();
+      return true;
+    }
 
   /**
    * @return uint256 length of all successfully verified settlements

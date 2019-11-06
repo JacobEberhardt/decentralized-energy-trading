@@ -70,35 +70,6 @@ async function init() {
     }
   );
 
-  utilityContract.events.CheckHashesSuccess(
-    {
-      fromBlock: latestBlockNumber
-    },
-    async (error, event) => {
-      if (error) {
-        console.error(error.msg);
-        throw error;
-      }
-      console.log("CheckHashesSuccess event", event);
-      latestBlockNumber = event.blockNumber;
-      const { proof, inputs } = require("../zokrates-code/proof.json");
-      await web3.eth.personal.unlockAccount(
-        config.address,
-        config.password,
-        null
-      );
-      utilityContract.methods
-        .verifyNetting(proof.a, proof.b, proof.c, inputs)
-        .send({ from: config.address }, (error, txHash) => {
-          if (error) {
-            console.error(error);
-            throw error;
-          }
-          console.log("dUtility.verifyNetting txHash", txHash);
-        });
-    }
-  );
-
   async function runZokrates() {
     const utilityBeforeNetting = { ...utility };
     Object.setPrototypeOf(utilityBeforeNetting, Utility.prototype);
@@ -110,6 +81,7 @@ async function init() {
       utilityAfterNetting
     );
     delete hhAddressToHash[ZERO_ADDRESS];
+    const { proof, inputs } = require("../zokrates-code/proof.json");
     if (Object.keys(hhAddressToHash).length > 0) {
       await web3.eth.personal.unlockAccount(
         config.address,
@@ -118,16 +90,19 @@ async function init() {
       );
       console.log(`Hashes: ${JSON.stringify(hhAddressToHash)}`);
       utilityContract.methods
-        .checkHashes(
+        .checkNetting(
           Object.keys(hhAddressToHash),
-          Object.values(hhAddressToHash)
+          Object.values(hhAddressToHash),
+          proof.a, 
+          proof.b, 
+          proof.c, 
+          inputs
         )
         .send({ from: config.address }, (error, txHash) => {
           if (error) {
             console.error(error.message);
             throw error;
           }
-          console.log("dUtility.checkHashes txHash", txHash);
           console.log(`Sleep for ${config.nettingInterval}ms ...`);
           setTimeout(() => {
             runZokrates();
