@@ -130,6 +130,11 @@ contract dUtility is Mortal, IdUtility {
     uint256[2] calldata _c,
     uint256[8] calldata _input
     ) external returns (bool){
+      // Ensure that all households that reported meter_delta !=0 in the netting reported are represented in both, addresslist and hashlist sent to SC
+      // require address.len == hash_not_0.len / 2 where hash_not_0 is hashes recreated from _input that are not 0. 
+
+      // To evaluate the _input hashes, we need to loop through the addresslist provided with the proof and check whether the SC hash registry has values
+      emit ShowInput(_householdEnergyHashes);
       require(_checkHashes(_households, _householdEnergyHashes) == true, "Hashes not matching!");
       require(_verifyNetting(_a, _b, _c, _input) == true, "Netting proof failed!");
       emit NettingSuccess();

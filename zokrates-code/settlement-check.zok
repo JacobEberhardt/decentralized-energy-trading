@@ -106,9 +106,10 @@ def main(private field[2] hhWithEnergy, private field[2] hhNoEnergy, private fie
   0 == validateZeroNet(zeroNetParty, 15) // Can make epsilon more accurate in the future
   
   // sha256packed hash of energy delta of each household
-  hh1WithEnergyHash = sha256packed([0, 0, 0, hhWithEnergyPacked[0]])
+  hh1WithEnergyHash = if hh1WithEnergyPacked[0] == 0 then 0 else sha256packed([0, 0, 0, hhWithEnergyPacked[0]])
+  # hh1WithEnergyHash = sha256packed([0, 0, 0, hhWithEnergyPacked[0]]) 
   hh2WithEnergyHash = sha256packed([0, 0, 0, hhWithEnergyPacked[1]])
   hh1NoEnergyHash = sha256packed([0, 0, 0, hhNoEnergyPacked[0]])
   hh2NoEnergyHash = sha256packed([0, 0, 0, hhNoEnergyPacked[1]])
   
-  return hh1WithEnergyHash, hh2WithEnergyHash, hh1NoEnergyHash, hh2NoEnergyHash
+  return hh2WithEnergyHash, hh1NoEnergyHash, hh2NoEnergyHash

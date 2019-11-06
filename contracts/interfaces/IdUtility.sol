@@ -15,6 +15,7 @@ contract IdUtility {
   event RenewableEnergyChanged(address indexed household, bytes32 newDeltaEnergy);
 
   event NonRenewableEnergyChanged(address indexed household, bytes32 newDeltaEnergy);
+  event ShowInput(bytes32[] indexed household);
 
   /* Household management */
   function addHousehold(address _household) external returns (bool);
