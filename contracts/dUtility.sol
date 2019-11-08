@@ -15,10 +15,13 @@ contract dUtility is Mortal, IdUtility {
     // for checks if household exists
     bool initialized;
 
-    // Hashes of (deltaEnergy+nonce+msg.sender)
+    // Hashes of (deltaEnergy)
     bytes32 renewableEnergy;
     bytes32 nonRenewableEnergy;
   }
+
+  uint lastInputIndex = 0;
+  uint nonZeroHashes = 0;
 
   // mapping of all households
   mapping(address => Household) households;
@@ -82,6 +85,27 @@ contract dUtility is Mortal, IdUtility {
     return true;
   }
 
+   /**
+   * @dev Returns next non-zero hash in concatinated format and counts number of nonZero hashes that are needed for later check
+   * @param hashes array of hashes
+   * @return next concatinated hash
+   */
+  function _concatNextHash(uint256[8] memory hashes) private returns (bytes32){
+    bytes32 res;
+    while(lastInputIndex < hashes.length){
+      // This assumes that if the first half of the hash is all zero's the second will aswell. 
+      // Not sure if saved gas (because we check only one part of the hash) is worth the risk of getting a hash that starts with 32 zeros and netting failing
+      if(hashes[lastInputIndex] != 0){
+        res = bytes32(uint256(hashes[lastInputIndex] << 128 | hashes[lastInputIndex + 1]));
+        ++nonZeroHashes;
+        lastInputIndex += 2;
+        break;
+      }
+      lastInputIndex += 2;
+    }
+    return res;
+  }
+
   /**
    * @dev Verifies netting by using ZoKrates verifier contract.
    * Emits  when netting could be verified
@@ -105,26 +129,27 @@ contract dUtility is Mortal, IdUtility {
    * Throws when _households and _householdEnergyHashes length are not equal.
    * Throws when an energy change hash mismatch has been found.
    * @param _households array of household addresses to be checked.
-   * @param _householdEnergyHashes array of the corresponding energy hashes.
+   * @param _inputs array of the corresponding energy hashes.
    * @return true, iff, all given household energy hashes are mathes with the recorded energy hashes.
    */
   function _checkHashes(
     address[] memory _households, 
-    bytes32[] memory _householdEnergyHashes
+    uint256[8] memory _inputs
   ) private returns (bool) {
-    require(_households.length == _householdEnergyHashes.length, "Households and energy hash array length must be equal.");
-    for (uint256 i = 0; i < _households.length; ++i) {
+    lastInputIndex = 0;
+    nonZeroHashes = 0;
+    for(uint256 i = 0; i < _households.length; ++i) {
       address addr = _households[i];
-      bytes32 energyHash = _householdEnergyHashes[i];
-      Household storage hh = households[addr];
-      require(hh.renewableEnergy == energyHash, "Household energy hash mismatch.");
+      bytes32 energyHash = _concatNextHash(_inputs);
+
+      require(households[addr].renewableEnergy == energyHash, "Household energy hash mismatch.");
     }
+    require(_households.length == nonZeroHashes);
     return true;
   }
 
   function checkNetting(
-    address[] calldata _households, 
-    bytes32[] calldata _householdEnergyHashes,
+    address[] calldata _households,
     uint256[2] calldata _a,
     uint256[2][2] calldata _b,
     uint256[2] calldata _c,
@@ -134,8 +159,7 @@ contract dUtility is Mortal, IdUtility {
       // require address.len == hash_not_0.len / 2 where hash_not_0 is hashes recreated from _input that are not 0. 
 
       // To evaluate the _input hashes, we need to loop through the addresslist provided with the proof and check whether the SC hash registry has values
-      emit ShowInput(_householdEnergyHashes);
-      require(_checkHashes(_households, _householdEnergyHashes) == true, "Hashes not matching!");
+      require(_checkHashes(_households, _input) == true, "Hashes not matching!");
       require(_verifyNetting(_a, _b, _c, _input) == true, "Netting proof failed!");
       emit NettingSuccess();
       return true;

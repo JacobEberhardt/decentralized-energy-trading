@@ -23,6 +23,7 @@ contract IdUtility {
   function getHousehold(address _household) external view returns (bool, bytes32, bytes32);
 
   function removeHousehold(address _household) external returns (bool);
+  function _concatNextHash(uint256[8] memory hashes) private returns (bytes32);
 
   /* Settlement verification related methods */
   function setVerifier(address _verifier) external returns (bool);
@@ -33,11 +34,13 @@ contract IdUtility {
     uint256[2] memory _c,
     uint256[8] memory _input) private returns (bool success);
 
-  function _checkHashes(address[] memory _households, bytes32[] memory _householdEnergyHashes) private returns (bool);
+  function _checkHashes(
+    address[] memory _households, 
+    uint256[8] memory _inputs
+  ) private returns (bool);
 
   function checkNetting(
     address[] calldata _households, 
-    bytes32[] calldata _householdEnergyHashes, 
     uint256[2] calldata _a,
     uint256[2][2] calldata _b,
     uint256[2] calldata _c,

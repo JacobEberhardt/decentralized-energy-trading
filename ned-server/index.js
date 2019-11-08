@@ -94,8 +94,6 @@ async function init() {
 
     let rawdata = fs.readFileSync('../zokrates-code/proof.json');
     let data = JSON.parse(rawdata);
-    console.log(Object.values(hhAddressToHash))
-    console.log(data)
     if (Object.keys(hhAddressToHash).length > 0) {
       await web3.eth.personal.unlockAccount(
         config.address,
@@ -106,7 +104,6 @@ async function init() {
       utilityContract.methods
         .checkNetting(
           Object.keys(hhAddressToHash),
-          Object.values(hhAddressToHash),
           data.proof.a, 
           data.proof.b, 
           data.proof.c, 
