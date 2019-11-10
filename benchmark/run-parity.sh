@@ -17,7 +17,6 @@ done
 
 # clean start blockchain with -c flag
 if [ $c_flag==1 ]; then
-  echo "HELLLOOOOO"
   rm -rf ${BENCHMARK_PARITY_PATH}/chain-data
 fi
 

@@ -25,7 +25,8 @@
     "test-utility-js": "mocha ./test/utility-js/*",
     "utility-benchmark": "./scripts/benchmarks/run_utility_benchmark.sh",
     "update-contract-bytecodes": "yarn compile-contracts && node ./scripts/update-contract-bytecodes",
-    "setup-zokrates": "./scripts/setup_zokrates.sh"
+    "setup-zokrates": "./scripts/setup_zokrates.sh",
+    "run-benchmark-node": "./benchmark/run-parity.sh"
   },
   "devDependencies": {
     "@gnosis.pm/mock-contract": "3.0.7",
