@@ -35,12 +35,11 @@ contract IdUtility {
     uint256[8] memory _input) private returns (bool success);
 
   function _checkHashes(
-    address[] memory _households, 
-    uint256[8] memory _inputs
-  ) private returns (bool);
+    address[] memory _households,
+    uint256[8] memory _inputs) private returns (bool);
 
   function checkNetting(
-    address[] calldata _households, 
+    address[] calldata _households,
     uint256[2] calldata _a,
     uint256[2][2] calldata _b,
     uint256[2] calldata _c,

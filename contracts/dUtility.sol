@@ -81,8 +81,7 @@ contract dUtility is Mortal, IdUtility {
    * @param _verifier address of a deployed ZoKrates verifier contract
    */
   function setVerifier(address _verifier) external onlyOwner() returns (bool) {
-    verifier = IVerifier(_verifier);
-    return true;
+    return _setVerifier(_verifier);
   }
 
    /**
@@ -93,7 +92,7 @@ contract dUtility is Mortal, IdUtility {
   function _concatNextHash(uint256[8] memory hashes) private returns (bytes32){
     bytes32 res;
     while(lastInputIndex < hashes.length){
-      // This assumes that if the first half of the hash is all zero's the second will aswell. 
+      // This assumes that if the first half of the hash is all zero's the second will aswell.
       // Not sure if saved gas (because we check only one part of the hash) is worth the risk of getting a hash that starts with 32 zeros and netting failing
       if(hashes[lastInputIndex] != 0){
         res = bytes32(uint256(hashes[lastInputIndex] << 128 | hashes[lastInputIndex + 1]));
@@ -133,7 +132,7 @@ contract dUtility is Mortal, IdUtility {
    * @return true, iff, all given household energy hashes are mathes with the recorded energy hashes.
    */
   function _checkHashes(
-    address[] memory _households, 
+    address[] memory _households,
     uint256[8] memory _inputs
   ) private returns (bool) {
     lastInputIndex = 0;
@@ -144,7 +143,7 @@ contract dUtility is Mortal, IdUtility {
 
       require(households[addr].renewableEnergy == energyHash, "Household energy hash mismatch.");
     }
-    require(_households.length == nonZeroHashes);
+    require(_households.length == nonZeroHashes, "Length mismatch");
     return true;
   }
 
@@ -154,16 +153,16 @@ contract dUtility is Mortal, IdUtility {
     uint256[2][2] calldata _b,
     uint256[2] calldata _c,
     uint256[8] calldata _input
-    ) external returns (bool){
-      // Ensure that all households that reported meter_delta !=0 in the netting reported are represented in both, addresslist and hashlist sent to SC
-      // require address.len == hash_not_0.len / 2 where hash_not_0 is hashes recreated from _input that are not 0. 
+  ) external returns (bool){
+    // Ensure that all households that reported meter_delta !=0 in the netting reported are represented in both, addresslist and hashlist sent to SC
+    // require address.len == hash_not_0.len / 2 where hash_not_0 is hashes recreated from _input that are not 0.
 
-      // To evaluate the _input hashes, we need to loop through the addresslist provided with the proof and check whether the SC hash registry has values
-      require(_checkHashes(_households, _input) == true, "Hashes not matching!");
-      require(_verifyNetting(_a, _b, _c, _input) == true, "Netting proof failed!");
-      emit NettingSuccess();
-      return true;
-    }
+    // To evaluate the _input hashes, we need to loop through the addresslist provided with the proof and check whether the SC hash registry has values
+    require(_checkHashes(_households, _input) == true, "Hashes not matching!");
+    require(_verifyNetting(_a, _b, _c, _input) == true, "Netting proof failed!");
+    emit NettingSuccess();
+    return true;
+  }
 
   /**
    * @return uint256 length of all successfully verified settlements
@@ -234,6 +233,16 @@ contract dUtility is Mortal, IdUtility {
     hh.nonRenewableEnergy = 0;
 
     emit NewHousehold(_household);
+    return true;
+  }
+
+  /**
+   * @dev Set verifier contract address.
+   * @param _verifier Address of verifier contract.
+   * @return success bool
+   */
+  function _setVerifier(address _verifier) internal returns (bool) {
+    verifier = IVerifier(_verifier);
     return true;
   }
 }
