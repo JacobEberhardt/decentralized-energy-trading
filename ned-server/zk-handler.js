@@ -10,14 +10,14 @@ const conversionHelper = require("../helpers/conversion");
  * This handler manages the communication of the NED Server and the ZoKrates environment
  */
 module.exports = {
-  generateProof: (utilityBeforeNetting, utilityAfterNetting) => {
+  generateProof: (utilityBeforeNetting, utilityAfterNetting, hhWithEnergy, hhNoEnergy) => {
     const hhAddressesWithEnergyBefore = addressHelper.enforceAddressArrLength(
       utilityBeforeNetting.getHouseholdAddressesWithEnergy(),
-      2
+      hhWithEnergy
     );
     const hhAddressesNoEnergyBefore = addressHelper.enforceAddressArrLength(
       utilityBeforeNetting.getHouseholdAddressesNoEnergy(),
-      2
+      hhNoEnergy
     );
     const hhAddresses = [
       ...hhAddressesWithEnergyBefore,

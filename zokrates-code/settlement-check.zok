@@ -1,114 +1,169 @@
-import "hashes/sha256/512bitPacked" as sha256packed
 
-// Simply return hh[0] + hh[1] for any array of households.
-// @param {field[2]} hh
+  //The comments and explanations are provided for an example with n households!
+
+import "hashes/sha256/512bitPacked.code" as sha256packed
+
+// Aggregates the Energy of Energy producing HHS.
+// @param {field[n]} Energy producing HHs
 // @returns {field} energy of provided households
-def energyOf(field[2] hh) -> (field):
+def energyOfWE(field[1] hh) -> (field):
   field energy = 0
-  for field i in 0..2 do
+  for field i in 0..1 do
+    energy = energy + hh[i]
+  endfor
+  return energy
+
+// Aggregates the Energy of Energy consuming HHS.
+// @param {field[m]} Energy producing HHs
+// @returns {field} energy of provided households
+def energyOfNE(field[1] hh) -> (field):
+  field energy = 0
+  for field i in 0..1 do
     energy = energy + hh[i]
   endfor
   return energy
 
 // Returns total energy balance of the system. Remember, this balance can be available or needed energy.
-// @param {field[2]} hhWithEnergy
-// @param {field[2]} hhNoEnergy
+// @param {field[n]} hhWithEnergy
+// @param {field[m]} hhNoEnergy
 // @returns {field} totalEnergy
-def calculateTotalEnergy(field[2] hhWithEnergy, field[2] hhNoEnergy) -> (field):
-  availableEnergy = energyOf(hhWithEnergy)
-  neededEnergy = energyOf(hhNoEnergy)
-
+def calculateTotalEnergy(field[1] hhWithEnergy, field[1] hhNoEnergy) -> (field):
+  availableEnergy = energyOfWE(hhWithEnergy)
+  neededEnergy = energyOfNE(hhNoEnergy)
   field totalEnergy = if (availableEnergy > neededEnergy) then (availableEnergy - neededEnergy) else (neededEnergy - availableEnergy) fi
-
   return totalEnergy
 
-// Returns sum of deltas between hh and hhNet
-// @param {field[2]} hh
-// @param {field[2]} hhNet
+// Returns sum of deltas between hh and hhNet with Energy
+// @param {field[n]} hh
+// @param {field[n]} hhNet
 // @returns {field} delta
-def deltaNet(field[2] hh, field[2] hhNet) -> (field):
+def deltaNetWE(field[1] hh, field[1] hhNet) -> (field):
   field delta = 0
-  for field i in 0..2 do
+  for field i in 0..0 do
     delta = delta + (hh[i] - hhNet[i])
   endfor
   return delta
 
-// Returns errorCounter. Implements weak fairness invariant
-// @param {field[2]} hh
-// @param {field[2]} hhNet
-// @returns {field} errorCounter
-def validateFairness(field[2] hh, field[2] hhNet) -> (field):
-  field errorCounter = 0
+// Returns sum of deltas between hh and hhNet without Energy
+// @param {field[m]} hh
+// @param {field[m]} hhNet
+// @returns {field} delta
+def deltaNetNE(field[1] hh, field[1] hhNet) -> (field):
+  field delta = 0
+  for field i in 0..1 do
+    delta = delta + (hh[i] - hhNet[i])
+  endfor
+  return delta
 
-  for field i in 0..2 do
-    // Netting should NEVER make things worse, i.e., giving a demanding household more demand or allocating a producing household more energy
+// Returns errorCounter. Implements weak fairness invariant for HHs with Energy
+// @param {field[n]} hh
+// @param {field[n]} hhNet
+// @returns {field} errorCounter
+def validateFairnessWE(field[1] hh, field[1] hhNet) -> (field):
+  field errorCounter = 0
+  for field i in 0..0 do
     errorCounter = errorCounter + if hhNet[i] > hh[i] then 1 else 0 fi
   endfor
+  return errorCounter
 
+// Returns errorCounter. Implements weak fairness invariant for HHs without Energy
+// @param {field[m]} hh
+// @param {field[m]} hhNet
+// @returns {field} errorCounter
+def validateFairnessNE(field[1] hh, field[1] hhNet) -> (field):
+  field errorCounter = 0
+  for field i in 0..1 do
+    errorCounter = errorCounter + if hhNet[i] > hh[i] then 1 else 0 fi
+  endfor
   return errorCounter
 
 // Validates the zero-net property (one set of household will be 0 (up to an epislon error) after netting)
+// for the case of sumWithEnergy <= sumNoEnergy
 // Is valid, only if returns 0.
-// @param {field[2]} household party (either needing or having energy)
+// @param (field[n]) household party having energy
 // @param epsilon the error tolerance value
-def validateZeroNet(field[2] hh, field epsilon) -> (field):
+def validateZeroNetWE(field[1] hh, field epsilon) -> (field):
   field errorCounter = 0
-  for field i in 0..2 do
+  for field i in 0..1 do
     errorCounter = errorCounter + if hh[i] > epsilon then 1 else 0 fi
   endfor
-  
   return errorCounter
 
-// Simply return hh[0] + hh[1] for any array of households.
-// @param {field[2]} hh
-// @returns {field} energy of provided households
-def sum(field[2] hh) -> (field):
+// Validates the zero-net property (one set of household will be 0 (up to an epislon error) after netting)
+// for the case of sumWithEnergy >= sumNoEnergy
+// Is valid, only if returns 0.
+// @param (field[m]) household party needing
+// @param epsilon the error tolerance value
+def validateZeroNetNE(field[1] hh, field epsilon) -> (field):
+  field errorCounter = 0
+  for field i in 0..1 do
+    errorCounter = errorCounter + if hh[i] > epsilon then 1 else 0 fi
+  endfor
+  return errorCounter
+
+// Simply return hh[0] + hh[1] for any array of households with energy.
+// @param (field[n]) hh
+// @returns (field) energy of provided households
+def sumWE(field[1] hh) -> (field):
   field s = 0
-  for field i in 0..2 do
+  for field i in 0..1 do
     s = s + hh[i]
   endfor
-  
   return s
+
+// Simply return hh[0] + hh[1] for any array of households without energy.
+// @param (field[m]) hh
+// @returns (field) energy of provided households
+def sumNE(field[1] hh) -> (field):
+  field s = 0
+  for field i in 0..1 do
+    s = s + hh[i]
+  endfor
+  return s
+
 
 // Returns sha256packed hash if settlement result is consistent and proportional fair up to epsilon = 15
 // Assume n = 4 households, where |householdListWithEnergy| = 2 and |householdListNoEnergy| = 2
 // Before settlement, households with produce-consume = 0 are not part of the settlement
-// @param {private field[2]} hhWithEnergy before settlement
+// @param (private field[2]) hhWithEnergy before settlement
 // Index represents household and hhWithEnergy[index] := produce-consume > 0 
-// @param {private field[2]} hhNoEnergy before settlement
+// @param (private field[2]) hhNoEnergy before settlement
 // Index represents household and hhNoEnergy[index] := produce-consume < 0 
-// @param {private field[2]} hhWithEnergyNet after settlement
+// @param (private field[2]) hhWithEnergyNet after settlement
 // Index represents household and hhWithEnergyNet[index] := produce-consume > 0 
-// @param {private field[2]} hhNoEnergyNet after settlement
+// @param (private field[2]) hhNoEnergyNet after settlement
 // Index represents household and hhNoEnergyNet[index] := produce-consume < 0
-// @param {private field[2]} hhWithEnergyPacked Packed inputs energy delta of hh with energy surplus
-// @param {private field[2]} hhNoEnergyPacked Packed inputs energy delta of hh with energy deficit
-// @returns {field[2], field[2], field[2], field[2]} sha256packed hashes of hhWithEnergyPacked and hhNoEnergyPacked
-def main(private field[2] hhWithEnergy, private field[2] hhNoEnergy, private field[2] hhWithEnergyNet, private field[2] hhNoEnergyNet, private field[2] hhWithEnergyPacked, private field[2] hhNoEnergyPacked) -> (field[2], field[2], field[2], field[2]):
-  // Consistency: Energy balance in the system stays the same
+// @param (private field[8]) hhWithEnergyPacked Packed inputs energy + nonce + address of hh with energy surplus
+// Index 0 to 3 are packed inputs of hh1 with energy surplus
+// Index 4 to 7 are packed inputs of hh2 with energy surplus
+// @param (private field[8]) hhNoEnergyPacked Packed inputs energy + nonce + address of hh with energy deficit
+// Index 0 to 3 are packed inputs of hh1 with energy deficit
+// Index 4 to 7 are packed inputs of hh2 with energy deficit
+// @returns (field[2], field[2], field[2], field[2], field[2],...) sha256packed hashes of hhWithEnergyPacked and hhNoEnergyPacked and sha256packed hash that depends on inputs
+def main(private field[1] hhWithEnergy, private field[1] hhNoEnergy, private field[1] hhWithEnergyNet, private field[1] hhNoEnergyNet, private field[1] hhWithEnergyPacked, private field[1] hhNoEnergyPacked) -> (field[2],field[2]):
   totalEnergy = calculateTotalEnergy(hhWithEnergy, hhNoEnergy)
   totalEnergyNet = calculateTotalEnergy(hhWithEnergyNet, hhNoEnergyNet)
   totalEnergy == totalEnergyNet
 
-  // Consistency: Transferred energy (deltaNetWithEnergy) is equal to received energy (deltaNetNoEnergy) 
-  deltaNetWithEnergy = deltaNet(hhWithEnergy, hhWithEnergyNet)
-  deltaNetNoEnergy = deltaNet(hhNoEnergy, hhNoEnergyNet)
+  deltaNetWithEnergy = deltaNetWE(hhWithEnergy, hhWithEnergyNet)
+  deltaNetNoEnergy = deltaNetNE(hhNoEnergy, hhNoEnergyNet)
   deltaNetWithEnergy == deltaNetNoEnergy
 
-  // Weak fairness
-  0 == validateFairness(hhWithEnergy, hhWithEnergyNet)
-  0 == validateFairness(hhNoEnergy, hhNoEnergyNet)
+  0 == validateFairnessWE(hhWithEnergy, hhWithEnergyNet)
+  0 == validateFairnessNE(hhNoEnergy, hhNoEnergyNet)
 
-  // Propportional fairness up to 15: One party zero-net energy
-  field sumWithEnergy = sum(hhWithEnergyNet)
-  field sumNoEnergy = sum(hhNoEnergyNet)
-  field[2] zeroNetParty = if sumWithEnergy <= sumNoEnergy then hhWithEnergyNet else hhNoEnergyNet fi
-  0 == validateZeroNet(zeroNetParty, 15) // Can make epsilon more accurate in the future
-  
-  // sha256packed hash of energy delta of each household
+  field sumWithEnergy = sumWE(hhWithEnergyNet)
+  field sumNoEnergy = sumNE(hhNoEnergyNet)
+
+  field[1] zeroNetPartyWE = hhWithEnergyNet
+  field[1] zeroNetPartyNE = hhNoEnergyNet
+
+  0 == if sumWithEnergy <= sumNoEnergy then validateZeroNetWE(zeroNetPartyWE, 15) else validateZeroNetNE(zeroNetPartyNE, 15) fi// Can make epsilon more accurate in the future
+  //  field energySumWE = hhWithEnergy[0] + hhWithEnergyNet[0]
+  //  field energySumNE = hhNoEnergy[0] + hhNoEnergyNet[0]
+
+  //field energySum = energySumWE + energySumNE
+  //h = sha256packed([0, 0, 0, energySum])
   field[2] hh1WithEnergyHash = if hhWithEnergyPacked[0] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergyPacked[0]]) fi
-  field[2] hh2WithEnergyHash = if hhWithEnergyPacked[1] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergyPacked[1]]) fi
   field[2] hh1NoEnergyHash = if hhNoEnergyPacked[0] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyPacked[0]]) fi
-  field[2] hh2NoEnergyHash = if hhNoEnergyPacked[1] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyPacked[1]]) fi
-  
-  return hh1WithEnergyHash, hh2WithEnergyHash, hh1NoEnergyHash, hh2NoEnergyHash
+  return  hh1WithEnergyHash, hh1NoEnergyHash //h

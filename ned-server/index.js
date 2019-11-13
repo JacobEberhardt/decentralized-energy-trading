@@ -70,25 +70,19 @@ async function init() {
     }
   );
 
-  utilityContract.events.ShowInput(
-    async (error, event) => {
-      if (error) {
-        console.error(error.msg);
-        throw error;
-      }
-      console.log("Showing input event", event);
-    }
-  );
-
   async function runZokrates() {
     let utilityBeforeNetting = { ...utility };
     Object.setPrototypeOf(utilityBeforeNetting, Utility.prototype);
     utilityAfterNetting = { ...utility };
     Object.setPrototypeOf(utilityAfterNetting, Utility.prototype);
     utilityAfterNetting.settle();
+    const hhWithEnergy = serverConfig.hhProduce;
+    const hhNoEnergy = serverConfig.hhConsume
     let hhAddressToHash = zkHandler.generateProof(
       utilityBeforeNetting,
-      utilityAfterNetting
+      utilityAfterNetting,
+      hhWithEnergy,
+      hhNoEnergy
     );
     delete hhAddressToHash[ZERO_ADDRESS];
 
