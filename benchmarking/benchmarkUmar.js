@@ -1,6 +1,4 @@
-const express = require("express");
 const sha256 = require("js-sha256");
-const cors = require("cors");
 const commander = require("commander");
 
 const web3Helper = require("../helpers/web3");
@@ -11,11 +9,6 @@ const ned = require("../household-server/apis/ned");
 
 const serverConfig = require("../household-server-config");
 //const contractHelper = require("../helpers/contract");
-
-const app = express();
-
-app.use(express.json());
-app.use(cors());
 
 const config = {
     host: commander.host || serverConfig.host,
@@ -34,8 +27,10 @@ let web3;
 
 let args = process.argv.slice(2);
   
-let code;
-let code2;
+let hhDeltas;
+
+let hashedHHDeltas;
+
 let wE;
 let nE;
 
@@ -49,10 +44,10 @@ if(args.length === 2 && args[0] >= 1 && args[1] >= 1){
 
 function runBenchmark(wE, nE){
     let n = wE + nE;
-    genData(wE, nE);
+    hhDeltas = genData(wE, nE);
 }
 
-
+//This function returns a random number within a given range
 function getRandomNumberFromRange(start, end){
 	var range = end - start;
 	var result = Math.random() * range;
@@ -60,6 +55,10 @@ function getRandomNumberFromRange(start, end){
 	return Math.round(result);
 }
 
+/*
+# This function creates and returns an Array with Energy Deltas for wE# of 
+# Energy Producing HHs and nE# of Energy Consuming HHs
+*/
 function genData(wE, nE){
     let pDeltas = new Array(wE);
     let cDeltas = new Array(nE);
@@ -75,43 +74,57 @@ function genData(wE, nE){
         cDeltas[i] = (((-Math.abs(c))/100).toFixed(4)).toString();
     }
 
-    let hhDeltas = pDeltas.concat(cDeltas);
+    hhD = pDeltas.concat(cDeltas);
 
+    /*
     for(let i = 0; i < (wE+nE); i++){
-        console.log("hhDeltas: ", hhDeltas[i]);
+        console.log("hhDeltas: ", hhD[i]);
 
     }
+    */
+   
+    return hhD;
+}
 
-    convertHHDeltas(hhDeltas);
+/*
+# This function returns an input area with hashed values
+*/
+function convertHHDeltas(hhDeltas){
 
-    function convertHHDeltas(hhDeltas){
-        console.log("Now Converting hhDeltas");
+    let hashedHHD = new Array(hhDeltas.length);
 
-        let hashedHHDeltas = new Array(hhDeltas.length);
+    for(let i = 0; i < hhDeltas.length; i++){
 
-        for(let i = 0; i < hhDeltas.length; i++){
+        //console.log("Conversion Result ", i+1, ") ", conversionHelper.kWhToWs(Math.abs(hhDeltas[i])));
 
-            //console.log("Conversion Result ", i+1, ") ", conversionHelper.kWhToWs(Math.abs(hhDeltas[i])));
+        //console.log("to_kWh :", conversionHelper.wsToKWh(conversionHelper.kWhToWs(Math.abs(hhDeltas[i]))));
 
-            //console.log("to_kWh :", conversionHelper.wsToKWh(conversionHelper.kWhToWs(Math.abs(hhDeltas[i]))));
+        const paddedMeterDeltaHex = zokratesHelper.padPackParams256(
+            conversionHelper.kWhToWs(Math.abs((hhDeltas[i])))
+        );
+        
+        const paddedMeterDeltaBytes = web3Utils.hexToBytes(paddedMeterDeltaHex);
+        const hash = `0x${sha256(paddedMeterDeltaBytes)}`;
 
-            const paddedMeterDeltaHex = zokratesHelper.padPackParams256(
-                conversionHelper.kWhToWs(Math.abs((hhDeltas[i])))
-            );
-            
-            const paddedMeterDeltaBytes = web3Utils.hexToBytes(paddedMeterDeltaHex);
-            const hash = `0x${sha256(paddedMeterDeltaBytes)}`;
-
-            hashedHHDeltas[i] = hash;
-    
-        }
-
-        for(let i = 0; i < hashedHHDeltas.length; i++){
-            console.log("hashedDeltas: ", hashedHHDeltas[i]);
-    
-        }
+        hashedHHD[i] = hash;
 
     }
+   
+    return hashedHHD;
+
+}
+
+hashedHHDeltas = convertHHDeltas(hhDeltas);
+    
+for(let i = 0; i < hashedHHDeltas.length; i++){
+    
+    console.log("hashedDeltas: ", hashedHHDeltas[i]);
+
+}
+
+    
+
+
     /*
     sendHHDeltasToNed: async (config, web3, meterDelta, hash) => {
         const paddedMeterDeltaHex = zokratesHelper.padPackParams256(
@@ -136,5 +149,5 @@ function genData(wE, nE){
       }
       */
 
-}
+
 
