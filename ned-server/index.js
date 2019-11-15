@@ -181,6 +181,47 @@ app.put("/energy/:householdAddress", async (req, res) => {
     res.send(err);
   }
 });
+
+app.put("/benchmark-energy", async (req, res) => {
+  try {
+    const {
+      meterDeltas = [],
+      addresses = [],
+      timestamp = Date.now()
+    } = req.body;
+
+    if (meterDeltas.length !== addresses.length) {
+      throw new Error("Meter deltas and addresses have to be the same length");
+    }
+
+    console.log("\nIncoming meter deltas:");
+    console.log(meterDeltas);
+    console.log("\nIncoming household addresses:");
+    console.log(addresses);
+
+    addresses.forEach(address => {
+      utility.addHousehold(address);
+    });
+
+    meterDeltas.forEach((meterDelta, i) => {
+      utility.updateMeterDelta(addresses[i], meterDelta, timestamp);
+    });
+
+    console.log(
+      `\nOff-chain utility updated for benchmark of ${addresses.length} households`
+    );
+
+    // TODO: Invoke runZokrates?
+
+    res.status(200);
+    res.send();
+  } catch (error) {
+    console.error("PUT /benchmark-energy", error.message);
+    res.status(500);
+    res.send(error);
+  }
+});
+
 /**
  * GET endpoint returning the current energy balance of renewableEnergy from Utility.js
  */
