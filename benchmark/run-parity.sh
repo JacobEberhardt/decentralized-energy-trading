@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Exit if any subcommand fails
+set -e
+
 BENCHMARK_PARITY_PATH=$(git rev-parse --show-toplevel)/benchmark/parity
 c_flag=0
 

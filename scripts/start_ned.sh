@@ -1,3 +1,8 @@
+#!/bin/bash
+
+# Exit if any subcommand fails
+set -e
+
 echo "Staring NED Processing Unit ..."
 
 echo "Staring Parity Node ..."
