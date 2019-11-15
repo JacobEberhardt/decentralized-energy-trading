@@ -1,9 +1,8 @@
 const sha256 = require("js-sha256");
 var fs = require("fs");
 let Web3 = require('web3');
-const solc = require('solc');
 const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
-const contractPath = "../contracts/dUtilityBenchmark.sol";
+const web3Utils = require("web3-utils");
 
 let args = process.argv.slice(2);
 let code = [];
@@ -21,15 +20,53 @@ if(args.length === 2 && args[0] >= 1 && args[1] >= 1){
 
 function runBenchmark(wE, nE){
     let n = wE + nE;
-    // genData(wE, nE);
     genAddresses(n);
     setupBenchmark();
 }
 
-
-function genData(wE, nE){
-
+//This function returns a random number within a given range
+function getRandomNumberFromRange(start, end) {
+    var range = end - start;
+    var result = Math.random() * range;
+    result += start;
+    return Math.round(result);
 }
+
+/*
+# This function creates and returns an Array with Energy Deltas for wE# of 
+# Energy Producing HHs and nE# of Energy Consuming HHs
+*/
+function genData() {
+    let pDeltas = new Array(wE);
+    let cDeltas = new Array(nE);
+    for (let i = 0; i < wE; i++) {
+        c = getRandomNumberFromRange(1, 14) / 2.3; //Math.random() < 0.5 ? 0 : 1;
+        p = getRandomNumberFromRange(0, 28) / 2.3; //Math.random() < 0.5 ? -1 : 0;
+        pDeltas[i] = (((p + c) / 100).toFixed(4)).toString();
+    }
+
+    for (let i = 0; i < nE; i++) {
+        c = getRandomNumberFromRange(1, 14) / 2.3; //Math.random() < 0.5 ? 0 : 1;
+        cDeltas[i] = (((-Math.abs(c)) / 100).toFixed(4)).toString();
+    }
+    hhD = pDeltas.concat(cDeltas);
+    return hhD;
+}
+
+/*
+# This function returns an input area with hashed values
+*/
+function convertHHDeltas(hhDeltas) {
+    let hashedHHD = new Array(hhDeltas.length);
+    for (let i = 0; i < hhDeltas.length; i++) {
+        //I'm not able to import the zokrates and conversion helpers here from the project. I believe this is the case because we define a new npm package. Will investigate once everything is runnning smoothly   
+        const paddedMeterDeltaHex = web3Utils.padLeft(web3Utils.numberToHex(kWhToWs(hhDeltas[i]), 128))
+        const paddedMeterDeltaBytes = web3Utils.hexToBytes(paddedMeterDeltaHex);
+        const hash = `0x${sha256(paddedMeterDeltaBytes)}`;
+        hashedHHD[i] = hash;
+    }
+    return hashedHHD;
+} 
 
 function genAddresses(n){
     for(i = 0; i < n; i++){
@@ -38,45 +75,76 @@ function genAddresses(n){
     console.log("adds: ", code)
 }
 
+function kWhToWs(kWh) {
+    const kWhToWs = 3600000;
+    let ws = kWh * kWhToWs;
+    return (Math.round(ws)).toString();
+}
+
+
+
 function setupBenchmark(){
     (async () => {
-
-        // /Users/paul/Documents/projects/decentralized-energy-trading/parity-authority/parity/node0.network.key
-        // let account = await web3.eth.accounts.privateKeyToAccount('0x' + fs.readFileSync("parity-authority/parity/node0.network.key").toString().replace(/(\r\n|\n|\r)/gm, ""));
-        let account = await web3.eth.personal.unlockAccount("0x00bd138abd70e2f00903268f3db08f2d25677c9e", 'node0', null);
-        console.log(account)
-        let jsonInterface = require("/build/dUtilityBenchmark.json");
+        // await web3.eth.personal.unlockAccount("0x00bd138abd70e2f00903268f3db08f2d25677c9e", 'node0', null);
+        // web3.eth.defaultAccount = '0x00bd138abd70e2f00903268f3db08f2d25677c9e';
+        const accounts = await web3.eth.getAccounts();
+        let jsonInterface = require("../build/contracts/dUtilityBenchmark.json");
         let abi = jsonInterface.abi
         let bytecode = jsonInterface.bytecode
-        console.log(abi)
-        console.log(bytecode)
 
         let contract = new web3.eth.Contract(abi)
             .deploy({
-                data: '0x' + bytecode.object 
+                data: bytecode 
             })
             .send({
                 from: accounts[0],
-                gas: '2000000'
+                gas: '3000000'
             })
             .on('receipt', (tx) => {
                 if (tx.status == true) {
                     console.log("Contract Deployed! Gas used: " + tx.gasUsed)
+                } else {
+                    console.error(tx)
                 }
             })
             .then(newContractInstance => {
                 contract = newContractInstance;
-                // makeTransaction(account, code, [0] * (wE + nE));
+
+                jsonInterface = require("../build/contracts/Verifier.json");
+                abi = jsonInterface.abi
+                bytecode = jsonInterface.bytecode
+                new web3.eth.Contract(abi)
+                    .deploy({
+                        data: bytecode
+                    })
+                    .send({
+                        from: accounts[0],
+                        gas: '3000000'
+                    })
+                    .then(veriCon => {
+                        makeTransaction(veriCon.options.address, code, convertHHDeltas(genData()));
+                    })
             })
             .catch(err => {
                 console.log(err);
                 process.exit(1);
             })
-
-        function makeTransaction(account, addresses, meterDeltas) {
-            contract.methods.setupBenchmark(addresses, meterDeltas).send({
-                from: account,
+        
+        function makeTransaction(acc, addresses, meterDeltas) {
+            contract.methods.setupBenchmark(acc, addresses, meterDeltas).send({
+                from: accounts[0],
                 gas: 6000000
+            })
+            .on('receipt', (tx) => {
+                console.log("tx done")
+                if (tx.status == true) {
+                    console.log(tx)
+                } else {
+                    console.error(tx)
+                }
+            })
+            .catch(err => {
+                console.log(err);
             })
         }
     })();
