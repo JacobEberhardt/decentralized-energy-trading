@@ -1,0 +1,13 @@
+{
+    "name": "benchmarking",
+    "version": "1.0.0",
+    "description": "",
+    "main": "test.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "dependencies": {
+        "solc": "^0.5.9",
+        "web3": "^1.0.0"
+    }
+}
