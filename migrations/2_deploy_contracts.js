@@ -3,7 +3,7 @@ const request = require("request-promise");
 
 const Utility = artifacts.require("dUtility");
 const OwnedSet = artifacts.require("OwnedSet");
-const UtilityBenchmark = artifacts.require("UtilityBenchmark");
+const dUtilityBenchmark = artifacts.require("dUtilityBenchmark");
 
 const web3Helper = require("../helpers/web3");
 const asyncUtils = require("../helpers/async-utils");
@@ -127,9 +127,10 @@ module.exports = async (deployer, network, [authority]) => {
       break;
     }
     case "benchmark": {
-      deployer.deploy(UtilityBenchmark, 1000, 50, 1000, -2700, {
-        gas: 99999999
-      });
+      const web3 = web3Helper.initWeb3("benchmark");
+      await web3.eth.personal.unlockAccount(address, password, null);
+      await deployer.deploy(dUtilityBenchmark);
+      await web3.eth.personal.unlockAccount(address, password, null);
       break;
     }
     default: {
