@@ -20,6 +20,7 @@
     "migrate-contracts-ganache": "truffle migrate --reset hard --network ganache",
     "migrate-contracts-authority": "truffle migrate --reset hard --network authority",
     "migrate-contracts-docker": "truffle migrate --reset hard --network authority_docker",
+    "migrate-contracts:benchmark": "truffle migrate --reset hard --network benchmark",
     "test-parity-docker": "./scripts/run_docker_parity_tests.sh",
     "test-helpers": "mocha ./test/helpers/*.js",
     "test-utility-js": "mocha ./test/utility-js/*",
@@ -50,7 +51,7 @@
     "prettier": "^1.17.0",
     "run-script-os": "^1.0.5",
     "solium": "^1.2.4",
-    "truffle": "5.0.36"
+    "truffle": "^5.1.0"
   },
   "dependencies": {
     "bn.js": "4.11.8",
