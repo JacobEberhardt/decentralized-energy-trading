@@ -1,4 +1,5 @@
 const sha256 = require("js-sha256");
+const commander = require("commander");
 var fs = require("fs");
 let Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
@@ -97,11 +98,16 @@ function setupBenchmark(){
     (async () => {
 
         meterDeltas = genData();
+
+        console.log("MeterDeltas: ",meterDeltas);
+
         const timestamp = Date.now();
+
+        let addresses = hhAddresses;
 
         sendMeterDeltasToNed(config.nedUrl, {
             meterDeltas,
-            hhAddresses,
+            addresses,
             timestamp
         });
         
