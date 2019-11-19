@@ -50,13 +50,13 @@ function genData() {
     let pDeltas = new Array(wE);
     let cDeltas = new Array(nE);
     for (let i = 0; i < wE; i++) {
-        c = getRandomNumberFromRange(1, 14) / 2.3; //Math.random() < 0.5 ? 0 : 1;
-        p = getRandomNumberFromRange(0, 28) / 2.3; //Math.random() < 0.5 ? -1 : 0;
-        pDeltas[i] = Number(((p + c) / 100).toFixed(4)); //.toString();
+        //c = getRandomNumberFromRange(1, 16) / 2.3; //Math.random() < 0.5 ? 0 : 1;
+        p = getRandomNumberFromRange(0, 13) / 2.3; //Math.random() < 0.5 ? -1 : 0;
+        pDeltas[i] = Number(((p) / 100).toFixed(4)); //.toString();
     }
 
     for (let i = 0; i < nE; i++) {
-        c = getRandomNumberFromRange(1, 14) / 2.3; //Math.random() < 0.5 ? 0 : 1;
+        c = getRandomNumberFromRange(1, 16) / 2.3; //Math.random() < 0.5 ? 0 : 1;
         cDeltas[i] = Number(((-Math.abs(c)) / 100).toFixed(4)); //.toString();
     }
     hhD = pDeltas.concat(cDeltas);
