@@ -3,10 +3,20 @@ var fs = require("fs");
 let Web3 = require('web3');
 const web3 = new Web3(new Web3.providers.HttpProvider('http://localhost:8545'));
 const web3Utils = require("web3-utils");
+const serverConfig = require("../household-server-config");
+const request = require("request-promise");
 
 let args = process.argv.slice(2);
-let code = [];
-let code2;
+let hhAddresses = [];
+let meterDeltas = [];
+
+const config = {
+    nedUrl: commander.nedUrl || serverConfig.nedUrl,
+    network: commander.network || serverConfig.network,
+    address: commander.address || serverConfig.address,
+    password: commander.password || serverConfig.password,
+  };
+
 let wE;
 let nE;
 
@@ -42,12 +52,12 @@ function genData() {
     for (let i = 0; i < wE; i++) {
         c = getRandomNumberFromRange(1, 14) / 2.3; //Math.random() < 0.5 ? 0 : 1;
         p = getRandomNumberFromRange(0, 28) / 2.3; //Math.random() < 0.5 ? -1 : 0;
-        pDeltas[i] = (((p + c) / 100).toFixed(4)).toString();
+        pDeltas[i] = Number(((p + c) / 100).toFixed(4)); //.toString();
     }
 
     for (let i = 0; i < nE; i++) {
         c = getRandomNumberFromRange(1, 14) / 2.3; //Math.random() < 0.5 ? 0 : 1;
-        cDeltas[i] = (((-Math.abs(c)) / 100).toFixed(4)).toString();
+        cDeltas[i] = Number(((-Math.abs(c)) / 100).toFixed(4)); //.toString();
     }
     hhD = pDeltas.concat(cDeltas);
     return hhD;
@@ -63,16 +73,16 @@ function convertHHDeltas(hhDeltas) {
         const paddedMeterDeltaHex = web3Utils.padLeft(web3Utils.numberToHex(kWhToWs(hhDeltas[i]), 128))
         const paddedMeterDeltaBytes = web3Utils.hexToBytes(paddedMeterDeltaHex);
         const hash = `0x${sha256(paddedMeterDeltaBytes)}`;
-        hashedHHD[i] = hash;
+        hashedHHD[i] = hash.toString();
     }
     return hashedHHD;
 } 
 
 function genAddresses(n){
     for(i = 0; i < n; i++){
-        code.push('0x' + sha256(i.toString()).substring(0, 40));
+        hhAddresses.push('0x' + sha256(i.toString()).substring(0, 40));
     }
-    console.log("adds: ", code)
+    console.log("adds: ", hhAddresses)
 }
 
 function kWhToWs(kWh) {
@@ -85,6 +95,16 @@ function kWhToWs(kWh) {
 
 function setupBenchmark(){
     (async () => {
+
+        meterDeltas = genData();
+        const timestamp = Date.now();
+
+        sendMeterDeltasToNed(config.nedUrl, {
+            meterDeltas,
+            hhAddresses,
+            timestamp
+        });
+        
         // await web3.eth.personal.unlockAccount("0x00bd138abd70e2f00903268f3db08f2d25677c9e", 'node0', null);
         // web3.eth.defaultAccount = '0x00bd138abd70e2f00903268f3db08f2d25677c9e';
         const accounts = await web3.eth.getAccounts();
@@ -122,7 +142,7 @@ function setupBenchmark(){
                         gas: '3000000'
                     })
                     .then(veriCon => {
-                        makeTransaction(veriCon.options.address, code, convertHHDeltas(genData()));
+                        makeTransaction(veriCon.options.address, hhAddresses, convertHHDeltas(meterDeltas));
                     })
             })
             .catch(err => {
@@ -147,5 +167,13 @@ function setupBenchmark(){
                 console.log(err);
             })
         }
+        
+        function sendMeterDeltasToNed(ned_url, payload){
+            return request(`${ned_url}/benchmark-energy/`, {
+                method: "PUT",
+                json: payload
+            });
+        }
+
     })();
 }
