@@ -16,6 +16,8 @@ class Utility {
     this.households = {
       // placeholder address
       [ZERO_ADDRESS]: {
+        renewableEnergy: 0,
+        nonRenewableEnergy: 0,
         meterDelta: 0,
         lastUpdate: Date.now()
       }
@@ -35,19 +37,10 @@ class Utility {
       renewableEnergy: 0,
       nonRenewableEnergy: 0,
       meterDelta: 0,
-      nonmeterDelta: 0,
       lastUpdate: Date.now()
     };
 
     return true;
-  }
-
-  //resets delta for each household
-  resetDelta(){
-    const entries = Object.entries(this.households);
-    for(let i = 0; i < entries.length; i++){
-      this.households[entries[i]].meterDelta = 0;
-    }
   }
 
   /**
@@ -99,39 +92,40 @@ class Utility {
     if (!this._householdExists(hhAddress)) return false;
     this.households[hhAddress].meterDelta = meterDelta;
     this.households[hhAddress].lastUpdate = timestamp;
+    this.updateRenewableEnergy(hhAddress, meterDelta);
   }
 
-  // /**
-  //  * Updates a household's renewable energy state.
-  //  * Calls _updateEnergy.
-  //  * @param {string} hhAddress Address of an existing household
-  //  * @param {number} energyDelta Amount of energy to be added to the household's current state
-  //  */
-  // updateRenewableEnergy(hhAddress, meterDelta) {
-  //   return this._updateEnergy(hhAddress, meterDelta, RENEWABLE_ENERGY);
-  // }
+  /**
+   * Updates a household's renewable energy state.
+   * Calls _updateEnergy.
+   * @param {string} hhAddress Address of an existing household
+   * @param {number} energyDelta Amount of energy to be added to the household's current state
+   */
+  updateRenewableEnergy(hhAddress, energyDelta) {
+    return this._updateEnergy(hhAddress, energyDelta, RENEWABLE_ENERGY);
+  }
 
-  // /**
-  //  * Updates a household's non-renewable energy state.
-  //  * Calls _updateEnergy.
-  //  * @param {string} hhAddress Address of an existing household
-  //  * @param {number} energyDelta Amount of energy to be added to the household's current state
-  //  */
-  // updateNonRenewableEnergy(hhAddress, energyDelta) {
-  //   return this._updateEnergy(hhAddress, energyDelta, NONRENEWABLE_ENERGY);
-  // }
+  /**
+   * Updates a household's non-renewable energy state.
+   * Calls _updateEnergy.
+   * @param {string} hhAddress Address of an existing household
+   * @param {number} energyDelta Amount of energy to be added to the household's current state
+   */
+  updateNonRenewableEnergy(hhAddress, energyDelta) {
+    return this._updateEnergy(hhAddress, energyDelta, NONRENEWABLE_ENERGY);
+  }
 
-  // /**
-  //  * Generic household energy state update method.
-  //  * @param {string} hhAddress Address of an existing household
-  //  * @param {number} energyDelta Amount of energy to be added to the household's current state
-  //  * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY.
-  //  */
-  // _updateEnergy(hhAddress, energyDelta, energyType) {
-  //   if (!this._householdExists(hhAddress)) return false;
-  //   this[energyType] += energyDelta;
-  //   this.households[hhAddress][renew] += energyDelta;
-  // }
+  /**
+   * Generic household energy state update method.
+   * @param {string} hhAddress Address of an existing household
+   * @param {number} energyDelta Amount of energy to be added to the household's current state
+   * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY.
+   */
+  _updateEnergy(hhAddress, energyDelta, energyType) {
+    if (!this._householdExists(hhAddress)) return false;
+    this[energyType] += energyDelta;
+    this.households[hhAddress][energyType] += energyDelta;
+  }
 
   /**
    * Checks if household exists.
@@ -150,29 +144,28 @@ class Utility {
   settle() {
     const entries = Object.entries(this.households);
     const withEnergy = entries
-      .filter(hh => hh[1].meterDelta > 0)
+      .filter(hh => hh[1].renewableEnergy > 0)
       .map(hh => hh[0]);
     const noEnergy = entries
-      .filter(hh => hh[1].meterDelta < 0)
+      .filter(hh => hh[1].renewableEnergy < 0)
       .map(hh => hh[0]);
 
     let availableEnergy = 0;
     for (let i = 0; i < withEnergy.length; i++) {
-      availableEnergy += this.households[withEnergy[i]].meterDelta;
+      availableEnergy += this.households[withEnergy[i]][RENEWABLE_ENERGY];
     }
 
     let neededEnergy = 0;
     for (let i = 0; i < noEnergy.length; i++) {
-      neededEnergy += this.households[noEnergy[i]].meterDelta;
+      neededEnergy += this.households[noEnergy[i]][RENEWABLE_ENERGY];
     }
-    // if (this[RENEWABLE_ENERGY] <= 0) {
-    if(availableEnergy <= neededEnergy){
+
+    if (this[RENEWABLE_ENERGY] <= 0) {
       this._proportionalDistribution(
         availableEnergy,
         neededEnergy,
-        withEnergy,
-        noEnergy
-        
+        noEnergy,
+        withEnergy
       );
     } else {
       this._proportionalDistribution(
@@ -192,8 +185,7 @@ class Utility {
    */
   getHouseholdAddressesWithEnergy() {
     const entries = Object.entries(this.households);
-    //console.log("With Energy: ", entries);
-    return entries.filter(hh => hh[1].meterDelta > 0).map(hh => hh[0]);
+    return entries.filter(hh => hh[1].renewableEnergy > 0).map(hh => hh[0]);
   }
 
   /**
@@ -202,8 +194,7 @@ class Utility {
    */
   getHouseholdAddressesNoEnergy() {
     const entries = Object.entries(this.households);
-    //console.log("No Energy: ", entries);
-    return entries.filter(hh => hh[1].meterDelta < 0).map(hh => hh[0]);
+    return entries.filter(hh => hh[1].renewableEnergy < 0).map(hh => hh[0]);
   }
 
   /**
@@ -218,8 +209,6 @@ class Utility {
   _proportionalDistribution(availableEnergy, neededEnergy, hhFrom, hhTo) {
     const isMoreAvailableThanDemanded = availableEnergy + neededEnergy > 0;
 
-    console.log("More Available than Demanded?: ", isMoreAvailableThanDemanded)
-
     const energyReference = isMoreAvailableThanDemanded
       ? availableEnergy
       : neededEnergy;
@@ -228,7 +217,6 @@ class Utility {
       ? neededEnergy
       : availableEnergy;
 
-    // this[RENEWABLE_ENERGY] = availableEnergy - neededEnergy;
     let needle = 0;
     let from;
     let to;
@@ -237,7 +225,7 @@ class Utility {
       to = hhFrom[i];
 
       const proportionalFactor =
-        (Math.abs(this.households[to].meterDelta) * 100) /
+        (Math.abs(this.households[to][RENEWABLE_ENERGY]) * 100) /
         Math.abs(energyReference);
       let proportionalShare = Math.round(
         (Math.abs(energyToShare) * proportionalFactor) / 100
@@ -250,18 +238,18 @@ class Utility {
           ? proportionalShare * -1
           : proportionalShare;
         const energy = isMoreAvailableThanDemanded
-          ? this.households[from].meterDelta * -1
-          : this.households[from].meterDelta;
+          ? this.households[from][RENEWABLE_ENERGY] * -1
+          : this.households[from][RENEWABLE_ENERGY];
 
         if (energy >= proportionalShare) {
           this._transfer(from, to, toClaim, RENEWABLE_ENERGY);
           this._addDeed(from, to, toClaim, RENEWABLE_ENERGY);
-          if (this.households[from].meterDelta === 0) {
+          if (this.households[from][RENEWABLE_ENERGY] === 0) {
             needle++;
           }
           break;
         } else {
-          const energyTransferred = this.households[from].meterDelta;
+          const energyTransferred = this.households[from][RENEWABLE_ENERGY];
           this._transfer(from, to, energyTransferred, RENEWABLE_ENERGY);
           this._addDeed(from, to, energyTransferred, RENEWABLE_ENERGY);
           proportionalShare = proportionalShare - Math.abs(energyTransferred);
@@ -314,8 +302,8 @@ class Utility {
     if (!this._householdExists(from) || !this._householdExists(to))
       return false;
 
-    this.households[from].meterDelta -= amount;
-    this.households[to].meterDelta += amount;
+    this.households[from][energyType] -= amount;
+    this.households[to][energyType] += amount;
   }
 }
 

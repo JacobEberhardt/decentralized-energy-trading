@@ -11,6 +11,9 @@ const conversionHelper = require("../helpers/conversion");
  */
 module.exports = {
   generateProof: (utilityBeforeNetting, utilityAfterNetting, hhWithEnergy, hhNoEnergy) => {
+    console.log("UtilityBeforeNetting: ", utilityBeforeNetting);
+    console.log("UtilityAfterNetting: ", utilityAfterNetting);
+
     const hhAddressesWithEnergyBefore = addressHelper.enforceAddressArrLength(
       utilityBeforeNetting.getHouseholdAddressesWithEnergy(),
       hhWithEnergy
@@ -19,56 +22,45 @@ module.exports = {
       utilityBeforeNetting.getHouseholdAddressesNoEnergy(),
       hhNoEnergy
     );
+    console.log(hhAddressesWithEnergyBefore, hhAddressesNoEnergyBefore)
     const hhAddresses = [
       ...hhAddressesWithEnergyBefore,
       ...hhAddressesNoEnergyBefore
     ];
-    const balancesWithEnergyBefore = hhAddressesWithEnergyBefore
+    const deltasWithEnergyBefore = hhAddressesWithEnergyBefore
       .map(address =>
         conversionHelper.kWhToWs(
-          utilityBeforeNetting.households[address].renewableEnergy
+          utilityBeforeNetting.households[address].meterDelta
         )
       )
       .join(" ");
-    const balancesNoEnergyBefore = hhAddressesNoEnergyBefore
+    const deltasNoEnergyBefore = hhAddressesNoEnergyBefore
       .map(address =>
         conversionHelper.kWhToWs(
-          Math.abs(utilityBeforeNetting.households[address].renewableEnergy)
+          Math.abs(utilityBeforeNetting.households[address].meterDelta)
         )
       )
       .join(" ");
-    const balancesWithEnergyAfter = hhAddressesWithEnergyBefore
+    const deltasWithEnergyAfter = hhAddressesWithEnergyBefore
       .map(address =>
         conversionHelper.kWhToWs(
-          utilityAfterNetting.households[address].renewableEnergy
+          utilityAfterNetting.households[address].meterDelta
         )
       )
       .join(" ");
-    const balancesNoEnergyAfter = hhAddressesNoEnergyBefore
+    const deltasNoEnergyAfter = hhAddressesNoEnergyBefore
       .map(address =>
         conversionHelper.kWhToWs(
-          Math.abs(utilityAfterNetting.households[address].renewableEnergy)
+          Math.abs(utilityAfterNetting.households[address].meterDelta)
         )
       )
-      .join(" ");
-
-    const packedParams = hhAddresses
-      .map(address => {
-        return web3Utils.hexToNumber(
-          zokratesHelper.padPackParams256(
-            conversionHelper.kWhToWs(
-              // TODO: Handle negative meter readings
-              Math.abs(utilityBeforeNetting.households[address].meterDelta)
-            )
-          )
-        )
-      })
       .join(" ");
 
     process.stdout.write("Computing witness...");
+    console.log(`zokrates compute-witness -a ${deltasWithEnergyBefore} ${deltasNoEnergyBefore} ${deltasWithEnergyAfter} ${deltasNoEnergyAfter} > /dev/null`)
     const witnessShellStr = shell
       .exec(
-        `zokrates compute-witness -a ${balancesWithEnergyBefore} ${balancesNoEnergyBefore} ${balancesWithEnergyAfter} ${balancesNoEnergyAfter} ${packedParams} > /dev/null`
+        `zokrates compute-witness -a ${deltasWithEnergyBefore} ${deltasNoEnergyBefore} ${deltasWithEnergyAfter} ${deltasNoEnergyAfter} > /dev/null`
       )
       .grep("--", "^~out_*", "witness");
 

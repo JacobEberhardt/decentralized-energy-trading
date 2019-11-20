@@ -45,18 +45,10 @@ async function init() {
   latestBlockNumber = await web3.eth.getBlockNumber();
   // Off-chain utility instance
   utility = new Utility();
-  /*
   utilityContract = new web3.eth.Contract(
     contractHelper.getAbi("dUtility"),
     contractHelper.getDeployedAddress("dUtility", await web3.eth.net.getId())
   );
-  */
- 
-  utilityContract = new web3.eth.Contract(
-    contractHelper.getAbi("dUtilityBenchmark"),
-    contractHelper.getDeployedAddress("dUtilityBenchmark", await web3.eth.net.getId())
-  );
-
   ownedSetContract = new web3.eth.Contract(
     contractHelper.getAbi("ownedSet"),
     contractHelper.getDeployedAddress("ownedSet", await web3.eth.net.getId())
@@ -79,11 +71,13 @@ async function init() {
   );
 
   async function runZokrates() {
-    let utilityBeforeNetting = { ...utility };
+    const utilityBeforeNetting = { ...utility };
+    //console.log("UtilityBeforeNettingINDEX: ", utilityBeforeNetting)
     Object.setPrototypeOf(utilityBeforeNetting, Utility.prototype);
     utilityAfterNetting = { ...utility };
     Object.setPrototypeOf(utilityAfterNetting, Utility.prototype);
     utilityAfterNetting.settle();
+    //console.log("UtilityBeforeNettingINDEX: ", utilityBeforeNetting)
     const hhWithEnergy = serverConfig.hhProduce;
     const hhNoEnergy = serverConfig.hhConsume
     let hhAddressToHash = zkHandler.generateProof(
@@ -92,6 +86,7 @@ async function init() {
       hhWithEnergy,
       hhNoEnergy
     );
+    
     delete hhAddressToHash[ZERO_ADDRESS];
 
     let rawdata = fs.readFileSync('../zokrates-code/proof.json');
@@ -124,21 +119,18 @@ async function init() {
     } else {
       console.log("No households to hash.");
       console.log(`Sleep for ${config.nettingInterval}ms ...`);
-      /*
       setTimeout(() => {
         runZokrates();
       }, config.nettingInterval);
-      */
     }
   }
-  /*
+
   setTimeout(() => {
     runZokrates();
   }, config.nettingInterval);
-  */
 }
 
-//init();
+init();
 
 const app = express();
 
@@ -205,8 +197,6 @@ app.put("/benchmark-energy", async (req, res) => {
       throw new Error("Meter deltas and addresses have to be the same length");
     }
 
-    init();
-
     console.log("\nIncoming meter deltas:");
     console.log(meterDeltas);
     console.log("\nIncoming household addresses:");
@@ -224,7 +214,7 @@ app.put("/benchmark-energy", async (req, res) => {
       `\nOff-chain utility updated for benchmark of ${addresses.length} households`
     );
 
-    runZokrates();
+    // TODO: Invoke runZokrates?
 
     res.status(200);
     res.send();
