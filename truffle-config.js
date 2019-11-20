@@ -31,8 +31,10 @@ module.exports = {
     },
     benchmark: {
       host: "127.0.0.1",
-      port: 7545,
-      network_id: "*"
+      port: 8546,
+      network_id: "8995",
+      websockets: true,
+      from: "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e"
     }
   },
   compilers: {
