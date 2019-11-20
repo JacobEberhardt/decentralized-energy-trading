@@ -104,12 +104,6 @@ function setupBenchmark(){
         const timestamp = Date.now();
 
         let addresses = hhAddresses;
-
-        sendMeterDeltasToNed(config.nedUrl, {
-            meterDeltas,
-            addresses,
-            timestamp
-        });
         
         // await web3.eth.personal.unlockAccount("0x00bd138abd70e2f00903268f3db08f2d25677c9e", 'node0', null);
         // web3.eth.defaultAccount = '0x00bd138abd70e2f00903268f3db08f2d25677c9e';
@@ -134,6 +128,14 @@ function setupBenchmark(){
                 }
             })
             .then(newContractInstance => {
+                console.log("Sending data to the NED...")
+                sendMeterDeltasToNed(config.nedUrl, {
+                    meterDeltas,
+                    addresses,
+                    timestamp
+                    } //,contract.options.address
+                );
+
                 contract = newContractInstance;
 
                 jsonInterface = require("../build/contracts/Verifier.json");
@@ -173,7 +175,16 @@ function setupBenchmark(){
                 console.log(err);
             })
         }
-        
+
+        /*
+        function setBenchmarkContractAddress(ned_url, payload){
+            return request(`${ned_url}/benchmark-energy/`,{
+                method: "PUT",
+                json: payload
+            });
+        }
+        */
+
         function sendMeterDeltasToNed(ned_url, payload){
             return request(`${ned_url}/benchmark-energy/`, {
                 method: "PUT",
