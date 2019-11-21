@@ -71,10 +71,14 @@ function convertHHDeltas(hhDeltas) {
     let hashedHHD = new Array(hhDeltas.length);
     for (let i = 0; i < hhDeltas.length; i++) {
         //I'm not able to import the zokrates and conversion helpers here from the project. I believe this is the case because we define a new npm package. Will investigate once everything is runnning smoothly   
-        const paddedMeterDeltaHex = web3Utils.padLeft(web3Utils.numberToHex(kWhToWs(hhDeltas[i]), 128))
+        console.log("kWh to WS: ", kWhToWs(hhDeltas[i]));
+        const paddedMeterDeltaHex = web3Utils.padLeft(web3Utils.numberToHex(Math.abs(kWhToWs(hhDeltas[i]))), 128)
+        console.log("paddedMeterDeltaHex: ", paddedMeterDeltaHex);
         const paddedMeterDeltaBytes = web3Utils.hexToBytes(paddedMeterDeltaHex);
+        console.log("paddedMeterDeltaBytes: ", paddedMeterDeltaBytes);
         const hash = `0x${sha256(paddedMeterDeltaBytes)}`;
         hashedHHD[i] = hash.toString();
+        console.log("Hash: ", hashedHHD[i]);
     }
     return hashedHHD;
 } 
@@ -104,6 +108,15 @@ function setupBenchmark(){
         const timestamp = Date.now();
 
         let addresses = hhAddresses;
+
+        sendMeterDeltasToNed(config.nedUrl, {
+            meterDeltas,
+            addresses,
+            timestamp
+            } //,contract.options.address
+        );
+
+        console.log("Hashed Array of meterDeltas: ", convertHHDeltas(meterDeltas));
         
         // await web3.eth.personal.unlockAccount("0x00bd138abd70e2f00903268f3db08f2d25677c9e", 'node0', null);
         // web3.eth.defaultAccount = '0x00bd138abd70e2f00903268f3db08f2d25677c9e';
@@ -129,12 +142,6 @@ function setupBenchmark(){
             })
             .then(newContractInstance => {
                 console.log("Sending data to the NED...")
-                sendMeterDeltasToNed(config.nedUrl, {
-                    meterDeltas,
-                    addresses,
-                    timestamp
-                    } //,contract.options.address
-                );
 
                 contract = newContractInstance;
 
