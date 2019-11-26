@@ -33,11 +33,11 @@ def energyOfNE(field[${nE}] hh) -> (field):
 // @param {field[n]} hhWithEnergy
 // @param {field[m]} hhNoEnergy
 // @returns {field} totalEnergy
-def calculateTotalEnergy(field[${wE}] hhWithEnergy, field[${nE}] hhNoEnergy) -> (field):
-  availableEnergy = energyOfWE(hhWithEnergy)
-  neededEnergy = energyOfNE(hhNoEnergy)
-  field totalEnergy = if (availableEnergy > neededEnergy) then (availableEnergy - neededEnergy) else (neededEnergy - availableEnergy) fi
-  return totalEnergy
+def calculateTotalDelta(field[${wE}] hhWithEnergy, field[${nE}] hhNoEnergy) -> (field):
+  producerDelta = energyOfWE(hhWithEnergy)
+  consumerDelta = energyOfNE(hhNoEnergy)
+  field totalDelta = if (producerDelta > consumerDelta) then (producerDelta - consumerDelta) else (consumerDelta - producerDelta) fi
+  return totalDelta
 
 // Returns sum of deltas between hh and hhNet with Energy
 // @param {field[n]} hh
@@ -182,12 +182,12 @@ def sumNE(field[${nE}] hh) -> (field):
   for (let i = 0; i < wE; i++) {    
     
     packedString += `  field[2] hh${i +
-      1}WithEnergyHash = if hhWithEnergyPacked[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergyPacked[${i}]]) fi\n`;
+      1}WithEnergyHash = if hhWithEnergy[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergy[${i}]]) fi\n`;
   }
 
   for(let i = 0; i < nE; i++){
     packedString += `  field[2] hh${i +
-      1}NoEnergyHash = if hhNoEnergyPacked[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyPacked[${i}]]) fi\n`;
+      1}NoEnergyHash = if hhNoEnergy[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[${i}]]) fi\n`;
   }
 
     for(let i = 0; i < wE; i++){
@@ -223,14 +223,10 @@ def sumNE(field[${nE}] hh) -> (field):
 // Index 0 to 3 are packed inputs of hh1 with energy deficit
 // Index 4 to 7 are packed inputs of hh2 with energy deficit
 // @returns (field[2], field[2], field[2], field[2], field[2],...) sha256packed hashes of hhWithEnergyPacked and hhNoEnergyPacked and sha256packed hash that depends on inputs
-def main(private field[${wE}] hhWithEnergy, private field[${nE}] hhNoEnergy, private field[${wE}] hhWithEnergyNet, private field[${nE}] hhNoEnergyNet, private field[${wE}] hhWithEnergyPacked, private field[${nE}] hhNoEnergyPacked) -> (${returnSignatureString}):
-  totalEnergy = calculateTotalEnergy(hhWithEnergy, hhNoEnergy)
-  totalEnergyNet = calculateTotalEnergy(hhWithEnergyNet, hhNoEnergyNet)
-  totalEnergy == totalEnergyNet
-
-  deltaNetWithEnergy = deltaNetWE(hhWithEnergy, hhWithEnergyNet)
-  deltaNetNoEnergy = deltaNetNE(hhNoEnergy, hhNoEnergyNet)
-  deltaNetWithEnergy == deltaNetNoEnergy
+def main(private field[${wE}] hhWithEnergy, private field[${nE}] hhNoEnergy, private field[${wE}] hhWithEnergyNet, private field[${nE}] hhNoEnergyNet) -> (${returnSignatureString}):
+  totalDelta = calculateTotalDelta(hhWithEnergy, hhNoEnergy)
+  totalDeltaNet = calculateTotalDelta(hhWithEnergyNet, hhNoEnergyNet)
+  totalDelta == totalDeltaNet
 
   0 == validateFairnessWE(hhWithEnergy, hhWithEnergyNet)
   0 == validateFairnessNE(hhNoEnergy, hhNoEnergyNet)

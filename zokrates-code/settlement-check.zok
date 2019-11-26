@@ -27,11 +27,11 @@ def energyOfNE(field[1] hh) -> (field):
 // @param {field[n]} hhWithEnergy
 // @param {field[m]} hhNoEnergy
 // @returns {field} totalEnergy
-def calculateTotalEnergy(field[1] hhWithEnergy, field[1] hhNoEnergy) -> (field):
-  availableEnergy = energyOfWE(hhWithEnergy)
-  neededEnergy = energyOfNE(hhNoEnergy)
-  field totalEnergy = if (availableEnergy > neededEnergy) then (availableEnergy - neededEnergy) else (neededEnergy - availableEnergy) fi
-  return totalEnergy
+def calculateTotalDelta(field[1] hhWithEnergy, field[1] hhNoEnergy) -> (field):
+  producerDelta = energyOfWE(hhWithEnergy)
+  consumerDelta = energyOfNE(hhNoEnergy)
+  field totalDelta = if (producerDelta > consumerDelta) then (producerDelta - consumerDelta) else (consumerDelta - producerDelta) fi
+  return totalDelta
 
 // Returns sum of deltas between hh and hhNet with Energy
 // @param {field[n]} hh
@@ -140,14 +140,10 @@ def sumNE(field[1] hh) -> (field):
 // Index 0 to 3 are packed inputs of hh1 with energy deficit
 // Index 4 to 7 are packed inputs of hh2 with energy deficit
 // @returns (field[2], field[2], field[2], field[2], field[2],...) sha256packed hashes of hhWithEnergyPacked and hhNoEnergyPacked and sha256packed hash that depends on inputs
-def main(private field[1] hhWithEnergy, private field[1] hhNoEnergy, private field[1] hhWithEnergyNet, private field[1] hhNoEnergyNet, private field[1] hhWithEnergyPacked, private field[1] hhNoEnergyPacked) -> (field[2],field[2]):
-  totalEnergy = calculateTotalEnergy(hhWithEnergy, hhNoEnergy)
-  totalEnergyNet = calculateTotalEnergy(hhWithEnergyNet, hhNoEnergyNet)
-  totalEnergy == totalEnergyNet
-
-  deltaNetWithEnergy = deltaNetWE(hhWithEnergy, hhWithEnergyNet)
-  deltaNetNoEnergy = deltaNetNE(hhNoEnergy, hhNoEnergyNet)
-  deltaNetWithEnergy == deltaNetNoEnergy
+def main(private field[1] hhWithEnergy, private field[1] hhNoEnergy, private field[1] hhWithEnergyNet, private field[1] hhNoEnergyNet) -> (field[2],field[2]):
+  totalDelta = calculateTotalDelta(hhWithEnergy, hhNoEnergy)
+  totalDeltaNet = calculateTotalDelta(hhWithEnergyNet, hhNoEnergyNet)
+  totalDelta == totalDeltaNet
 
   0 == validateFairnessWE(hhWithEnergy, hhWithEnergyNet)
   0 == validateFairnessNE(hhNoEnergy, hhNoEnergyNet)
@@ -164,6 +160,6 @@ def main(private field[1] hhWithEnergy, private field[1] hhNoEnergy, private fie
 
   //field energySum = energySumWE + energySumNE
   //h = sha256packed([0, 0, 0, energySum])
-  field[2] hh1WithEnergyHash = if hhWithEnergyPacked[0] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergyPacked[0]]) fi
-  field[2] hh1NoEnergyHash = if hhNoEnergyPacked[0] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyPacked[0]]) fi
+  field[2] hh1WithEnergyHash = if hhWithEnergy[0] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergy[0]]) fi
+  field[2] hh1NoEnergyHash = if hhNoEnergy[0] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[0]]) fi
   return  hh1WithEnergyHash, hh1NoEnergyHash //h

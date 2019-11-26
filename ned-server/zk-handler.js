@@ -14,47 +14,27 @@ module.exports = {
     console.log("UtilityBeforeNetting: ", utilityBeforeNetting);
     console.log("UtilityAfterNetting: ", utilityAfterNetting);
 
-    const hhAddressesWithEnergyBefore = addressHelper.enforceAddressArrLength(
-      utilityBeforeNetting.getHouseholdAddressesWithEnergy(),
-      hhWithEnergy
-    );
-    const hhAddressesNoEnergyBefore = addressHelper.enforceAddressArrLength(
-      utilityBeforeNetting.getHouseholdAddressesNoEnergy(),
-      hhNoEnergy
-    );
-    console.log(hhAddressesWithEnergyBefore, hhAddressesNoEnergyBefore)
+    const hhAddressesWithEnergyBefore = utilityBeforeNetting.getHouseholdAddressesWithEnergy()
+
+    const hhAddressesNoEnergyBefore = utilityBeforeNetting.getHouseholdAddressesNoEnergy();
+
     const hhAddresses = [
       ...hhAddressesWithEnergyBefore,
       ...hhAddressesNoEnergyBefore
     ];
-    const deltasWithEnergyBefore = hhAddressesWithEnergyBefore
-      .map(address =>
-        conversionHelper.kWhToWs(
-          utilityBeforeNetting.households[address].meterDelta
-        )
-      )
-      .join(" ");
-    const deltasNoEnergyBefore = hhAddressesNoEnergyBefore
-      .map(address =>
-        conversionHelper.kWhToWs(
-          Math.abs(utilityBeforeNetting.households[address].meterDelta)
-        )
-      )
-      .join(" ");
-    const deltasWithEnergyAfter = hhAddressesWithEnergyBefore
-      .map(address =>
-        conversionHelper.kWhToWs(
-          utilityAfterNetting.households[address].meterDelta
-        )
-      )
-      .join(" ");
-    const deltasNoEnergyAfter = hhAddressesNoEnergyBefore
-      .map(address =>
-        conversionHelper.kWhToWs(
-          Math.abs(utilityAfterNetting.households[address].meterDelta)
-        )
-      )
-      .join(" ");
+
+    const deltasWithEnergyBefore = hhAddressesWithEnergyBefore.map(address => utilityBeforeNetting.households[address].meterDelta).join(" ");
+
+    const deltasNoEnergyBefore = hhAddressesNoEnergyBefore.map(address => Math.abs(utilityBeforeNetting.households[address].meterDelta)).join(" ");
+    
+    const deltasWithEnergyAfter = hhAddressesWithEnergyBefore.map(address => utilityAfterNetting[address].meterDelta).join(" ");
+
+    console.log(hhAddressesNoEnergyBefore)
+    const deltasNoEnergyAfter = hhAddressesNoEnergyBefore.map(address => Math.abs(utilityAfterNetting[address].meterDelta)).join(" ");
+    console.log("Biactchhhh")
+
+    console.log("Addresses With: ", hhAddressesWithEnergyBefore)
+    console.log("Addresses Without: ", hhAddressesNoEnergyBefore)
 
     process.stdout.write("Computing witness...");
     console.log(`zokrates compute-witness -a ${deltasWithEnergyBefore} ${deltasNoEnergyBefore} ${deltasWithEnergyAfter} ${deltasNoEnergyAfter} > /dev/null`)

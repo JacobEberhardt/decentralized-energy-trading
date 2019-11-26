@@ -45,38 +45,35 @@ async function init() {
   latestBlockNumber = await web3.eth.getBlockNumber();
   // Off-chain utility instance
   utility = new Utility();
-  utilityContract = new web3.eth.Contract(
-    contractHelper.getAbi("dUtility"),
-    contractHelper.getDeployedAddress("dUtility", await web3.eth.net.getId())
-  );
-  ownedSetContract = new web3.eth.Contract(
-    contractHelper.getAbi("ownedSet"),
-    contractHelper.getDeployedAddress("ownedSet", await web3.eth.net.getId())
-  );
+  // ownedSetContract = new web3.eth.Contract(
+  //   contractHelper.getAbi("ownedSet"),
+  //   contractHelper.getDeployedAddress("ownedSet", 1234)
+  // );
   shell.cd("zokrates-code");
 
-  utilityContract.events.NettingSuccess(
-    {
-      fromBlock: latestBlockNumber
-    },
-    async (error, event) => {
-      if (error) {
-        console.error(error.msg);
-        throw error;
-      }
-      console.log("NettingSuccess event", event);
-      latestBlockNumber = event.blockNumber;
-      utility = utilityAfterNetting;
-    }
-  );
+  // utilityContract.events.NettingSuccess(
+  //   {
+  //     fromBlock: latestBlockNumber
+  //   },
+  //   async (error, event) => {
+  //     if (error) {
+  //       console.error(error.msg);
+  //       throw error;
+  //     }
+  //     console.log("NettingSuccess event", event);
+  //     latestBlockNumber = event.blockNumber;
+  //     utility = utilityAfterNetting;
+  //   }
+  // );
 
   async function runZokrates() {
-    const utilityBeforeNetting = { ...utility };
+    const utilityBeforeNetting = JSON.parse(JSON.stringify(utility));
     //console.log("UtilityBeforeNettingINDEX: ", utilityBeforeNetting)
     Object.setPrototypeOf(utilityBeforeNetting, Utility.prototype);
     utilityAfterNetting = { ...utility };
     Object.setPrototypeOf(utilityAfterNetting, Utility.prototype);
-    utilityAfterNetting.settle();
+    utilityAfterNetting = utilityAfterNetting.settle();
+    // utilityAfterNetting = JSON.parse(JSON.stringify(utilityAfterNetting));
     //console.log("UtilityBeforeNettingINDEX: ", utilityBeforeNetting)
     const hhWithEnergy = serverConfig.hhProduce;
     const hhNoEnergy = serverConfig.hhConsume
@@ -92,12 +89,15 @@ async function init() {
     let rawdata = fs.readFileSync('../zokrates-code/proof.json');
     let data = JSON.parse(rawdata);
     if (Object.keys(hhAddressToHash).length > 0) {
-      await web3.eth.personal.unlockAccount(
-        config.address,
-        config.password,
-        null
-      );
+      // await web3.eth.personal.unlockAccount(
+      //   config.address,
+      //   config.password,
+      //   null
+      // );
       console.log(`Hashes: ${JSON.stringify(hhAddressToHash)}`);
+      console.log(Object.keys(hhAddressToHash))
+      const accounts = await web3.eth.getAccounts();
+      console.log(utilityContract.methods)
       utilityContract.methods
         .checkNetting(
           Object.keys(hhAddressToHash),
@@ -106,7 +106,7 @@ async function init() {
           data.proof.c, 
           data.inputs
         )
-        .send({ from: config.address }, (error, txHash) => {
+        .send({ from: accounts[0] }, (error, txHash) => {
           if (error) {
             console.error(error.message);
             throw error;
@@ -137,53 +137,35 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
-/**
- * PUT /energy/:householdAddress
- */
-app.put("/energy/:householdAddress", async (req, res) => {
+app.put("/setup-benchmark", async (req, res) => {
   try {
-    const householdAddress = web3Utils.toChecksumAddress(
-      req.params.householdAddress
+    // const {
+    //   contractAddress
+    // } = req.body;
+    // console.log(contract)
+
+    utilityContract = new web3.eth.Contract(
+      require("../build/contracts/dUtilityBenchmark.json").abi,
+      req.body.contractAddress
     );
-    const { signature, hash, timestamp, meterDelta } = req.body;
 
-    if (typeof meterDelta !== "number") {
-      throw new Error("Invalid payload");
-    }
+    console.log("HETETETETETE")
 
-    if (
-      !(await hhHandler.isValidatorAddress(ownedSetContract, householdAddress))
-    ) {
-      throw new Error("Given address is not a validator");
-    }
 
-    if (
-      !(await web3Helper.verifySignature(
-        web3,
-        hash,
-        signature,
-        householdAddress
-      ))
-    ) {
-      throw new Error("Invalid signature");
-    }
+    // console.log(
+    //   `\nOff-chain utility updated for benchmark of ${addresses.length} households`
+    // );
 
-    if (utility.addHousehold(householdAddress)) {
-      console.log(`New household ${householdAddress} added`);
-    }
-    console.log(
-      `Incoming meter reading for ${householdAddress}: ${meterDelta}@${timestamp}`
-    );
-    utility.updateMeterDelta(householdAddress, meterDelta, timestamp);
+    // TODO: Invoke runZokrates?
 
     res.status(200);
     res.send();
-  } catch (err) {
-    console.error("PUT /energy/:householdAddress", err.message);
-    res.status(400);
-    res.send(err);
+  } catch (error) {
+    console.error("PUT /benchmark-energy", error.message);
+    res.status(500);
+    res.send(error);
   }
-});
+})
 
 app.put("/benchmark-energy", async (req, res) => {
   try {
@@ -207,6 +189,7 @@ app.put("/benchmark-energy", async (req, res) => {
     });
 
     meterDeltas.forEach((meterDelta, i) => {
+      console.log("Updating....")
       utility.updateMeterDelta(addresses[i], meterDelta, timestamp);
     });
 
@@ -219,6 +202,7 @@ app.put("/benchmark-energy", async (req, res) => {
     res.status(200);
     res.send();
   } catch (error) {
+    console.log(error)
     console.error("PUT /benchmark-energy", error.message);
     res.status(500);
     res.send(error);

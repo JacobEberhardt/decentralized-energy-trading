@@ -1,9 +1,10 @@
 const chalk = require("chalk");
 const request = require("request-promise");
-
+const fs = require('fs');
 const Utility = artifacts.require("dUtility");
 const OwnedSet = artifacts.require("OwnedSet");
 const dUtilityBenchmark = artifacts.require("dUtilityBenchmark");
+const verifier = artifacts.require("../zokrates-code/verifier.sol")
 
 const web3Helper = require("../helpers/web3");
 const asyncUtils = require("../helpers/async-utils");
@@ -129,8 +130,21 @@ module.exports = async (deployer, network, [authority]) => {
     case "benchmark": {
       const web3 = web3Helper.initWeb3("benchmark");
       await web3.eth.personal.unlockAccount(address, password, null);
-      await deployer.deploy(dUtilityBenchmark);
+      const contractAddress = await deployer.deploy(dUtilityBenchmark)
+        .then(inst => {
+          return inst.address;
+        });
+
       await web3.eth.personal.unlockAccount(address, password, null);
+      const verifierAddress = await deployer.deploy(verifier)
+        .then(inst => {
+          return inst.address;
+        });
+      await web3.eth.personal.unlockAccount(address, password, null);
+      fs.writeFile('tmp/addresses.txt', JSON.stringify({contract: contractAddress, verifier: verifierAddress}),
+        function (err) {
+          if (err) throw err;
+        });
       break;
     }
     default: {
