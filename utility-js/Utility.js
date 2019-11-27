@@ -164,19 +164,43 @@ class Utility {
   _proportionalDistribution(deltaProducers, deltaConsumers, hhFrom, hhTo) {
     if(deltaConsumers == 0) return true //No need for netting when nothing has been consumed
     const isMoreAvailableThanDemanded = deltaProducers > deltaConsumers;
-
-    const factorConsumers = hhTo.map(obj => Math.round((Math.abs(this.households[obj].meterDelta) / deltaConsumers) * 1000000) / 1000000);
+   
+    const factorConsumers = hhTo.map(obj => Math.floor((Math.abs(this.households[obj].meterDelta) / deltaConsumers) * 1000000) / 1000000);
     const energyReference = isMoreAvailableThanDemanded ? deltaProducers : deltaConsumers;
+
     for (let i = 0; i < hhFrom.length; i++) {
+
       let proportionalFactor = this.households[hhFrom[i]].meterDelta / energyReference;
-      let shareProducer = Math.round(Math.abs(deltaConsumers) * proportionalFactor);
+      let shareProducer = Math.floor(Math.abs(deltaConsumers) * proportionalFactor);
+      
       for (let j = 0; j < hhTo.length; j++) {
-        let toTransfer = Math.round(shareProducer * factorConsumers[j])
+        let toTransfer = Math.floor(shareProducer * factorConsumers[j])
         this._transfer(hhFrom[i], hhTo[j], toTransfer);
         this._addDeed(hhFrom[i], hhTo[j], toTransfer);
       }
     }
+    console.log("Before netting sum:")
+    console.log("DeltaConsumers: ", deltaConsumers)
+    console.log("DeltaProducers: ", deltaProducers)
+    console.log(deltaConsumers - deltaProducers)
+    this.printData(hhFrom, hhTo)
     return true;
+  }
+
+  printData(hhFrom, hhTo){
+    let deltaProducers = 0;
+    for (let i = 0; i < hhFrom.length; i++) {
+      deltaProducers += Number(this.households[hhFrom[i]].meterDelta);
+    }
+
+    let deltaConsumers = 0;
+    for (let i = 0; i < hhTo.length; i++) {
+      deltaConsumers += Number(this.households[hhTo[i]].meterDelta);
+    }
+    console.log("After Netting Sum:")
+    console.log("deltaConsumrs: ", Math.abs(deltaConsumers))
+    console.log("deltaProducers: ", deltaProducers)
+    console.log(Math.abs(deltaConsumers) - deltaProducers)
   }
 
   /**
@@ -187,8 +211,6 @@ class Utility {
    * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY.
    */
   _addDeed(from, to, amount, energyType) {
-    console.log(from, to, amount);
-    console.log(this._householdExists(from))
     if (!this._householdExists(from) || !this._householdExists(to))
       return false;
       

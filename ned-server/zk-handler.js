@@ -23,6 +23,7 @@ module.exports = {
     console.log("UtilityBeforeNetting: ", utilityBeforeNetting);
     console.log("UtilityAfterNetting: ", utilityAfterNetting);
 
+    //currently netting fails when producer has 0 for meterDelta
     const hhAddressesWithEnergyBefore = utilityBeforeNetting.getHouseholdAddressesWithEnergy()
 
     const hhAddressesNoEnergyBefore = utilityBeforeNetting.getHouseholdAddressesNoEnergy();
@@ -31,7 +32,7 @@ module.exports = {
       ...hhAddressesWithEnergyBefore,
       ...hhAddressesNoEnergyBefore
     ];
-
+    console.log(hhAddresses.length)
     const deltasWithEnergyBefore = hhAddressesWithEnergyBefore.map(address => utilityBeforeNetting.households[address].meterDelta).join(" ");
 
     const deltasNoEnergyBefore = hhAddressesNoEnergyBefore.map(address => Math.abs(utilityBeforeNetting.households[address].meterDelta)).join(" ");

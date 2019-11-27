@@ -57,7 +57,7 @@ function genData() {
     let cDeltas = new Array(nE);
     for (let i = 0; i < wE; i++) {
         //c = getRandomNumberFromRange(1, 16) / 2.3; //Math.random() < 0.5 ? 0 : 1;
-        p = getRandomNumberFromRange(0, 13) / 2.3; //Math.random() < 0.5 ? -1 : 0;
+        p = getRandomNumberFromRange(0.001, 13) / 2.3; //Math.random() < 0.5 ? -1 : 0;
         pDeltas[i] = kWhToWs(Number(((p) / 100).toFixed(4))); //.toString();
     }
 
@@ -80,7 +80,6 @@ function convertHHDeltas(hhDeltas) {
         const paddedMeterDeltaBytes = web3Utils.hexToBytes(paddedMeterDeltaHex);
         const hash = `0x${sha256(paddedMeterDeltaBytes)}`;
         hashedHHD[i] = hash.toString();
-        console.log("Hash: ", hashedHHD[i]);
     }
     return hashedHHD;
 } 
@@ -89,7 +88,6 @@ function genAddresses(n){
     for(i = 0; i < n; i++){
         hhAddresses.push('0x' + sha256(i.toString()).substring(0, 40));
     }
-    console.log("adds: ", hhAddresses)
 }
 
 function kWhToWs(kWh) {
@@ -135,7 +133,6 @@ function setupBenchmark(){
         
         await web3.eth.personal.unlockAccount(address, password, null);
         web3.eth.defaultAccount = '0x00bd138abd70e2f00903268f3db08f2d25677c9e';
-        console.log(hhAddresses.length, " - ", meterDeltas.length)
         contract.methods.setupBenchmark(getContractAddresses().verifier, hhAddresses, convertHHDeltas(meterDeltas)).send({
             from: web3.eth.defaultAccount,
             gas: 6000000

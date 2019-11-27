@@ -238,7 +238,7 @@ def main(private field[${wE}] hhWithEnergy, private field[${nE}] hhNoEnergy, pri
   field[${wE}] zeroNetPartyWE = hhWithEnergyNet
   field[${nE}] zeroNetPartyNE = hhNoEnergyNet
 
-  0 == if sumWithEnergy <= sumNoEnergy then validateZeroNetWE(zeroNetPartyWE, 15) else validateZeroNetNE(zeroNetPartyNE, 15) fi// Can make epsilon more accurate in the future
+  0 == if sumWithEnergy <= sumNoEnergy then validateZeroNetWE(zeroNetPartyWE, ${nE + wE - 1}) else validateZeroNetNE(zeroNetPartyNE, ${nE + wE - 1}) fi// Can make epsilon more accurate in the future
   //${energySumStringWE}
   //${energySumStringNE}
   //field energySum = energySumWE + energySumNE

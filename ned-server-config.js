@@ -9,7 +9,7 @@
       // Password to unlock NED node
       password: "node0",
       // Name of JSON RPC interface specified in truffle-config.js
-      network: "authority",
+      network: "benchmark",
       // Time Interval of the ned server triggering the netting in the ZoKrates execution environment
       nettingInterval: 10000,
       // Working directory of the file and the child process
@@ -19,7 +19,7 @@
       // Execution environment for the file
       executionEnv: "bash",
       //No. of HHs with Energy Production
-      hhProduce: 1,
+      hhProduce: 8,
       //No. of HHs with No Energy Production -> Only Consumption
-      hhConsume: 2
+      hhConsume: 72
     };

@@ -75,8 +75,6 @@ async function runZokrates() {
   let rawdata = fs.readFileSync('../zokrates-code/proof.json');
   let data = JSON.parse(rawdata);
   if (Object.keys(hhAddressToHash).length > 0) {
-    console.log(`Hashes: ${JSON.stringify(hhAddressToHash)}`);
-    console.log(Object.keys(hhAddressToHash))
     await web3.eth.personal.unlockAccount("0x00bd138abd70e2f00903268f3db08f2d25677c9e", 'node0', null);
     web3.eth.defaultAccount = '0x00bd138abd70e2f00903268f3db08f2d25677c9e';
     utilityContract.methods
@@ -98,7 +96,6 @@ async function runZokrates() {
         fs.writeFile('../tmp/gas.txt', receipt.gasUsed, 'utf8', (err) => {
           if (err) throw err;
         });
-
         console.log(receipt)
       })
       .catch(err => {
@@ -123,13 +120,6 @@ function triggerInit(){
   }
 }
 
-// function returnAbiPath(){
-//   if (!hasInit){
-//     return path.resolve(__dirname, "../build/contracts/dUtilityBenchmark.json")
-//   } else {
-//     return path.resolve(__dirname, "../build/contracts/dUtilityBenchmark.json")
-//   }
-// }
 
 
 app.put("/setup-benchmark", async (req, res) => {
@@ -142,21 +132,15 @@ app.put("/setup-benchmark", async (req, res) => {
     }));
     
     let cAddresses = cadr;
-    console.log(cAddresses)
-    console.log("PATH: ", process.cwd());
 
     let obj = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../build/contracts/dUtilityBenchmark.json"), (data, err) => {
       if(err) console.log(err);
       return data
     }));
-    console.log("dUtilityBenchmark Address: ", cAddresses["contract"]);
-    console.log(obj.abi[10])
     utilityContract = new web3.eth.Contract(
       obj.abi,
       cAddresses["contract"]
     );
-
-    console.log(utilityContract.methods);
 
     triggerInit();
 
@@ -200,7 +184,6 @@ app.put("/benchmark-energy", async (req, res) => {
     });
 
     meterDeltas.forEach((meterDelta, i) => {
-      console.log("Updating....")
       utility.updateMeterDelta(hhAddresses[i], meterDelta, timestamp);
     });
 
