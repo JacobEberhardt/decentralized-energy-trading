@@ -69,12 +69,14 @@ module.exports = {
       .split("\n")
       .filter(str => str)
       .reverse()
+
+    // this can be simplified a lot, only need the hhAddresses which we can get much simpler
     const hashOutHex = hashArr.reduce((hashes, hashPart, i) => {
       if (i % 2 !== 0) {
         return hashes;
       }
-      const hashOut0 = hashArr[i].substr(7);
-      const hashOut1 = hashArr[i + 1].substr(7);
+      const hashOut0 = hashArr[i].split(" ")[1];
+      const hashOut1 = hashArr[i + 1].split(" ")[1];
       const hashOut0Padded = web3Utils.padLeft(
         web3Utils.toBN(hashOut0).toString("hex"),
         32
