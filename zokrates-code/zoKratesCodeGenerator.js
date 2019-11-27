@@ -5,7 +5,8 @@ function generateHelperFuncs(wE, nE) {
   console.log("# of HHs with Energy: ", wE);
   console.log("# of HHs without Energy: ", nE);
 
-    return `//The comments and explanations are provided for an example with n households!
+    return `
+//The comments and explanations are provided for an example with n households!
 
 import "hashes/sha256/512bitPacked.code" as sha256packed
 
@@ -258,7 +259,7 @@ ${packedString} ${returnString.slice(0, -1)} //h
       // Password to unlock NED node
       password: "node0",
       // Name of JSON RPC interface specified in truffle-config.js
-      network: "authority",
+      network: "${network}",
       // Time Interval of the ned server triggering the netting in the ZoKrates execution environment
       nettingInterval: 10000,
       // Working directory of the file and the child process
@@ -281,11 +282,21 @@ ${packedString} ${returnString.slice(0, -1)} //h
   let code2;
   let wE;
   let nE;
+  let network;
 
-  if(args.length === 2 && args[0] >= 1 && args[1] >= 1){
+  if((args.length === 2 || args.length === 3) && args[0] >= 1 && args[1] >= 1){
       
     wE = Number(args[0]);
     nE = Number(args[1]);
+    network = String(args[2]);
+
+    if((network === "benchmark" || network === "ganache" || network === "authority")){
+      network = network;
+    }
+    else{
+      console.log("Wrong or no network provided...Default network: authority");
+      network = "authority";
+    }
 
     code = generateCode(wE, nE);
     
