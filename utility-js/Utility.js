@@ -233,7 +233,6 @@ class Utility {
    * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY.
    */
   _addDeed(from, to, amount, energyType) {
-    console.log(haha)
     console.log(from, to, amount);
     console.log(this._householdExists(from))
     if (!this._householdExists(from) || !this._householdExists(to))

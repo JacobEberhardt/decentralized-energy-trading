@@ -98,18 +98,13 @@ function kWhToWs(kWh) {
     return (Math.round(ws)).toString();
 }
 
-function getContractAddresses(arg){
-    // let res;
-    let res = fs.readFileSync('../tmp/addresses.txt', 'utf8', function (err, data) {
+function getContractAddresses(){
+    return JSON.parse(fs.readFileSync('tmp/addresses.txt', 'utf8', function (err, data) {
         if (err){
             throw err;
         }
-        if(arg != undefined){
-            return JSON.parse(data)[arg]
-        }
-        return JSON.parse(data)
-    });
-    return res;
+       return data
+    }));
 }
 
 function getContracts(){
@@ -127,106 +122,38 @@ function getContracts(){
 
 function setupBenchmark(){
     (async () => {
-        // getContracts()
-        // meterDeltas = genData();
-        // let accounts = web3.eth.getAccount
-
-        // const timestamp = Date.now();
-        // sendMeterDeltasToNed(config.nedUrl, {
-        //     meterDeltas,
-        //     hhAddresses,
-        //     timestamp
-        //     } //,contract.options.address
-        // );
-
-        // console.log("Hashed Array of meterDeltas: ", convertHHDeltas(meterDeltas));
-        // console.log("HERE: ", typeof(getContractAddresses("verifier")))
-        console.log(getContractAddresses("verifier"))
+        getContracts()
+        meterDeltas = genData();
+        setBenchmarkContractAddress(config.nedUrl, "")
+    
+        const timestamp = Date.now();
+        sendMeterDeltasToNed(config.nedUrl, {
+            meterDeltas,
+            hhAddresses,
+            timestamp
+        });
         
-        // await web3.eth.personal.unlockAccount("0x00bd138abd70e2f00903268f3db08f2d25677c9e", 'node0', null);
-        // web3.eth.defaultAccount = '0x00bd138abd70e2f00903268f3db08f2d25677c9e';
-        // contract.methods.setupBenchmark(getContractAddresses("verifier"), hhAddresses, meterDeltas).send({
-        //     from: web3.eth.defaultAccount,
-        //     gas: 6000000
-        // })
-        // .on('receipt', (tx) => {
-        //     console.log("tx done")
-        //     if (tx.status == true) {
-        //         console.log(tx)
-        //     } else {
-        //         console.error(tx)
-        //     }
-        // })
-        // .catch(err => {
-        //     console.log(err);
-        // })
-
+        await web3.eth.personal.unlockAccount(address, password, null);
+        web3.eth.defaultAccount = '0x00bd138abd70e2f00903268f3db08f2d25677c9e';
+        console.log(hhAddresses.length, " - ", meterDeltas.length)
+        contract.methods.setupBenchmark(getContractAddresses().verifier, hhAddresses, convertHHDeltas(meterDeltas)).send({
+            from: web3.eth.defaultAccount,
+            gas: 6000000
+        })
+        .on('receipt', (tx) => {
+            console.log("tx done")
+            if (tx.status == true) {
+                process.exit()
+            }
+        })
+        .catch(err => {
+            console.log(err);
+        })
         
-
-        // let contract = new web3.eth.Contract(abi)
-        //     .deploy({
-        //         data: bytecode 
-        //     })
-        //     .send({
-        //         from: accounts[0],
-        //         gas: '3000000'
-        //     })
-        //     .on('receipt', (tx) => {
-        //         if (tx.status == true) {
-        //             console.log("Contract Deployed! Gas used: " + tx.gasUsed)
-        //         } else {
-        //             console.error(tx)
-        //         }
-        //     })
-        //     .then(newContractInstance => {
-        //         console.log("Sending data to the NED...")
-
-        //         contract = newContractInstance;
-
-        //         setBenchmarkContractAddress(config.nedUrl, contract.options.address)
-        //         jsonInterface = require("../build/contracts/Verifier.json");
-        //         abi = jsonInterface.abi
-        //         bytecode = jsonInterface.bytecode
-        //         new web3.eth.Contract(abi)
-        //             .deploy({
-        //                 data: bytecode
-        //             })
-        //             .send({
-        //                 from: accounts[0],
-        //                 gas: '3000000'
-        //             })
-        //             .then(veriCon => {
-        //                 makeTransaction(veriCon.options.address, hhAddresses, convertHHDeltas(meterDeltas));
-        //             })
-        //     })
-        //     .catch(err => {
-        //         console.log(err);
-        //         process.exit(1);
-        //     })
-        
-        function makeTransaction(acc, addresses, meterDeltas) {
-            // contract.methods.setupBenchmark(acc, addresses, meterDeltas).send({
-            //     from: accounts[0],
-            //     gas: 6000000
-            // })
-            // .on('receipt', (tx) => {
-            //     console.log("tx done")
-            //     if (tx.status == true) {
-            //         console.log(tx)
-            //     } else {
-            //         console.error(tx)
-            //     }
-            // })
-            // .catch(err => {
-            //     console.log(err);
-            // })
-        }
-
-        
-        function setBenchmarkContractAddress(ned_url, address){
+        function setBenchmarkContractAddress(ned_url, payload){
             return request(`${ned_url}/setup-benchmark`,{
                 method: "PUT",
-                json: {address: address}
+                json:payload
             });
         }
 
