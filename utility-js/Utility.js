@@ -36,15 +36,6 @@ class Utility {
     return true;
   }
 
-  //resets delta for each household
-  resetDelta(){
-    const entries = Object.entries(this.households);
-    for(let i = 0; i < entries.length; i++){
-      this.households[entries[i]].meterDelta = 0;
-    }
-    console.log(this.households)
-  }
-
   /**
    * Retrieves all deeds from a given household and date.
    * @param {string} hhAddress Household address to return its deeds
@@ -95,38 +86,6 @@ class Utility {
     this.households[hhAddress].meterDelta = Number(meterDelta);
     this.households[hhAddress].lastUpdate = timestamp;
   }
-
-  // /**
-  //  * Updates a household's renewable energy state.
-  //  * Calls _updateEnergy.
-  //  * @param {string} hhAddress Address of an existing household
-  //  * @param {number} energyDelta Amount of energy to be added to the household's current state
-  //  */
-  // updateRenewableEnergy(hhAddress, meterDelta) {
-  //   return this._updateEnergy(hhAddress, meterDelta, RENEWABLE_ENERGY);
-  // }
-
-  // /**
-  //  * Updates a household's non-renewable energy state.
-  //  * Calls _updateEnergy.
-  //  * @param {string} hhAddress Address of an existing household
-  //  * @param {number} energyDelta Amount of energy to be added to the household's current state
-  //  */
-  // updateNonRenewableEnergy(hhAddress, energyDelta) {
-  //   return this._updateEnergy(hhAddress, energyDelta, NONRENEWABLE_ENERGY);
-  // }
-
-  // /**
-  //  * Generic household energy state update method.
-  //  * @param {string} hhAddress Address of an existing household
-  //  * @param {number} energyDelta Amount of energy to be added to the household's current state
-  //  * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY.
-  //  */
-  // _updateEnergy(hhAddress, energyDelta, energyType) {
-  //   if (!this._householdExists(hhAddress)) return false;
-  //   this[energyType] += energyDelta;
-  //   this.households[hhAddress][renew] += energyDelta;
-  // }
 
   /**
    * Checks if household exists.
@@ -188,7 +147,6 @@ class Utility {
     const entries = Object.entries(this.households);
     //console.log("No Energy: ", entries);
     let bla = entries.filter(hh => hh[1].meterDelta < 0).map(hh => hh[0]);
-    console.log("This is what im looking for: ",bla)
     return bla
 
     // return entries.filter(hh => hh[1].meterDelta < 0).map(hh => hh[0]);
@@ -204,24 +162,20 @@ class Utility {
    * @returns {boolean} `true`
    */
   _proportionalDistribution(deltaProducers, deltaConsumers, hhFrom, hhTo) {
-    console.log(deltaConsumers);
     if(deltaConsumers == 0) return true //No need for netting when nothing has been consumed
     const isMoreAvailableThanDemanded = deltaProducers > deltaConsumers;
 
     const factorConsumers = hhTo.map(obj => Math.round((Math.abs(this.households[obj].meterDelta) / deltaConsumers) * 1000000) / 1000000);
     const energyReference = isMoreAvailableThanDemanded ? deltaProducers : deltaConsumers;
-    console.log(factorConsumers)
     for (let i = 0; i < hhFrom.length; i++) {
       let proportionalFactor = this.households[hhFrom[i]].meterDelta / energyReference;
       let shareProducer = Math.round(Math.abs(deltaConsumers) * proportionalFactor);
       for (let j = 0; j < hhTo.length; j++) {
         let toTransfer = Math.round(shareProducer * factorConsumers[j])
-        console.log("ShareProducer (", shareProducer, ") * factorConsumers (", factorConsumers[j], ") = Amount => ", toTransfer)
         this._transfer(hhFrom[i], hhTo[j], toTransfer);
         this._addDeed(hhFrom[i], hhTo[j], toTransfer);
       }
     }
-    console.log(this.deeds)
     return true;
   }
 
@@ -238,32 +192,12 @@ class Utility {
     if (!this._householdExists(from) || !this._householdExists(to))
       return false;
       
-
     this.deeds.push({
       from: from,
       to: to,
       amount: amount,
       date: Date.now()
     });
-
-    // console.log("Amount: ", amount)
-    // if (amount < 0) {
-    //   this.deeds.push({
-    //     from: to,
-    //     to: from,
-    //     amount: Math.abs(amount),
-    //     type: energyType,
-    //     date: Date.now()
-    //   });
-    // } else {
-    //   this.deeds.push({
-    //     from: from,
-    //     to: to,
-    //     amount: amount,
-    //     type: energyType,
-    //     date: Date.now()
-    //   });
-    // }
   }
 
   /**
@@ -274,7 +208,6 @@ class Utility {
    * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY.
    */
   _transfer(from, to, amount, energyType) {
-    console.log("Transfering...")
     if (!this._householdExists(from) || !this._householdExists(to)){
       return false;
 

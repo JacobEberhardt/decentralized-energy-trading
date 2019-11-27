@@ -21,5 +21,5 @@
       //No. of HHs with Energy Production
       hhProduce: 1,
       //No. of HHs with No Energy Production -> Only Consumption
-      hhConsume: 1
+      hhConsume: 4
     };

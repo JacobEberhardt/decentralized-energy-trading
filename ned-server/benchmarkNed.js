@@ -10,6 +10,7 @@ const zkHandler = require("./zk-handler");
 const web3Helper = require("../helpers/web3");
 const contractHelper = require("../helpers/contract");
 const { ZERO_ADDRESS } = require("../helpers/constants");
+const path = require("path");
 
 const serverConfig = require("../ned-server-config");
 
@@ -36,45 +37,26 @@ const config = {
 let web3;
 let utility;
 let utilityAfterNetting;
-let ownedSetContract;
 let utilityContract;
-let latestBlockNumber;
 web3 = web3Helper.initWeb3(config.network);
 
 async function init() {
-  
-  latestBlockNumber = await web3.eth.getBlockNumber();
-  // Off-chain utility instance
-
-  // ownedSetContract = new web3.eth.Contract(
-  //   contractHelper.getAbi("ownedSet"),
-  //   contractHelper.getDeployedAddress("ownedSet", 1234)
-  // );
   shell.cd("zokrates-code");
-
   utilityContract.events.NettingSuccess(
     async (error, event) => {
       if (error) {
         console.error(error.msg);
         throw error;
       }
-      console.log("NettingSuccess event", event);
-    }
-  );
-
-  utilityContract.events.CheckHashesSuccess(
-    async (error, event) => {
-      if (error) {
-        console.error(error.msg);
-        throw error;
-      }
-      console.log("Hash event", event);
+      // console.log("NettingSuccess event", event);
+      console.log("Netting successful!")
     }
   );
 }
 
 
 async function runZokrates() {
+
   const utilityBeforeNetting = JSON.parse(JSON.stringify(utility));
   Object.setPrototypeOf(utilityBeforeNetting, Utility.prototype);
   utilityAfterNetting = { ...utility };
@@ -88,7 +70,6 @@ async function runZokrates() {
     hhWithEnergy,
     hhNoEnergy
   );
-
   delete hhAddressToHash[ZERO_ADDRESS];
 
   let rawdata = fs.readFileSync('../zokrates-code/proof.json');
@@ -98,11 +79,6 @@ async function runZokrates() {
     console.log(Object.keys(hhAddressToHash))
     await web3.eth.personal.unlockAccount("0x00bd138abd70e2f00903268f3db08f2d25677c9e", 'node0', null);
     web3.eth.defaultAccount = '0x00bd138abd70e2f00903268f3db08f2d25677c9e';
-    console.log("addrs: ", Object.keys(hhAddressToHash));
-    console.log("A: ", data.proof.a);
-    console.log("b: ", data.proof.b);
-    console.log("c: ", data.proof.c);
-    console.log("input: ", data.inputs);
     utilityContract.methods
       .checkNetting(
         Object.keys(hhAddressToHash),
@@ -117,10 +93,9 @@ async function runZokrates() {
           throw error;
         }
         console.log(txHash)
-        // console.log(`Sleep for ${config.nettingInterval}ms ...`);
-        // setTimeout(() => {
-        //   runZokrates();
-        // }, config.nettingInterval);
+      })
+      .on('receipt', receipt => {
+        console.log(receipt)
       })
       .catch(err => {
         console.log(err)
@@ -128,9 +103,6 @@ async function runZokrates() {
   } else {
     console.log("No households to hash.");
     console.log(`Sleep for ${config.nettingInterval}ms ...`);
-    // setTimeout(() => {
-    //   runZokrates();
-    // }, config.nettingInterval);
   }
 }
 
@@ -139,42 +111,56 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+let hasInit = false;
+function triggerInit(){
+  if(!hasInit){
+    hasInit = true;
+    init();
+  }
+}
+
+// function returnAbiPath(){
+//   if (!hasInit){
+//     return path.resolve(__dirname, "../build/contracts/dUtilityBenchmark.json")
+//   } else {
+//     return path.resolve(__dirname, "../build/contracts/dUtilityBenchmark.json")
+//   }
+// }
+
 
 app.put("/setup-benchmark", async (req, res) => {
   try {
-    // const {
-    //   contractAddress
-    // } = req.body;
-    // console.log(contract)
-
-    let cadr = fs.readFileSync('tmp/addresses.txt', 'utf8', function (err, data) {
+    let cadr = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../tmp/addresses.txt"), 'utf8', function (err, data) {
       if (err) {
         throw err;
       }
-      else return JSON.parse(data)
-    });
+      return data;
+    }));
+    
+    let cAddresses = cadr;
+    console.log(cAddresses)
+    console.log("PATH: ", process.cwd());
 
-    let cAddresses = JSON.parse(cadr);;
-
+    let obj = JSON.parse(fs.readFileSync(path.resolve(__dirname, "../build/contracts/dUtilityBenchmark.json"), (data, err) => {
+      if(err) console.log(err);
+      return data
+    }));
     console.log("dUtilityBenchmark Address: ", cAddresses["contract"]);
-
+    console.log(obj.abi[10])
     utilityContract = new web3.eth.Contract(
-      require("../build/contracts/dUtilityBenchmark.json").abi,
+      obj.abi,
       cAddresses["contract"]
     );
 
-    // console.log(
-    //   `\nOff-chain utility updated for benchmark of ${addresses.length} households`
-    // );
+    console.log(utilityContract.methods);
 
-    // TODO: Invoke runZokrates?
-
-    init();
+    triggerInit();
 
     res.status(200);
     res.send();
   } catch (error) {
     console.error("PUT /setup-benchmark", error.message);
+    throw error
     res.status(500);
     res.send(error);
   }
@@ -230,6 +216,7 @@ app.put("/benchmark-energy", async (req, res) => {
   } catch (error) {
     console.log(error)
     console.error("PUT /benchmark-energy", error.message);
+    throw error
     res.status(500);
     res.send(error);
   }

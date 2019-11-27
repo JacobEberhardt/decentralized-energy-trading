@@ -29,12 +29,7 @@ module.exports = {
     
     const deltasWithEnergyAfter = hhAddressesWithEnergyBefore.map(address => utilityAfterNetting[address].meterDelta).join(" ");
 
-    console.log(hhAddressesNoEnergyBefore)
     const deltasNoEnergyAfter = hhAddressesNoEnergyBefore.map(address => Math.abs(utilityAfterNetting[address].meterDelta)).join(" ");
-    console.log("Biactchhhh")
-
-    console.log("Addresses With: ", hhAddressesWithEnergyBefore)
-    console.log("Addresses Without: ", hhAddressesNoEnergyBefore)
 
     process.stdout.write("Computing witness...");
     console.log(`zokrates compute-witness -a ${deltasWithEnergyBefore} ${deltasNoEnergyBefore} ${deltasWithEnergyAfter} ${deltasNoEnergyAfter} > /dev/null`)
