@@ -1,10 +1,11 @@
 const shell = require("shelljs");
 const web3Utils = require("web3-utils");
 const chalk = require("chalk");
+const fs = require("fs")
 
-const addressHelper = require("../helpers/address-arr");
-const zokratesHelper = require("../helpers/zokrates");
-const conversionHelper = require("../helpers/conversion");
+const {
+  performance
+} = require('perf_hooks');
 
 let cW_t0 = 0;
 let cW_t1 = 0;
@@ -62,9 +63,6 @@ module.exports = {
     
     console.log("zoKrates Witness Computation Execution Time in ms: ", cW_time);
 
-    fs.writeFile('../tmp/zokrates_exec_time.txt', `Witness Computation: ${cW_time}\n`, 'utf8',(err) => {   
-      if (err) throw err;
-    });
 
     const hashArr = witnessShellStr.stdout
       .split("\n")
@@ -108,7 +106,7 @@ module.exports = {
 
     console.log("zoKrates Proof Generation Execution Time in ms: ", gP_time);
 
-    fs.appendFile('../tmp/zokrates_exec_time.txt', `Proof Generation: ${gP_time}`, 'utf8',(err) => {   
+    fs.writeFile('../tmp/zokrates_exec_time.json', JSON.stringify([cW_time, gP_time]), 'utf8',(err) => {   
       if (err) throw err;
     });
 

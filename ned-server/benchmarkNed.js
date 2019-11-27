@@ -95,6 +95,10 @@ async function runZokrates() {
         console.log(txHash)
       })
       .on('receipt', receipt => {
+        fs.writeFile('../tmp/gas.txt', receipt.gasUsed, 'utf8', (err) => {
+          if (err) throw err;
+        });
+
         console.log(receipt)
       })
       .catch(err => {
