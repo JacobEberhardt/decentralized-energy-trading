@@ -109,7 +109,7 @@ module.exports = {
 
     console.log("zoKrates Proof Generation Execution Time in ms: ", gP_time);
 
-    fs.writeFile('../tmp/zokrates_exec_time.json', JSON.stringify([cW_time, gP_time]), 'utf8',(err) => {   
+    fs.appendFile('../tmp/res.csv', `${cW_time},${gP_time}`, 'utf8',(err) => {   
       if (err) throw err;
     });
 

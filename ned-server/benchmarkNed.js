@@ -85,7 +85,7 @@ async function runZokrates() {
         data.proof.c,
         data.inputs
       )
-      .send({ from: web3.eth.defaultAccount, gas: 6000000 }, (error, txHash) => {
+      .send({ from: web3.eth.defaultAccount, gas: 60000000 }, (error, txHash) => {
         if (error) {
           console.error(error);
           throw error;
@@ -93,7 +93,7 @@ async function runZokrates() {
         console.log(txHash)
       })
       .on('receipt', receipt => {
-        fs.writeFile('../tmp/gas.txt', receipt.gasUsed, 'utf8', (err) => {
+        fs.appendFile('../tmp/res.csv', `,${receipt.gasUsed}\n`, 'utf8', (err) => {
           if (err) throw err;
         });
         console.log(receipt)

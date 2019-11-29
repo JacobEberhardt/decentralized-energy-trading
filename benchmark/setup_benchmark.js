@@ -57,7 +57,7 @@ function genData() {
     let cDeltas = new Array(nE);
     for (let i = 0; i < wE; i++) {
         //c = getRandomNumberFromRange(1, 16) / 2.3; //Math.random() < 0.5 ? 0 : 1;
-        p = getRandomNumberFromRange(0.001, 13) / 2.3; //Math.random() < 0.5 ? -1 : 0;
+        p = getRandomNumberFromRange(0, 13) / 2.3; //Math.random() < 0.5 ? -1 : 0;
         pDeltas[i] = kWhToWs(Number(((p) / 100).toFixed(4))); //.toString();
     }
 
@@ -130,15 +130,14 @@ function setupBenchmark(){
             hhAddresses,
             timestamp
         });
-        
         await web3.eth.personal.unlockAccount(address, password, null);
         web3.eth.defaultAccount = '0x00bd138abd70e2f00903268f3db08f2d25677c9e';
         contract.methods.setupBenchmark(getContractAddresses().verifier, hhAddresses, convertHHDeltas(meterDeltas)).send({
             from: web3.eth.defaultAccount,
-            gas: 6000000
+            gas: 60000000
         })
         .on('receipt', (tx) => {
-            console.log("tx done")
+            console.log(tx)
             if (tx.status == true) {
                 process.exit()
             }

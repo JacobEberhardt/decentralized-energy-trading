@@ -94,3 +94,4 @@ zokrates-code/witness
 zokrates-code/proof.json
 zokrates-code/verifier.sol
 contracts/verifier.sol
+tmp/

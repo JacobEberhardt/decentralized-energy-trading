@@ -134,9 +134,10 @@ class Utility {
    * @returns {Array.<string>} Array of addresses of households with positive renewable energy balance
    */
   getHouseholdAddressesWithEnergy() {
+    delete this.households[ZERO_ADDRESS]
     const entries = Object.entries(this.households);
     //console.log("With Energy: ", entries);
-    return entries.filter(hh => hh[1].meterDelta > 0).map(hh => hh[0]);
+    return entries.filter(hh => hh[1].meterDelta >= 0).map(hh => hh[0]);
   }
 
   /**
@@ -165,42 +166,21 @@ class Utility {
     if(deltaConsumers == 0) return true //No need for netting when nothing has been consumed
     const isMoreAvailableThanDemanded = deltaProducers > deltaConsumers;
    
-    const factorConsumers = hhTo.map(obj => Math.floor((Math.abs(this.households[obj].meterDelta) / deltaConsumers) * 1000000) / 1000000);
+    const ratioConsumers = hhTo.map(obj => Math.floor((Math.abs(this.households[obj].meterDelta) / deltaConsumers) * 1000000) / 1000000);
     const energyReference = isMoreAvailableThanDemanded ? deltaProducers : deltaConsumers;
 
     for (let i = 0; i < hhFrom.length; i++) {
 
-      let proportionalFactor = this.households[hhFrom[i]].meterDelta / energyReference;
-      let shareProducer = Math.floor(Math.abs(deltaConsumers) * proportionalFactor);
+      let proportionalRatio = this.households[hhFrom[i]].meterDelta / energyReference;
+      let shareProducer = Math.floor(Math.abs(deltaConsumers) * proportionalRatio);
       
       for (let j = 0; j < hhTo.length; j++) {
-        let toTransfer = Math.floor(shareProducer * factorConsumers[j])
+        let toTransfer = Math.floor(shareProducer * ratioConsumers[j])
         this._transfer(hhFrom[i], hhTo[j], toTransfer);
         this._addDeed(hhFrom[i], hhTo[j], toTransfer);
       }
     }
-    console.log("Before netting sum:")
-    console.log("DeltaConsumers: ", deltaConsumers)
-    console.log("DeltaProducers: ", deltaProducers)
-    console.log(deltaConsumers - deltaProducers)
-    this.printData(hhFrom, hhTo)
     return true;
-  }
-
-  printData(hhFrom, hhTo){
-    let deltaProducers = 0;
-    for (let i = 0; i < hhFrom.length; i++) {
-      deltaProducers += Number(this.households[hhFrom[i]].meterDelta);
-    }
-
-    let deltaConsumers = 0;
-    for (let i = 0; i < hhTo.length; i++) {
-      deltaConsumers += Number(this.households[hhTo[i]].meterDelta);
-    }
-    console.log("After Netting Sum:")
-    console.log("deltaConsumrs: ", Math.abs(deltaConsumers))
-    console.log("deltaProducers: ", deltaProducers)
-    console.log(Math.abs(deltaConsumers) - deltaProducers)
   }
 
   /**
