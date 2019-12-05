@@ -49,6 +49,7 @@ yarn run-ned -i 60000
 **6.)** Create two databases for both household servers:
 
 ```bash
+# Assumes project root directory
 docker-compose -f mongo/docker-compose.yml up -d
 ```
 
