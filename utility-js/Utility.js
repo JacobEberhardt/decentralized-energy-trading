@@ -121,7 +121,7 @@ class Utility {
     }
     this._proportionalDistribution(
       deltaProducers,
-      Math.abs(deltaConsumers),
+      deltaConsumers,
       withEnergy,
       noEnergy
     );
@@ -162,8 +162,21 @@ class Utility {
    * @param {Array.<string>} hhTo Array of addresses {string} with negative renewable energy amount.
    * @returns {boolean} `true`
    */
-  _proportionalDistribution(deltaProducers, deltaConsumers, hhFrom, hhTo) {
+  _propDistro(deltaProducers, deltaConsumers, hhFrom, hhTo) {
     if(deltaConsumers == 0) return true //No need for netting when nothing has been consumed
+
+    // if (Math.abs(es) < Math.abs(ep)) {
+    //   hFrom = hs;
+    //   eFrom = es;
+    //   hTo = hp;
+    //   eTo = ep;
+    // } else {
+    //   hFrom = hp;
+    //   eFrom = ep;
+    //   hTo = hs;
+    //   eTo = es;
+    // }
+
     const isMoreAvailableThanDemanded = deltaProducers > deltaConsumers;
    
     const ratioConsumers = hhTo.map(obj => Math.floor((Math.abs(this.households[obj].meterDelta) / deltaConsumers) * 1000000) / 1000000);
@@ -181,6 +194,58 @@ class Utility {
       }
     }
     return true;
+  };
+
+  /**
+  * Distributes renewable energy by proportionally requesting or responding energy such that
+  * _neededAvailableEnergy equals 0.
+  * @param {number} deltaProducers meterDelta of all Producers. Assumed to be positive
+  * @param {number} deltaConsumers meterDelta of all consumers. Assumed to be negative.
+  * @param {Array.<string>} hhFrom Array of addresses {string} with positive renewable energy amount.
+  * @param {Array.<string>} hhTo Array of addresses {string} with negative renewable energy amount.
+  * @returns {boolean} `true`
+  */
+  _proportionalDistribution(deltaProducers, deltaConsumers, hhFrom, hhTo){
+    if (deltaConsumers == 0) return true //No need for netting when nothing has been consumed
+    const isMoreAvailableThanDemanded = deltaProducers > Math.abs(deltaConsumers);
+    let hFrom;
+    let eFrom;
+    let hTo;
+    let eTo;
+    let eAlloc;
+    if (isMoreAvailableThanDemanded) {
+      hFrom = hhFrom;
+      eFrom = deltaProducers;
+      hTo = hhTo;
+      eTo = deltaConsumers;
+    } else {
+      hFrom = hhTo;
+      eFrom = deltaConsumers;
+      hTo = hhFrom;
+      eTo = deltaProducers;
+    }
+
+    console.log("deltaProd: ", deltaProducers);
+    console.log("deltaCon: ", deltaConsumers);
+
+    for (let i = 0; i < hTo.length; i++) {
+      eAlloc = Math.round(eFrom * (this.households[hTo[i]].meterDelta / eTo));
+      for (let j = 0; j < hFrom.length; j++) {
+        if (eAlloc != 0) {
+          if (Math.abs(eAlloc) <= Math.abs(this.households[hFrom[j]].meterDelta)) {
+            this._transfer(hFrom[j], hTo[i], eAlloc)
+            this._addDeed(hFrom[j], hTo[i], eAlloc, isMoreAvailableThanDemanded)
+            eAlloc = 0;
+          } else {
+            let toTransfer = this.households[hFrom[j]].meterDelta
+            this._transfer(hFrom[j], hTo[i], toTransfer, isMoreAvailableThanDemanded)
+            this._addDeed(hFrom[j], hTo[i], toTransfer, isMoreAvailableThanDemanded)
+            eAlloc -= toTransfer;
+          }
+        }
+      }
+    }
+    return true;
   }
 
   /**
@@ -190,16 +255,26 @@ class Utility {
    * @param {number} amount Amount of energy to be transferred
    * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY.
    */
-  _addDeed(from, to, amount, energyType) {
+  _addDeed(from, to, amount, mode){
     if (!this._householdExists(from) || !this._householdExists(to))
       return false;
-      
-    this.deeds.push({
-      from: from,
-      to: to,
-      amount: amount,
-      date: Date.now()
-    });
+
+    
+    if(mode){
+      this.deeds.push({
+        from: from,
+        to: to,
+        amount: Math.abs(amount),
+        date: Date.now()
+      });
+    } else {
+      this.deeds.push({
+        from: to,
+        to: from,
+        amount: Math.abs(amount),
+        date: Date.now()
+      });
+    }
   }
 
   /**
@@ -209,7 +284,7 @@ class Utility {
    * @param {number} amount Amount of energy to be transferred
    * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY.
    */
-  _transfer(from, to, amount, energyType) {
+  _transfer(from, to, amount) {
     if (!this._householdExists(from) || !this._householdExists(to)){
       return false;
 

@@ -136,10 +136,11 @@ module.exports = async (deployer, network, [authority]) => {
         });
 
       await web3.eth.personal.unlockAccount(address, password, null);
-      const verifierAddress = await deployer.deploy(verifier)
+      const verifierAddress = await deployer.deploy(verifier, { gas: 20000000})
         .then(inst => {
           return inst.address;
         });
+      console.log(verifierAddress)
       await web3.eth.personal.unlockAccount(address, password, null);
       fs.writeFile('tmp/addresses.txt', JSON.stringify({contract: contractAddress, verifier: verifierAddress}),
         function (err) {
