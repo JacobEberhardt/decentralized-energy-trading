@@ -135,8 +135,8 @@ def sumNE(field[${nE}] hh) -> (field):
     let energySumStringWE = "  field energySumWE = hhWithEnergy[0] + hhWithEnergyNet[0]";
     let energySumStringNE = "  field energySumNE = hhNoEnergy[0] + hhNoEnergyNet[0]";
     let packedString = "";
-    let returnSignatureString = Array((wE + nE))
-      .fill("field[2]", 0, (wE + nE) + 1)
+    let returnSignatureString = Array(2 * (wE + nE))
+      .fill("field[2]", 0, (wE + nE) * 2 + 1)
       .join(",");
     let returnString = " return ";
 
@@ -160,46 +160,36 @@ def sumNE(field[${nE}] hh) -> (field):
     for(let i = 1; i < nE; i++){
       energySumStringNE += ` + hhNoEnergy[${i}] + hhNoEnergyNet[${i}]`;
     }
-
-    /*
-    for (let i = 0; i < wE; i++) {
-      
-      packedString += `  hh${i +
-        1}WithEnergyHash = sha256packed([hhWithEnergyPacked[${i +
-        3 * i}], hhWithEnergyPacked[${i + 1 + 3 * i}], hhWithEnergyPacked[${i +
-        2 +
-        3 * i}], hhWithEnergyPacked[${i + 3 + 3 * i}]])\n`;
-    }
-
-    for(let i = 0; i < nE; i++){
-      packedString += `  hh${i +
-        1}NoEnergyHash = sha256packed([hhNoEnergyPacked[${i +
-        3 * i}], hhNoEnergyPacked[${i + 1 + 3 * i}], hhNoEnergyPacked[${i +
-        2 +
-        3 * i}], hhNoEnergyPacked[${i + 3 + 3 * i}]])\n`;
-    }
-    */
    
   for (let i = 0; i < wE; i++) {    
-    
     packedString += `  field[2] hh${i +
       1}WithEnergyHash = if hhWithEnergy[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergy[${i}]]) fi\n`;
+    packedString += `  field[2] hh${i +
+      1}WithEnergyHashNet = if hhWithEnergyNet[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergyNet[${i}]]) fi\n`;
   }
 
   for(let i = 0; i < nE; i++){
     packedString += `  field[2] hh${i +
       1}NoEnergyHash = if hhNoEnergy[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[${i}]]) fi\n`;
+    packedString += `  field[2] hh${i +
+      1}NoEnergyHashNet = if hhNoEnergyNet[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[${i}]]) fi\n`;
   }
 
     for(let i = 0; i < wE; i++){
       returnString += ` hh${i + 1}WithEnergyHash,`;
     }
-
-    for(let i = 0; i < nE; i++){
+    for (let i = 0; i < nE; i++) {
       returnString += ` hh${i + 1}NoEnergyHash,`;
+    }
+    for (let i = 0; i < wE; i++) {
+      returnString += ` hh${i + 1}WithEnergyHashNet,`;
+    }
+    for (let i = 0; i < nE; i++) {
+      returnString += ` hh${i + 1}NoEnergyHashNet,`;
     }
 
     energySumStringNE += "\n";
+    console.log(returnString)
   
     const helperFuncs = generateHelperFuncs(wE, nE);
   
@@ -239,11 +229,7 @@ def main(private field[${wE}] hhWithEnergy, private field[${nE}] hhNoEnergy, pri
   field[${nE}] zeroNetPartyNE = hhNoEnergyNet
 
   0 == if sumWithEnergy <= sumNoEnergy then validateZeroNetWE(zeroNetPartyWE, ${nE + wE - 1}) else validateZeroNetNE(zeroNetPartyNE, ${nE + wE - 1}) fi// Can make epsilon more accurate in the future
-  //${energySumStringWE}
-  //${energySumStringNE}
-  //field energySum = energySumWE + energySumNE
-  //h = sha256packed([0, 0, 0, energySum])
-${packedString} ${returnString.slice(0, -1)} //h
+${packedString} ${returnString.slice(0, -1)}
 `;
   }
 
@@ -314,7 +300,7 @@ ${packedString} ${returnString.slice(0, -1)} //h
     })
 
     function generateContracts(wE, nE){
-      let len = (wE+nE) * 2;
+      let len = (wE+nE) * 4;
 
       iVerifier = `
 pragma solidity >=0.5.0 <0.6.0;
@@ -406,6 +392,7 @@ contract dUtility is Mortal, IdUtility {
     // Hashes of (deltaEnergy)
     bytes32 renewableEnergy;
     bytes32 nonRenewableEnergy;
+    bytes32 afterNettingDelta;
   }
 
   uint lastInputIndex = 0;
@@ -456,6 +443,16 @@ contract dUtility is Mortal, IdUtility {
   }
 
   /**
+   * @dev Get afterNettingHash of households.
+   * @param _household address of the household
+   * @return Household stats (afterNettingDelta) of _household if _household exists
+   */
+  function getHouseholdAfterNettingHash(address _household) external view householdExists(_household) returns (bytes32) {
+    Household memory hh = households[_household];
+    return hh.afterNettingDelta;
+  }
+
+  /**
    * @dev Removes a household.
    * @param _household address of the household
    * @return success bool if household does not already exists, should only be called by some authority
@@ -480,7 +477,7 @@ contract dUtility is Mortal, IdUtility {
    */
   function _concatNextHash(uint256[${len}] memory hashes) private returns (bytes32){
     bytes32 res;
-    while(lastInputIndex < hashes.length){
+    while(lastInputIndex < hashes.length / 2){
       // This assumes that if the first half of the hash is all zero's the second will aswell.
       // Not sure if saved gas (because we check only one part of the hash) is worth the risk of getting a hash that starts with 32 zeros and netting failing
       if(hashes[lastInputIndex] != 0){
@@ -526,11 +523,13 @@ contract dUtility is Mortal, IdUtility {
   ) private returns (bool) {
     lastInputIndex = 0;
     nonZeroHashes = 0;
+    uint numberOfInputHashes = _inputs.length / 2;
     for(uint256 i = 0; i < _households.length; ++i) {
       address addr = _households[i];
       bytes32 energyHash = _concatNextHash(_inputs);
 
       require(households[addr].renewableEnergy == energyHash, "Household energy hash mismatch.");
+      _updateAfterNettingDelta(addr, [_inputs[(lastInputIndex + numberOfInputHashes - 2)], _inputs[(lastInputIndex + numberOfInputHashes - 1)]]);
     }
     require(_households.length == nonZeroHashes, "Number of Household mismatch with nonZeorHashes");
     return true;
@@ -607,6 +606,20 @@ contract dUtility is Mortal, IdUtility {
   }
 
   /**
+   * @dev Updates a household's energy state
+   * @param _household address of the household
+   * @param _afterNettingDelta both halfs of post netting delta hash
+   * @return success bool returns true, if function was called successfully
+   */
+  function _updateAfterNettingDelta(address _household, uint256[2] memory _afterNettingDelta)
+  internal
+  householdExists(_household)
+  {
+    Household storage hh = households[_household];
+    hh.afterNettingDelta = bytes32(uint256(_afterNettingDelta[0] << 128 | _afterNettingDelta[1]));
+  }
+
+  /**
    * @dev see UtilityBase.addHousehold
    * @param _household address of household
    * @return success bool
@@ -642,16 +655,12 @@ contract dUtility is Mortal, IdUtility {
 
     }
 
-    console.log("Generating the corresponding Solidity Contracts...")
     generateContracts(wE, nE);
-    console.log("Saving the generated code to the corresponding Solidity-Contract Files...")
 
-    console.log("Saving the generated code to the ned-server-config.js File...")
     fs.writeFile('../ned-server-config.js', code2, 'utf8',(err)=> {
       if (err) throw err;
     })
 
-  console.log("Done!");
 
   }else{
       console.log("ERROR! The number of inputs provided is less than two OR inputs are not numbers OR not numbers >= 1! \nThe zoKrates-Code-Generation stopped! \nPlease provide for the numbers of HHs two integer values >= 1!");

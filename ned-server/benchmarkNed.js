@@ -75,7 +75,11 @@ async function runZokrates() {
   let rawdata = fs.readFileSync('../zokrates-code/proof.json');
   let data = JSON.parse(rawdata);
   if (Object.keys(hhAddressToHash).length > 0) {
-    await web3.eth.personal.unlockAccount("0x00bd138abd70e2f00903268f3db08f2d25677c9e", 'node0', null);
+    await web3.eth.personal.unlockAccount(
+      config.address,
+      config.password,
+      null
+    );
     web3.eth.defaultAccount = '0x00bd138abd70e2f00903268f3db08f2d25677c9e';
     utilityContract.methods
       .checkNetting(
@@ -119,8 +123,6 @@ function triggerInit(){
     init();
   }
 }
-
-
 
 app.put("/setup-benchmark", async (req, res) => {
   try {
