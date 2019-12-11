@@ -214,19 +214,16 @@ class Utility {
     let eTo;
     let eAlloc;
     if (isMoreAvailableThanDemanded) {
-      hFrom = hhFrom;
-      eFrom = deltaProducers;
-      hTo = hhTo;
-      eTo = deltaConsumers;
-    } else {
       hFrom = hhTo;
       eFrom = deltaConsumers;
       hTo = hhFrom;
       eTo = deltaProducers;
+    } else {
+      hFrom = hhFrom;
+      eFrom = deltaProducers;
+      hTo = hhTo;
+      eTo = deltaConsumers;
     }
-
-    console.log("deltaProd: ", deltaProducers);
-    console.log("deltaCon: ", deltaConsumers);
 
     for (let i = 0; i < hTo.length; i++) {
       eAlloc = Math.round(eFrom * (this.households[hTo[i]].meterDelta / eTo));
@@ -245,6 +242,7 @@ class Utility {
         }
       }
     }
+    console.log(this.deeds)
     return true;
   }
 
@@ -262,15 +260,15 @@ class Utility {
     
     if(mode){
       this.deeds.push({
-        from: from,
-        to: to,
+        from: to,
+        to: from,
         amount: Math.abs(amount),
         date: Date.now()
       });
     } else {
       this.deeds.push({
-        from: to,
-        to: from,
+        from: from,
+        to: to,
         amount: Math.abs(amount),
         date: Date.now()
       });
