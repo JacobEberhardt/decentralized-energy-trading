@@ -8,7 +8,6 @@ const Utility = require("../utility-js/Utility");
 const hhHandler = require("./household-handler");
 const zkHandler = require("./zk-handler");
 const web3Helper = require("../helpers/web3");
-const contractHelper = require("../helpers/contract");
 const { ZERO_ADDRESS } = require("../helpers/constants");
 const path = require("path");
 
@@ -46,9 +45,7 @@ async function init() {
     async (error, event) => {
       if (error) {
         console.error(error.msg);
-        throw error;
       }
-      // console.log("NettingSuccess event", event);
       console.log("Netting successful!")
     }
   );
@@ -80,7 +77,7 @@ async function runZokrates() {
       config.password,
       null
     );
-    web3.eth.defaultAccount = '0x00bd138abd70e2f00903268f3db08f2d25677c9e';
+    web3.eth.defaultAccount = config.address;
     utilityContract.methods
       .checkNetting(
         Object.keys(hhAddressToHash),
@@ -91,16 +88,13 @@ async function runZokrates() {
       )
       .send({ from: web3.eth.defaultAccount, gas: 60000000 }, (error, txHash) => {
         if (error) {
-          console.error(error);
           throw error;
         }
-        console.log(txHash)
       })
       .on('receipt', receipt => {
         fs.appendFile('../tmp/res.csv', `,${receipt.gasUsed}\n`, 'utf8', (err) => {
           if (err) throw err;
         });
-        console.log(receipt)
       })
       .catch(err => {
         console.log(err)
@@ -150,7 +144,6 @@ app.put("/setup-benchmark", async (req, res) => {
     res.send();
   } catch (error) {
     console.error("PUT /setup-benchmark", error.message);
-    throw error
     res.status(500);
     res.send(error);
   }
@@ -211,84 +204,9 @@ app.put("/benchmark-energy", async (req, res) => {
   }
 });
 
-/**
- * GET endpoint returning the current energy balance of renewableEnergy from Utility.js
- */
-app.get("/network", (req, res) => {
-  try {
-    res.status(200);
-    res.json({
-      renewableEnergy: utility.getRenewableEnergy(),
-      nonRenewableEnergy: utility.getNonRenewableEnergy()
-    });
-  } catch (err) {
-    console.error("GET /network", err.message);
-    res.status(400);
-    res.send(err);
-  }
-});
 
-/**
- * GET endpoint returning the current energy balance of the requested Household form Utility.js
- */
-app.get("/household/:householdAddress", (req, res) => {
-  try {
-    const householdAddress = web3Utils.toChecksumAddress(
-      req.params.householdAddress
-    );
-    const energyBalance = utility.getHousehold(householdAddress);
-    res.status(200);
-    res.json(energyBalance);
-  } catch (err) {
-    console.error("GET /household/:householdAddress", err.message);
-    res.status(400);
-    res.send(err);
-  }
-});
 
-/**
- * GET endpoint returning the deeds of a specific Household and a given day from Utility.js
- * Access this like: http://127.0.0.1:3005/deeds/123456789?from=1122465557 (= Date.now())
- */
-app.get("/deeds/:householdAddress", (req, res) => {
-  try {
-    const { from = 0 } = req.query;
-    const householdAddress = web3Utils.toChecksumAddress(
-      req.params.householdAddress
-    );
-    const deeds = utility.getDeeds(householdAddress, from);
-    res.status(200);
-    res.json(deeds || []);
-  } catch (err) {
-    console.error("GET /deeds/:householdAddress", err.message);
-    res.status(400);
-    res.send(err);
-  }
-});
 
-/**
- * GET request not supported
- */
-app.get("/", function (req, res, next) {
-  res.status(400);
-  res.end(req.method + " is not supported.\n");
-});
-
-/**
- * POST request not supported
- */
-app.post("/", function (req, res, next) {
-  res.status(400);
-  res.end(req.method + " is not supported.\n");
-});
-
-/**
- * DELETE request not supported
- */
-app.delete("/", function (req, res, next) {
-  res.status(400);
-  res.end(req.method + " is not supported.\n");
-});
 
 /**
  * Let the server listen to incoming requests on the given IP:Port

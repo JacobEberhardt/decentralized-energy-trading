@@ -2,9 +2,6 @@ const fs = require('fs')
 
 function generateHelperFuncs(wE, nE) {
 
-  console.log("# of HHs with Energy: ", wE);
-  console.log("# of HHs without Energy: ", nE);
-
     return `
 //The comments and explanations are provided for an example with n households!
 
@@ -189,7 +186,6 @@ def sumNE(field[${nE}] hh) -> (field):
     }
 
     energySumStringNE += "\n";
-    console.log(returnString)
   
     const helperFuncs = generateHelperFuncs(wE, nE);
   
@@ -286,15 +282,12 @@ ${packedString} ${returnString.slice(0, -1)}
 
     code = generateCode(wE, nE);
     
-    console.log("Generating zoKrates-Code for n = %s HHs with Energy & m = %s HHs without Energy and saving it to a file...", wE, nE);
     fs.writeFile('settlement-check.zok', code, 'utf8',(err) => {   
       if (err) throw err;
     })
 
-    console.log("Generating the corresponding code for the Configuration of the NED-Server...")
     code2 = generateNedServerConfig(wE, nE);
 
-    console.log("Saving the generated code to the ned-server-config.js File...")
     fs.writeFile('../ned-server-config.js', code2, 'utf8',(err)=> {
       if (err) throw err;
     })

@@ -23,7 +23,6 @@ module.exports = {
     console.log("UtilityBeforeNetting: ", utilityBeforeNetting);
     console.log("UtilityAfterNetting: ", utilityAfterNetting);
 
-    //currently netting fails when producer has 0 for meterDelta
     const hhAddressesWithEnergyBefore = utilityBeforeNetting.getHouseholdAddressesWithEnergy()
 
     const hhAddressesNoEnergyBefore = utilityBeforeNetting.getHouseholdAddressesNoEnergy();
@@ -64,13 +63,11 @@ module.exports = {
     
     console.log("zoKrates Witness Computation Execution Time in ms: ", cW_time);
 
-
     const hashArr = witnessShellStr.stdout
       .split("\n")
       .filter(str => str)
       .reverse()
 
-    // this can be simplified a lot, only need the hhAddresses which we can get much simpler
     const hashOutHex = hashArr.reduce((hashes, hashPart, i) => {
       if (i % 2 !== 0) {
         return hashes;
