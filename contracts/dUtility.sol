@@ -19,6 +19,7 @@ contract dUtility is Mortal, IdUtility {
     // Hashes of (deltaEnergy)
     bytes32 renewableEnergy;
     bytes32 nonRenewableEnergy;
+    bytes32 afterNettingDelta;
   }
 
   uint lastInputIndex = 0;
@@ -69,6 +70,16 @@ contract dUtility is Mortal, IdUtility {
   }
 
   /**
+   * @dev Get afterNettingHash of households.
+   * @param _household address of the household
+   * @return Household stats (afterNettingDelta) of _household if _household exists
+   */
+  function getHouseholdAfterNettingHash(address _household) external view householdExists(_household) returns (bytes32) {
+    Household memory hh = households[_household];
+    return hh.afterNettingDelta;
+  }
+
+  /**
    * @dev Removes a household.
    * @param _household address of the household
    * @return success bool if household does not already exists, should only be called by some authority
@@ -91,9 +102,9 @@ contract dUtility is Mortal, IdUtility {
    * @param hashes array of hashes
    * @return next concatinated hash
    */
-  function _concatNextHash(uint256[4] memory hashes) private returns (bytes32){
+  function _concatNextHash(uint256[80] memory hashes) private returns (bytes32){
     bytes32 res;
-    while(lastInputIndex < hashes.length){
+    while(lastInputIndex < hashes.length / 2){
       // This assumes that if the first half of the hash is all zero's the second will aswell.
       // Not sure if saved gas (because we check only one part of the hash) is worth the risk of getting a hash that starts with 32 zeros and netting failing
       if(hashes[lastInputIndex] != 0){
@@ -115,7 +126,7 @@ contract dUtility is Mortal, IdUtility {
     uint256[2] memory _a,
     uint256[2][2] memory _b,
     uint256[2] memory _c,
-    uint256[4] memory _input) private returns (bool success) {
+    uint256[80] memory _input) private returns (bool success) {
     success = verifier.verifyTx(_a, _b, _c, _input);
     if (success) {
       uint256 record = block.number;
@@ -135,15 +146,17 @@ contract dUtility is Mortal, IdUtility {
    */
   function _checkHashes(
     address[] memory _households,
-    uint256[4] memory _inputs
+    uint256[80] memory _inputs
   ) private returns (bool) {
     lastInputIndex = 0;
     nonZeroHashes = 0;
+    uint numberOfInputHashes = _inputs.length / 2;
     for(uint256 i = 0; i < _households.length; ++i) {
       address addr = _households[i];
       bytes32 energyHash = _concatNextHash(_inputs);
 
       require(households[addr].renewableEnergy == energyHash, "Household energy hash mismatch.");
+      _updateAfterNettingDelta(addr, [_inputs[(lastInputIndex + numberOfInputHashes - 2)], _inputs[(lastInputIndex + numberOfInputHashes - 1)]]);
     }
     require(_households.length == nonZeroHashes, "Number of Household mismatch with nonZeorHashes");
     return true;
@@ -154,7 +167,7 @@ contract dUtility is Mortal, IdUtility {
     uint256[2] calldata _a,
     uint256[2][2] calldata _b,
     uint256[2] calldata _c,
-    uint256[4] calldata _input
+    uint256[80] calldata _input
     ) external returns (bool){
     // Ensure that all households that reported meter_delta !=0 in the netting reported are represented in both, addresslist and hashlist sent to SC
     // require address.len == hash_not_0.len / 2 where hash_not_0 is hashes recreated from _input that are not 0.
@@ -217,6 +230,20 @@ contract dUtility is Mortal, IdUtility {
       emit NonRenewableEnergyChanged(_household, _deltaEnergy);
     }
     return true;
+  }
+
+  /**
+   * @dev Updates a household's energy state
+   * @param _household address of the household
+   * @param _afterNettingDelta both halfs of post netting delta hash
+   * @return success bool returns true, if function was called successfully
+   */
+  function _updateAfterNettingDelta(address _household, uint256[2] memory _afterNettingDelta)
+  internal
+  householdExists(_household)
+  {
+    Household storage hh = households[_household];
+    hh.afterNettingDelta = bytes32(uint256(_afterNettingDelta[0] << 128 | _afterNettingDelta[1]));
   }
 
   /**
