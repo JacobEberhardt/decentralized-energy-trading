@@ -248,14 +248,17 @@ module.exports = {
         const dbo = db.db(dbName);
         dbo
           .collection(collection)
-          .findOne({_id: 1})
-          .toArray((err, results) => {
-            if (err) {
-              reject(err);
+          .findOne(
+            {_id: 1}, 
+            (err, results) => {
+              if (err) {
+                reject(err);
+              }
+              db.close();
+              resolve(results ? results : 0)
             }
-            db.close();
-            resolve(results ? results.value : 0);
-          });
+          )
+
       });
     });
   },
