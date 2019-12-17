@@ -19,7 +19,7 @@
       // Execution environment for the file
       executionEnv: "bash",
       //No. of HHs with Energy Production
-      hhProduce: 2,
+      hhProduce: 10,
       //No. of HHs with No Energy Production -> Only Consumption
-      hhConsume: 10
+      hhConsume: 90
     };
