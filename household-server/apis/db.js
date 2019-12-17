@@ -40,11 +40,11 @@ module.exports = {
       MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
         if (err) reject(err);
         const dbo = db.db(dbName);
-        dbo.collection("sensor_data").mapReduce(
+        dbo.collection(collectionSensor).mapReduce(
             function(){ emit(null, this.produce - this.consume)},
             function(key, value){ return Array.sum(value) },
             {
-              out: "meter_reading"
+              out: collectionMeter
             }
           )
       });

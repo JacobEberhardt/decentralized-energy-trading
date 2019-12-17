@@ -48,7 +48,7 @@ db.createDB(config.dbUrl, config.dbName, [
   config.meterReadingCollection
 ])
 .then(() => {
-  return db.initializeMeterReading(config.dbUrl, config.dbName, config.meterReadingCollection)
+  return db.initializeMeterReading(config.dbUrl, config.dbName, config.sensorDataCollection, config.meterReadingCollection)
 }).catch(err => {
   console.log("Error while creating DB", err);
 });

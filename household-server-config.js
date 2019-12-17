@@ -13,6 +13,8 @@ module.exports = {
   sensorDataCollection: "sensor_data",
   // Name of the Collection where the deeds from the utility contract is saved
   utilityDataCollection: "utility_data",
+  // Name of the Collection where the meterReading for the household is saved
+  meterReadingCollection: "meter_reading",
   // Path to the parity key file json of the authority node that is connected to the household server
   address: "0x00bd138abd70e2f00903268f3db08f2d25677c9e",
   // Path to the password file to unlock above authority node
