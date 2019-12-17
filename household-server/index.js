@@ -37,14 +37,19 @@ const config = {
   password: commander.password || serverConfig.password,
   dbName: serverConfig.dbName,
   sensorDataCollection: serverConfig.sensorDataCollection,
-  utilityDataCollection: serverConfig.utilityDataCollection
+  utilityDataCollection: serverConfig.utilityDataCollection,
+  meterReadingCollection: serverConfig.meterReadingCollection
 };
 
 // Set up the DB
 db.createDB(config.dbUrl, config.dbName, [
   config.sensorDataCollection,
-  config.utilityDataCollection
-]).catch(err => {
+  config.utilityDataCollection,
+  config.meterReadingCollection
+])
+.then(() => {
+  return db.initializeMeterReading(config.dbUrl, config.dbName, config.meterReadingCollection)
+}).catch(err => {
   console.log("Error while creating DB", err);
 });
 
@@ -206,7 +211,10 @@ app.put("/sensor-stats", async (req, res) => {
         produce,
         consume
       }
-    );
+    )
+    .then(res => {
+      db.updateMeterReading(config.dbUrl, config.dbName, config.meterReadingCollection, res)
+    })
 
     res.status(200);
     res.send();
