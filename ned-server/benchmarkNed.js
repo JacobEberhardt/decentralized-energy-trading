@@ -42,18 +42,17 @@ web3 = web3Helper.initWeb3(config.network);
 async function init() {
   shell.cd("zokrates-code");
   utilityContract.events.NettingSuccess(
-    async (error, event) => {
+    (error, event) => {
       if (error) {
         console.error(error.msg);
+        throw error;
       }
-      console.log("Netting successful!")
+      console.log("NettingSuccess event", event);
     }
   );
 }
 
-
 async function runZokrates() {
-
   const utilityBeforeNetting = JSON.parse(JSON.stringify(utility));
   Object.setPrototypeOf(utilityBeforeNetting, Utility.prototype);
   utilityAfterNetting = { ...utility };
@@ -72,12 +71,12 @@ async function runZokrates() {
   let rawdata = fs.readFileSync('../zokrates-code/proof.json');
   let data = JSON.parse(rawdata);
   if (Object.keys(hhAddressToHash).length > 0) {
+    //sometimes causes unlocking error when importing password and address via config file. Havent checked why yet.
     await web3.eth.personal.unlockAccount(
-      config.address,
-      config.password,
+      "0x00bd138abd70e2f00903268f3db08f2d25677c9e",
+      "node0",
       null
     );
-    web3.eth.defaultAccount = config.address;
     utilityContract.methods
       .checkNetting(
         Object.keys(hhAddressToHash),
@@ -86,15 +85,20 @@ async function runZokrates() {
         data.proof.c,
         data.inputs
       )
-      .send({ from: web3.eth.defaultAccount, gas: 60000000 }, (error, txHash) => {
+      .send({ from: config.address, gas: 60000000 }, (error, txHash) => {
         if (error) {
           throw error;
         }
       })
       .on('receipt', receipt => {
-        fs.appendFile('../tmp/res.csv', `,${receipt.gasUsed}\n`, 'utf8', (err) => {
-          if (err) throw err;
-        });
+        if(receipt.status){
+          console.log("Netting Successful!")
+          fs.appendFile('../tmp/res.csv', `,${receipt.gasUsed}\n`, 'utf8', (err) => {
+            if (err) throw err;
+          })
+        } else {
+          console.log("Netting failed...", receipt)
+        }
       })
       .catch(err => {
         console.log(err)
@@ -150,7 +154,6 @@ app.put("/setup-benchmark", async (req, res) => {
 });
 
 function sleep(ms) {
-  console.log("Sleeping 5 secs")
   return new Promise(resolve => {
     setTimeout(resolve, ms)
   })
@@ -171,8 +174,6 @@ app.put("/benchmark-energy", async (req, res) => {
 
     console.log("\nIncoming meter deltas:");
     console.log(meterDeltas);
-    console.log("\nIncoming household addresses:");
-    console.log(hhAddresses);
 
     hhAddresses.forEach(address => {
       utility.addHousehold(address);
@@ -191,22 +192,14 @@ app.put("/benchmark-energy", async (req, res) => {
       `\nOff-chain utility updated for benchmark of ${hhAddresses.length} households`
     );
 
-    // TODO: Invoke runZokrates?
-
     res.status(200);
     res.send();
   } catch (error) {
     console.log(error)
     console.error("PUT /benchmark-energy", error.message);
     throw error
-    res.status(500);
-    res.send(error);
   }
 });
-
-
-
-
 
 /**
  * Let the server listen to incoming requests on the given IP:Port

@@ -128,10 +128,6 @@ function convertHHDeltas(hhDeltas) {
     let hashedHHD = new Array(hhDeltas.length);
     for (let i = 0; i < hhDeltas.length; i++) {
         hashedHHD[i] = zokratesHelper.packAndHash(hhDeltas[i]).toString();
-        // const paddedMeterDeltaHex = zokratesHelper.padPackParams256(Math.abs(hhDeltas[i]))
-        // const paddedMeterDeltaBytes = web3Utils.hexToBytes(paddedMeterDeltaHex);
-        // const hash = `0x${sha256(paddedMeterDeltaBytes)}`;
-        // hashedHHD[i] = hash.toString();
     }
     return hashedHHD;
 } 
