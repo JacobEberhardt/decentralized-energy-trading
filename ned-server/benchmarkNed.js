@@ -57,7 +57,7 @@ async function runZokrates() {
   Object.setPrototypeOf(utilityBeforeNetting, Utility.prototype);
   utilityAfterNetting = { ...utility };
   Object.setPrototypeOf(utilityAfterNetting, Utility.prototype);
-  utilityAfterNetting = utilityAfterNetting.settle();
+  utilityAfterNetting.settle();
   const hhWithEnergy = serverConfig.hhProduce;
   const hhNoEnergy = serverConfig.hhConsume
   let hhAddressToHash = zkHandler.generateProof(
