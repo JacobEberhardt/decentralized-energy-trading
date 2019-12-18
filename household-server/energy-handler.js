@@ -19,6 +19,7 @@ module.exports = {
    *   address: string,
    *   password: string,
    *   dbName: string,
+   *   sensorInterval: number,
    *   sensorDataCollection: string,
    *   utilityDataCollection: string
    * }} config Server configuration.
@@ -27,8 +28,9 @@ module.exports = {
    * @param {number} meterDelta Current meter change in kWh.
    */
   putMeterReading: async (config, web3, utilityContract, meterDelta) => {
-    const { address, password } = config;
+    const { address, password, sensorInterval } = config;
     const timestamp = Date.now();
+    const billingPeriod = timestamp / sensorInterval;
 
     const hash = zokratesHelper.packAndHash(meterDelta);
 

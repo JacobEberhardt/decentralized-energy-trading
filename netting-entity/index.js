@@ -33,10 +33,8 @@ const config = {
 };
 
 let web3;
-/** @type Utility */
-let utility;
-/** @type Utility */
-let utilityAfterNetting;
+/** @type {{[householdAddress: number]: Utility}} */
+const utilities = {};
 let ownedSetContract;
 let utilityContract;
 let latestBlockNumber;
@@ -44,8 +42,6 @@ let latestBlockNumber;
 async function init() {
   web3 = web3Helper.initWeb3(config.network);
   latestBlockNumber = await web3.eth.getBlockNumber();
-  // Off-chain utility instance
-  utility = new Utility();
   utilityContract = new web3.eth.Contract(
     contractHelper.getAbi("dUtility"),
     contractHelper.getDeployedAddress("dUtility", await web3.eth.net.getId())
@@ -67,25 +63,43 @@ async function init() {
       }
       console.log("Netting Successful!");
       latestBlockNumber = event.blockNumber;
-      utility = utilityAfterNetting;
+      // TODO: unlock corresponding receipts in HTTP API
     }
   );
 
-  async function runZokrates() {
+  async function runBillingPeriod(billingPeriod) {
+    const utility = getOrCreateUtilityForBillingPeriod(billingPeriod);
+
+    // wait for households to send meter readings
+    let timeoutHandle = null;
+    await new Promise(resolve => {
+      // wait for the earliest of either:
+      // timeout, ...
+      timeoutHandle = setTimeout(resolve, config.nettingInterval);
+      // ... or having received all readings
+      utility.onAllReadingsReceived(resolve);
+    });
+    clearTimeout(timeoutHandle);
+    console.log("End of grace period. Starting netting...");
+
     let utilityBeforeNetting = JSON.parse(JSON.stringify(utility)); // dirty hack for obtaining deep copy of utility
     Object.setPrototypeOf(utilityBeforeNetting, Utility.prototype);
-    utilityAfterNetting = { ...utility };
-    Object.setPrototypeOf(utilityAfterNetting, Utility.prototype);
+
+    const utilityAfterNetting = utility; // alias for readability. utility is not referenced hereafter, so we can skip the deep copying.
     utilityAfterNetting.settle();
+
     console.log("Utility before Netting: ", utilityBeforeNetting)
     console.log("Utility after Netting: ", utilityAfterNetting)
+
     let { hhAddresses, proofData: data } = await zkHandler.generateProof(
       utilityBeforeNetting,
       utilityAfterNetting,
       "production_mode"
     );
 
-    if (hhAddresses.length > 0) {
+    if (hhAddresses.length <= 0) {
+      console.log("No households to hash.");
+    } else {
       await web3.eth.personal.unlockAccount(
         config.address,
         config.password,
@@ -104,23 +118,34 @@ async function init() {
             console.error(error.message);
             throw error;
           }
-          console.log(`Sleep for ${config.nettingInterval}ms ...`);
-          setTimeout(() => {
-            runZokrates();
-          }, config.nettingInterval);
         });
-    } else {
-      console.log("No households to hash.");
-      console.log(`Sleep for ${config.nettingInterval}ms ...`);
-      setTimeout(() => {
-        runZokrates();
-      }, config.nettingInterval);
     }
+
+    // TODO: after some time, remove utility for this billing period, to free up the used memory
   }
 
-  setTimeout(() => {
-    runZokrates();
+  let billingPeriod = getBillingPeriod();
+  setInterval(() => {
+    runBillingPeriod(billingPeriod);
+    billingPeriod++;
   }, config.nettingInterval);
+}
+
+function getBillingPeriod(timestampMs) {
+  return timestampMs / config.nettingInterval;
+}
+
+function getOrCreateUtilityForTimestamp(timestampMs) {
+  return getOrCreateUtilityForBillingPeriod(getBillingPeriod(timestampMs));
+}
+
+function getOrCreateUtilityForBillingPeriod(billingPeriod) {
+  let utility = utilities[billingPeriod];
+  if (!utility) {
+    utility = new Utility(billingPeriod);
+    utilities[billingPeriod] = utility;
+  }
+  return utility;
 }
 
 init();
@@ -161,6 +186,8 @@ app.put("/energy/:householdAddress", async (req, res) => {
       throw new Error("Invalid signature");
     }
 
+    const utility = getOrCreateUtilityForTimestamp(timestamp);
+
     if (utility.addHousehold(householdAddress)) {
       console.log(`New household ${householdAddress} added`);
     }
@@ -183,6 +210,9 @@ app.put("/energy/:householdAddress", async (req, res) => {
  */
 app.get("/network", (req, res) => {
   try {
+    // TODO: /network API is broken for now; track current energy balance separately from billing period data
+    const utility = utilities[getBillingPeriod(Date.now())]; // return dummy data from current billing period only
+    if (!utility) throw new Error(`No current billing period`);
     res.status(200);
     res.json({
       renewableEnergy: utility.renewableEnergy,
@@ -229,6 +259,9 @@ app.get("/transfers/:householdAddress", (req, res) => {
     const householdAddress = web3Utils.toChecksumAddress(
       req.params.householdAddress
     );
+    // TODO: /transfers API is broken for now; track transfers separately from billing period data
+    const utility = utilities[getBillingPeriod(Date.now())]; // return dummy data from current billing period only
+    if (!utility) throw new Error(`No billing period for time ${from}`);
     const transfers = utility.getTransfers(householdAddress, from);
     res.status(200);
     res.json(transfers || []);

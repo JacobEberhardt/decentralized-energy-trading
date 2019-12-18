@@ -11,7 +11,7 @@
       // Name of JSON RPC interface specified in truffle-config.js
       network: "authority",
       // Time Interval of the ned server triggering the netting in the ZoKrates execution environment
-      nettingInterval: 10000,
+      nettingInterval: 15000,
       // Working directory of the file and the child process
       workingDir: "./ned-server",
       // File name to execute

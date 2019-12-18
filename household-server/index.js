@@ -36,6 +36,7 @@ const config = {
   network: commander.network || serverConfig.network,
   address: commander.address || serverConfig.address,
   password: commander.password || serverConfig.password,
+  sensorInterval: commander.password || serverConfig.sensorInterval,
   dbName: serverConfig.dbName,
   sensorDataCollection: serverConfig.sensorDataCollection,
   utilityDataCollection: serverConfig.utilityDataCollection,
@@ -52,7 +53,6 @@ db.createDB(config.dbUrl, config.dbName, [
 let web3;
 let utilityContract;
 let latestBlockNumber;
-let nettingActive = false;
 
 async function init() {
   web3 = web3Helper.initWeb3(config.network);
@@ -70,13 +70,12 @@ async function init() {
         console.error(error.message);
         throw error;
       }
-      if (checkNetting()){
-        console.log("Netting Successful!");
+      if (checkNetting()) {
+        console.log("Netting Successful:", event);
         latestBlockNumber = event.blockNumber;
-        nettingActive = false;
         transferHandler.collectTransfers(config);
       } else {
-        throw "Preimage doesn't Match stored hash. NETTING INVALID"
+        throw new Error("Preimage doesn't Match stored hash. NETTING INVALID");
       }
     }
   );
@@ -212,18 +211,15 @@ app.put("/sensor-stats", async (req, res) => {
     if (
       typeof meterDelta !== "number"
     ) {
-      throw new Error("Invalid payload");
+      throw new Error(`Invalid payload: meterDelta=${meterDelta}`);
     }
 
-    if (!nettingActive) {
-      nettingActive = true;
-      await energyHandler.putMeterReading(
-        config,
-        web3,
-        utilityContract,
-        meterDelta
-      );
-    }
+    await energyHandler.putMeterReading(
+      config,
+      web3,
+      utilityContract,
+      meterDelta
+    );
 
     await db.writeToDB(
       config.dbUrl,
