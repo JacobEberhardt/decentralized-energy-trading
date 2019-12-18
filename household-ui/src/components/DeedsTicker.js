@@ -12,7 +12,7 @@ const DeedsTicker = React.memo(({ deeds }) => {
           key={deed._id}
           from={deed.from}
           to={deed.to}
-          amount={deed.amount}
+          amount={Number(deed.amount)}
           timestamp={deed.timestamp}
         />
       ))}

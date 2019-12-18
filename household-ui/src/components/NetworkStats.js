@@ -12,8 +12,8 @@ const NetworkStats = props => {
       <Box>
         <NetworkBarMeter
           value={props.householdMeterReading}
-          maxValue={props.householdMeterReading * 1.5}
-          label={"Your submitted meter reading"}
+          maxValue={props.householdMeterReading}
+          label={"Meter reading"}
           color={props.householdMeterReading >= 0 ? "#55fcc2" : "#f9a7a7"}
         />
       </Box>
@@ -25,13 +25,13 @@ const NetworkStats = props => {
       >
         <NetworkCircleMeter
           value={props.networkEnergyBalance}
-          label={"network energy balance"}
+          label={"Community Balance"}
           color={props.networkEnergyBalance >= 0 ? "#55fcc2" : "#f9a7a7"}
         />
         <NetworkCircleMeter
-          value={props.householdEnergyBalance}
-          label={"your energy balance"}
-          color={props.householdEnergyBalance >= 0 ? "#55fcc2" : "#f9a7a7"}
+          value={Number(props.meterChange)}
+          label={"Meter Change"}
+          color={props.meterChange >= 0 ? "#55fcc2" : "#f9a7a7"}
         />
       </Box>
     </DashboardBox>

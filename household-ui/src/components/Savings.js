@@ -25,7 +25,7 @@ const Savings = React.memo(({ address, deeds }) => {
     .filter(
       deed => deed.to.toLowerCase().trim() === address.toLowerCase().trim()
     )
-    .reduce((acc, deed) => (acc += deed.amount), 0);
+    .reduce((acc, deed) => (acc += Number(deed.amount)), 0);
   const costsWithUmlage = ENERGY_COSTS * totalReceivedEnergy;
   const costsWithoutUmlage = (ENERGY_COSTS - EEG_UMLAGE) * totalReceivedEnergy;
   const savings = EEG_UMLAGE * totalReceivedEnergy;
