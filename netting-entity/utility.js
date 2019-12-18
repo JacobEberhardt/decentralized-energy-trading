@@ -6,9 +6,11 @@ const { ZERO_ADDRESS } = require("../helpers/constants");
  * Settles energy requests by distributing existing energy as fair as possible (netting).
  */
 class Utility {
-  constructor() {
+  constructor(billingPeriod) {
+    this.billingPeriod = billingPeriod;
     this.renewableEnergy = 0;
     this.nonRenewableEnergy = 0;
+    this.allReadingsReceivedHandler = null;
     this.households = {
       // placeholder address
       [ZERO_ADDRESS]: {
@@ -17,6 +19,16 @@ class Utility {
       }
     };
     this.transfers = [];
+  }
+
+  onAllReadingsReceived(handler) {
+    this.allReadingsReceivedHandler = handler;
+    if (this.allReadingsReceivedHandler && this.allReadingsReceived())
+      this.allReadingsReceivedHandler();
+  }
+
+  allReadingsReceived() {
+    return Object.keys(this.households).length === this.numHouseholds
   }
 
   /**
@@ -68,6 +80,9 @@ class Utility {
     if (!this._householdExists(hhAddress)) return false;
     this.households[hhAddress].meterDelta = Number(meterDelta);
     this.households[hhAddress].lastUpdate = timestamp;
+
+    if (this.allReadingsReceivedHandler && this.allReadingsReceived())
+      this.allReadingsReceivedHandler();
   }
 
   /**
