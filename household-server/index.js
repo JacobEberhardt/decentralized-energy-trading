@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const commander = require("commander");
-
 const db = require("./apis/db");
 const ned = require("./apis/ned");
 const deedHandler = require("./deed-handler");
@@ -153,7 +152,7 @@ app.get("/deeds", async (req, res) => {
  */
 app.get("/household-stats", async (req, res, next) => {
   try {
-    const data = await ned.getHousehold(config.nedUrl, config.address);
+    const data = await db.getMeterReading(config.dbUrl, config.dbName, config.meterReadingCollection);
     data.address = config.address;
     res.setHeader("Content-Type", "application/json");
     res.status(200);
