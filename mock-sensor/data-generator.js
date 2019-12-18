@@ -1,3 +1,5 @@
+const conversionHelper = require("../helpers/conversion");
+
 module.exports = {
   /**
    * @param {number} consumption mean of the energy consumption
@@ -11,10 +13,8 @@ module.exports = {
     const consumeDistribution = gaussian(consumption, variance);
 
     // Sampling the data from the gaussian distribution and rounding it to two decimals
-    let produce =
-      Math.round(produceDistribution.ppf(Math.random()) * 100) / 100;
-    let consume =
-      Math.round(consumeDistribution.ppf(Math.random()) * 100) / 100;
+    let produce = conversionHelper.kWhToWs(Math.round(produceDistribution.ppf(Math.random()) * 100) / 100)
+    let consume = conversionHelper.kWhToWs(Math.round(consumeDistribution.ppf(Math.random()) * 100) / 100);
     // Setting all negative values to 0 and writing values to mockData object
     mockData["produce"] = produce < 0 ? 0 : produce;
     mockData["consume"] = consume < 0 ? 0 : consume;

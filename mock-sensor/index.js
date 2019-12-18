@@ -152,4 +152,4 @@ setInterval(() => {
    */
   console.log(payload);
   req.end(JSON.stringify(payload));
-}, 1000);
+}, sensorInterval);
