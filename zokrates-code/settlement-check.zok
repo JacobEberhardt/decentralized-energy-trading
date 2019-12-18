@@ -7,9 +7,9 @@ import "hashes/sha256/512bitPacked.code" as sha256packed
 // Aggregates the Energy of Energy producing HHS.
 // @param {field[n]} Energy producing HHs
 // @returns {field} energy of provided households
-def energyOfWE(field[10] hh) -> (field):
+def energyOfWE(field[1] hh) -> (field):
   field energy = 0
-  for field i in 0..10 do
+  for field i in 0..1 do
     energy = energy + hh[i]
   endfor
   return energy
@@ -17,9 +17,9 @@ def energyOfWE(field[10] hh) -> (field):
 // Aggregates the Energy of Energy consuming HHS.
 // @param {field[m]} Energy producing HHs
 // @returns {field} energy of provided households
-def energyOfNE(field[90] hh) -> (field):
+def energyOfNE(field[1] hh) -> (field):
   field energy = 0
-  for field i in 0..90 do
+  for field i in 0..1 do
     energy = energy + hh[i]
   endfor
   return energy
@@ -28,7 +28,7 @@ def energyOfNE(field[90] hh) -> (field):
 // @param {field[n]} hhWithEnergy
 // @param {field[m]} hhNoEnergy
 // @returns {field} totalEnergy
-def calculateTotalDelta(field[10] hhWithEnergy, field[90] hhNoEnergy) -> (field):
+def calculateTotalDelta(field[1] hhWithEnergy, field[1] hhNoEnergy) -> (field):
   producerDelta = energyOfWE(hhWithEnergy)
   consumerDelta = energyOfNE(hhNoEnergy)
   field totalDelta = if (producerDelta > consumerDelta) then (producerDelta - consumerDelta) else (consumerDelta - producerDelta) fi
@@ -38,9 +38,9 @@ def calculateTotalDelta(field[10] hhWithEnergy, field[90] hhNoEnergy) -> (field)
 // @param {field[n]} hh
 // @param {field[n]} hhNet
 // @returns {field} delta
-def deltaNetWE(field[10] hh, field[10] hhNet) -> (field):
+def deltaNetWE(field[1] hh, field[1] hhNet) -> (field):
   field delta = 0
-  for field i in 0..9 do
+  for field i in 0..0 do
     delta = delta + (hh[i] - hhNet[i])
   endfor
   return delta
@@ -49,9 +49,9 @@ def deltaNetWE(field[10] hh, field[10] hhNet) -> (field):
 // @param {field[m]} hh
 // @param {field[m]} hhNet
 // @returns {field} delta
-def deltaNetNE(field[90] hh, field[90] hhNet) -> (field):
+def deltaNetNE(field[1] hh, field[1] hhNet) -> (field):
   field delta = 0
-  for field i in 0..90 do
+  for field i in 0..1 do
     delta = delta + (hh[i] - hhNet[i])
   endfor
   return delta
@@ -60,9 +60,9 @@ def deltaNetNE(field[90] hh, field[90] hhNet) -> (field):
 // @param {field[n]} hh
 // @param {field[n]} hhNet
 // @returns {field} errorCounter
-def validateFairnessWE(field[10] hh, field[10] hhNet) -> (field):
+def validateFairnessWE(field[1] hh, field[1] hhNet) -> (field):
   field errorCounter = 0
-  for field i in 0..9 do
+  for field i in 0..0 do
     errorCounter = errorCounter + if hhNet[i] > hh[i] then 1 else 0 fi
   endfor
   return errorCounter
@@ -71,9 +71,9 @@ def validateFairnessWE(field[10] hh, field[10] hhNet) -> (field):
 // @param {field[m]} hh
 // @param {field[m]} hhNet
 // @returns {field} errorCounter
-def validateFairnessNE(field[90] hh, field[90] hhNet) -> (field):
+def validateFairnessNE(field[1] hh, field[1] hhNet) -> (field):
   field errorCounter = 0
-  for field i in 0..90 do
+  for field i in 0..1 do
     errorCounter = errorCounter + if hhNet[i] > hh[i] then 1 else 0 fi
   endfor
   return errorCounter
@@ -83,9 +83,9 @@ def validateFairnessNE(field[90] hh, field[90] hhNet) -> (field):
 // Is valid, only if returns 0.
 // @param (field[n]) household party having energy
 // @param epsilon the error tolerance value
-def validateZeroNetWE(field[10] hh, field epsilon) -> (field):
+def validateZeroNetWE(field[1] hh, field epsilon) -> (field):
   field errorCounter = 0
-  for field i in 0..10 do
+  for field i in 0..1 do
     errorCounter = errorCounter + if hh[i] > epsilon then 1 else 0 fi
   endfor
   return errorCounter
@@ -95,9 +95,9 @@ def validateZeroNetWE(field[10] hh, field epsilon) -> (field):
 // Is valid, only if returns 0.
 // @param (field[m]) household party needing
 // @param epsilon the error tolerance value
-def validateZeroNetNE(field[90] hh, field epsilon) -> (field):
+def validateZeroNetNE(field[1] hh, field epsilon) -> (field):
   field errorCounter = 0
-  for field i in 0..90 do
+  for field i in 0..1 do
     errorCounter = errorCounter + if hh[i] > epsilon then 1 else 0 fi
   endfor
   return errorCounter
@@ -105,9 +105,9 @@ def validateZeroNetNE(field[90] hh, field epsilon) -> (field):
 // Simply return hh[0] + hh[1] for any array of households with energy.
 // @param (field[n]) hh
 // @returns (field) energy of provided households
-def sumWE(field[10] hh) -> (field):
+def sumWE(field[1] hh) -> (field):
   field s = 0
-  for field i in 0..10 do
+  for field i in 0..1 do
     s = s + hh[i]
   endfor
   return s
@@ -115,9 +115,9 @@ def sumWE(field[10] hh) -> (field):
 // Simply return hh[0] + hh[1] for any array of households without energy.
 // @param (field[m]) hh
 // @returns (field) energy of provided households
-def sumNE(field[90] hh) -> (field):
+def sumNE(field[1] hh) -> (field):
   field s = 0
-  for field i in 0..90 do
+  for field i in 0..1 do
     s = s + hh[i]
   endfor
   return s
@@ -141,7 +141,7 @@ def sumNE(field[90] hh) -> (field):
 // Index 0 to 3 are packed inputs of hh1 with energy deficit
 // Index 4 to 7 are packed inputs of hh2 with energy deficit
 // @returns (field[2], field[2], field[2], field[2], field[2],...) sha256packed hashes of hhWithEnergyPacked and hhNoEnergyPacked and sha256packed hash that depends on inputs
-def main(private field[10] hhWithEnergy, private field[90] hhNoEnergy, private field[10] hhWithEnergyNet, private field[90] hhNoEnergyNet) -> (field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2]):
+def main(private field[1] hhWithEnergy, private field[1] hhNoEnergy, private field[1] hhWithEnergyNet, private field[1] hhNoEnergyNet) -> (field[2],field[2],field[2],field[2]):
   totalDelta = calculateTotalDelta(hhWithEnergy, hhNoEnergy)
   totalDeltaNet = calculateTotalDelta(hhWithEnergyNet, hhNoEnergyNet)
   totalDelta == totalDeltaNet
@@ -152,208 +152,12 @@ def main(private field[10] hhWithEnergy, private field[90] hhNoEnergy, private f
   field sumWithEnergy = sumWE(hhWithEnergyNet)
   field sumNoEnergy = sumNE(hhNoEnergyNet)
 
-  field[10] zeroNetPartyWE = hhWithEnergyNet
-  field[90] zeroNetPartyNE = hhNoEnergyNet
+  field[1] zeroNetPartyWE = hhWithEnergyNet
+  field[1] zeroNetPartyNE = hhNoEnergyNet
 
-  0 == if sumWithEnergy <= sumNoEnergy then validateZeroNetWE(zeroNetPartyWE, 99) else validateZeroNetNE(zeroNetPartyNE, 99) fi// Can make epsilon more accurate in the future
+  0 == if sumWithEnergy <= sumNoEnergy then validateZeroNetWE(zeroNetPartyWE, 1) else validateZeroNetNE(zeroNetPartyNE, 1) fi// Can make epsilon more accurate in the future
   field[2] hh1WithEnergyHash = if hhWithEnergy[0] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergy[0]]) fi
   field[2] hh1WithEnergyHashNet = if hhWithEnergyNet[0] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergyNet[0]]) fi
-  field[2] hh2WithEnergyHash = if hhWithEnergy[1] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergy[1]]) fi
-  field[2] hh2WithEnergyHashNet = if hhWithEnergyNet[1] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergyNet[1]]) fi
-  field[2] hh3WithEnergyHash = if hhWithEnergy[2] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergy[2]]) fi
-  field[2] hh3WithEnergyHashNet = if hhWithEnergyNet[2] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergyNet[2]]) fi
-  field[2] hh4WithEnergyHash = if hhWithEnergy[3] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergy[3]]) fi
-  field[2] hh4WithEnergyHashNet = if hhWithEnergyNet[3] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergyNet[3]]) fi
-  field[2] hh5WithEnergyHash = if hhWithEnergy[4] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergy[4]]) fi
-  field[2] hh5WithEnergyHashNet = if hhWithEnergyNet[4] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergyNet[4]]) fi
-  field[2] hh6WithEnergyHash = if hhWithEnergy[5] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergy[5]]) fi
-  field[2] hh6WithEnergyHashNet = if hhWithEnergyNet[5] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergyNet[5]]) fi
-  field[2] hh7WithEnergyHash = if hhWithEnergy[6] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergy[6]]) fi
-  field[2] hh7WithEnergyHashNet = if hhWithEnergyNet[6] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergyNet[6]]) fi
-  field[2] hh8WithEnergyHash = if hhWithEnergy[7] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergy[7]]) fi
-  field[2] hh8WithEnergyHashNet = if hhWithEnergyNet[7] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergyNet[7]]) fi
-  field[2] hh9WithEnergyHash = if hhWithEnergy[8] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergy[8]]) fi
-  field[2] hh9WithEnergyHashNet = if hhWithEnergyNet[8] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergyNet[8]]) fi
-  field[2] hh10WithEnergyHash = if hhWithEnergy[9] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergy[9]]) fi
-  field[2] hh10WithEnergyHashNet = if hhWithEnergyNet[9] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergyNet[9]]) fi
   field[2] hh1NoEnergyHash = if hhNoEnergy[0] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[0]]) fi
   field[2] hh1NoEnergyHashNet = if hhNoEnergyNet[0] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[0]]) fi
-  field[2] hh2NoEnergyHash = if hhNoEnergy[1] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[1]]) fi
-  field[2] hh2NoEnergyHashNet = if hhNoEnergyNet[1] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[1]]) fi
-  field[2] hh3NoEnergyHash = if hhNoEnergy[2] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[2]]) fi
-  field[2] hh3NoEnergyHashNet = if hhNoEnergyNet[2] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[2]]) fi
-  field[2] hh4NoEnergyHash = if hhNoEnergy[3] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[3]]) fi
-  field[2] hh4NoEnergyHashNet = if hhNoEnergyNet[3] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[3]]) fi
-  field[2] hh5NoEnergyHash = if hhNoEnergy[4] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[4]]) fi
-  field[2] hh5NoEnergyHashNet = if hhNoEnergyNet[4] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[4]]) fi
-  field[2] hh6NoEnergyHash = if hhNoEnergy[5] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[5]]) fi
-  field[2] hh6NoEnergyHashNet = if hhNoEnergyNet[5] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[5]]) fi
-  field[2] hh7NoEnergyHash = if hhNoEnergy[6] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[6]]) fi
-  field[2] hh7NoEnergyHashNet = if hhNoEnergyNet[6] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[6]]) fi
-  field[2] hh8NoEnergyHash = if hhNoEnergy[7] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[7]]) fi
-  field[2] hh8NoEnergyHashNet = if hhNoEnergyNet[7] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[7]]) fi
-  field[2] hh9NoEnergyHash = if hhNoEnergy[8] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[8]]) fi
-  field[2] hh9NoEnergyHashNet = if hhNoEnergyNet[8] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[8]]) fi
-  field[2] hh10NoEnergyHash = if hhNoEnergy[9] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[9]]) fi
-  field[2] hh10NoEnergyHashNet = if hhNoEnergyNet[9] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[9]]) fi
-  field[2] hh11NoEnergyHash = if hhNoEnergy[10] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[10]]) fi
-  field[2] hh11NoEnergyHashNet = if hhNoEnergyNet[10] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[10]]) fi
-  field[2] hh12NoEnergyHash = if hhNoEnergy[11] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[11]]) fi
-  field[2] hh12NoEnergyHashNet = if hhNoEnergyNet[11] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[11]]) fi
-  field[2] hh13NoEnergyHash = if hhNoEnergy[12] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[12]]) fi
-  field[2] hh13NoEnergyHashNet = if hhNoEnergyNet[12] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[12]]) fi
-  field[2] hh14NoEnergyHash = if hhNoEnergy[13] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[13]]) fi
-  field[2] hh14NoEnergyHashNet = if hhNoEnergyNet[13] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[13]]) fi
-  field[2] hh15NoEnergyHash = if hhNoEnergy[14] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[14]]) fi
-  field[2] hh15NoEnergyHashNet = if hhNoEnergyNet[14] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[14]]) fi
-  field[2] hh16NoEnergyHash = if hhNoEnergy[15] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[15]]) fi
-  field[2] hh16NoEnergyHashNet = if hhNoEnergyNet[15] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[15]]) fi
-  field[2] hh17NoEnergyHash = if hhNoEnergy[16] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[16]]) fi
-  field[2] hh17NoEnergyHashNet = if hhNoEnergyNet[16] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[16]]) fi
-  field[2] hh18NoEnergyHash = if hhNoEnergy[17] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[17]]) fi
-  field[2] hh18NoEnergyHashNet = if hhNoEnergyNet[17] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[17]]) fi
-  field[2] hh19NoEnergyHash = if hhNoEnergy[18] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[18]]) fi
-  field[2] hh19NoEnergyHashNet = if hhNoEnergyNet[18] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[18]]) fi
-  field[2] hh20NoEnergyHash = if hhNoEnergy[19] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[19]]) fi
-  field[2] hh20NoEnergyHashNet = if hhNoEnergyNet[19] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[19]]) fi
-  field[2] hh21NoEnergyHash = if hhNoEnergy[20] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[20]]) fi
-  field[2] hh21NoEnergyHashNet = if hhNoEnergyNet[20] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[20]]) fi
-  field[2] hh22NoEnergyHash = if hhNoEnergy[21] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[21]]) fi
-  field[2] hh22NoEnergyHashNet = if hhNoEnergyNet[21] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[21]]) fi
-  field[2] hh23NoEnergyHash = if hhNoEnergy[22] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[22]]) fi
-  field[2] hh23NoEnergyHashNet = if hhNoEnergyNet[22] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[22]]) fi
-  field[2] hh24NoEnergyHash = if hhNoEnergy[23] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[23]]) fi
-  field[2] hh24NoEnergyHashNet = if hhNoEnergyNet[23] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[23]]) fi
-  field[2] hh25NoEnergyHash = if hhNoEnergy[24] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[24]]) fi
-  field[2] hh25NoEnergyHashNet = if hhNoEnergyNet[24] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[24]]) fi
-  field[2] hh26NoEnergyHash = if hhNoEnergy[25] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[25]]) fi
-  field[2] hh26NoEnergyHashNet = if hhNoEnergyNet[25] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[25]]) fi
-  field[2] hh27NoEnergyHash = if hhNoEnergy[26] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[26]]) fi
-  field[2] hh27NoEnergyHashNet = if hhNoEnergyNet[26] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[26]]) fi
-  field[2] hh28NoEnergyHash = if hhNoEnergy[27] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[27]]) fi
-  field[2] hh28NoEnergyHashNet = if hhNoEnergyNet[27] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[27]]) fi
-  field[2] hh29NoEnergyHash = if hhNoEnergy[28] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[28]]) fi
-  field[2] hh29NoEnergyHashNet = if hhNoEnergyNet[28] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[28]]) fi
-  field[2] hh30NoEnergyHash = if hhNoEnergy[29] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[29]]) fi
-  field[2] hh30NoEnergyHashNet = if hhNoEnergyNet[29] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[29]]) fi
-  field[2] hh31NoEnergyHash = if hhNoEnergy[30] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[30]]) fi
-  field[2] hh31NoEnergyHashNet = if hhNoEnergyNet[30] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[30]]) fi
-  field[2] hh32NoEnergyHash = if hhNoEnergy[31] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[31]]) fi
-  field[2] hh32NoEnergyHashNet = if hhNoEnergyNet[31] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[31]]) fi
-  field[2] hh33NoEnergyHash = if hhNoEnergy[32] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[32]]) fi
-  field[2] hh33NoEnergyHashNet = if hhNoEnergyNet[32] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[32]]) fi
-  field[2] hh34NoEnergyHash = if hhNoEnergy[33] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[33]]) fi
-  field[2] hh34NoEnergyHashNet = if hhNoEnergyNet[33] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[33]]) fi
-  field[2] hh35NoEnergyHash = if hhNoEnergy[34] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[34]]) fi
-  field[2] hh35NoEnergyHashNet = if hhNoEnergyNet[34] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[34]]) fi
-  field[2] hh36NoEnergyHash = if hhNoEnergy[35] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[35]]) fi
-  field[2] hh36NoEnergyHashNet = if hhNoEnergyNet[35] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[35]]) fi
-  field[2] hh37NoEnergyHash = if hhNoEnergy[36] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[36]]) fi
-  field[2] hh37NoEnergyHashNet = if hhNoEnergyNet[36] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[36]]) fi
-  field[2] hh38NoEnergyHash = if hhNoEnergy[37] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[37]]) fi
-  field[2] hh38NoEnergyHashNet = if hhNoEnergyNet[37] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[37]]) fi
-  field[2] hh39NoEnergyHash = if hhNoEnergy[38] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[38]]) fi
-  field[2] hh39NoEnergyHashNet = if hhNoEnergyNet[38] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[38]]) fi
-  field[2] hh40NoEnergyHash = if hhNoEnergy[39] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[39]]) fi
-  field[2] hh40NoEnergyHashNet = if hhNoEnergyNet[39] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[39]]) fi
-  field[2] hh41NoEnergyHash = if hhNoEnergy[40] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[40]]) fi
-  field[2] hh41NoEnergyHashNet = if hhNoEnergyNet[40] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[40]]) fi
-  field[2] hh42NoEnergyHash = if hhNoEnergy[41] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[41]]) fi
-  field[2] hh42NoEnergyHashNet = if hhNoEnergyNet[41] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[41]]) fi
-  field[2] hh43NoEnergyHash = if hhNoEnergy[42] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[42]]) fi
-  field[2] hh43NoEnergyHashNet = if hhNoEnergyNet[42] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[42]]) fi
-  field[2] hh44NoEnergyHash = if hhNoEnergy[43] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[43]]) fi
-  field[2] hh44NoEnergyHashNet = if hhNoEnergyNet[43] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[43]]) fi
-  field[2] hh45NoEnergyHash = if hhNoEnergy[44] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[44]]) fi
-  field[2] hh45NoEnergyHashNet = if hhNoEnergyNet[44] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[44]]) fi
-  field[2] hh46NoEnergyHash = if hhNoEnergy[45] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[45]]) fi
-  field[2] hh46NoEnergyHashNet = if hhNoEnergyNet[45] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[45]]) fi
-  field[2] hh47NoEnergyHash = if hhNoEnergy[46] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[46]]) fi
-  field[2] hh47NoEnergyHashNet = if hhNoEnergyNet[46] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[46]]) fi
-  field[2] hh48NoEnergyHash = if hhNoEnergy[47] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[47]]) fi
-  field[2] hh48NoEnergyHashNet = if hhNoEnergyNet[47] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[47]]) fi
-  field[2] hh49NoEnergyHash = if hhNoEnergy[48] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[48]]) fi
-  field[2] hh49NoEnergyHashNet = if hhNoEnergyNet[48] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[48]]) fi
-  field[2] hh50NoEnergyHash = if hhNoEnergy[49] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[49]]) fi
-  field[2] hh50NoEnergyHashNet = if hhNoEnergyNet[49] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[49]]) fi
-  field[2] hh51NoEnergyHash = if hhNoEnergy[50] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[50]]) fi
-  field[2] hh51NoEnergyHashNet = if hhNoEnergyNet[50] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[50]]) fi
-  field[2] hh52NoEnergyHash = if hhNoEnergy[51] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[51]]) fi
-  field[2] hh52NoEnergyHashNet = if hhNoEnergyNet[51] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[51]]) fi
-  field[2] hh53NoEnergyHash = if hhNoEnergy[52] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[52]]) fi
-  field[2] hh53NoEnergyHashNet = if hhNoEnergyNet[52] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[52]]) fi
-  field[2] hh54NoEnergyHash = if hhNoEnergy[53] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[53]]) fi
-  field[2] hh54NoEnergyHashNet = if hhNoEnergyNet[53] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[53]]) fi
-  field[2] hh55NoEnergyHash = if hhNoEnergy[54] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[54]]) fi
-  field[2] hh55NoEnergyHashNet = if hhNoEnergyNet[54] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[54]]) fi
-  field[2] hh56NoEnergyHash = if hhNoEnergy[55] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[55]]) fi
-  field[2] hh56NoEnergyHashNet = if hhNoEnergyNet[55] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[55]]) fi
-  field[2] hh57NoEnergyHash = if hhNoEnergy[56] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[56]]) fi
-  field[2] hh57NoEnergyHashNet = if hhNoEnergyNet[56] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[56]]) fi
-  field[2] hh58NoEnergyHash = if hhNoEnergy[57] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[57]]) fi
-  field[2] hh58NoEnergyHashNet = if hhNoEnergyNet[57] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[57]]) fi
-  field[2] hh59NoEnergyHash = if hhNoEnergy[58] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[58]]) fi
-  field[2] hh59NoEnergyHashNet = if hhNoEnergyNet[58] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[58]]) fi
-  field[2] hh60NoEnergyHash = if hhNoEnergy[59] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[59]]) fi
-  field[2] hh60NoEnergyHashNet = if hhNoEnergyNet[59] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[59]]) fi
-  field[2] hh61NoEnergyHash = if hhNoEnergy[60] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[60]]) fi
-  field[2] hh61NoEnergyHashNet = if hhNoEnergyNet[60] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[60]]) fi
-  field[2] hh62NoEnergyHash = if hhNoEnergy[61] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[61]]) fi
-  field[2] hh62NoEnergyHashNet = if hhNoEnergyNet[61] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[61]]) fi
-  field[2] hh63NoEnergyHash = if hhNoEnergy[62] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[62]]) fi
-  field[2] hh63NoEnergyHashNet = if hhNoEnergyNet[62] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[62]]) fi
-  field[2] hh64NoEnergyHash = if hhNoEnergy[63] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[63]]) fi
-  field[2] hh64NoEnergyHashNet = if hhNoEnergyNet[63] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[63]]) fi
-  field[2] hh65NoEnergyHash = if hhNoEnergy[64] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[64]]) fi
-  field[2] hh65NoEnergyHashNet = if hhNoEnergyNet[64] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[64]]) fi
-  field[2] hh66NoEnergyHash = if hhNoEnergy[65] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[65]]) fi
-  field[2] hh66NoEnergyHashNet = if hhNoEnergyNet[65] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[65]]) fi
-  field[2] hh67NoEnergyHash = if hhNoEnergy[66] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[66]]) fi
-  field[2] hh67NoEnergyHashNet = if hhNoEnergyNet[66] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[66]]) fi
-  field[2] hh68NoEnergyHash = if hhNoEnergy[67] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[67]]) fi
-  field[2] hh68NoEnergyHashNet = if hhNoEnergyNet[67] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[67]]) fi
-  field[2] hh69NoEnergyHash = if hhNoEnergy[68] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[68]]) fi
-  field[2] hh69NoEnergyHashNet = if hhNoEnergyNet[68] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[68]]) fi
-  field[2] hh70NoEnergyHash = if hhNoEnergy[69] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[69]]) fi
-  field[2] hh70NoEnergyHashNet = if hhNoEnergyNet[69] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[69]]) fi
-  field[2] hh71NoEnergyHash = if hhNoEnergy[70] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[70]]) fi
-  field[2] hh71NoEnergyHashNet = if hhNoEnergyNet[70] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[70]]) fi
-  field[2] hh72NoEnergyHash = if hhNoEnergy[71] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[71]]) fi
-  field[2] hh72NoEnergyHashNet = if hhNoEnergyNet[71] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[71]]) fi
-  field[2] hh73NoEnergyHash = if hhNoEnergy[72] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[72]]) fi
-  field[2] hh73NoEnergyHashNet = if hhNoEnergyNet[72] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[72]]) fi
-  field[2] hh74NoEnergyHash = if hhNoEnergy[73] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[73]]) fi
-  field[2] hh74NoEnergyHashNet = if hhNoEnergyNet[73] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[73]]) fi
-  field[2] hh75NoEnergyHash = if hhNoEnergy[74] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[74]]) fi
-  field[2] hh75NoEnergyHashNet = if hhNoEnergyNet[74] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[74]]) fi
-  field[2] hh76NoEnergyHash = if hhNoEnergy[75] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[75]]) fi
-  field[2] hh76NoEnergyHashNet = if hhNoEnergyNet[75] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[75]]) fi
-  field[2] hh77NoEnergyHash = if hhNoEnergy[76] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[76]]) fi
-  field[2] hh77NoEnergyHashNet = if hhNoEnergyNet[76] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[76]]) fi
-  field[2] hh78NoEnergyHash = if hhNoEnergy[77] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[77]]) fi
-  field[2] hh78NoEnergyHashNet = if hhNoEnergyNet[77] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[77]]) fi
-  field[2] hh79NoEnergyHash = if hhNoEnergy[78] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[78]]) fi
-  field[2] hh79NoEnergyHashNet = if hhNoEnergyNet[78] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[78]]) fi
-  field[2] hh80NoEnergyHash = if hhNoEnergy[79] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[79]]) fi
-  field[2] hh80NoEnergyHashNet = if hhNoEnergyNet[79] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[79]]) fi
-  field[2] hh81NoEnergyHash = if hhNoEnergy[80] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[80]]) fi
-  field[2] hh81NoEnergyHashNet = if hhNoEnergyNet[80] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[80]]) fi
-  field[2] hh82NoEnergyHash = if hhNoEnergy[81] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[81]]) fi
-  field[2] hh82NoEnergyHashNet = if hhNoEnergyNet[81] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[81]]) fi
-  field[2] hh83NoEnergyHash = if hhNoEnergy[82] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[82]]) fi
-  field[2] hh83NoEnergyHashNet = if hhNoEnergyNet[82] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[82]]) fi
-  field[2] hh84NoEnergyHash = if hhNoEnergy[83] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[83]]) fi
-  field[2] hh84NoEnergyHashNet = if hhNoEnergyNet[83] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[83]]) fi
-  field[2] hh85NoEnergyHash = if hhNoEnergy[84] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[84]]) fi
-  field[2] hh85NoEnergyHashNet = if hhNoEnergyNet[84] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[84]]) fi
-  field[2] hh86NoEnergyHash = if hhNoEnergy[85] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[85]]) fi
-  field[2] hh86NoEnergyHashNet = if hhNoEnergyNet[85] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[85]]) fi
-  field[2] hh87NoEnergyHash = if hhNoEnergy[86] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[86]]) fi
-  field[2] hh87NoEnergyHashNet = if hhNoEnergyNet[86] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[86]]) fi
-  field[2] hh88NoEnergyHash = if hhNoEnergy[87] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[87]]) fi
-  field[2] hh88NoEnergyHashNet = if hhNoEnergyNet[87] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[87]]) fi
-  field[2] hh89NoEnergyHash = if hhNoEnergy[88] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[88]]) fi
-  field[2] hh89NoEnergyHashNet = if hhNoEnergyNet[88] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[88]]) fi
-  field[2] hh90NoEnergyHash = if hhNoEnergy[89] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[89]]) fi
-  field[2] hh90NoEnergyHashNet = if hhNoEnergyNet[89] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[89]]) fi
-  return  hh1WithEnergyHash, hh2WithEnergyHash, hh3WithEnergyHash, hh4WithEnergyHash, hh5WithEnergyHash, hh6WithEnergyHash, hh7WithEnergyHash, hh8WithEnergyHash, hh9WithEnergyHash, hh10WithEnergyHash, hh1NoEnergyHash, hh2NoEnergyHash, hh3NoEnergyHash, hh4NoEnergyHash, hh5NoEnergyHash, hh6NoEnergyHash, hh7NoEnergyHash, hh8NoEnergyHash, hh9NoEnergyHash, hh10NoEnergyHash, hh11NoEnergyHash, hh12NoEnergyHash, hh13NoEnergyHash, hh14NoEnergyHash, hh15NoEnergyHash, hh16NoEnergyHash, hh17NoEnergyHash, hh18NoEnergyHash, hh19NoEnergyHash, hh20NoEnergyHash, hh21NoEnergyHash, hh22NoEnergyHash, hh23NoEnergyHash, hh24NoEnergyHash, hh25NoEnergyHash, hh26NoEnergyHash, hh27NoEnergyHash, hh28NoEnergyHash, hh29NoEnergyHash, hh30NoEnergyHash, hh31NoEnergyHash, hh32NoEnergyHash, hh33NoEnergyHash, hh34NoEnergyHash, hh35NoEnergyHash, hh36NoEnergyHash, hh37NoEnergyHash, hh38NoEnergyHash, hh39NoEnergyHash, hh40NoEnergyHash, hh41NoEnergyHash, hh42NoEnergyHash, hh43NoEnergyHash, hh44NoEnergyHash, hh45NoEnergyHash, hh46NoEnergyHash, hh47NoEnergyHash, hh48NoEnergyHash, hh49NoEnergyHash, hh50NoEnergyHash, hh51NoEnergyHash, hh52NoEnergyHash, hh53NoEnergyHash, hh54NoEnergyHash, hh55NoEnergyHash, hh56NoEnergyHash, hh57NoEnergyHash, hh58NoEnergyHash, hh59NoEnergyHash, hh60NoEnergyHash, hh61NoEnergyHash, hh62NoEnergyHash, hh63NoEnergyHash, hh64NoEnergyHash, hh65NoEnergyHash, hh66NoEnergyHash, hh67NoEnergyHash, hh68NoEnergyHash, hh69NoEnergyHash, hh70NoEnergyHash, hh71NoEnergyHash, hh72NoEnergyHash, hh73NoEnergyHash, hh74NoEnergyHash, hh75NoEnergyHash, hh76NoEnergyHash, hh77NoEnergyHash, hh78NoEnergyHash, hh79NoEnergyHash, hh80NoEnergyHash, hh81NoEnergyHash, hh82NoEnergyHash, hh83NoEnergyHash, hh84NoEnergyHash, hh85NoEnergyHash, hh86NoEnergyHash, hh87NoEnergyHash, hh88NoEnergyHash, hh89NoEnergyHash, hh90NoEnergyHash, hh1WithEnergyHashNet, hh2WithEnergyHashNet, hh3WithEnergyHashNet, hh4WithEnergyHashNet, hh5WithEnergyHashNet, hh6WithEnergyHashNet, hh7WithEnergyHashNet, hh8WithEnergyHashNet, hh9WithEnergyHashNet, hh10WithEnergyHashNet, hh1NoEnergyHashNet, hh2NoEnergyHashNet, hh3NoEnergyHashNet, hh4NoEnergyHashNet, hh5NoEnergyHashNet, hh6NoEnergyHashNet, hh7NoEnergyHashNet, hh8NoEnergyHashNet, hh9NoEnergyHashNet, hh10NoEnergyHashNet, hh11NoEnergyHashNet, hh12NoEnergyHashNet, hh13NoEnergyHashNet, hh14NoEnergyHashNet, hh15NoEnergyHashNet, hh16NoEnergyHashNet, hh17NoEnergyHashNet, hh18NoEnergyHashNet, hh19NoEnergyHashNet, hh20NoEnergyHashNet, hh21NoEnergyHashNet, hh22NoEnergyHashNet, hh23NoEnergyHashNet, hh24NoEnergyHashNet, hh25NoEnergyHashNet, hh26NoEnergyHashNet, hh27NoEnergyHashNet, hh28NoEnergyHashNet, hh29NoEnergyHashNet, hh30NoEnergyHashNet, hh31NoEnergyHashNet, hh32NoEnergyHashNet, hh33NoEnergyHashNet, hh34NoEnergyHashNet, hh35NoEnergyHashNet, hh36NoEnergyHashNet, hh37NoEnergyHashNet, hh38NoEnergyHashNet, hh39NoEnergyHashNet, hh40NoEnergyHashNet, hh41NoEnergyHashNet, hh42NoEnergyHashNet, hh43NoEnergyHashNet, hh44NoEnergyHashNet, hh45NoEnergyHashNet, hh46NoEnergyHashNet, hh47NoEnergyHashNet, hh48NoEnergyHashNet, hh49NoEnergyHashNet, hh50NoEnergyHashNet, hh51NoEnergyHashNet, hh52NoEnergyHashNet, hh53NoEnergyHashNet, hh54NoEnergyHashNet, hh55NoEnergyHashNet, hh56NoEnergyHashNet, hh57NoEnergyHashNet, hh58NoEnergyHashNet, hh59NoEnergyHashNet, hh60NoEnergyHashNet, hh61NoEnergyHashNet, hh62NoEnergyHashNet, hh63NoEnergyHashNet, hh64NoEnergyHashNet, hh65NoEnergyHashNet, hh66NoEnergyHashNet, hh67NoEnergyHashNet, hh68NoEnergyHashNet, hh69NoEnergyHashNet, hh70NoEnergyHashNet, hh71NoEnergyHashNet, hh72NoEnergyHashNet, hh73NoEnergyHashNet, hh74NoEnergyHashNet, hh75NoEnergyHashNet, hh76NoEnergyHashNet, hh77NoEnergyHashNet, hh78NoEnergyHashNet, hh79NoEnergyHashNet, hh80NoEnergyHashNet, hh81NoEnergyHashNet, hh82NoEnergyHashNet, hh83NoEnergyHashNet, hh84NoEnergyHashNet, hh85NoEnergyHashNet, hh86NoEnergyHashNet, hh87NoEnergyHashNet, hh88NoEnergyHashNet, hh89NoEnergyHashNet, hh90NoEnergyHashNet
+  return  hh1WithEnergyHash, hh1NoEnergyHash, hh1WithEnergyHashNet, hh1NoEnergyHashNet
