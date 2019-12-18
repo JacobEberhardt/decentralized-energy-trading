@@ -71,7 +71,7 @@ async function runZokrates() {
   let rawdata = fs.readFileSync('../zokrates-code/proof.json');
   let data = JSON.parse(rawdata);
   if (Object.keys(hhAddressToHash).length > 0) {
-    //sometimes causes unlocking error when importing password and address via config file. Havent checked why yet.
+    //sometimes causes unlocking error when importing password and address via config file. No idea why
     await web3.eth.personal.unlockAccount(
       "0x00bd138abd70e2f00903268f3db08f2d25677c9e",
       "node0",
@@ -92,7 +92,6 @@ async function runZokrates() {
       })
       .on('receipt', receipt => {
         if(receipt.status){
-          console.log("Netting Successful!")
           fs.appendFile('../tmp/res.csv', `,${receipt.gasUsed}\n`, 'utf8', (err) => {
             if (err) throw err;
           })
@@ -171,9 +170,6 @@ app.put("/benchmark-energy", async (req, res) => {
     if (meterDeltas.length !== hhAddresses.length) {
       throw new Error("Meter deltas and addresses have to be the same length");
     }
-
-    console.log("\nIncoming meter deltas:");
-    console.log(meterDeltas);
 
     hhAddresses.forEach(address => {
       utility.addHousehold(address);

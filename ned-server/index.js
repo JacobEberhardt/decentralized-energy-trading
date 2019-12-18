@@ -64,14 +64,14 @@ async function init() {
         console.error(error.msg);
         throw error;
       }
-      console.log("NettingSuccess event", event);
+      console.log("NettingSuccess Event: ", event);
       latestBlockNumber = event.blockNumber;
       utility = utilityAfterNetting;
     }
   );
 
   async function runZokrates() {
-    let utilityBeforeNetting = JSON.parse(JSON.stringify(utility));
+    let utilityBeforeNetting = JSON.parse(JSON.stringify(utility)); //dirty hack for obtaining deep copy of utility
     Object.setPrototypeOf(utilityBeforeNetting, Utility.prototype);
     utilityAfterNetting = { ...utility };
     Object.setPrototypeOf(utilityAfterNetting, Utility.prototype);
@@ -94,7 +94,6 @@ async function init() {
         config.password,
         null
       );
-      console.log(`Hashes: ${JSON.stringify(hhAddressToHash)}`);
       utilityContract.methods
         .checkNetting(
           Object.keys(hhAddressToHash),

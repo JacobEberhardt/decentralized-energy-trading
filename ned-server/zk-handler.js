@@ -22,7 +22,6 @@ module.exports = {
   generateProof: (utilityBeforeNetting, utilityAfterNetting, hhWithEnergy, hhNoEnergy) => {
     
     const hhAddressesWithEnergyBefore = utilityBeforeNetting.getHouseholdAddressesWithEnergy()
-    
     const hhAddressesNoEnergyBefore = utilityBeforeNetting.getHouseholdAddressesNoEnergy();
 
     const hhAddresses = [
@@ -30,10 +29,9 @@ module.exports = {
       ...hhAddressesNoEnergyBefore
     ];
     const deltasWithEnergyBefore = hhAddressesWithEnergyBefore.map(address => utilityBeforeNetting.households[address].meterDelta).join(" ");
-
     const deltasNoEnergyBefore = hhAddressesNoEnergyBefore.map(address => Math.abs(utilityBeforeNetting.households[address].meterDelta)).join(" ");
-    const deltasWithEnergyAfter = hhAddressesWithEnergyBefore.map(address => utilityAfterNetting.households[address].meterDelta).join(" ");
 
+    const deltasWithEnergyAfter = hhAddressesWithEnergyBefore.map(address => utilityAfterNetting.households[address].meterDelta).join(" ");
     const deltasNoEnergyAfter = hhAddressesNoEnergyBefore.map(address => Math.abs(utilityAfterNetting.households[address].meterDelta)).join(" ");
 
     process.stdout.write("Computing witness...");

@@ -110,7 +110,7 @@ class Utility {
     if(households.isMoreAvailableThanDemanded){
       this._updateNetworkStats(households.eTo, 0);
     } else {
-      this._updateNetworkStats(Math.abs(households.eTo) - households.eFrom, households.eFrom);
+      this._updateNetworkStats(households.eFrom, Math.abs(households.eFrom + households.eTo);
     }
     this._proportionalDistribution(
       households.hFrom,
@@ -153,23 +153,12 @@ class Utility {
     }
 
     let isMoreAvailableThanDemanded = deltaProducers > Math.abs(deltaConsumers);
-    let hFrom;
-    let eFrom;
-    let hTo;
-    let eTo;
-    if (isMoreAvailableThanDemanded) {
-      hFrom = noEnergy;
-      eFrom = deltaConsumers;
-      hTo = withEnergy;
-      eTo = deltaProducers;
-    } else {
-      hFrom = withEnergy;
-      eFrom = deltaProducers;
-      hTo = noEnergy;
-      eTo = deltaConsumers;
-    }
 
-    return {"hFrom": hFrom, "eFrom": eFrom, "hTo": hTo, "eTo": eTo, "isMoreAvailableThanDemanded": isMoreAvailableThanDemanded}
+    if (isMoreAvailableThanDemanded) {
+      return { "hFrom": noEnergy, "eFrom": deltaConsumers, "hTo": withEnergy, "eTo": deltaProducers, "isMoreAvailableThanDemanded": isMoreAvailableThanDemanded }
+    } else {
+      return { "hFrom": withEnergy, "eFrom": deltaProducers, "hTo": noEnergy, "eTo": deltaConsumers, "isMoreAvailableThanDemanded": isMoreAvailableThanDemanded }
+    }
   }
 
   /**
@@ -201,7 +190,6 @@ class Utility {
   * @returns {boolean} `true`
   */
   _proportionalDistribution(hFrom, eFrom, hTo, eTo, isMoreAvailableThanDemanded){
-    console.log("reached prop distro")
     for (let i = 0; i < hTo.length; i++) {
       let eAlloc = Math.round(eFrom * (this.households[hTo[i]].meterDelta / eTo));
       for (let j = 0; j < hFrom.length; j++) {
@@ -231,7 +219,6 @@ class Utility {
  * @param {boolean} isMoreAvailableThanDemanded over or underproduction?
  */
   _transferRest(hFrom, hTo, isMoreAvailableThanDemanded){
-    console.log("Pre restDisto househoulds: ", this.households)
     let indices = hTo.map(function (x, i) { return i });
     for (let i = 0; i < hFrom.length; i++) {
       while (this.households[hFrom[i]].meterDelta != 0) {
