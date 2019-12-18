@@ -20,25 +20,21 @@ let gP_time = 0;
  */
 module.exports = {
   generateProof: (utilityBeforeNetting, utilityAfterNetting, hhWithEnergy, hhNoEnergy) => {
-    console.log("UtilityBeforeNetting: ", utilityBeforeNetting);
-    console.log("UtilityAfterNetting: ", utilityAfterNetting);
-
+    
     const hhAddressesWithEnergyBefore = utilityBeforeNetting.getHouseholdAddressesWithEnergy()
-
+    
     const hhAddressesNoEnergyBefore = utilityBeforeNetting.getHouseholdAddressesNoEnergy();
 
     const hhAddresses = [
       ...hhAddressesWithEnergyBefore,
       ...hhAddressesNoEnergyBefore
     ];
-    console.log(hhAddresses.length)
     const deltasWithEnergyBefore = hhAddressesWithEnergyBefore.map(address => utilityBeforeNetting.households[address].meterDelta).join(" ");
 
     const deltasNoEnergyBefore = hhAddressesNoEnergyBefore.map(address => Math.abs(utilityBeforeNetting.households[address].meterDelta)).join(" ");
-    
-    const deltasWithEnergyAfter = hhAddressesWithEnergyBefore.map(address => utilityAfterNetting[address].meterDelta).join(" ");
+    const deltasWithEnergyAfter = hhAddressesWithEnergyBefore.map(address => utilityAfterNetting.households[address].meterDelta).join(" ");
 
-    const deltasNoEnergyAfter = hhAddressesNoEnergyBefore.map(address => Math.abs(utilityAfterNetting[address].meterDelta)).join(" ");
+    const deltasNoEnergyAfter = hhAddressesNoEnergyBefore.map(address => Math.abs(utilityAfterNetting.households[address].meterDelta)).join(" ");
 
     process.stdout.write("Computing witness...");
     console.log(`zokrates compute-witness -a ${deltasWithEnergyBefore} ${deltasNoEnergyBefore} ${deltasWithEnergyAfter} ${deltasNoEnergyAfter} > /dev/null`)

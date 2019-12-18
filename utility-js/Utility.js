@@ -10,6 +10,8 @@ const NONRENEWABLE_ENERGY = "nonRenewableEnergy";
  */
 class Utility {
   constructor() {
+    this[RENEWABLE_ENERGY] = 0;
+    this[NONRENEWABLE_ENERGY] = 0;
     this.households = {
       // placeholder address
       [ZERO_ADDRESS]: {
@@ -104,6 +106,12 @@ class Utility {
   settle() {
     delete this.households[ZERO_ADDRESS];
     let households = this._getProducersConsumers()
+    //update network wide stats for netting
+    if(households.isMoreAvailableThanDemanded){
+      this._updateNetworkStats(households.eTo, 0);
+    } else {
+      this._updateNetworkStats(Math.abs(households.eTo) - households.eFrom, households.eFrom);
+    }
     this._proportionalDistribution(
       households.hFrom,
       households.eFrom,
@@ -236,6 +244,16 @@ class Utility {
   }
 
   /**
+  * Updates global's for each nettig
+  * @param {string} renewableEnergy amount of renewable energy produced in this neting interval
+  * @param {string} nonRenewableEnergy amount of non renewable energy that has been bought from grid
+  */
+  _updateNetworkStats(renewableEnergy, nonRenewableEnergy){
+    this[RENEWABLE_ENERGY] += renewableEnergy;
+    this[NONRENEWABLE_ENERGY] += nonRenewableEnergy;
+  }
+
+  /**
    * Adds a new deed.
    * @param {string} from Address of an existing household from where the energy is transferred
    * @param {string} to Address of an existing household to which the energy is transferred
@@ -248,15 +266,15 @@ class Utility {
 
     if(mode){
       this.deeds.push({
-        from: to,
-        to: from,
+        from: from,
+        to: to,
         amount: Math.abs(amount),
         date: Date.now()
       });
     } else {
       this.deeds.push({
-        from: from,
-        to: to,
+        from: to,
+        to: from,
         amount: Math.abs(amount),
         date: Date.now()
       });

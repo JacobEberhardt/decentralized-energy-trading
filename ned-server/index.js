@@ -71,7 +71,7 @@ async function init() {
   );
 
   async function runZokrates() {
-    let utilityBeforeNetting = { ...utility };
+    let utilityBeforeNetting = JSON.parse(JSON.stringify(utility));
     Object.setPrototypeOf(utilityBeforeNetting, Utility.prototype);
     utilityAfterNetting = { ...utility };
     Object.setPrototypeOf(utilityAfterNetting, Utility.prototype);
@@ -103,7 +103,7 @@ async function init() {
           data.proof.c, 
           data.inputs
         )
-        .send({ from: config.address }, (error, txHash) => {
+        .send({ from: config.address, gas: 60000000 }, (error, txHash) => {
           if (error) {
             console.error(error.message);
             throw error;
@@ -143,7 +143,7 @@ app.put("/energy/:householdAddress", async (req, res) => {
       req.params.householdAddress
     );
     const { signature, hash, timestamp, meterDelta } = req.body;
-
+    
     if (typeof meterDelta !== "number") {
       throw new Error("Invalid payload");
     }
@@ -182,46 +182,6 @@ app.put("/energy/:householdAddress", async (req, res) => {
   }
 });
 
-app.put("/benchmark-energy", async (req, res) => {
-  try {
-    const {
-      meterDeltas = [],
-      addresses = [],
-      timestamp = Date.now()
-    } = req.body;
-
-    if (meterDeltas.length !== addresses.length) {
-      throw new Error("Meter deltas and addresses have to be the same length");
-    }
-
-    console.log("\nIncoming meter deltas:");
-    console.log(meterDeltas);
-    console.log("\nIncoming household addresses:");
-    console.log(addresses);
-
-    addresses.forEach(address => {
-      utility.addHousehold(address);
-    });
-
-    meterDeltas.forEach((meterDelta, i) => {
-      utility.updateMeterDelta(addresses[i], meterDelta, timestamp);
-    });
-
-    console.log(
-      `\nOff-chain utility updated for benchmark of ${addresses.length} households`
-    );
-
-    // TODO: Invoke runZokrates?
-
-    res.status(200);
-    res.send();
-  } catch (error) {
-    console.error("PUT /benchmark-energy", error.message);
-    res.status(500);
-    res.send(error);
-  }
-});
-
 /**
  * GET endpoint returning the current energy balance of renewableEnergy from Utility.js
  */
@@ -240,24 +200,6 @@ app.get("/network", (req, res) => {
 });
 
 /**
- * GET endpoint returning the current energy balance of the requested Household form Utility.js
- */
-app.get("/household/:householdAddress", (req, res) => {
-  try {
-    const householdAddress = web3Utils.toChecksumAddress(
-      req.params.householdAddress
-    );
-    const energyBalance = utility.getHousehold(householdAddress);
-    res.status(200);
-    res.json(energyBalance);
-  } catch (err) {
-    console.error("GET /household/:householdAddress", err.message);
-    res.status(400);
-    res.send(err);
-  }
-});
-
-/**
  * GET endpoint returning the deeds of a specific Household and a given day from Utility.js
  * Access this like: http://127.0.0.1:3005/deeds/123456789?from=1122465557 (= Date.now())
  */
@@ -267,6 +209,7 @@ app.get("/deeds/:householdAddress", (req, res) => {
     const householdAddress = web3Utils.toChecksumAddress(
       req.params.householdAddress
     );
+    console.log(utility.get)
     const deeds = utility.getDeeds(householdAddress, from);
     res.status(200);
     res.json(deeds || []);
