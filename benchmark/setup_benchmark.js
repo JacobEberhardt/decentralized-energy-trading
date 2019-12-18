@@ -3,6 +3,7 @@ const commander = require("commander");
 var fs = require("fs");
 const web3Helper = require("../helpers/web3");
 const zokratesHelper = require("../helpers/zokrates");
+const conversionHelper = require("../helpers/conversion")
 const web3 = web3Helper.initWeb3("benchmark");
 const web3Utils = require("web3-utils");
 const serverConfig = require("../household-server-config");
@@ -102,12 +103,12 @@ function genData() {
     let cDeltas = new Array(nE);
     for (let i = 0; i < wE; i++) {
         p = getRandomNumberFromRange(0, 13) / 2.3;
-        pDeltas[i] = kWhToWs(Number(((p) / 100).toFixed(4)));
+        pDeltas[i] = conversionHelper.kWhToWs(Number(((p) / 100).toFixed(4)));
     }
 
     for (let i = 0; i < nE; i++) {
         c = getRandomNumberFromRange(1, 16) / 2.3;
-        cDeltas[i] = kWhToWs(Number(((-Math.abs(c)) / 100).toFixed(4)));
+        cDeltas[i] = conversionHelper.kWhToWs(Number(((-Math.abs(c)) / 100).toFixed(4)));
     }
     hhD = pDeltas.concat(cDeltas);
     return hhD;
@@ -131,12 +132,6 @@ function convertHHDeltas(hhDeltas) {
     }
     return hashedHHD;
 } 
-
-function kWhToWs(kWh) {
-    const kWhToWs = 3600000;
-    let ws = kWh * kWhToWs;
-    return (Math.round(ws)).toString();
-}
 
 //parses verifier and dUtilituBenchmark address from local file
 function getContractAddresses(){

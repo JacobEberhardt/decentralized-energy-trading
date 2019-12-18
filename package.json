@@ -12,7 +12,7 @@
     "run-server": "node ./household-server/index.js",
     "run-sensor": "node ./mock-sensor/index.js",
     "run-ned": "node ./ned-server/index.js",
-    "run-bench-ned": "node ./ned-server/benchmarkNed.js",
+    "run-benchmark-ned": "node ./ned-server/benchmarkNed.js",
     "lint-all": "eslint *.js household-server/ mock-sensor/ test/ helpers/ household-ui/src utility-js/ scripts/ migrations/ && yarn lint-contracts",
     "lint-contracts": "solium -d contracts/",
     "format-all": "eslint *.js household-server/ mock-sensor/ test/ helpers/ household-ui/src utility-js/ scripts/ migrations/ --fix && yarn format-contracts",
