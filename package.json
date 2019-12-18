@@ -19,7 +19,7 @@
     "format-contracts": "solium -d contracts/ --fix",
     "run-ganache": "ganache-cli --account='0xdcb15ba5d2caf586c22f0414f527201d2fb2424c92ced3efacd742a34e5b0db2,100000000000000000000' -i 1234 -l 0x1fffffffffffff",
     "migrate-contracts-ganache": "truffle migrate --reset hard --network ganache",
-    "migrate-contracts-authority": "truffle migrate --reset hard --network authority",
+    "migrate-contracts-authority": "truffle migrate --reset hard --network authority --f 2",
     "migrate-contracts-docker": "truffle migrate --reset hard --network authority_docker",
     "migrate-contracts:benchmark": "truffle migrate --reset hard --network benchmark",
     "test-parity-docker": "./scripts/run_docker_parity_tests.sh",

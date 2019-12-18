@@ -113,6 +113,7 @@ module.exports = async (deployer, network, [authority]) => {
       });
       process.stdout.write(chalk.green("done\n"));
       await finalizeChange(ownedSetInstanceInAuthority, web3);
+      await web3.eth.personal.unlockAccount(address, password, null);
       break;
     }
     case "authority_docker": {
@@ -140,7 +141,6 @@ module.exports = async (deployer, network, [authority]) => {
         .then(inst => {
           return inst.address;
         });
-      console.log(verifierAddress)
       await web3.eth.personal.unlockAccount(address, password, null);
       fs.writeFile('tmp/addresses.txt', JSON.stringify({contract: contractAddress, verifier: verifierAddress}),
         function (err) {
