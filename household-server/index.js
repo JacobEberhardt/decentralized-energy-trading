@@ -73,7 +73,7 @@ async function init() {
         console.error(error.message);
         throw error;
       }
-      console.log("NettingSuccess event", event);
+      console.log("Netting Successful!");
       latestBlockNumber = event.blockNumber;
       nettingActive = false;
       transferHandler.collectTransfers(config);

@@ -64,7 +64,7 @@ async function init() {
         console.error(error.msg);
         throw error;
       }
-      console.log("NettingSuccess Event: ", event);
+      console.log("Netting Successful!");
       latestBlockNumber = event.blockNumber;
       utility = utilityAfterNetting;
     }
@@ -76,6 +76,8 @@ async function init() {
     utilityAfterNetting = { ...utility };
     Object.setPrototypeOf(utilityAfterNetting, Utility.prototype);
     utilityAfterNetting.settle();
+    console.log("Utility before Netting: ", utilityBeforeNetting)
+    console.log("Utility after Netting: ", utilityAfterNetting)
     const hhWithEnergy = serverConfig.hhProduce;
     const hhNoEnergy = serverConfig.hhConsume
     let hhAddresses = zkHandler.generateProof(
