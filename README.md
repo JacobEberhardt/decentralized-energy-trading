@@ -1,6 +1,4 @@
-# decentralized-energy-trading
-
-Repository of ISE CP Project Summer 2019.
+# Privacy-Preserving Netting in Local Energy Grids
 
 ## Requirements
 
