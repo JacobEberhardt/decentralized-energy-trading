@@ -57,30 +57,6 @@ module.exports = {
     
     console.log("zoKrates Witness Computation Execution Time in ms: ", cW_time);
 
-    const hashArr = witnessShellStr.stdout
-      .split("\n")
-      .filter(str => str)
-      .reverse()
-
-    const hashOutHex = hashArr.reduce((hashes, hashPart, i) => {
-      if (i % 2 !== 0) {
-        return hashes;
-      }
-      const hashOut0 = hashArr[i].split(" ")[1];
-      const hashOut1 = hashArr[i + 1].split(" ")[1];
-      const hashOut0Padded = web3Utils.padLeft(
-        web3Utils.toBN(hashOut0).toString("hex"),
-        32
-      );
-      const hashOut1Padded = web3Utils.padLeft(
-        web3Utils.toBN(hashOut1).toString("hex"),
-        32
-      );
-      const hashHex = `0x${hashOut0Padded}${hashOut1Padded}`;
-      hashes.push(hashHex);
-      return hashes;
-    }, []);
-
     process.stdout.write("Generating proof...");
 
     gP_t0 = performance.now();
@@ -104,9 +80,6 @@ module.exports = {
       if (err) throw err;
     });
 
-    return hhAddresses.reduce((addressToHashMap, address, i) => {
-      addressToHashMap[address] = hashOutHex[i];
-      return addressToHashMap;
-    }, {});
+    return hhAddresses;
   }
 };

@@ -78,17 +78,16 @@ async function init() {
     utilityAfterNetting.settle();
     const hhWithEnergy = serverConfig.hhProduce;
     const hhNoEnergy = serverConfig.hhConsume
-    let hhAddressToHash = zkHandler.generateProof(
+    let hhAddresses = zkHandler.generateProof(
       utilityBeforeNetting,
       utilityAfterNetting,
       hhWithEnergy,
       hhNoEnergy
     );
-    delete hhAddressToHash[ZERO_ADDRESS];
 
     let rawdata = fs.readFileSync('../zokrates-code/proof.json');
     let data = JSON.parse(rawdata);
-    if (Object.keys(hhAddressToHash).length > 0) {
+    if (hhAddresses.length > 0) {
       await web3.eth.personal.unlockAccount(
         config.address,
         config.password,
@@ -96,7 +95,7 @@ async function init() {
       );
       utilityContract.methods
         .checkNetting(
-          Object.keys(hhAddressToHash),
+          hhAddresses,
           data.proof.a, 
           data.proof.b, 
           data.proof.c, 
