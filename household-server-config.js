@@ -11,7 +11,7 @@ module.exports = {
   dbName: "decentralized_energy",
   // Name of the Collection where the sensor data is saved
   sensorDataCollection: "sensor_data",
-  // Name of the Collection where the deeds from the utility contract is saved
+  // Name of the Collection where the transfers from the utility contract is saved
   utilityDataCollection: "utility_data",
   // Name of the Collection where the meterReading for the household is saved
   meterReadingCollection: "meter_reading",

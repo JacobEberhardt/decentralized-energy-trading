@@ -5,14 +5,14 @@ const request = require("request-promise");
  */
 module.exports = {
   /**
-   * Fetches deeds from off-chain utility of NED server.
+   * Fetches transfers from off-chain utility of NED server.
    * @param {string} nedUrl Base URL of NED server.
    * @param {string} householdAddress Address of requesting household.
    * @param {number} fromDate Optional from query.
    */
-  getDeeds: (nedUrl, householdAddress, fromDate = 0) => {
+  getTransfers: (nedUrl, householdAddress, fromDate = 0) => {
     return request({
-      uri: `${nedUrl}/deeds/${householdAddress}?from=${fromDate}`,
+      uri: `${nedUrl}/transfers/${householdAddress}?from=${fromDate}`,
       json: true
     });
   },

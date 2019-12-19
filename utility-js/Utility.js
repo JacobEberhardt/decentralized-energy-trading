@@ -19,7 +19,7 @@ class Utility {
         lastUpdate: Date.now()
       }
     };
-    this.deeds = [];
+    this.transfers = [];
   }
 
   /**
@@ -39,16 +39,16 @@ class Utility {
   }
 
   /**
-   * Retrieves all deeds from a given household and date.
-   * @param {string} hhAddress Household address to return its deeds
-   * @param {Date} fromDate Date in the format of Date.now() of the first deed to retrieve
-   * @returns {Object} returns an object of deeds
+   * Retrieves all transfers from a given household and date.
+   * @param {string} hhAddress Household address to return its transfers
+   * @param {Date} fromDate Date in the format of Date.now() of the first transfer to retrieve
+   * @returns {Object} returns an object of transfers
    */
-  getDeeds(hhAddress, fromDate = 0) {
+  getTransfers(hhAddress, fromDate = 0) {
     return this._householdExists(hhAddress)
-      ? this.deeds
-          .filter(deed => deed.date >= fromDate)
-          .filter(deed => deed.from === hhAddress || deed.to === hhAddress)
+      ? this.transfers
+          .filter(transfer => transfer.date >= fromDate)
+          .filter(transfer => transfer.from === hhAddress || transfer.to === hhAddress)
       : [];
   }
 
@@ -110,7 +110,7 @@ class Utility {
     if(households.isMoreAvailableThanDemanded){
       this._updateNetworkStats(households.eTo, 0);
     } else {
-      this._updateNetworkStats(households.eFrom, Math.abs(households.eFrom + households.eTo);
+      this._updateNetworkStats(households.eFrom, Math.abs(households.eFrom + households.eTo));
     }
     this._proportionalDistribution(
       households.hFrom,
@@ -155,7 +155,7 @@ class Utility {
     let isMoreAvailableThanDemanded = deltaProducers > Math.abs(deltaConsumers);
 
     if (isMoreAvailableThanDemanded) {
-      return { "hFrom": noEnergy, "eFrom": deltaConsumers, "hTo": withEnergy, "eTo": deltaProducers, "isMoreAvailableThanDemanded": isMoreAvailableThanDemanded }
+      return { "hFrom": noEnergy, "eFrom": deltaConsumers, "hTo": withEnergy, "eTo": deltaProducers, "isMoreAvailableThanDemanded": isMoreAvailableThanDemanded };
     } else {
       return { "hFrom": withEnergy, "eFrom": deltaProducers, "hTo": noEnergy, "eTo": deltaConsumers, "isMoreAvailableThanDemanded": isMoreAvailableThanDemanded }
     }
@@ -166,7 +166,7 @@ class Utility {
    * @returns {Array.<string>} Array of addresses of households with positive renewable energy balance
    */
   getHouseholdAddressesWithEnergy() {
-    delete this.households[ZERO_ADDRESS]
+    delete this.households[ZERO_ADDRESS];
     const entries = Object.entries(this.households);
     return entries.filter(hh => hh[1].meterDelta >= 0).map(hh => hh[0]);
   }
@@ -196,13 +196,13 @@ class Utility {
         if (eAlloc != 0) {
           if (Math.abs(eAlloc) <= Math.abs(this.households[hFrom[j]].meterDelta)) {
             this._transfer(hFrom[j], hTo[i], eAlloc)
-            this._addDeed(hFrom[j], hTo[i], eAlloc, isMoreAvailableThanDemanded)
+            this._addTransfer(hFrom[j], hTo[i], eAlloc, isMoreAvailableThanDemanded)
             eAlloc = 0;
           } else {
             let toTransfer = this.households[hFrom[j]].meterDelta
             if(toTransfer != 0){
               this._transfer(hFrom[j], hTo[i], toTransfer, isMoreAvailableThanDemanded)
-              this._addDeed(hFrom[j], hTo[i], toTransfer, isMoreAvailableThanDemanded)
+              this._addTransfer(hFrom[j], hTo[i], toTransfer, isMoreAvailableThanDemanded)
               eAlloc -= toTransfer;
             }
           }
@@ -241,25 +241,25 @@ class Utility {
   }
 
   /**
-   * Adds a new deed.
+   * Adds a new transfer.
    * @param {string} from Address of an existing household from where the energy is transferred
    * @param {string} to Address of an existing household to which the energy is transferred
    * @param {number} amount Amount of energy to be transferred
    * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY.
    */
-  _addDeed(from, to, amount, mode){
+  _addTransfer(from, to, amount, mode){
     if (!this._householdExists(from) || !this._householdExists(to))
       return false;
 
     if(mode){
-      this.deeds.push({
+      this.transfers.push({
         from: from,
         to: to,
         amount: Math.abs(amount),
         date: Date.now()
       });
     } else {
-      this.deeds.push({
+      this.transfers.push({
         from: to,
         to: from,
         amount: Math.abs(amount),

@@ -199,21 +199,21 @@ app.get("/network", (req, res) => {
 });
 
 /**
- * GET endpoint returning the deeds of a specific Household and a given day from Utility.js
- * Access this like: http://127.0.0.1:3005/deeds/123456789?from=1122465557 (= Date.now())
+ * GET endpoint returning the transfers of a specific Household and a given day from Utility.js
+ * Access this like: http://127.0.0.1:3005/transfers/123456789?from=1122465557 (= Date.now())
  */
-app.get("/deeds/:householdAddress", (req, res) => {
+app.get("/transfers/:householdAddress", (req, res) => {
   try {
     const { from = 0 } = req.query;
     const householdAddress = web3Utils.toChecksumAddress(
       req.params.householdAddress
     );
     console.log(utility.get)
-    const deeds = utility.getDeeds(householdAddress, from);
+    const transfers = utility.getTransfers(householdAddress, from);
     res.status(200);
-    res.json(deeds || []);
+    res.json(transfers || []);
   } catch (err) {
-    console.error("GET /deeds/:householdAddress", err.message);
+    console.error("GET /transfers/:householdAddress", err.message);
     res.status(400);
     res.send(err);
   }

@@ -9,7 +9,7 @@ module.exports = {
   dbName: "decentralized_energy",
   // Name of the Collection where the sensor data is saved
   sensorDataCollection: "sensor_data",
-  // Name of the Collection where the deeds from the utility contract is saved
+  // Name of the Collection where the transfers from the utility contract is saved
   utilityDataCollection: "utility_data",
   // Path to the parity key file json of the authority node that is connected to the household server
   authKeyPath: "parity/authority.json",

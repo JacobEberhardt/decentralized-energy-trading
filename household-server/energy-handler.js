@@ -9,7 +9,7 @@ const ned = require("./apis/ned");
 
 module.exports = {
   /**
-   * Collects deeds from NED sever and writes them into DB.
+   * Collects transfers from NED sever and writes them into DB.
    * @param {{
    *   host: string,
    *   port: number,

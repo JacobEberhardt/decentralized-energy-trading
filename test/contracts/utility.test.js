@@ -496,7 +496,7 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4, hh5, hh6, hh7]) => {
     });
   });
 
-  describe("Deeds", () => {
+  describe("Transfers", () => {
     beforeEach(async () => {
       await this.instance.addHousehold(hh1, {
         from: owner
@@ -525,35 +525,35 @@ contract("Utility", ([owner, hh1, hh2, hh3, hh4, hh5, hh6, hh7]) => {
       });
     });
 
-    it("check deeds in deeds mapping", async () => {
+    it("check transfers in transfers mapping", async () => {
       await this.instance.settle();
       const settleBlockNumber = await time.latestBlock();
-      const deedsArrayLength = await this.instance
-        .deedsLength(settleBlockNumber)
+      const transfersArrayLength = await this.instance
+        .transfersLength(settleBlockNumber)
         .then(result => result.toNumber());
 
-      const deeds = [];
-      for (let i = 0; i < deedsArrayLength; i++) {
-        deeds.push(await this.instance.deeds(settleBlockNumber, i));
+      const transfers = [];
+      for (let i = 0; i < transfersArrayLength; i++) {
+        transfers.push(await this.instance.transfers(settleBlockNumber, i));
       }
 
-      expect(deeds[0].active).to.be.true; // active
-      expect(deeds[0].from === hh1); // from
-      expect(deeds[0].to === hh3); // to
-      expect(deeds[0].renewableEnergyTransferred).to.be.bignumber.equal("100"); // renewableEnergyTransferred
-      expect(deeds[0].nonRenewableEnergyTransferred).to.be.undefined; // nonRenewableEnergyTransferred
+      expect(transfers[0].active).to.be.true; // active
+      expect(transfers[0].from === hh1); // from
+      expect(transfers[0].to === hh3); // to
+      expect(transfers[0].renewableEnergyTransferred).to.be.bignumber.equal("100"); // renewableEnergyTransferred
+      expect(transfers[0].nonRenewableEnergyTransferred).to.be.undefined; // nonRenewableEnergyTransferred
 
-      expect(deeds[1].active).to.be.true; // active
-      expect(deeds[1].from === hh1); // from
-      expect(deeds[1].to === hh4); // to
-      expect(deeds[1].renewableEnergyTransferred).to.be.bignumber.equal("32"); // renewableEnergyTransferred
-      expect(deeds[1].nonRenewableEnergyTransferred).to.be.undefined; // nonRenewableEnergyTransferred
+      expect(transfers[1].active).to.be.true; // active
+      expect(transfers[1].from === hh1); // from
+      expect(transfers[1].to === hh4); // to
+      expect(transfers[1].renewableEnergyTransferred).to.be.bignumber.equal("32"); // renewableEnergyTransferred
+      expect(transfers[1].nonRenewableEnergyTransferred).to.be.undefined; // nonRenewableEnergyTransferred
 
-      expect(deeds[2].active).to.be.true; // active
-      expect(deeds[2].from === hh2); // from
-      expect(deeds[2].to === hh4); // to
-      expect(deeds[2].renewableEnergyTransferred).to.be.bignumber.equal("66"); // renewableEnergyTransferred
-      expect(deeds[2].nonRenewableEnergyTransferred).to.be.undefined; // nonRenewableEnergyTransferred
+      expect(transfers[2].active).to.be.true; // active
+      expect(transfers[2].from === hh2); // from
+      expect(transfers[2].to === hh4); // to
+      expect(transfers[2].renewableEnergyTransferred).to.be.bignumber.equal("66"); // renewableEnergyTransferred
+      expect(transfers[2].nonRenewableEnergyTransferred).to.be.undefined; // nonRenewableEnergyTransferred
     });
   });
 

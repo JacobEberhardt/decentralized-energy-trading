@@ -38,7 +38,7 @@ contract dUtility is Mortal, IdUtility {
     _;
   }
 
-  uint256[] public deeds;
+  uint256[] public transfers;
 
   IVerifier private verifier;
 
@@ -130,7 +130,7 @@ contract dUtility is Mortal, IdUtility {
     success = verifier.verifyTx(_a, _b, _c, _input);
     if (success) {
       uint256 record = block.number;
-      deeds.push(record);
+      transfers.push(record);
     }
   }
 
@@ -181,8 +181,8 @@ contract dUtility is Mortal, IdUtility {
   /**
    * @return uint256 length of all successfully verified settlements
    */
-  function getDeedsLength() external view returns (uint256) {
-    return deeds.length;
+  function getTransfersLength() external view returns (uint256) {
+    return transfers.length;
   }
 
   /**

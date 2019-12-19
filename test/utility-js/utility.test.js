@@ -232,7 +232,7 @@ describe("Utility", () => {
     });
   });
 
-  context("Deeds", () => {
+  context("Transfers", () => {
     beforeEach(
       "with 4 households, totalRenewableEnergy = 0, availableRenewableEnergy = 200, neededRenewableEnergy = -200",
       () => {
@@ -255,34 +255,34 @@ describe("Utility", () => {
       }
     );
 
-    describe("deeds", () => {
+    describe("transfers", () => {
       it("are created correctly", () => {
-        instance.deeds = [];
-        instance._addDeed(hhAddress1, hhAddress2, 101, RENEWABLE_ENERGY);
-        const latestIndex = instance.deeds.length - 1;
-        expect(instance.deeds[latestIndex].from).to.equal(hhAddress1);
-        expect(instance.deeds[latestIndex].to).to.equal(hhAddress2);
-        expect(instance.deeds[latestIndex].amount).to.equal(101);
-        expect(instance.deeds[latestIndex].type).to.equal(RENEWABLE_ENERGY);
+        instance.transfers = [];
+        instance._addTransfer(hhAddress1, hhAddress2, 101, RENEWABLE_ENERGY);
+        const latestIndex = instance.transfers.length - 1;
+        expect(instance.transfers[latestIndex].from).to.equal(hhAddress1);
+        expect(instance.transfers[latestIndex].to).to.equal(hhAddress2);
+        expect(instance.transfers[latestIndex].amount).to.equal(101);
+        expect(instance.transfers[latestIndex].type).to.equal(RENEWABLE_ENERGY);
       });
 
       it("within settlement are created correctly", () => {
-        const preLatestIndex = instance.deeds.length - 2;
-        expect(instance.deeds[preLatestIndex].from).to.equal(hhAddress1);
-        expect(instance.deeds[preLatestIndex].to).to.equal(hhAddress3);
-        expect(instance.deeds[preLatestIndex].amount).to.equal(100);
-        expect(instance.deeds[preLatestIndex].type).to.equal(RENEWABLE_ENERGY);
+        const preLatestIndex = instance.transfers.length - 2;
+        expect(instance.transfers[preLatestIndex].from).to.equal(hhAddress1);
+        expect(instance.transfers[preLatestIndex].to).to.equal(hhAddress3);
+        expect(instance.transfers[preLatestIndex].amount).to.equal(100);
+        expect(instance.transfers[preLatestIndex].type).to.equal(RENEWABLE_ENERGY);
       });
     });
 
-    describe("getDeeds", () => {
-      it("should return all created deeds", () => {
-        const deeds = instance.getDeeds(hhAddress1);
-        expect(deeds.length).to.equal(1);
-        expect(deeds[0].from).to.equal(hhAddress1);
-        expect(deeds[0].to).to.equal(hhAddress3);
-        expect(deeds[0].amount).to.equal(100);
-        expect(deeds[0].type).to.equal(RENEWABLE_ENERGY);
+    describe("getTransfers", () => {
+      it("should return all created transfers", () => {
+        const transfers = instance.getTransfers(hhAddress1);
+        expect(transfers.length).to.equal(1);
+        expect(transfers[0].from).to.equal(hhAddress1);
+        expect(transfers[0].to).to.equal(hhAddress3);
+        expect(transfers[0].amount).to.equal(100);
+        expect(transfers[0].type).to.equal(RENEWABLE_ENERGY);
       });
     });
   });

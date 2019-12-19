@@ -46,7 +46,7 @@ contract IdUtility {
     uint256[2] calldata _c,
     uint256[8] calldata _input) external returns (bool);
 
-  function getDeedsLength() external view returns (uint256);
+  function getTransfersLength() external view returns (uint256);
 
   /* dUtility household balance change tracking methods */
   function updateRenewableEnergy(address _household, bytes32 deltaEnergy) external returns (bool);

@@ -3,7 +3,7 @@ const cors = require("cors");
 const commander = require("commander");
 const db = require("./apis/db");
 const ned = require("./apis/ned");
-const deedHandler = require("./deed-handler");
+const transferHandler = require("./transfer-handler");
 const energyHandler = require("./energy-handler");
 
 const web3Helper = require("../helpers/web3");
@@ -76,7 +76,7 @@ async function init() {
       console.log("NettingSuccess event", event);
       latestBlockNumber = event.blockNumber;
       nettingActive = false;
-      deedHandler.collectDeeds(config);
+      transferHandler.collectTransfers(config);
     }
   );
 }
@@ -121,9 +121,9 @@ app.get("/sensor-stats", async (req, res) => {
 });
 
 /**
- * GET /deeds?from=<fromDate>&to=<toDate>
+ * GET /transfers?from=<fromDate>&to=<toDate>
  */
-app.get("/deeds", async (req, res) => {
+app.get("/transfers", async (req, res) => {
   try {
     const { from, to } = req.query;
     const fromQuery = from ? { timestamp: { $gte: parseInt(from) } } : {};
@@ -141,7 +141,7 @@ app.get("/deeds", async (req, res) => {
     res.status(200);
     res.json(data);
   } catch (error) {
-    console.error("GET /deeds", error.message);
+    console.error("GET /transfers", error.message);
     res.status(500);
     res.end(error);
   }

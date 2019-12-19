@@ -4,7 +4,7 @@ import { grommet } from "grommet/themes";
 import TopNav from "./components/TopNav";
 import SensorStats from "./components/SensorStats";
 import NetworkStats from "./components/NetworkStats";
-import DeedsTicker from "./components/DeedsTicker";
+import TransfersTicker from "./components/TransfersTicker";
 import Savings from "./components/Savings";
 import { fetchFromEndpoint } from "./helpers/fetch";
 import { wsToKWh } from "./helpers/conversion";
@@ -14,7 +14,7 @@ function App() {
   const [networkStats, setNetworkStats] = useState({});
   const [meterChange, setMeterChange] = useState({});
   const [sensorData, setSensorData] = useState([]);
-  const [deeds, setDeeds] = useState([]);
+  const [transfers, setTransfers] = useState([]);
 
   useEffect(() => {
     const fetchSensorData = async () => {
@@ -23,10 +23,10 @@ function App() {
       return fetchFromEndpoint(`/sensor-stats?from=${date.getTime()}`);
     };
 
-    const fetchDeeds = async () => {
+    const fetchTransfers = async () => {
       const date = new Date();
       date.setDate(date.getDate() - 5);
-      return fetchFromEndpoint(`/deeds?from=${date.getTime()}`);
+      return fetchFromEndpoint(`/transfers?from=${date.getTime()}`);
     };
 
     const fetchData = async () => {
@@ -34,7 +34,7 @@ function App() {
         fetchFromEndpoint(`/household-stats`),
         fetchFromEndpoint(`/network-stats`),
         fetchSensorData(),
-        fetchDeeds()
+        fetchTransfers()
       ])
       .then(data => {
         //convert data from Ws to KWs
@@ -57,7 +57,7 @@ function App() {
       setHouseholdStats(fetchedData[0]);
       setNetworkStats(fetchedData[1]);
       setSensorData(fetchedData[2]);
-      setDeeds(fetchedData[3]);
+      setTransfers(fetchedData[3]);
       setMeterChange(fetchedData[4])
     };
 
@@ -82,8 +82,8 @@ function App() {
           meterChange={meterChange}
           networkEnergyBalance={networkStats.renewableEnergy - networkStats.nonRenewableEnergy}
         />
-        <DeedsTicker deeds={deeds} />
-        <Savings address={householdStats.address} deeds={deeds} />
+        <TransfersTicker transfers={transfers} />
+        <Savings address={householdStats.address} transfers={transfers} />
       </Box>
     </Grommet>
   );
