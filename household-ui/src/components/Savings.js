@@ -43,7 +43,7 @@ const Savings = React.memo(({ address, transfers }) => {
   ];
 
   return (
-    <DashboardBox title={"EEG Savings"}>
+    <DashboardBox title={"Energy Savings"}>
       <Box direction={"row"}>
         <Box pad={{ horizontal: "xlarge", top: "medium" }}>
           <XYPlot
