@@ -82,7 +82,8 @@ async function init() {
       utilityBeforeNetting,
       utilityAfterNetting,
       hhWithEnergy,
-      hhNoEnergy
+      hhNoEnergy,
+      "real_mode"
     );
 
     let rawdata = fs.readFileSync('../zokrates-code/proof.json');
