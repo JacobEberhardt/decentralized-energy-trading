@@ -207,7 +207,6 @@ app.get("/transfers/:householdAddress", (req, res) => {
     const householdAddress = web3Utils.toChecksumAddress(
       req.params.householdAddress
     );
-    console.log(utility.get)
     const transfers = utility.getTransfers(householdAddress, from);
     res.status(200);
     res.json(transfers || []);
