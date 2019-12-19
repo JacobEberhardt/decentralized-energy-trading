@@ -15,7 +15,7 @@ describe("helpers/conversion", () => {
   });
   describe("#wsToKWh", () => {
     it("should convert 3600000 Ws to 1 kWh", () => {
-      assert.strictEqual(conversionHelper.wsToKWh(3600000), 1);
+      assert.strictEqual(conversionHelper.wsToKWh(3600000), "1.0000");
     });
   });
 });

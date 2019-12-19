@@ -20,12 +20,12 @@ const convertToEur = cents => {
   return (cents / 100).toFixed(2);
 };
 
-const Savings = React.memo(({ address, deeds }) => {
-  const totalReceivedEnergy = deeds
+const Savings = React.memo(({ address, transfers }) => {
+  const totalReceivedEnergy = transfers
     .filter(
-      deed => deed.to.toLowerCase().trim() === address.toLowerCase().trim()
+      transfer => transfer.to.toLowerCase().trim() === address.toLowerCase().trim()
     )
-    .reduce((acc, deed) => (acc += deed.amount), 0);
+    .reduce((acc, transfer) => (acc += Number(transfer.amount)), 0);
   const costsWithUmlage = ENERGY_COSTS * totalReceivedEnergy;
   const costsWithoutUmlage = (ENERGY_COSTS - EEG_UMLAGE) * totalReceivedEnergy;
   const savings = EEG_UMLAGE * totalReceivedEnergy;
@@ -43,7 +43,7 @@ const Savings = React.memo(({ address, deeds }) => {
   ];
 
   return (
-    <DashboardBox title={"EEG Saving"}>
+    <DashboardBox title={"EEG Savings"}>
       <Box direction={"row"}>
         <Box pad={{ horizontal: "xlarge", top: "medium" }}>
           <XYPlot
@@ -110,7 +110,7 @@ const Savings = React.memo(({ address, deeds }) => {
 
 Savings.propTypes = {
   address: PropTypes.string,
-  deeds: PropTypes.arrayOf(PropTypes.object)
+  transfers: PropTypes.arrayOf(PropTypes.object)
 };
 
 export default Savings;

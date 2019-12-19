@@ -17,7 +17,7 @@ contract Utility is UtilityBase, IUtility {
   // iterable list of all current households with negative amount of renewable energy
   address[] public householdListNoEnergy;
 
-  struct Deed {
+  struct Transfer {
     bool active;
     address from;
     address to;
@@ -25,8 +25,8 @@ contract Utility is UtilityBase, IUtility {
     int256 nonRenewbaleEnergyTransferred;
   }
 
-  // block.number -> Deed[]
-  mapping(uint256 => Deed[]) public deeds;
+  // block.number -> Transfer[]
+  mapping(uint256 => Transfer[]) public transfers;
 
   /**
    * @dev Overrides addHousehold of UtilityBase.sol
@@ -120,12 +120,12 @@ contract Utility is UtilityBase, IUtility {
   }
 
   /**
-   * @dev Get length of deeds array
+   * @dev Get length of transfers array
    * @param _blockNumber uint256
-   * @return uint256 length of deeds array at _blockNumber
+   * @return uint256 length of transfers array at _blockNumber
    */
-  function deedsLength(uint256 _blockNumber) public view returns (uint256) {
-    return deeds[_blockNumber].length;
+  function transfersLength(uint256 _blockNumber) public view returns (uint256) {
+    return transfers[_blockNumber].length;
   }
 
   /**
@@ -197,15 +197,15 @@ contract Utility is UtilityBase, IUtility {
   }
 
   /**
-   * @dev Adds a new deed.
-   * If _amount is negative, this function will behave like _addDeed(_to, _from, ||_amount||)
+   * @dev Adds a new transfer.
+   * If _amount is negative, this function will behave like _addTransfer(_to, _from, ||_amount||)
    * @param _from address from address
    * @param _to address to adress
    * @param _amount int256 amount of renewable energy.
    * Note that it is intended that _amount might be a negative value.
    * @return success bool
    */
-  function _addDeed(address _from, address _to, int256 _amount) private returns (bool) {
+  function _addTransfer(address _from, address _to, int256 _amount) private returns (bool) {
     address from = _from;
     address to = _to;
     int256 amount = _amount;
@@ -215,20 +215,20 @@ contract Utility is UtilityBase, IUtility {
       amount = SignedMath.abs(amount);
     }
 
-    Deed[] storage deed = deeds[block.number];
-    Deed memory newDeed;
-    newDeed.active = true;
-    newDeed.from = from;
-    newDeed.to = to;
-    newDeed.renewableEnergyTransferred = amount;
-    deed.push(newDeed);
+    Transfer[] storage transfer = transfers[block.number];
+    Transfer memory newTransfer;
+    newTransfer.active = true;
+    newTransfer.from = from;
+    newTransfer.to = to;
+    newTransfer.renewableEnergyTransferred = amount;
+    transfer.push(newTransfer);
 
     return true;
   }
 
   /**
    * @dev Transfer energy from a household address to a household address.
-   * Note that this function also creates a new Deed (see _addDeed()).
+   * Note that this function also creates a new Transfer (see _addTransfer()).
    * @param _from address from address
    * @param _to address to adress
    * @return success bool
@@ -238,7 +238,7 @@ contract Utility is UtilityBase, IUtility {
     Household storage hhTo = households[_to];
     hhFrom.renewableEnergy = hhFrom.renewableEnergy.sub(_amount);
     hhTo.renewableEnergy = hhTo.renewableEnergy.add(_amount);
-    _addDeed(_from, _to, _amount);
+    _addTransfer(_from, _to, _amount);
 
     return true;
   }

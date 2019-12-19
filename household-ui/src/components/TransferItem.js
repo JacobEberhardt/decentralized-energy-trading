@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { Box, Text } from "grommet";
 import { FastForward } from "grommet-icons";
 
-const DeedItem = props => {
+const TransferItem = props => {
   return (
     <Box
       direction={"row"}
@@ -32,11 +32,11 @@ const DeedItem = props => {
   );
 };
 
-DeedItem.propTypes = {
+TransferItem.propTypes = {
   timestamp: PropTypes.number,
   from: PropTypes.string,
   to: PropTypes.string,
   amount: PropTypes.number
 };
 
-export default DeedItem;
+export default TransferItem;

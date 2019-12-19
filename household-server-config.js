@@ -11,8 +11,10 @@ module.exports = {
   dbName: "decentralized_energy",
   // Name of the Collection where the sensor data is saved
   sensorDataCollection: "sensor_data",
-  // Name of the Collection where the deeds from the utility contract is saved
+  // Name of the Collection where the transfers from the utility contract is saved
   utilityDataCollection: "utility_data",
+  // Name of the Collection where the meterReading for the household is saved
+  meterReadingCollection: "meter_reading",
   // Path to the parity key file json of the authority node that is connected to the household server
   address: "0x00bd138abd70e2f00903268f3db08f2d25677c9e",
   // Path to the password file to unlock above authority node
@@ -20,5 +22,5 @@ module.exports = {
   // Name of JSON RPC interface specified in `truffle-config.js`
   network: "authority",
   // Time Interval of the Mock-Sensor sending Data to the Household Server in ms
-  sensorInterval: 10000
+  sensorInterval: 15000
 };

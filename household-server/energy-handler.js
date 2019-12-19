@@ -9,7 +9,7 @@ const ned = require("./apis/ned");
 
 module.exports = {
   /**
-   * Collects deeds from NED sever and writes them into DB.
+   * Collects transfers from NED sever and writes them into DB.
    * @param {{
    *   host: string,
    *   port: number,
@@ -24,20 +24,13 @@ module.exports = {
    * }} config Server configuration.
    * @param {Object} web3 Web3 instance.
    * @param {Object} utilityContract web3 contract instance.
-   * @param {number} meterReading Current meter reading in kWh.
+   * @param {number} meterDelta Current meter change in kWh.
    */
-  putMeterReading: async (config, web3, utilityContract, meterReading) => {
+  putMeterReading: async (config, web3, utilityContract, meterDelta) => {
     const { address, password } = config;
     const timestamp = Date.now();
 
-    const paddedParamsHex = zokratesHelper.padPackParams512(
-      conversionHelper.kWhToWs(Math.abs(meterReading)),
-      timestamp,
-      address
-    );
-
-    const bytesParams = web3Utils.hexToBytes(paddedParamsHex);
-    const hash = `0x${sha256(bytesParams)}`;
+    const hash = zokratesHelper.packAndHash(meterDelta);
 
     await web3.eth.personal.unlockAccount(address, password, null);
     utilityContract.methods
@@ -62,7 +55,7 @@ module.exports = {
       signature,
       hash,
       timestamp,
-      meterReading
+      meterDelta
     });
   }
 };

@@ -30,6 +30,28 @@ module.exports = {
   },
 
   /**
+  *Initializes meterReading collection with data
+  * @param {string} dbUrl URL/URI of the DB
+  * @param {string} dbName Name of db
+  * @param {string} collection the used collection of the inserted data
+  */
+  initializeMeterReading: (dbUrl, dbName, collectionSensor, collectionMeter) => {
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
+        if (err) reject(err);
+        const dbo = db.db(dbName);
+        dbo.collection(collectionSensor).mapReduce(
+            function(){ emit(null, this.produce - this.consume)},
+            function(key, value){ return Array.sum(value) },
+            {
+              out: collectionMeter
+            }
+          )
+      });
+    })
+  },
+
+  /**
    * Method to write data to the database.
    * @param {string} dbUrl URL/URI of the DB
    * @param {string} dbName Name of db
@@ -57,8 +79,33 @@ module.exports = {
             resolve(data);
           }
         );
+        resolve(data)
       });
-    });
+    })
+  },
+
+/**
+ * Method to update meterReading value
+ * @param {string} dbUrl URL/URI of the DB
+ * @param {string} dbName Name of db
+ * @param {string} collection the used collection of the inserted data
+ * @param {Object} data the data to add to the DB
+ */
+  updateMeterReading: (dbUrl, dbName, collection, data) => {
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
+        if (err) reject(err);
+        const dbo = db.db(dbName);
+        dbo.collection(collection).updateOne(
+          { _id: 1 }, { $inc: { value: data.produce - data.consume } }, { upsert: true },
+          err => {
+            if (err) reject(err);
+            db.close();
+            resolve();
+          }
+        );
+      });
+    })
   },
 
   /**
@@ -181,6 +228,37 @@ module.exports = {
             db.close();
             resolve(results[0] ? results[0].timestamp : 0);
           });
+      });
+    });
+  },
+
+  /**
+   * Returns meterReading from household.
+   * @param {string} dbUrl URL/URI of the DB
+   * @param {string} dbName Name of db
+   * @param {string} collection Name of collection to read from
+   * @returns {Promise<number>} Latest saved block number.
+   */
+  getMeterReading: (dbUrl, dbName, collection) => {
+    return new Promise((resolve, reject) => {
+      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
+        if (err) {
+          reject(err);
+        }
+        const dbo = db.db(dbName);
+        dbo
+          .collection(collection)
+          .findOne(
+            {_id: 1}, 
+            (err, results) => {
+              if (err) {
+                reject(err);
+              }
+              db.close();
+              resolve(results ? results : 0)
+            }
+          )
+
       });
     });
   },

@@ -1,5 +1,6 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */
+const sha256 = require("js-sha256");
 const UtilityBase = artifacts.require("dUtility");
 const MockVerifier = artifacts.require("MockContract");
 const {
@@ -123,87 +124,54 @@ contract("dUtility", ([owner, household, household2, other]) => {
 
   describe("Netting verification", () => {
     const NETTING_SUCCESS = "NettingSuccess";
-    context("On a successful verification", async () => {
-      beforeEach(async () => {
-        await verifier.givenAnyReturnBool(true);
-        ({ logs: this.logs } = await this.instance.verifyNetting(
-          [0, 1],
-          [[2, 3], [4, 5]],
-          [6, 7],
-          [8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
-          { from: household }
-        ));
-      });
+    const ENERGY_DELTA_HASH =
+      "0xa5b9d60f32436310afebcfda832817a68921beb782fabf7915cc0460b443116a";
+    const ZOKRATES_OUT_0 = `0x${ENERGY_DELTA_HASH.substr(2, 32)}`;
+    const ZOKRATES_OUT_1 = `0x${ENERGY_DELTA_HASH.substr(34, 32)}`;
+    const ZOKRATES_OUT = new Array(8).fill("0");
+    ZOKRATES_OUT[0] = ZOKRATES_OUT_0;
+    ZOKRATES_OUT[1] = ZOKRATES_OUT_1;
 
-      it(`should emit ${NETTING_SUCCESS} event`, async () => {
-        expectEvent.inLogs(this.logs, NETTING_SUCCESS);
-      });
-    });
-
-    it(`should not emit ${NETTING_SUCCESS} event on failure`, async () => {
-      await verifier.givenAnyReturnBool(false);
-      ({ logs: this.logs } = await this.instance.verifyNetting(
-        [0, 1],
-        [[2, 3], [4, 5]],
-        [6, 7],
-        [8, 9, 10, 11, 12, 13, 14, 15, 16, 17],
-        { from: household }
-      ));
-      expect(this.logs).to.be.empty;
-    });
-  });
-
-  describe("Hash checking", () => {
-    const energyHashes = [
-      "0xa5b9d60f32436310afebcfda832817a68921beb782fabf7915cc0460b443116a",
-      "0xa5b9d60f32436310afebcfda832817a68921beb782fabf7915cc0460b443116b"
-    ];
     beforeEach(async () => {
       await this.instance.addHousehold(household, {
         from: owner
-      }); // Add dummy household
-      await this.instance.addHousehold(household2, {
-        from: owner
-      }); // Add dummy household
-
-      await this.instance.updateRenewableEnergy(household, energyHashes[0], {
+      });
+      await this.instance.updateRenewableEnergy(household, ENERGY_DELTA_HASH, {
         from: household
       });
-
-      await this.instance.updateRenewableEnergy(household2, energyHashes[1], {
-        from: household2
-      });
     });
 
-    const CHECK_SUCCESS = "CheckHashesSuccess";
-    it(`should emit ${CHECK_SUCCESS} event on success`, async () => {
-      ({ logs: this.logs } = await this.instance.checkHashes(
-        [household, household2],
-        energyHashes,
-        { from: owner }
-      ));
-      expectEvent.inLogs(this.logs, CHECK_SUCCESS);
-    });
-
-    it(`should throw when input lengths are not equal`, async () => {
-      await shouldFail.reverting(
-        this.instance.checkHashes([household], energyHashes, {
-          from: other
-        })
+    it(`should revert with "Household energy hash mismatch."`, async () => {
+      await this.instance.updateRenewableEnergy(
+        household,
+        `0x${sha256("wrongDelta")}`,
+        {
+          from: household
+        }
       );
-    });
-
-    it(`should throw on energy hash mismatch`, async () => {
-      const mismatchedEnergyHashes = ["0xdeadbeef", "0x0"];
+      const zokratesOutput = new Array(8).fill(0);
+      zokratesOutput[0] = ZOKRATES_OUT_0;
       await shouldFail.reverting(
-        this.instance.checkHashes(
-          [household, household2],
-          mismatchedEnergyHashes,
-          {
-            from: owner
-          }
+        this.instance.checkNetting(
+          [household],
+          [0, 1],
+          [[2, 3], [4, 5]],
+          [6, 7],
+          ZOKRATES_OUT
         )
       );
+    });
+
+    it(`should emit ${NETTING_SUCCESS} event`, async () => {
+      await verifier.givenAnyReturnBool(true);
+      ({ logs: this.logs } = await this.instance.checkNetting(
+        [household],
+        [0, 1],
+        [[2, 3], [4, 5]],
+        [6, 7],
+        ZOKRATES_OUT
+      ));
+      expectEvent.inLogs(this.logs, NETTING_SUCCESS);
     });
   });
 });

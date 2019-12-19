@@ -1,3 +1,9 @@
+---
+noteId: "c07b18c00f0411ea847bdd3d150e0915"
+tags: []
+
+---
+
 # Benchmarks
 ## Get started
 ### Parity node for running benchmarks

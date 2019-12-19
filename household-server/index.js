@@ -1,10 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const commander = require("commander");
-
 const db = require("./apis/db");
 const ned = require("./apis/ned");
-const deedHandler = require("./deed-handler");
+const transferHandler = require("./transfer-handler");
 const energyHandler = require("./energy-handler");
 
 const web3Helper = require("../helpers/web3");
@@ -37,14 +36,19 @@ const config = {
   password: commander.password || serverConfig.password,
   dbName: serverConfig.dbName,
   sensorDataCollection: serverConfig.sensorDataCollection,
-  utilityDataCollection: serverConfig.utilityDataCollection
+  utilityDataCollection: serverConfig.utilityDataCollection,
+  meterReadingCollection: serverConfig.meterReadingCollection
 };
 
 // Set up the DB
 db.createDB(config.dbUrl, config.dbName, [
   config.sensorDataCollection,
-  config.utilityDataCollection
-]).catch(err => {
+  config.utilityDataCollection,
+  config.meterReadingCollection
+])
+.then(() => {
+  return db.initializeMeterReading(config.dbUrl, config.dbName, config.sensorDataCollection, config.meterReadingCollection)
+}).catch(err => {
   console.log("Error while creating DB", err);
 });
 
@@ -72,7 +76,7 @@ async function init() {
       console.log("NettingSuccess event", event);
       latestBlockNumber = event.blockNumber;
       nettingActive = false;
-      deedHandler.collectDeeds(config);
+      transferHandler.collectTransfers(config);
     }
   );
 }
@@ -117,9 +121,9 @@ app.get("/sensor-stats", async (req, res) => {
 });
 
 /**
- * GET /deeds?from=<fromDate>&to=<toDate>
+ * GET /transfers?from=<fromDate>&to=<toDate>
  */
-app.get("/deeds", async (req, res) => {
+app.get("/transfers", async (req, res) => {
   try {
     const { from, to } = req.query;
     const fromQuery = from ? { timestamp: { $gte: parseInt(from) } } : {};
@@ -137,7 +141,7 @@ app.get("/deeds", async (req, res) => {
     res.status(200);
     res.json(data);
   } catch (error) {
-    console.error("GET /deeds", error.message);
+    console.error("GET /transfers", error.message);
     res.status(500);
     res.end(error);
   }
@@ -148,7 +152,7 @@ app.get("/deeds", async (req, res) => {
  */
 app.get("/household-stats", async (req, res, next) => {
   try {
-    const data = await ned.getHousehold(config.nedUrl, config.address);
+    const data = await db.getMeterReading(config.dbUrl, config.dbName, config.meterReadingCollection);
     data.address = config.address;
     res.setHeader("Content-Type", "application/json");
     res.status(200);
@@ -180,12 +184,10 @@ app.get("/network-stats", async (req, res, next) => {
  * PUT /sensor-stats
  */
 app.put("/sensor-stats", async (req, res) => {
-  const { produce, consume, meterReading } = req.body;
+  const { meterDelta, produce, consume } = req.body;
   try {
     if (
-      typeof produce !== "number" ||
-      typeof consume !== "number" ||
-      typeof meterReading !== "number"
+      typeof meterDelta !== "number"
     ) {
       throw new Error("Invalid payload");
     }
@@ -196,7 +198,7 @@ app.put("/sensor-stats", async (req, res) => {
         config,
         web3,
         utilityContract,
-        meterReading
+        meterDelta
       );
     }
 
@@ -208,7 +210,10 @@ app.put("/sensor-stats", async (req, res) => {
         produce,
         consume
       }
-    );
+    )
+    .then(res => {
+      db.updateMeterReading(config.dbUrl, config.dbName, config.meterReadingCollection, res)
+    })
 
     res.status(200);
     res.send();

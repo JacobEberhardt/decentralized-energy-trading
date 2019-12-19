@@ -14,5 +14,5 @@ contract IUtility is IUtilityBase {
 
   function settle() external returns (bool);
 
-  function deedsLength(uint256 _blockNumber) public view returns (uint256);
+  function transfersLength(uint256 _blockNumber) public view returns (uint256);
 }

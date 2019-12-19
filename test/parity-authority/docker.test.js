@@ -87,6 +87,7 @@ describe("Test Network Properties", () => {
         );
         const pendingValidators = await contract.methods.getPending().call();
         assert.strictEqual(pendingValidators.length, 3);
+        console.log("Terminated...")
       });
     });
   });

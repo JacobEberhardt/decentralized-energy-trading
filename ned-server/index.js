@@ -3,7 +3,7 @@ const cors = require("cors");
 const commander = require("commander");
 const web3Utils = require("web3-utils");
 const shell = require("shelljs");
-
+const fs = require('fs');
 const Utility = require("../utility-js/Utility");
 const hhHandler = require("./household-handler");
 const zkHandler = require("./zk-handler");
@@ -64,70 +64,48 @@ async function init() {
         console.error(error.msg);
         throw error;
       }
-      console.log("NettingSuccess event", event);
+      console.log("NettingSuccess Event: ", event);
       latestBlockNumber = event.blockNumber;
       utility = utilityAfterNetting;
     }
   );
 
-  utilityContract.events.CheckHashesSuccess(
-    {
-      fromBlock: latestBlockNumber
-    },
-    async (error, event) => {
-      if (error) {
-        console.error(error.msg);
-        throw error;
-      }
-      console.log("CheckHashesSuccess event", event);
-      latestBlockNumber = event.blockNumber;
-      const { proof, inputs } = require("../zokrates-code/proof.json");
-      await web3.eth.personal.unlockAccount(
-        config.address,
-        config.password,
-        null
-      );
-      utilityContract.methods
-        .verifyNetting(proof.a, proof.b, proof.c, inputs)
-        .send({ from: config.address }, (error, txHash) => {
-          if (error) {
-            console.error(error);
-            throw error;
-          }
-          console.log("dUtility.verifyNetting txHash", txHash);
-        });
-    }
-  );
-
   async function runZokrates() {
-    const utilityBeforeNetting = { ...utility };
+    let utilityBeforeNetting = JSON.parse(JSON.stringify(utility)); //dirty hack for obtaining deep copy of utility
     Object.setPrototypeOf(utilityBeforeNetting, Utility.prototype);
     utilityAfterNetting = { ...utility };
     Object.setPrototypeOf(utilityAfterNetting, Utility.prototype);
     utilityAfterNetting.settle();
-    const hhAddressToHash = zkHandler.generateProof(
+    const hhWithEnergy = serverConfig.hhProduce;
+    const hhNoEnergy = serverConfig.hhConsume
+    let hhAddresses = zkHandler.generateProof(
       utilityBeforeNetting,
-      utilityAfterNetting
+      utilityAfterNetting,
+      hhWithEnergy,
+      hhNoEnergy
     );
-    delete hhAddressToHash[ZERO_ADDRESS];
-    if (Object.keys(hhAddressToHash).length > 0) {
+
+    let rawdata = fs.readFileSync('../zokrates-code/proof.json');
+    let data = JSON.parse(rawdata);
+    if (hhAddresses.length > 0) {
       await web3.eth.personal.unlockAccount(
         config.address,
         config.password,
         null
       );
-      console.log(`Hashes: ${JSON.stringify(hhAddressToHash)}`);
       utilityContract.methods
-        .checkHashes(
-          Object.keys(hhAddressToHash),
-          Object.values(hhAddressToHash)
+        .checkNetting(
+          hhAddresses,
+          data.proof.a, 
+          data.proof.b, 
+          data.proof.c, 
+          data.inputs
         )
-        .send({ from: config.address }, (error, txHash) => {
+        .send({ from: config.address, gas: 60000000 }, (error, txHash) => {
           if (error) {
             console.error(error.message);
             throw error;
           }
-          console.log("dUtility.checkHashes txHash", txHash);
           console.log(`Sleep for ${config.nettingInterval}ms ...`);
           setTimeout(() => {
             runZokrates();
@@ -162,9 +140,9 @@ app.put("/energy/:householdAddress", async (req, res) => {
     const householdAddress = web3Utils.toChecksumAddress(
       req.params.householdAddress
     );
-    const { signature, hash, timestamp, meterReading } = req.body;
-
-    if (typeof meterReading !== "number") {
+    const { signature, hash, timestamp, meterDelta } = req.body;
+    
+    if (typeof meterDelta !== "number") {
       throw new Error("Invalid payload");
     }
 
@@ -189,9 +167,9 @@ app.put("/energy/:householdAddress", async (req, res) => {
       console.log(`New household ${householdAddress} added`);
     }
     console.log(
-      `Incoming meter reading for ${householdAddress}: ${meterReading}@${timestamp}`
+      `Incoming meter reading for ${householdAddress}: ${meterDelta}@${timestamp}`
     );
-    utility.updateMeterReading(householdAddress, meterReading, timestamp);
+    utility.updateMeterDelta(householdAddress, meterDelta, timestamp);
 
     res.status(200);
     res.send();
@@ -201,6 +179,7 @@ app.put("/energy/:householdAddress", async (req, res) => {
     res.send(err);
   }
 });
+
 /**
  * GET endpoint returning the current energy balance of renewableEnergy from Utility.js
  */
@@ -219,38 +198,20 @@ app.get("/network", (req, res) => {
 });
 
 /**
- * GET endpoint returning the current energy balance of the requested Household form Utility.js
+ * GET endpoint returning the transfers of a specific Household and a given day from Utility.js
+ * Access this like: http://127.0.0.1:3005/transfers/123456789?from=1122465557 (= Date.now())
  */
-app.get("/household/:householdAddress", (req, res) => {
-  try {
-    const householdAddress = web3Utils.toChecksumAddress(
-      req.params.householdAddress
-    );
-    const energyBalance = utility.getHousehold(householdAddress);
-    res.status(200);
-    res.json(energyBalance);
-  } catch (err) {
-    console.error("GET /household/:householdAddress", err.message);
-    res.status(400);
-    res.send(err);
-  }
-});
-
-/**
- * GET endpoint returning the deeds of a specific Household and a given day from Utility.js
- * Access this like: http://127.0.0.1:3005/deeds/123456789?from=1122465557 (= Date.now())
- */
-app.get("/deeds/:householdAddress", (req, res) => {
+app.get("/transfers/:householdAddress", (req, res) => {
   try {
     const { from = 0 } = req.query;
     const householdAddress = web3Utils.toChecksumAddress(
       req.params.householdAddress
     );
-    const deeds = utility.getDeeds(householdAddress, from);
+    const transfers = utility.getTransfers(householdAddress, from);
     res.status(200);
-    res.json(deeds || []);
+    res.json(transfers || []);
   } catch (err) {
-    console.error("GET /deeds/:householdAddress", err.message);
+    console.error("GET /transfers/:householdAddress", err.message);
     res.status(400);
     res.send(err);
   }

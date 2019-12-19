@@ -3,7 +3,7 @@ const ned = require("./apis/ned");
 
 module.exports = {
   /**
-   * Collects deeds from NED sever and writes them into DB.
+   * Collects transfers from NED sever and writes them into DB.
    * @param {{
    *   host: string,
    *   port: number,
@@ -17,23 +17,23 @@ module.exports = {
    *   utilityDataCollection: string
    * }} config Server configuration
    */
-  collectDeeds: async config => {
+  collectTransfers: async config => {
     const latestSavedTimestamp = await db.getLatestTimestamp(
       config.dbUrl,
       config.dbName,
       config.utilityDataCollection
     );
-    const deeds = await ned.getDeeds(
+    const transfers = await ned.getTransfers(
       config.nedUrl,
       config.address,
       latestSavedTimestamp + 1
     );
-    return deeds.length > 0
+    return transfers.length > 0
       ? db.bulkWriteToDB(
           config.dbUrl,
           config.dbName,
           config.utilityDataCollection,
-          deeds
+          transfers
         )
       : [];
   }
