@@ -19,6 +19,7 @@ const DashboardBox = ({ title, children }) => {
           weight={"bold"}
           alignSelf={"center"}
           margin={{ vertical: "small" }}
+          style={{fontSize: 30}}
         >
           {title}
         </Text>

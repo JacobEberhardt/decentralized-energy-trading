@@ -132,10 +132,6 @@ module.exports = {
             if (err) {
               reject(err);
             }
-            console.log(
-              `${data.length} documents inserted to collection ${collection}:`,
-              data
-            );
             db.close();
             resolve(data);
           }

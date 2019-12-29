@@ -64,7 +64,8 @@ async function runZokrates() {
     utilityBeforeNetting,
     utilityAfterNetting,
     hhWithEnergy,
-    hhNoEnergy
+    hhNoEnergy,
+    "benchmark_mode"
   );
   delete hhAddressToHash[ZERO_ADDRESS];
 

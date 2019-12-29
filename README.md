@@ -1,3 +1,9 @@
+---
+noteId: "1e61fc70226911ea85c0fd637b375b0e"
+tags: []
+
+---
+
 # Privacy-Preserving Netting in Local Energy Grids
 
 ## Requirements
@@ -113,3 +119,6 @@ REACT_APP_HSS_PORT=3003 \
 - `yarn update-contract-bytecodes` to update the contracts code in the `chain.json` file
 - `yarn setup-zokrates` to generate a new `Verifier` contract
 - `yarn format-all` fix linting issues
+
+## Smart contract and ZoKrates program generation:
+- `yarn generate-prooving-files [# Prod] [# Cons]` generates required files for given number of producers and consumers

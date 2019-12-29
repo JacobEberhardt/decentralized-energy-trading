@@ -282,13 +282,13 @@ ${packedString} ${returnString.slice(0, -1)}
 
     code = generateCode(wE, nE);
     
-    fs.writeFile('settlement-check.zok', code, 'utf8',(err) => {   
+    fs.writeFile('zokrates-code/settlement-check.zok', code, 'utf8',(err) => {   
       if (err) throw err;
     })
 
     code2 = generateNedServerConfig(wE, nE);
 
-    fs.writeFile('../ned-server-config.js', code2, 'utf8',(err)=> {
+    fs.writeFile('ned-server-config.js', code2, 'utf8',(err)=> {
       if (err) throw err;
     })
 
@@ -636,13 +636,13 @@ contract dUtility is Mortal, IdUtility {
   }
 }`;
 
-      fs.writeFile('../contracts/interfaces/IVerifier.sol', iVerifier, 'utf8',(err)=> {
+      fs.writeFile('contracts/interfaces/IVerifier.sol', iVerifier, 'utf8',(err)=> {
         if (err) throw err;
       })
-      fs.writeFile('../contracts/interfaces/IdUtility.sol', idUtility, 'utf8',(err)=> {
+      fs.writeFile('contracts/interfaces/IdUtility.sol', idUtility, 'utf8',(err)=> {
         if (err) throw err;
       })
-      fs.writeFile('../contracts/dUtility.sol', dUtility, 'utf8',(err)=> {
+      fs.writeFile('contracts/dUtility.sol', dUtility, 'utf8',(err)=> {
         if (err) throw err;
       })
 
@@ -650,7 +650,7 @@ contract dUtility is Mortal, IdUtility {
 
     generateContracts(wE, nE);
 
-    fs.writeFile('../ned-server-config.js', code2, 'utf8',(err)=> {
+    fs.writeFile('ned-server-config.js', code2, 'utf8',(err)=> {
       if (err) throw err;
     })
 

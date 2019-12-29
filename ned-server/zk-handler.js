@@ -19,7 +19,7 @@ let gP_time = 0;
  * This handler manages the communication of the NED Server and the ZoKrates environment
  */
 module.exports = {
-  generateProof: (utilityBeforeNetting, utilityAfterNetting, hhWithEnergy, hhNoEnergy) => {
+  generateProof: (utilityBeforeNetting, utilityAfterNetting, hhWithEnergy, hhNoEnergy, mode) => {
     
     const hhAddressesWithEnergyBefore = utilityBeforeNetting.getHouseholdAddressesWithEnergy()
     const hhAddressesNoEnergyBefore = utilityBeforeNetting.getHouseholdAddressesNoEnergy();
@@ -76,9 +76,11 @@ module.exports = {
 
     console.log("zoKrates Proof Generation Execution Time in ms: ", gP_time);
 
-    fs.appendFile('../tmp/res.csv', `${cW_time},${gP_time}`, 'utf8',(err) => {   
-      if (err) throw err;
-    });
+    if(mode == "benchmark_mode"){
+      fs.appendFile('../tmp/res.csv', `${cW_time},${gP_time}`, 'utf8',(err) => {   
+        if (err) throw err;
+      });
+    }
 
     return hhAddresses;
   }
