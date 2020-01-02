@@ -41,7 +41,7 @@ class Utility {
   /**
    * Retrieves all transfers from a given household and date.
    * @param {string} hhAddress Household address to return its transfers
-   * @param {Date} fromDate Date in the format of Date.now() of the first transfer to retrieve
+   * @param {number} fromDate Date in the format of Date.now() of the first transfer to retrieve
    * @returns {Object} returns an object of transfers
    */
   getTransfers(hhAddress, fromDate = 0) {
@@ -101,38 +101,39 @@ class Utility {
   /**
    * Settlement function for netting.
    * Note, this settle function focuses on renewable energy only.
-   * @returns {boolean} `true`
+   * @returns {{ [x: string]: { meterDelta: number, lastUpdate: number } }} this.households
    */
   settle() {
     delete this.households[ZERO_ADDRESS];
-    let households = this._getProducersConsumers()
-    //update network wide stats for netting
-    if(households.isMoreAvailableThanDemanded){
+    let households = this._getProducersConsumers();
+    // update network wide stats for netting
+    if (households.isMoreAvailableThanDemanded) {
       this._updateNetworkStats(households.eTo, 0);
     } else {
-      this._updateNetworkStats(households.eFrom, Math.abs(households.eFrom + households.eTo));
+      const nonRenewable = Math.abs(households.eFrom + households.eTo);
+      this._updateNetworkStats(households.eFrom, nonRenewable);
     }
     this._proportionalDistribution(
       households.hFrom,
       households.eFrom,
       households.hTo,
-      households.eTo
+      households.eTo,
+      false
     );
 
     // updating data for transfer of remaining deltas
-    households = this._getProducersConsumers()
+    households = this._getProducersConsumers();
     this._transferRest(
       households.hFrom,
       households.hTo,
       households.isMoreAvailableThanDemanded
-    )
+    );
 
     return this.households;
   }
 
   /**
    * Function for returning hh (producers and consumers) and their groups delta
-   * @returns {Object}
    */
   _getProducersConsumers() {
     const entries = Object.entries(this.households);
@@ -181,14 +182,15 @@ class Utility {
   }
 
   /**
-  * Distributes renewable energy by proportionally requesting or responding energy such that
-  * _neededAvailableEnergy equals 0.
-  * @param {number} eTo Total required (always <= eFrom)
-  * @param {number} eFrom Total to be sent
-  * @param {Array.<string>} hFrom Array of addresses {string}from where energy is sent.
-  * @param {Array.<string>} hTo Array of addresses {string} to where energy is sent.
-  * @returns {boolean} `true`
-  */
+   * Distributes renewable energy by proportionally requesting or responding energy such that
+   * _neededAvailableEnergy equals 0.
+   * @param {Array.<string>} hFrom Array of addresses {string}from where energy is sent.
+   * @param {number} eFrom Total to be sent
+   * @param {Array.<string>} hTo Array of addresses {string} to where energy is sent.
+   * @param {number} eTo Total required (always <= eFrom)
+   * @param {boolean} isMoreAvailableThanDemanded
+   * @returns {boolean} `true`
+   */
   _proportionalDistribution(hFrom, eFrom, hTo, eTo, isMoreAvailableThanDemanded){
     for (let i = 0; i < hTo.length; i++) {
       let eAlloc = Math.round(eFrom * (this.households[hTo[i]].meterDelta / eTo));
@@ -212,30 +214,30 @@ class Utility {
     return true;
   }
 
-/**
- * Randomly distributes rest meterDelta so one side is always 0. Will speed up verification time a lot
- * @param {string} hFrom Address of an existing household from where the energy is transferred
- * @param {string} hTo Address of an existing household to which the energy is transferred
- * @param {boolean} isMoreAvailableThanDemanded over or underproduction?
- */
-  _transferRest(hFrom, hTo, isMoreAvailableThanDemanded){
-    let indices = hTo.map(function (x, i) { return i });
+  /**
+   * Randomly distributes rest meterDelta so one side is always 0. Will speed up verification time a lot
+   * @param {[string]} hFrom Address of an existing household from where the energy is transferred
+   * @param {[string]} hTo Address of an existing household to which the energy is transferred
+   * @param {boolean} isMoreAvailableThanDemanded over or underproduction?
+   */
+  _transferRest(hFrom, hTo, isMoreAvailableThanDemanded) {
+    let indices = hTo.map((x, i) => i);
     for (let i = 0; i < hFrom.length; i++) {
       while (this.households[hFrom[i]].meterDelta != 0) {
         let randomIndice = Math.floor(Math.random() * indices.length);
         let toTransfer = isMoreAvailableThanDemanded ? -1 : 1;
-        this._transfer(hFrom[i], hTo[randomIndice], toTransfer)
+        this._transfer(hFrom[i], hTo[randomIndice], toTransfer);
         indices.splice(randomIndice, 1);
       }
     }
   }
 
   /**
-  * Updates global's for each nettig
-  * @param {string} renewableEnergy amount of renewable energy produced in this neting interval
-  * @param {string} nonRenewableEnergy amount of non renewable energy that has been bought from grid
-  */
-  _updateNetworkStats(renewableEnergy, nonRenewableEnergy){
+   * Updates globals for each netting
+   * @param {number} renewableEnergy amount of renewable energy produced in this neting interval
+   * @param {number} nonRenewableEnergy amount of non renewable energy that has been bought from grid
+   */
+  _updateNetworkStats(renewableEnergy, nonRenewableEnergy) {
     this[RENEWABLE_ENERGY] += renewableEnergy;
     this[NONRENEWABLE_ENERGY] += nonRenewableEnergy;
   }
@@ -245,13 +247,14 @@ class Utility {
    * @param {string} from Address of an existing household from where the energy is transferred
    * @param {string} to Address of an existing household to which the energy is transferred
    * @param {number} amount Amount of energy to be transferred
-   * @param {string} energyType Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY.
+   * @param {string} mode Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY.
    */
-  _addTransfer(from, to, amount, mode){
-    if (!this._householdExists(from) || !this._householdExists(to))
+  _addTransfer(from, to, amount, mode) {
+    if (!this._householdExists(from) || !this._householdExists(to)) {
       return false;
+    }
 
-    if(mode){
+    if (mode) {
       this.transfers.push({
         from: from,
         to: to,
@@ -275,9 +278,8 @@ class Utility {
    * @param {number} amount Amount of energy to be transferred
    */
   _transfer(from, to, amount) {
-    if (!this._householdExists(from) || !this._householdExists(to)){
+    if (!this._householdExists(from) || !this._householdExists(to)) {
       return false;
-
     }
     this.households[from].meterDelta -= amount;
     this.households[to].meterDelta += amount;

@@ -3,13 +3,12 @@ const cors = require("cors");
 const commander = require("commander");
 const web3Utils = require("web3-utils");
 const shell = require("shelljs");
-const fs = require('fs');
+const fs = require("fs");
 const Utility = require("../utility-js/Utility");
 const hhHandler = require("./household-handler");
 const zkHandler = require("./zk-handler");
 const web3Helper = require("../helpers/web3");
 const contractHelper = require("../helpers/contract");
-const { ZERO_ADDRESS } = require("../helpers/constants");
 
 const serverConfig = require("../ned-server-config");
 
@@ -34,7 +33,9 @@ const config = {
 };
 
 let web3;
+/** @type Utility */
 let utility;
+/** @type Utility */
 let utilityAfterNetting;
 let ownedSetContract;
 let utilityContract;
@@ -71,7 +72,7 @@ async function init() {
   );
 
   async function runZokrates() {
-    let utilityBeforeNetting = JSON.parse(JSON.stringify(utility)); //dirty hack for obtaining deep copy of utility
+    let utilityBeforeNetting = JSON.parse(JSON.stringify(utility)); // dirty hack for obtaining deep copy of utility
     Object.setPrototypeOf(utilityBeforeNetting, Utility.prototype);
     utilityAfterNetting = { ...utility };
     Object.setPrototypeOf(utilityAfterNetting, Utility.prototype);
@@ -79,7 +80,7 @@ async function init() {
     console.log("Utility before Netting: ", utilityBeforeNetting)
     console.log("Utility after Netting: ", utilityAfterNetting)
     const hhWithEnergy = serverConfig.hhProduce;
-    const hhNoEnergy = serverConfig.hhConsume
+    const hhNoEnergy = serverConfig.hhConsume;
     let hhAddresses = zkHandler.generateProof(
       utilityBeforeNetting,
       utilityAfterNetting,
@@ -88,7 +89,7 @@ async function init() {
       "real_mode"
     );
 
-    let rawdata = fs.readFileSync('../zokrates-code/proof.json');
+    let rawdata = fs.readFileSync("../zokrates-code/proof.json");
     let data = JSON.parse(rawdata);
     if (hhAddresses.length > 0) {
       await web3.eth.personal.unlockAccount(
@@ -99,9 +100,9 @@ async function init() {
       utilityContract.methods
         .checkNetting(
           hhAddresses,
-          data.proof.a, 
-          data.proof.b, 
-          data.proof.c, 
+          data.proof.a,
+          data.proof.b,
+          data.proof.c,
           data.inputs
         )
         .send({ from: config.address, gas: 60000000 }, (error, txHash) => {
@@ -144,25 +145,26 @@ app.put("/energy/:householdAddress", async (req, res) => {
       req.params.householdAddress
     );
     const { signature, hash, timestamp, meterDelta } = req.body;
-    
+
     if (typeof meterDelta !== "number") {
-      throw new Error("Invalid payload");
+      throw new Error("Invalid payload: meterDelta is not a number");
     }
 
-    if (
-      !(await hhHandler.isValidatorAddress(ownedSetContract, householdAddress))
-    ) {
+    const validHouseholdAddress = await hhHandler.isValidatorAddress(
+      ownedSetContract,
+      householdAddress
+    );
+    if (!validHouseholdAddress) {
       throw new Error("Given address is not a validator");
     }
 
-    if (
-      !(await web3Helper.verifySignature(
-        web3,
-        hash,
-        signature,
-        householdAddress
-      ))
-    ) {
+    const validSignature = await web3Helper.verifySignature(
+      web3,
+      hash,
+      signature,
+      householdAddress
+    );
+    if (!validSignature) {
       throw new Error("Invalid signature");
     }
 
@@ -170,7 +172,7 @@ app.put("/energy/:householdAddress", async (req, res) => {
       console.log(`New household ${householdAddress} added`);
     }
     console.log(
-      `Incoming meter reading for ${householdAddress}: ${meterDelta}@${timestamp}`
+      `Incoming meter delta ${meterDelta} at ${timestamp} for ${householdAddress}`
     );
     utility.updateMeterDelta(householdAddress, meterDelta, timestamp);
 
