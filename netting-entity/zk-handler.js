@@ -59,70 +59,70 @@ async function generateProof(utilityBeforeNetting, utilityAfterNetting, mode) {
  * @returns {Promise<{ hhAddresses: any[], proofData: any }>}
  */
 async function _generateProof(argsObj) {
-    const { utilityBeforeNetting, utilityAfterNetting, mode } = argsObj;
+  const { utilityBeforeNetting, utilityAfterNetting, mode } = argsObj;
 
-    let cW_t0 = 0;
-    let cW_t1 = 0;
-    let cW_time = 0;
+  let cW_t0 = 0;
+  let cW_t1 = 0;
+  let cW_time = 0;
 
-    let gP_t0 = 0;
-    let gP_t1 = 0;
-    let gP_time = 0;
+  let gP_t0 = 0;
+  let gP_t1 = 0;
+  let gP_time = 0;
 
-    const hhAddressesProducersBeforeNet = utilityBeforeNetting.getHouseholdAddressesProducers();
-    const hhAddressesConsumersBeforeNet = utilityBeforeNetting.getHouseholdAddressesConsumers();
+  const hhAddressesProducersBeforeNet = utilityBeforeNetting.getHouseholdAddressesProducers();
+  const hhAddressesConsumersBeforeNet = utilityBeforeNetting.getHouseholdAddressesConsumers();
 
-    const hhAddresses = [
-      ...hhAddressesProducersBeforeNet,
-      ...hhAddressesConsumersBeforeNet
-    ];
-    const deltasProducersBeforeNet = hhAddressesProducersBeforeNet.map(address => utilityBeforeNetting.households[address].meterDelta).join(" ");
-    const deltasConsumersBeforeNet = hhAddressesConsumersBeforeNet.map(address => Math.abs(utilityBeforeNetting.households[address].meterDelta)).join(" ");
+  const hhAddresses = [
+    ...hhAddressesProducersBeforeNet,
+    ...hhAddressesConsumersBeforeNet
+  ];
+  const deltasProducersBeforeNet = hhAddressesProducersBeforeNet.map(address => utilityBeforeNetting.households[address].meterDelta).join(" ");
+  const deltasConsumersBeforeNet = hhAddressesConsumersBeforeNet.map(address => Math.abs(utilityBeforeNetting.households[address].meterDelta)).join(" ");
 
-    const deltasProducersAfterNet = hhAddressesProducersBeforeNet.map(address => utilityAfterNetting.households[address].meterDelta).join(" ");
-    const deltasConsumersAfterNet = hhAddressesConsumersBeforeNet.map(address => Math.abs(utilityAfterNetting.households[address].meterDelta)).join(" ");
+  const deltasProducersAfterNet = hhAddressesProducersBeforeNet.map(address => utilityAfterNetting.households[address].meterDelta).join(" ");
+  const deltasConsumersAfterNet = hhAddressesConsumersBeforeNet.map(address => Math.abs(utilityAfterNetting.households[address].meterDelta)).join(" ");
 
-    process.stdout.write("Computing witness...");
+  process.stdout.write("Computing witness...");
 
-    const command = `zokrates compute-witness -a ${deltasProducersBeforeNet} ${deltasConsumersBeforeNet} ${deltasProducersAfterNet} ${deltasConsumersAfterNet} > /dev/null`;
-    console.log(command);
-    cW_t0 = performance.now();
-    await shellExecAsync(command);
-    cW_t1 = performance.now();
+  const command = `zokrates compute-witness -a ${deltasProducersBeforeNet} ${deltasConsumersBeforeNet} ${deltasProducersAfterNet} ${deltasConsumersAfterNet} > /dev/null`;
+  console.log(command);
+  cW_t0 = performance.now();
+  await shellExecAsync(command);
+  cW_t1 = performance.now();
 
-    const grepShellStr = shell.grep("--", "^~out_*", "witness");
-    if (grepShellStr.code !== 0) {
-      process.stdout.write(chalk.red("failed\n"));
-      throw new Error("zokrates compute-witness failed: no ~out_*");
-    }
+  const grepShellStr = shell.grep("--", "^~out_*", "witness");
+  if (grepShellStr.code !== 0) {
+    process.stdout.write(chalk.red("failed\n"));
+    throw new Error("zokrates compute-witness failed: no ~out_*");
+  }
 
-    process.stdout.write(chalk.green("done\n"));
+  process.stdout.write(chalk.green("done\n"));
 
-    if (mode === "benchmark_mode") {
-      cW_time = cW_t1 - cW_t0;
-      console.log("zoKrates Witness Computation Execution Time in ms: ", cW_time);
-    }
+  if (mode === "benchmark_mode") {
+    cW_time = cW_t1 - cW_t0;
+    console.log("zoKrates Witness Computation Execution Time in ms: ", cW_time);
+  }
 
-    process.stdout.write("Generating proof...");
+  process.stdout.write("Generating proof...");
 
-    gP_t0 = performance.now();
-    await shellExecAsync("zokrates generate-proof > /dev/null");
-    gP_t1 = performance.now();
+  gP_t0 = performance.now();
+  await shellExecAsync("zokrates generate-proof > /dev/null");
+  gP_t1 = performance.now();
 
-    process.stdout.write(chalk.green("done\n"));
+  process.stdout.write(chalk.green("done\n"));
 
-    if (mode === "benchmark_mode") {
-      gP_time = gP_t1 - gP_t0;
-      console.log("zoKrates Proof Generation Execution Time in ms: ", gP_time);
-      fs.appendFile("../tmp/res.csv", `${cW_time},${gP_time}`, "utf8", err => {
-        if (err) throw err;
-      });
-    }
+  if (mode === "benchmark_mode") {
+    gP_time = gP_t1 - gP_t0;
+    console.log("zoKrates Proof Generation Execution Time in ms: ", gP_time);
+    fs.appendFile("../tmp/res.csv", `${cW_time},${gP_time}`, "utf8", err => {
+      if (err) throw err;
+    });
+  }
 
-    let rawdata = fs.readFileSync("proof.json");
-    let proofData = JSON.parse(rawdata);
+  let rawdata = fs.readFileSync("proof.json");
+  let proofData = JSON.parse(rawdata);
 
-    return { hhAddresses, proofData };
+  return { hhAddresses, proofData };
 }
 
 /**
