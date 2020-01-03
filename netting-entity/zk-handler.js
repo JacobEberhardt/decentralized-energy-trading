@@ -3,11 +3,64 @@ const chalk = require("chalk");
 const fs = require("fs");
 const { performance } = require("perf_hooks");
 
+/*
+Because ZoKrates writes multiple files to disk instead of returning all output to stdout,
+only one ZoKrates can run at any time.
+To work around this we use the actor pattern: computation requests are enqueued,
+if ZoKrates is idle we start it right away,
+and every time ZoKrates is done we check if there is more work to be started.
+*/
+
+const workQueue = [];
+let isWorking = false;
+
+function tryStartWorking() {
+  // rely on NodeJS Global Interpreter Lock for synchronization
+  if (isWorking) return;
+  const workItem = workQueue.shift();
+  if (!workItem) return; // nothing to do
+
+  isWorking = true;
+  const {
+    resultHandler: { resolve, reject }
+  } = workItem;
+  _generateProof(workItem)
+    .then(resolve, reject)
+    .finally(() => {
+      isWorking = false;
+      tryStartWorking();
+    });
+}
+
 /**
- * This handler manages the communication of the NED Server and the ZoKrates environment
+ * This handler manages the communication of the NED Server and the ZoKrates environment.
+ *
+ * @returns {Promise<{ hhAddresses: any[], proofData: any }>}
  */
-module.exports = {
-  generateProof: (utilityBeforeNetting, utilityAfterNetting, mode) => {
+async function generateProof(utilityBeforeNetting, utilityAfterNetting, mode) {
+  let resultHandler;
+  const promise = new Promise((resolve, reject) => {
+    resultHandler = { resolve, reject };
+  });
+  const workItem = {
+    utilityBeforeNetting, utilityAfterNetting, mode,
+    resultHandler
+  };
+  workQueue.push(workItem);
+  tryStartWorking();
+
+  const result = await promise;
+  return result;
+}
+
+/**
+ * This handler manages the communication of the NED Server and the ZoKrates environment.
+ *
+ * @returns {Promise<{ hhAddresses: any[], proofData: any }>}
+ */
+async function _generateProof(argsObj) {
+    const { utilityBeforeNetting, utilityAfterNetting, mode } = argsObj;
+
     let cW_t0 = 0;
     let cW_t1 = 0;
     let cW_time = 0;
@@ -30,21 +83,17 @@ module.exports = {
     const deltasConsumersAfterNet = hhAddressesConsumersBeforeNet.map(address => Math.abs(utilityAfterNetting.households[address].meterDelta)).join(" ");
 
     process.stdout.write("Computing witness...");
-    console.log(`zokrates compute-witness -a ${deltasProducersBeforeNet} ${deltasConsumersBeforeNet} ${deltasProducersAfterNet} ${deltasConsumersAfterNet} > /dev/null`);
 
+    const command = `zokrates compute-witness -a ${deltasProducersBeforeNet} ${deltasConsumersBeforeNet} ${deltasProducersAfterNet} ${deltasConsumersAfterNet} > /dev/null`;
+    console.log(command);
     cW_t0 = performance.now();
-
-    const witnessShellStr = shell
-      .exec(
-        `zokrates compute-witness -a ${deltasProducersBeforeNet} ${deltasConsumersBeforeNet} ${deltasProducersAfterNet} ${deltasConsumersAfterNet} > /dev/null`
-      )
-      .grep("--", "^~out_*", "witness");
-
+    await shellExecAsync(command);
     cW_t1 = performance.now();
 
-    if (witnessShellStr.code !== 0) {
+    const grepShellStr = shell.grep("--", "^~out_*", "witness");
+    if (grepShellStr.code !== 0) {
       process.stdout.write(chalk.red("failed\n"));
-      throw new Error("zokrates compute-witness failed");
+      throw new Error("zokrates compute-witness failed: no ~out_*");
     }
 
     process.stdout.write(chalk.green("done\n"));
@@ -57,13 +106,8 @@ module.exports = {
     process.stdout.write("Generating proof...");
 
     gP_t0 = performance.now();
-    const proofShellStr = shell.exec("zokrates generate-proof  > /dev/null");
+    await shellExecAsync("zokrates generate-proof > /dev/null");
     gP_t1 = performance.now();
-
-    if (proofShellStr.code !== 0) {
-      process.stdout.write(chalk.red("failed\n"));
-      throw new Error("zokrates generate-proof failed");
-    }
 
     process.stdout.write(chalk.green("done\n"));
 
@@ -75,6 +119,29 @@ module.exports = {
       });
     }
 
-    return hhAddresses;
-  }
+    let rawdata = fs.readFileSync("proof.json");
+    let proofData = JSON.parse(rawdata);
+
+    return { hhAddresses, proofData };
+}
+
+/**
+ * Execute a shell command asynchronously.
+ * Throws an error if the exit code is nonzero.
+ * Otherwise, returns stdout as ShellString.
+ * @param {string} command
+ * @returns {Promise<shell.ShellString>}
+ */
+function shellExecAsync(command) {
+  return new Promise((resolve, reject) => {
+    shell.exec(command, (code, stdout, stderr) => {
+      if (code !== 0) {
+        reject(new Error(`Nonzero exit code ${code} for command ${command}: ${stderr}`));
+      } else resolve();
+    });
+  });
+}
+
+module.exports = {
+  generateProof
 };
