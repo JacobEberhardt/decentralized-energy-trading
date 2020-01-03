@@ -79,14 +79,12 @@ async function init() {
     utilityAfterNetting.settle();
     console.log("Utility before Netting: ", utilityBeforeNetting)
     console.log("Utility after Netting: ", utilityAfterNetting)
-    let hhAddresses = zkHandler.generateProof(
+    let { hhAddresses, proofData: data } = await zkHandler.generateProof(
       utilityBeforeNetting,
       utilityAfterNetting,
       "production_mode"
     );
 
-    let rawdata = fs.readFileSync("../zokrates-code/proof.json");
-    let data = JSON.parse(rawdata);
     if (hhAddresses.length > 0) {
       await web3.eth.personal.unlockAccount(
         config.address,
