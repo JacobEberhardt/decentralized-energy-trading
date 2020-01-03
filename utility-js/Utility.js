@@ -1,8 +1,5 @@
 const { ZERO_ADDRESS } = require("../helpers/constants");
 
-const RENEWABLE_ENERGY = "renewableEnergy";
-const NONRENEWABLE_ENERGY = "nonRenewableEnergy";
-
 /**
  * Off-chain utility, JS implementation of the utility contracts.
  * Tracks energy production and consumption participating households.
@@ -10,8 +7,8 @@ const NONRENEWABLE_ENERGY = "nonRenewableEnergy";
  */
 class Utility {
   constructor() {
-    this[RENEWABLE_ENERGY] = 0;
-    this[NONRENEWABLE_ENERGY] = 0;
+    this.renewableEnergy = 0;
+    this.nonRenewableEnergy = 0;
     this.households = {
       // placeholder address
       [ZERO_ADDRESS]: {
@@ -59,22 +56,6 @@ class Utility {
    */
   getHousehold(hhAddress) {
     return this._householdExists(hhAddress) ? this.households[hhAddress] : {};
-  }
-
-  /**
-   * Getter for the global renewable energy balance.
-   * @returns {Number} The current value of the global renewable energy
-   */
-  getRenewableEnergy() {
-    return this[RENEWABLE_ENERGY];
-  }
-
-  /**
-   * Getter for the global non-renewable energy balance.
-   * @returns {Number} The current value of the global non-renewable energy
-   */
-  getNonRenewableEnergy() {
-    return this[NONRENEWABLE_ENERGY];
   }
 
   /**
@@ -238,8 +219,8 @@ class Utility {
    * @param {number} nonRenewableEnergy amount of non renewable energy that has been bought from grid
    */
   _updateNetworkStats(renewableEnergy, nonRenewableEnergy) {
-    this[RENEWABLE_ENERGY] += renewableEnergy;
-    this[NONRENEWABLE_ENERGY] += nonRenewableEnergy;
+    this.renewableEnergy += renewableEnergy;
+    this.nonRenewableEnergy += nonRenewableEnergy;
   }
 
   /**
