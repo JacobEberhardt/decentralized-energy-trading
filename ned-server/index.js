@@ -192,8 +192,8 @@ app.get("/network", (req, res) => {
   try {
     res.status(200);
     res.json({
-      renewableEnergy: utility.getRenewableEnergy(),
-      nonRenewableEnergy: utility.getNonRenewableEnergy()
+      renewableEnergy: utility.renewableEnergy,
+      nonRenewableEnergy: utility.nonRenewableEnergy
     });
   } catch (err) {
     console.error("GET /network", err.message);
