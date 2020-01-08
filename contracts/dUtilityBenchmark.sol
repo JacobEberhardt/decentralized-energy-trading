@@ -28,7 +28,8 @@ contract dUtilityBenchmark is dUtility {
 
     for (uint i = 0; i < _households.length; ++i) {
       _addHousehold(_households[i]);
-      _updateEnergy(_households[i], _energyDeltaHashes[i], true);
+      // TODO test varying billing period
+      _updateEnergy(42, _households[i], _energyDeltaHashes[i], true);
     }
 
     return true;

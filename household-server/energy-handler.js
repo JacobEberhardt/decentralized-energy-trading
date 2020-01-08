@@ -1,6 +1,7 @@
 const web3Utils = require("web3-utils");
 const sha256 = require("js-sha256");
 
+const { getBillingPeriod } = require("../helpers/billing-cycles");
 const web3Helper = require("../helpers/web3");
 const zokratesHelper = require("../helpers/zokrates");
 const conversionHelper = require("../helpers/conversion");
@@ -30,13 +31,13 @@ module.exports = {
   putMeterReading: async (config, web3, utilityContract, meterDelta) => {
     const { address, password, sensorInterval } = config;
     const timestamp = Date.now();
-    const billingPeriod = timestamp / sensorInterval;
+    const billingPeriod = getBillingPeriod(sensorInterval, timestamp);
 
     const hash = zokratesHelper.packAndHash(meterDelta);
 
     await web3.eth.personal.unlockAccount(address, password, null);
     utilityContract.methods
-      .updateRenewableEnergy(address, web3Utils.hexToBytes(hash))
+      .updateRenewableEnergy(billingPeriod, address, web3Utils.hexToBytes(hash))
       .send({ from: address }, (error, txHash) => {
         if (error) {
           console.error(error);
@@ -56,7 +57,8 @@ module.exports = {
       signature,
       hash,
       timestamp,
-      meterDelta
+      billingPeriod,
+      meterDelta,
     });
   }
 };

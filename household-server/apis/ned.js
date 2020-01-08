@@ -24,6 +24,7 @@ module.exports = {
    *  meterDelta: number,
    *  hash: string,
    *  timestamp: number,
+   *  billingPeriod: number,
    *  signature: string
    * }} payload Energy json.
    */

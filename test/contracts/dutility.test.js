@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /* eslint-disable no-unused-expressions */
 const sha256 = require("js-sha256");
-const UtilityBase = artifacts.require("dUtility");
+const dUtility = artifacts.require("dUtility");
 const MockVerifier = artifacts.require("MockContract");
 const {
   BN,
@@ -17,7 +17,7 @@ contract("dUtility", ([owner, household, household2, other]) => {
   let verifier = null;
   beforeEach(async () => {
     verifier = await MockVerifier.new();
-    this.instance = await UtilityBase.new({
+    this.instance = await dUtility.new({
       from: owner
     });
     await this.instance.setVerifier(verifier.address, { from: owner });
@@ -28,7 +28,7 @@ contract("dUtility", ([owner, household, household2, other]) => {
       await this.instance.addHousehold(household, {
         from: owner
       });
-      const hh = await this.instance.getHousehold(household, {
+      const hh = await this.instance.getHousehold(42, household, {
         from: household
       });
       expect(hh[0]).to.be.true; // initialized
@@ -51,7 +51,7 @@ contract("dUtility", ([owner, household, household2, other]) => {
       });
 
       it("should create a new household", async () => {
-        const hh = await this.instance.getHousehold(household2, {
+        const hh = await this.instance.getHousehold(42, household2, {
           from: household2
         });
         expect(hh[0]).to.be.true; // initialized
@@ -88,17 +88,17 @@ contract("dUtility", ([owner, household, household2, other]) => {
 
     it("should throw when sender is not household owner", async () => {
       await shouldFail.reverting(
-        this.instance.updateRenewableEnergy(household, energyHash, {
+        this.instance.updateRenewableEnergy(42, household, energyHash, {
           from: household2
         })
       );
     });
 
     it("should set the renewable energy hash to " + energyHash, async () => {
-      await this.instance.updateRenewableEnergy(household, energyHash, {
+      await this.instance.updateRenewableEnergy(42, household, energyHash, {
         from: household
       });
-      const hh = await this.instance.getHousehold(household, {
+      const hh = await this.instance.getHousehold(42, household, {
         from: household
       });
       expect(hh[0]).to.be.true; // initialized
@@ -109,10 +109,10 @@ contract("dUtility", ([owner, household, household2, other]) => {
     it(
       "should set the non-renewable energy hash to " + energyHash,
       async () => {
-        await this.instance.updateNonRenewableEnergy(household, energyHash, {
+        await this.instance.updateNonRenewableEnergy(42, household, energyHash, {
           from: household
         });
-        const hh = await this.instance.getHousehold(household, {
+        const hh = await this.instance.getHousehold(42, household, {
           from: household
         });
         expect(hh[0]).to.be.true; // initialized
@@ -136,13 +136,13 @@ contract("dUtility", ([owner, household, household2, other]) => {
       await this.instance.addHousehold(household, {
         from: owner
       });
-      await this.instance.updateRenewableEnergy(household, ENERGY_DELTA_HASH, {
+      await this.instance.updateRenewableEnergy(42, household, ENERGY_DELTA_HASH, {
         from: household
       });
     });
 
     it(`should revert with "Household energy hash mismatch."`, async () => {
-      await this.instance.updateRenewableEnergy(
+      await this.instance.updateRenewableEnergy(42,
         household,
         `0x${sha256("wrongDelta")}`,
         {
@@ -153,6 +153,7 @@ contract("dUtility", ([owner, household, household2, other]) => {
       zokratesOutput[0] = ZOKRATES_OUT_0;
       await shouldFail.reverting(
         this.instance.checkNetting(
+          42,
           [household],
           [0, 1],
           [[2, 3], [4, 5]],
@@ -165,6 +166,7 @@ contract("dUtility", ([owner, household, household2, other]) => {
     it(`should emit ${NETTING_SUCCESS} event`, async () => {
       await verifier.givenAnyReturnBool(true);
       ({ logs: this.logs } = await this.instance.checkNetting(
+        42,
         [household],
         [0, 1],
         [[2, 3], [4, 5]],
