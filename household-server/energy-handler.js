@@ -36,6 +36,7 @@ module.exports = {
     const hash = zokratesHelper.packAndHash(meterDelta);
 
     await web3.eth.personal.unlockAccount(address, password, null);
+    // TODO document why this does not differentiate between renewable and non-renewable energy
     utilityContract.methods
       .updateRenewableEnergy(billingPeriod, address, web3Utils.hexToBytes(hash))
       .send({ from: address }, (error, txHash) => {

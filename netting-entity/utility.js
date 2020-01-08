@@ -243,14 +243,14 @@ class Utility {
    * @param {string} from Address of an existing household from where the energy is transferred
    * @param {string} to Address of an existing household to which the energy is transferred
    * @param {number} amount Amount of energy to be transferred
-   * @param {string} mode Type of energy. Must be either RENEWABLE_ENERGY or NON_RENEWABLE_ENERGY.
+   * @param {boolean} isMoreAvailableThanDemanded
    */
-  _addTransfer(from, to, amount, mode) {
+  _addTransfer(from, to, amount, isMoreAvailableThanDemanded) {
     if (!this._householdExists(from) || !this._householdExists(to)) {
       return false;
     }
 
-    if (mode) {
+    if (isMoreAvailableThanDemanded) {
       this.transfers.push({
         from: from,
         to: to,
