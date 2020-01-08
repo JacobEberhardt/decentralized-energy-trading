@@ -6,6 +6,9 @@ VERSION_STABLE="2.4.6"
 VERSION_BETA="2.5.1"
 ##
 
+# Exit if any subcommand fails
+set -e
+
 RELEASE="stable"
 ARCH=$(uname -m)
 VANITY_SERVICE_URL="https://vanity-service.parity.io/parity-binaries?architecture=$ARCH&format=markdown"

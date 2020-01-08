@@ -21,7 +21,7 @@ module.exports = {
    * @param {string} nedUrl Base URL of NED server.
    * @param {string} householdAddress Address of sending household.
    * @param {{
-   *  energy: number,
+   *  meterDelta: number,
    *  hash: string,
    *  timestamp: number,
    *  signature: string

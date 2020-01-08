@@ -1,4 +1,8 @@
 #!/bin/bash
+
+# Exit if any subcommand fails
+set -e
+
 export NETWORK_NAME=decentralized-energy-trading
 export PARITY_VERSION=v2.4.5
 export PROJECT_ROOT=$(git rev-parse --show-toplevel)
