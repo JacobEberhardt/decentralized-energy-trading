@@ -1,7 +1,7 @@
 const chalk = require("chalk");
 const request = require("request-promise");
 const fs = require('fs');
-const Utility = artifacts.require("dUtility");
+const dUtility = artifacts.require("dUtility");
 const OwnedSet = artifacts.require("OwnedSet");
 const dUtilityBenchmark = artifacts.require("dUtilityBenchmark");
 const verifier = artifacts.require("verifier.sol")
@@ -53,13 +53,13 @@ async function callRPC(methodSignature, port, params = []) {
 module.exports = async (deployer, network, [authority]) => {
   switch (network) {
     case "ganache": {
-      await deployer.deploy(Utility);
-      const utilityInstance = await Utility.deployed();
+      await deployer.deploy(dUtility);
+      const utilityInstance = await dUtility.deployed();
       await utilityInstance.addHousehold(authority);
       break;
     }
     case "authority": {
-      const utilityInstanceInAuthority = await Utility.at(UTILITY_ADDRESS);
+      const utilityInstanceInAuthority = await dUtility.at(UTILITY_ADDRESS);
       const ownedSetInstanceInAuthority = await OwnedSet.at(OWNED_SET_ADDRESS);
       const web3 = web3Helper.initWeb3("authority");
 
@@ -70,14 +70,14 @@ module.exports = async (deployer, network, [authority]) => {
       });
       process.stdout.write(chalk.green("done\n"));
 
-      process.stdout.write("  Adding admin node to Utility contract ... ");
+      process.stdout.write("  Adding admin node to dUtility contract ... ");
       await web3.eth.personal.unlockAccount(address, password, null);
       await utilityInstanceInAuthority.addHousehold(AUTHORITY_ADDRESS, {
         from: AUTHORITY_ADDRESS
       });
       process.stdout.write(chalk.green("done\n"));
 
-      process.stdout.write("  Transfer ownership of Utility contract ... ");
+      process.stdout.write("  Transfer ownership of dUtility contract ... ");
       await web3.eth.personal.unlockAccount(address, password, null);
       await utilityInstanceInAuthority.transferOwnership(OWNED_SET_ADDRESS, {
         from: AUTHORITY_ADDRESS
@@ -138,7 +138,7 @@ module.exports = async (deployer, network, [authority]) => {
       break;
     }
     default: {
-      deployer.deploy(Utility);
+      deployer.deploy(dUtility);
       break;
     }
   }

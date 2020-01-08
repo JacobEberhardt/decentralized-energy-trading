@@ -43,7 +43,7 @@ yarn update-contract-bytecodes
 
 ### Manually
 
-To update the `BlockReward`, `Utility` or `ValidatorSet` contract you have to update the respective byte code of the contract in chain spec file under `./parity/config/chain.json`.
+To update the `BlockReward`, `dUtility` or `ValidatorSet` contract you have to update the respective byte code of the contract in chain spec file under `./parity/config/chain.json`.
 
 1. First compile updated contracts with
 
@@ -61,10 +61,10 @@ This will generate / update the contract artifacts in `<PROJECT_ROOT>/build/cont
   ...
   "accounts": {
     ...
-    // Address of Utility contract
+    // Address of dUtility contract
     "0x0000000000000000000000000000000000000042": {
       "balance": 1,
-      // Paste copied byte code here if the Utility contract was updated
+      // Paste copied byte code here if the dUtility contract was updated
       "constructor": <UTILITY_CONTRACT_BYTE_CODE>
     },
     // Address of ValidatorSet contract

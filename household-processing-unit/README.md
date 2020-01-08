@@ -8,7 +8,7 @@ The HHS Processing Unit encapsule the following components in a docker ubuntu im
 
 ## Images
 
-1. The first one is called `hhpu_admin`. Its parity account is already been predefined and is the owner of both `Utility` and `BaseOwnedSet` contracts. It also has a lot of ether, to share with new participants.
+1. The first one is called `hhpu_admin`. Its parity account is already been predefined and is the owner of both `dUtility` and `BaseOwnedSet` contracts. It also has a lot of ether, to share with new participants.
 2. The second one `hhpu` is a regular image that after been setup needs to be connected to the network. A new address is generated every time a new instance is generated.
 
 ## Setup
@@ -21,7 +21,7 @@ To test this setup of two households (one admin and one regular) execute the fol
 docker-compose up
 ```
 
-2. After both nodes are up and running connect them and add the address of the second node to the `Utility` and `BaseOwnedSet` contract using the following command:
+2. After both nodes are up and running connect them and add the address of the second node to the `dUtility` and `BaseOwnedSet` contract using the following command:
 
 ```sh
 yarn connect-docker-nodes
