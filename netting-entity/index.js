@@ -7,6 +7,7 @@ const fs = require("fs");
 const Utility = require("./utility");
 const hhHandler = require("./household-handler");
 const zkHandler = require("./zk-handler");
+const { getBillingPeriod } = require("../helpers/billing-cycles");
 const web3Helper = require("../helpers/web3");
 const contractHelper = require("../helpers/contract");
 
@@ -68,6 +69,7 @@ async function init() {
   );
 
   async function runBillingPeriod(billingPeriod) {
+    console.log(`End of billing period ${billingPeriod}. Waiting for meter readings...`);
     const utility = getOrCreateUtilityForBillingPeriod(billingPeriod);
 
     // wait for households to send meter readings
@@ -80,7 +82,14 @@ async function init() {
       utility.onAllReadingsReceived(resolve);
     });
     clearTimeout(timeoutHandle);
-    console.log("End of grace period. Starting netting...");
+    console.log(`End of grace period ${billingPeriod}. Starting netting...`);
+
+    if (utility.getHouseholdAddressesProducers().length <= 0
+      && utility.getHouseholdAddressesConsumers().length <= 0
+    ) {
+      console.log(`Skipping billing period ${billingPeriod}: No households submitted meter readings.`);
+      return;
+    }
 
     let utilityBeforeNetting = JSON.parse(JSON.stringify(utility)); // dirty hack for obtaining deep copy of utility
     Object.setPrototypeOf(utilityBeforeNetting, Utility.prototype);
@@ -99,44 +108,48 @@ async function init() {
 
     if (hhAddresses.length <= 0) {
       console.log("No households to hash.");
-    } else {
-      await web3.eth.personal.unlockAccount(
-        config.address,
-        config.password,
-        null
-      );
-      utilityContract.methods
-        .checkNetting(
-          hhAddresses,
-          data.proof.a,
-          data.proof.b,
-          data.proof.c,
-          data.inputs
-        )
-        .send({ from: config.address, gas: 60000000 }, (error, txHash) => {
-          if (error) {
-            console.error(error.message);
-            throw error;
-          }
-        });
+      return;
     }
 
-    // TODO: after some time, remove utility for this billing period, to free up the used memory
+    await web3.eth.personal.unlockAccount(
+      config.address,
+      config.password,
+      null
+    );
+    utilityContract.methods
+      .checkNetting(
+        billingPeriod,
+        hhAddresses,
+        data.proof.a,
+        data.proof.b,
+        data.proof.c,
+        data.inputs
+      )
+      .send({ from: config.address, gas: 60000000 }, (error, txHash) => {
+        if (error) {
+          console.error(error.message);
+          throw error;
+        }
+      });
+
+    // TODO: after some time (e.g., all clients fetched their receipts), remove utility for this billing period, to free up the used memory
   }
 
-  let billingPeriod = getBillingPeriod();
+  console.log(`Running with netting interval of ${config.nettingInterval}`);
+  let prevBillingPeriod = 0;
   setInterval(() => {
-    runBillingPeriod(billingPeriod);
-    billingPeriod++;
+    const billingPeriod = getBillingPeriod(config.nettingInterval);
+    // Don't run a billing period twice if there's a timing issue.
+    // Skipping periods is ok, the system model provides a safe fallback.
+    if (billingPeriod > prevBillingPeriod) {
+      runBillingPeriod(billingPeriod);
+      prevBillingPeriod = billingPeriod;
+    }
   }, config.nettingInterval);
 }
 
-function getBillingPeriod(timestampMs) {
-  return timestampMs / config.nettingInterval;
-}
-
 function getOrCreateUtilityForTimestamp(timestampMs) {
-  return getOrCreateUtilityForBillingPeriod(getBillingPeriod(timestampMs));
+  return getOrCreateUtilityForBillingPeriod(getBillingPeriod(config.nettingInterval, timestampMs));
 }
 
 function getOrCreateUtilityForBillingPeriod(billingPeriod) {
@@ -211,7 +224,7 @@ app.put("/energy/:householdAddress", async (req, res) => {
 app.get("/network", (req, res) => {
   try {
     // TODO: /network API is broken for now; track current energy balance separately from billing period data
-    const utility = utilities[getBillingPeriod(Date.now())]; // return dummy data from current billing period only
+    const utility = utilities[getBillingPeriod(config.nettingInterval)]; // return dummy data from current billing period only
     if (!utility) throw new Error(`No current billing period`);
     res.status(200);
     res.json({
@@ -239,6 +252,9 @@ app.get("/meterdelta", async (req, res) => {
     if (!validHouseholdAddress) {
       throw new Error("Given address is not a validator");
     }
+    const nowMs = Date.now()
+    const utility = utilities[getBillingPeriod(config.nettingInterval, nowMs)];
+    if (!utility) throw new Error(`No billing period for time ${nowMs}`);
 
     res.status(200);
     res.json({meterDelta: utility.households[recoveredAddress].meterDelta });
@@ -260,7 +276,7 @@ app.get("/transfers/:householdAddress", (req, res) => {
       req.params.householdAddress
     );
     // TODO: /transfers API is broken for now; track transfers separately from billing period data
-    const utility = utilities[getBillingPeriod(Date.now())]; // return dummy data from current billing period only
+    const utility = utilities[getBillingPeriod(config.nettingInterval)]; // return dummy data from current billing period only
     if (!utility) throw new Error(`No billing period for time ${from}`);
     const transfers = utility.getTransfers(householdAddress, from);
     res.status(200);

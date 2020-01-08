@@ -43,6 +43,28 @@ contract("dUtilityBenchmark", ([owner, household, household2, other]) => {
       );
     });
 
+    it("should revert when verifying wrong billing period", async () => {
+      const { logs: setupLogs } = await this.instance.setupBenchmark(
+        verifier.address,
+        [household],
+        [ENERGY_DELTA_HASH],
+        { from: owner }
+      );
+      await verifier.givenAnyReturnBool(true);
+      expectEvent.inLogs(setupLogs, "NewHousehold");
+      expectEvent.inLogs(setupLogs, "RenewableEnergyChanged");
+      await shouldFail.reverting(
+        this.instance.checkNetting(
+          123, // period not initialized
+          [household],
+          [0, 1],
+          [[2, 3], [4, 5]],
+          [6, 7],
+          ZOKRATES_OUT
+        )
+      );
+    });
+
     it("should set up contract for benchmark", async () => {
       const { logs: setupLogs } = await this.instance.setupBenchmark(
         verifier.address,
@@ -52,6 +74,7 @@ contract("dUtilityBenchmark", ([owner, household, household2, other]) => {
       );
       await verifier.givenAnyReturnBool(true);
       const { logs: nettingLogs } = await this.instance.checkNetting(
+        42,
         [household],
         [0, 1],
         [[2, 3], [4, 5]],

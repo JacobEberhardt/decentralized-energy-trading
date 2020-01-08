@@ -17,14 +17,14 @@ contract IdUtility {
 
   event CheckHashesSuccess();
 
-  event RenewableEnergyChanged(address indexed household, bytes32 newDeltaEnergy);
+  event RenewableEnergyChanged(uint256 billingPeriod, address indexed household, bytes32 newDeltaEnergy);
 
-  event NonRenewableEnergyChanged(address indexed household, bytes32 newDeltaEnergy);
+  event NonRenewableEnergyChanged(uint256 billingPeriod, address indexed household, bytes32 newDeltaEnergy);
 
   /* Household management */
   function addHousehold(address _household) external returns (bool);
 
-  function getHousehold(address _household) external view returns (bool, bytes32, bytes32);
+  function getHousehold(uint256 billingPeriod, address _household) external view returns (bool, bytes32, bytes32);
 
   function removeHousehold(address _household) external returns (bool);
   function _concatNextHash(uint256[8] memory hashes) private returns (bytes32);
@@ -39,11 +39,13 @@ contract IdUtility {
     uint256[8] memory _input) private returns (bool success);
 
   function _checkHashes(
+    uint256 billingPeriod,
     address[] memory _households,
     uint256[8] memory _inputs
     ) private returns (bool);
 
   function checkNetting(
+    uint256 billingPeriod,
     address[] calldata _households,
     uint256[2] calldata _a,
     uint256[2][2] calldata _b,
@@ -53,7 +55,13 @@ contract IdUtility {
   function getTransfersLength() external view returns (uint256);
 
   /* dUtility household balance change tracking methods */
-  function updateRenewableEnergy(address _household, bytes32 deltaEnergy) external returns (bool);
+  function updateRenewableEnergy(
+    uint256 billingPeriod,
+    address _household,
+    bytes32 deltaEnergy) external returns (bool);
 
-  function updateNonRenewableEnergy(address _household, bytes32 deltaEnergy) external returns (bool);
+  function updateNonRenewableEnergy(
+    uint256 billingPeriod,
+    address _household,
+    bytes32 deltaEnergy) external returns (bool);
 }

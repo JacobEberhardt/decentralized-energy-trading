@@ -317,14 +317,14 @@ contract IdUtility {
 
   event CheckHashesSuccess();
 
-  event RenewableEnergyChanged(address indexed household, bytes32 newDeltaEnergy);
+  event RenewableEnergyChanged(uint256 billingPeriod, address indexed household, bytes32 newDeltaEnergy);
 
-  event NonRenewableEnergyChanged(address indexed household, bytes32 newDeltaEnergy);
+  event NonRenewableEnergyChanged(uint256 billingPeriod, address indexed household, bytes32 newDeltaEnergy);
 
   /* Household management */
   function addHousehold(address _household) external returns (bool);
 
-  function getHousehold(address _household) external view returns (bool, bytes32, bytes32);
+  function getHousehold(uint256 billingPeriod, address _household) external view returns (bool, bytes32, bytes32);
 
   function removeHousehold(address _household) external returns (bool);
   function _concatNextHash(uint256[${len}] memory hashes) private returns (bytes32);
@@ -339,11 +339,13 @@ contract IdUtility {
     uint256[${len}] memory _input) private returns (bool success);
 
   function _checkHashes(
+    uint256 billingPeriod,
     address[] memory _households,
     uint256[${len}] memory _inputs
     ) private returns (bool);
 
   function checkNetting(
+    uint256 billingPeriod,
     address[] calldata _households,
     uint256[2] calldata _a,
     uint256[2][2] calldata _b,
@@ -353,9 +355,15 @@ contract IdUtility {
   function getTransfersLength() external view returns (uint256);
 
   /* dUtility household balance change tracking methods */
-  function updateRenewableEnergy(address _household, bytes32 deltaEnergy) external returns (bool);
+  function updateRenewableEnergy(
+    uint256 billingPeriod,
+    address _household,
+    bytes32 deltaEnergy) external returns (bool);
 
-  function updateNonRenewableEnergy(address _household, bytes32 deltaEnergy) external returns (bool);
+  function updateNonRenewableEnergy(
+    uint256 billingPeriod,
+    address _household,
+    bytes32 deltaEnergy) external returns (bool);
 }`;
 
       const dUtility = `
@@ -373,9 +381,6 @@ import "./Mortal.sol";
 contract dUtility is Mortal, IdUtility {
 
   struct Household {
-    // for checks if household exists
-    bool initialized;
-
     // Hashes of (deltaEnergy)
     bytes32 renewableEnergy;
     bytes32 nonRenewableEnergy;
@@ -385,8 +390,11 @@ contract dUtility is Mortal, IdUtility {
   uint lastInputIndex = 0;
   uint nonZeroHashes = 0;
 
-  // mapping of all households
-  mapping(address => Household) households;
+  // mapping of all households, by billing period and address
+  mapping(uint256 => mapping(address => Household)) households;
+
+  // mapping of all households that are initialized
+  mapping(address => bool) householdsInitialized;
 
   modifier onlyHousehold(address _household) {
     require(msg.sender == _household, "No permission to access. Only household may access itself.");
@@ -394,7 +402,7 @@ contract dUtility is Mortal, IdUtility {
   }
 
   modifier householdExists(address _household) {
-    require(households[_household].initialized, "Household does not exist.");
+    require(householdsInitialized[_household], "Household does not exist.");
     _;
   }
 
@@ -414,16 +422,18 @@ contract dUtility is Mortal, IdUtility {
 
   /**
    * @dev Get energy properties of _household.
+   * Used during testing.
    * @param _household address of the household
    * @return Household stats (initialized,
    *                          renewableEnergy,
    *                          nonRenewableEnergy)
    *          of _household if _household exists
    */
-  function getHousehold(address _household) external view householdExists(_household) returns (bool, bytes32, bytes32) {
-    Household memory hh = households[_household];
+  function getHousehold(uint256 billingPeriod, address _household) external view householdExists(_household) returns (bool, bytes32, bytes32) {
+    bool initialized = householdsInitialized[_household];
+    Household memory hh = households[billingPeriod][_household];
     return (
-      hh.initialized,
+      initialized,
       hh.renewableEnergy,
       hh.nonRenewableEnergy
     );
@@ -434,8 +444,8 @@ contract dUtility is Mortal, IdUtility {
    * @param _household address of the household
    * @return Household stats (afterNettingDelta) of _household if _household exists
    */
-  function getHouseholdAfterNettingHash(address _household) external view householdExists(_household) returns (bytes32) {
-    Household memory hh = households[_household];
+  function getHouseholdAfterNettingHash(uint256 billingPeriod, address _household) external view householdExists(_household) returns (bytes32) {
+    Household memory hh = households[billingPeriod][_household];
     return hh.afterNettingDelta;
   }
 
@@ -445,7 +455,9 @@ contract dUtility is Mortal, IdUtility {
    * @return success bool if household does not already exists, should only be called by some authority
    */
   function removeHousehold(address _household) external onlyOwner() householdExists(_household) returns (bool) {
-    delete households[_household];
+    delete householdsInitialized[_household];
+    // We don't remove the household from the billing periods it participated in.
+    // It will stay there until these billing periods time out.
   }
 
   /**
@@ -480,7 +492,7 @@ contract dUtility is Mortal, IdUtility {
 
   /**
    * @dev Verifies netting by using ZoKrates verifier contract.
-   * Emits  when netting could be verified
+   * Emits ??? when netting could be verified
    */
   function _verifyNetting(
     uint256[2] memory _a,
@@ -498,32 +510,35 @@ contract dUtility is Mortal, IdUtility {
    * @dev Validates the equality of the given households and their energy hashes against
    * dUtility's own recorded energy hashes (that the household server sent).
    * Emits CheckHashesSuccess on successful validation.
-   * Throws when _households and _householdEnergyHashes length are not equal.
+   * Throws when _householdAddrs and _householdEnergyHashes length are not equal.
    * Throws when an energy change hash mismatch has been found.
-   * @param _households array of household addresses to be checked.
+   * @param _householdAddrs array of household addresses to be checked.
    * @param _inputs array of the corresponding energy hashes.
    * @return true, iff, all given household energy hashes are mathes with the recorded energy hashes.
    */
   function _checkHashes(
-    address[] memory _households,
+    uint256 billingPeriod,
+    address[] memory _householdAddrs,
     uint256[${len}] memory _inputs
   ) private returns (bool) {
     lastInputIndex = 0;
     nonZeroHashes = 0;
     uint numberOfInputHashes = _inputs.length / 2;
-    for(uint256 i = 0; i < _households.length; ++i) {
-      address addr = _households[i];
+    mapping(address => Household) storage householdsInPeriod = households[billingPeriod];
+    for(uint256 i = 0; i < _householdAddrs.length; ++i) {
+      address addr = _householdAddrs[i];
       bytes32 energyHash = _concatNextHash(_inputs);
 
-      require(households[addr].renewableEnergy == energyHash, "Household energy hash mismatch.");
+      require(householdsInPeriod[addr].renewableEnergy == energyHash, "Household energy hash mismatch.");
       _updateAfterNettingDelta(addr, [_inputs[(lastInputIndex + numberOfInputHashes - 2)], _inputs[(lastInputIndex + numberOfInputHashes - 1)]]);
     }
-    require(_households.length == nonZeroHashes, "Number of Household mismatch with nonZeorHashes");
+    require(_householdAddrs.length == nonZeroHashes, "Number of Household mismatch with nonZeorHashes");
     return true;
   }
 
   function checkNetting(
-    address[] calldata _households,
+    uint256 billingPeriod,
+    address[] calldata _householdAddrs,
     uint256[2] calldata _a,
     uint256[2][2] calldata _b,
     uint256[2] calldata _c,
@@ -532,7 +547,7 @@ contract dUtility is Mortal, IdUtility {
     // Ensure that all households that reported meter_delta !=0 in the netting reported are represented in both, addresslist and hashlist sent to SC
     // require address.len == hash_not_0.len / 2 where hash_not_0 is hashes recreated from _input that are not 0.
     // To evaluate the _input hashes, we need to loop through the addresslist provided with the proof and check whether the SC hash registry has values
-    require(_checkHashes(_households, _input) == true, "Hashes not matching!");
+    require(_checkHashes(billingPeriod, _householdAddrs, _input) == true, "Hashes not matching!");
     require(_verifyNetting(_a, _b, _c, _input) == true, "Netting proof failed!");
     emit NettingSuccess();
     return true;
@@ -551,11 +566,14 @@ contract dUtility is Mortal, IdUtility {
    * @param _deltaEnergy bytes32 hash of (delta+nonce+senderAddr)
    * @return success bool returns true, if function was called successfully
    */
-  function updateRenewableEnergy(address _household, bytes32 _deltaEnergy)
+  function updateRenewableEnergy(
+    uint256 billingPeriod,
+    address _household,
+    bytes32 _deltaEnergy)
   external
   onlyHousehold(_household)
   returns (bool) {
-    _updateEnergy(_household, _deltaEnergy, true);
+    _updateEnergy(billingPeriod, _household, _deltaEnergy, true);
   }
 
   /**
@@ -564,10 +582,13 @@ contract dUtility is Mortal, IdUtility {
    * @param _deltaEnergy bytes32 hash of (delta+nonce+senderAddr)
    * @return success bool returns true, if function was called successfully
    */
-  function updateNonRenewableEnergy(address _household, bytes32 _deltaEnergy)
+  function updateNonRenewableEnergy(
+    uint256 billingPeriod,
+    address _household,
+    bytes32 _deltaEnergy)
   external onlyHousehold(_household)
   returns (bool) {
-    _updateEnergy(_household, _deltaEnergy, false);
+    _updateEnergy(billingPeriod, _household, _deltaEnergy, false);
   }
 
     /**
@@ -577,17 +598,21 @@ contract dUtility is Mortal, IdUtility {
    * @param _isRenewable bool indicates whether said energy is renewable or non-renewable
    * @return success bool returns true, if function was called successfully
    */
-  function _updateEnergy(address _household, bytes32 _deltaEnergy, bool _isRenewable)
+  function _updateEnergy(
+    uint256 billingPeriod,
+    address _household,
+    bytes32 _deltaEnergy,
+    bool _isRenewable)
   internal
   householdExists(_household)
   returns (bool) {
-    Household storage hh = households[_household];
+    Household storage hh = households[billingPeriod][_household];
     if (_isRenewable) {
       hh.renewableEnergy = _deltaEnergy;
-      emit RenewableEnergyChanged(_household, _deltaEnergy);
+      emit RenewableEnergyChanged(billingPeriod, _household, _deltaEnergy);
     } else {
       hh.nonRenewableEnergy = _deltaEnergy;
-      emit NonRenewableEnergyChanged(_household, _deltaEnergy);
+      emit NonRenewableEnergyChanged(billingPeriod, _household, _deltaEnergy);
     }
     return true;
   }
@@ -598,11 +623,11 @@ contract dUtility is Mortal, IdUtility {
    * @param _afterNettingDelta both halfs of post netting delta hash
    * @return success bool returns true, if function was called successfully
    */
-  function _updateAfterNettingDelta(address _household, uint256[2] memory _afterNettingDelta)
+  function _updateAfterNettingDelta(uint256 billingPeriod, address _household, uint256[2] memory _afterNettingDelta)
   internal
   householdExists(_household)
   {
-    Household storage hh = households[_household];
+    Household storage hh = households[billingPeriod][_household];
     hh.afterNettingDelta = bytes32(uint256(_afterNettingDelta[0] << 128 | _afterNettingDelta[1]));
   }
 
@@ -612,13 +637,10 @@ contract dUtility is Mortal, IdUtility {
    * @return success bool
    */
   function _addHousehold(address _household) internal onlyOwner returns (bool) {
-    require(!households[_household].initialized, "Household already exists.");
+    require(!householdsInitialized[_household], "Household already exists.");
 
     // add new household to mapping
-    Household storage hh = households[_household];
-    hh.initialized = true;
-    hh.renewableEnergy = 0;
-    hh.nonRenewableEnergy = 0;
+    householdsInitialized[_household] = true;
 
     emit NewHousehold(_household);
     return true;

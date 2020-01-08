@@ -21,6 +21,7 @@ commander
   .option("-N, --nedUrl <type>", "url of NED server")
   .option("-a, --address <type>", "address of the parity account")
   .option("-P, --password <type>", "password of the parity account")
+  .option("-i, --interval <milliseconds>", "billing interval")
   .option(
     "-n, --network <type>",
     "network name specified in truffle-config.js"
@@ -36,7 +37,7 @@ const config = {
   network: commander.network || serverConfig.network,
   address: commander.address || serverConfig.address,
   password: commander.password || serverConfig.password,
-  sensorInterval: commander.password || serverConfig.sensorInterval,
+  sensorInterval: commander.interval || serverConfig.sensorInterval,
   dbName: serverConfig.dbName,
   sensorDataCollection: serverConfig.sensorDataCollection,
   utilityDataCollection: serverConfig.utilityDataCollection,
