@@ -34,15 +34,12 @@ module.exports = {
    * @param {string} signature Signature.
    * @param {string} address Address of singer.
    */
-  verifySignature: async (web3, data, signature, signerAddress) => {
+  verifySignature: async (web3, data, signature) => {
     const dataStr = JSON.stringify(data);
     const recoveredAddress = await web3.eth.personal.ecRecover(
       dataStr,
       signature
     );
-    return (
-      web3Utils.toChecksumAddress(signerAddress) ===
-      web3Utils.toChecksumAddress(recoveredAddress)
-    );
+    return web3Utils.toChecksumAddress(recoveredAddress);
   }
 };
