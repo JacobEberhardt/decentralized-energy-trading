@@ -21,6 +21,8 @@ module.exports = {
             password,
             null
         );
+
+        //TODO use msg.sender in smart contract instead of passing address as argument
         return await utilityContract.methods
             .getHouseholdAfterNettingHash(address)
             .call({ from: address, gas: 60000000 })
