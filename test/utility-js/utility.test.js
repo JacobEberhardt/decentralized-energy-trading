@@ -4,15 +4,13 @@ const Utility = require("../../utility-js/Utility");
 
 const expect = require("chai").expect;
 
-const RENEWABLE_ENERGY = "renewableEnergy";
-const NONRENEWABLE_ENERGY = "nonRenewableEnergy";
-
 const hhAddress1 = "0x45D4b6e19b3fee56bA93972d8d72aC65FeF26b01";
 const hhAddress2 = "0x45D4b6e19b3fee56bA93972d8d72aC65FeF26b02";
 const hhAddress3 = "0x45D4b6e19b3fee56bA93972d8d72aC65FeF26b03";
 const hhAddress4 = "0x45D4b6e19b3fee56bA93972d8d72aC65FeF26b04";
 
 describe("Utility", () => {
+  /** @type {Utility} */
   let instance;
   beforeEach(() => {
     instance = new Utility();
@@ -42,10 +40,10 @@ describe("Utility", () => {
 
     describe("update meter reading", () => {
       it("updateMeterDelta by 100", () => {
-        instance.updateMeterDelta(hhAddress1, 100, Date.now());
+        instance.updateMeterDelta(hhAddress1, 100, 42);
         instance.settle()
         expect(instance.households[hhAddress1].meterDelta).to.equal(100);
-        expect(instance[RENEWABLE_ENERGY]).to.equal(100);
+        expect(instance.renewableEnergy).to.equal(100);
       });
 
       it("reverts when attempting to update meter reading of not existing household", () => {
@@ -53,7 +51,7 @@ describe("Utility", () => {
           instance.updateMeterDelta(
             "0x45D4b6e19b3fee56bA93972d8d72aC65FeF26b00",
             100,
-            RENEWABLE_ENERGY
+            42
           )
         ).to.be.false;
       });
@@ -61,17 +59,17 @@ describe("Utility", () => {
 
     describe("update energy", () => {
       it("updateRenewableEnergy by 100", () => {
-        instance.updateMeterDelta(hhAddress1, 100);
+        instance.updateMeterDelta(hhAddress1, 100, 42);
         instance.settle();
         expect(instance.households[hhAddress1].meterDelta).to.equal(100);
-        expect(instance[RENEWABLE_ENERGY]).to.equal(100);
+        expect(instance.renewableEnergy).to.equal(100);
       });
 
       it("updateNonRenewableEnergy by 100", () => {
-        instance.updateMeterDelta(hhAddress1, -100);
+        instance.updateMeterDelta(hhAddress1, -100, 42);
         instance.settle()
         expect(instance.households[hhAddress1].meterDelta).to.equal(-100);
-        expect(instance[NONRENEWABLE_ENERGY]).to.equal(100);
+        expect(instance.nonRenewableEnergy).to.equal(100);
       });
 
       it("reverts when attempting to update energy of not existing household", () => {
@@ -79,7 +77,7 @@ describe("Utility", () => {
           instance.updateMeterDelta(
             "0x45D4b6e19b3fee56bA93972d8d72aC65FeF26b00",
             100,
-            RENEWABLE_ENERGY
+            42
           )
         ).to.be.false;
       });
@@ -96,10 +94,10 @@ describe("Utility", () => {
 
     describe("renewableEnergy = 0", () => {
       it("availableRenewableEnergy = 200, neededRenewableEnergy = -200; households do not need to split energy", () => {
-        instance.updateMeterDelta(hhAddress1, 100);
-        instance.updateMeterDelta(hhAddress2, 100);
-        instance.updateMeterDelta(hhAddress3, -100);
-        instance.updateMeterDelta(hhAddress4, -100);
+        instance.updateMeterDelta(hhAddress1, 100, 42);
+        instance.updateMeterDelta(hhAddress2, 100, 42);
+        instance.updateMeterDelta(hhAddress3, -100, 42);
+        instance.updateMeterDelta(hhAddress4, -100, 42);
 
         instance.settle();
 
@@ -110,10 +108,10 @@ describe("Utility", () => {
       });
 
       it("availableRenewableEnergy = 200, neededRenewableEnergy = -200; households need to split energy", () => {
-        instance.updateMeterDelta(hhAddress1, 40);
-        instance.updateMeterDelta(hhAddress2, 160);
-        instance.updateMeterDelta(hhAddress3, -160);
-        instance.updateMeterDelta(hhAddress4, -40);
+        instance.updateMeterDelta(hhAddress1, 40, 42);
+        instance.updateMeterDelta(hhAddress2, 160, 42);
+        instance.updateMeterDelta(hhAddress3, -160, 42);
+        instance.updateMeterDelta(hhAddress4, -40, 42);
 
         instance.settle();
 
@@ -126,10 +124,10 @@ describe("Utility", () => {
 
     describe("renewableEnergy > 0", () => {
       it("availableRenewableEnergy = 400, neededRenewableEnergy = -200; households need to split energy", async () => {
-        instance.updateMeterDelta(hhAddress1, 200);
-        instance.updateMeterDelta(hhAddress2, 200);
-        instance.updateMeterDelta(hhAddress3, -100);
-        instance.updateMeterDelta(hhAddress4, -100);
+        instance.updateMeterDelta(hhAddress1, 200, 42);
+        instance.updateMeterDelta(hhAddress2, 200, 42);
+        instance.updateMeterDelta(hhAddress3, -100, 42);
+        instance.updateMeterDelta(hhAddress4, -100, 42);
 
         instance.settle();
 
@@ -140,10 +138,10 @@ describe("Utility", () => {
       });
 
       it("availableRenewableEnergy = 300, neededRenewableEnergy = -200; households need to split energy; rounded values therefore FIFS", async () => {
-        instance.updateMeterDelta(hhAddress1, 200);
-        instance.updateMeterDelta(hhAddress2, 100);
-        instance.updateMeterDelta(hhAddress3, -100);
-        instance.updateMeterDelta(hhAddress4, -100);
+        instance.updateMeterDelta(hhAddress1, 200, 42);
+        instance.updateMeterDelta(hhAddress2, 100, 42);
+        instance.updateMeterDelta(hhAddress3, -100, 42);
+        instance.updateMeterDelta(hhAddress4, -100, 42);
 
         instance.settle();
 
@@ -156,10 +154,10 @@ describe("Utility", () => {
 
     describe("renewableEnergy < 0", () => {
       it("availableRenewableEnergy = 200, neededRenewableEnergy = -400; households need to split energy", async () => {
-        instance.updateMeterDelta(hhAddress1, 100);
-        instance.updateMeterDelta(hhAddress2, 100);
-        instance.updateMeterDelta(hhAddress3, -200);
-        instance.updateMeterDelta(hhAddress4, -200);
+        instance.updateMeterDelta(hhAddress1, 100, 42);
+        instance.updateMeterDelta(hhAddress2, 100, 42);
+        instance.updateMeterDelta(hhAddress3, -200, 42);
+        instance.updateMeterDelta(hhAddress4, -200, 42);
 
         instance.settle();
 
@@ -174,10 +172,10 @@ describe("Utility", () => {
       });
 
       it("availableRenewableEnergy = 200, neededRenewableEnergy = -300; households need to split energy, round values therefore FIFS", async () => {
-        instance.updateMeterDelta(hhAddress1, 100);
-        instance.updateMeterDelta(hhAddress2, 100);
-        instance.updateMeterDelta(hhAddress3, -200);
-        instance.updateMeterDelta(hhAddress4, -100);
+        instance.updateMeterDelta(hhAddress1, 100, 42);
+        instance.updateMeterDelta(hhAddress2, 100, 42);
+        instance.updateMeterDelta(hhAddress3, -200, 42);
+        instance.updateMeterDelta(hhAddress4, -100, 42);
 
         instance.settle();
 
@@ -196,8 +194,8 @@ describe("Utility", () => {
         instance.addHousehold(hhAddress1);
         instance.addHousehold(hhAddress2);
 
-        instance.updateMeterDelta(hhAddress1, 100);
-        instance.updateMeterDelta(hhAddress2, -100);
+        instance.updateMeterDelta(hhAddress1, 100, 42);
+        instance.updateMeterDelta(hhAddress2, -100, 42);
       }
     );
 
@@ -241,10 +239,10 @@ describe("Utility", () => {
         instance.addHousehold(hhAddress3);
         instance.addHousehold(hhAddress4);
 
-        instance.updateMeterDelta(hhAddress1, 100);
-        instance.updateMeterDelta(hhAddress2, 100);
-        instance.updateMeterDelta(hhAddress3, -100);
-        instance.updateMeterDelta(hhAddress4, -100);
+        instance.updateMeterDelta(hhAddress1, 100, 42);
+        instance.updateMeterDelta(hhAddress2, 100, 42);
+        instance.updateMeterDelta(hhAddress3, -100, 42);
+        instance.updateMeterDelta(hhAddress4, -100, 42);
 
         instance.settle();
 
