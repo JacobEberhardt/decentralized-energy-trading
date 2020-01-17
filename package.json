@@ -24,7 +24,6 @@
     "test-parity-docker": "./scripts/run_docker_parity_tests.sh",
     "test-helpers": "mocha ./test/helpers/*.js",
     "test-utility-js": "mocha ./test/utility-js/*",
-    "utility-benchmark": "./scripts/benchmarks/run_utility_benchmark.sh",
     "update-contract-bytecodes": "yarn compile-contracts && node ./scripts/update-contract-bytecodes",
     "setup-zokrates": "./scripts/setup_zokrates.sh",
     "run-benchmark-node": "./benchmark/run-parity.sh",
