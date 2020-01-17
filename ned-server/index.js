@@ -79,14 +79,10 @@ async function init() {
     utilityAfterNetting.settle();
     console.log("Utility before Netting: ", utilityBeforeNetting)
     console.log("Utility after Netting: ", utilityAfterNetting)
-    const hhWithEnergy = serverConfig.hhProduce;
-    const hhNoEnergy = serverConfig.hhConsume;
     let hhAddresses = zkHandler.generateProof(
       utilityBeforeNetting,
       utilityAfterNetting,
-      hhWithEnergy,
-      hhNoEnergy,
-      "real_mode"
+      "production_mode"
     );
 
     let rawdata = fs.readFileSync("../zokrates-code/proof.json");

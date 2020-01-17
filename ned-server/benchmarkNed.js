@@ -58,13 +58,9 @@ async function runZokrates() {
   utilityAfterNetting = { ...utility };
   Object.setPrototypeOf(utilityAfterNetting, Utility.prototype);
   utilityAfterNetting.settle();
-  const hhWithEnergy = serverConfig.hhProduce;
-  const hhNoEnergy = serverConfig.hhConsume
   let hhAddressToHash = zkHandler.generateProof(
     utilityBeforeNetting,
     utilityAfterNetting,
-    hhWithEnergy,
-    hhNoEnergy,
     "benchmark_mode"
   );
   delete hhAddressToHash[ZERO_ADDRESS];

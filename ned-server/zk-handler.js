@@ -7,7 +7,7 @@ const { performance } = require("perf_hooks");
  * This handler manages the communication of the NED Server and the ZoKrates environment
  */
 module.exports = {
-  generateProof: (utilityBeforeNetting, utilityAfterNetting, hhWithEnergy, hhNoEnergy, mode) => {
+  generateProof: (utilityBeforeNetting, utilityAfterNetting, mode) => {
     let cW_t0 = 0;
     let cW_t1 = 0;
     let cW_time = 0;
@@ -16,27 +16,27 @@ module.exports = {
     let gP_t1 = 0;
     let gP_time = 0;
 
-    const hhAddressesWithEnergyBefore = utilityBeforeNetting.getHouseholdAddressesWithEnergy();
-    const hhAddressesNoEnergyBefore = utilityBeforeNetting.getHouseholdAddressesNoEnergy();
+    const hhAddressesProducersBeforeNet = utilityBeforeNetting.getHouseholdAddressesProducers();
+    const hhAddressesConsumersBeforeNet = utilityBeforeNetting.getHouseholdAddressesConsumers();
 
     const hhAddresses = [
-      ...hhAddressesWithEnergyBefore,
-      ...hhAddressesNoEnergyBefore
+      ...hhAddressesProducersBeforeNet,
+      ...hhAddressesConsumersBeforeNet
     ];
-    const deltasWithEnergyBefore = hhAddressesWithEnergyBefore.map(address => utilityBeforeNetting.households[address].meterDelta).join(" ");
-    const deltasNoEnergyBefore = hhAddressesNoEnergyBefore.map(address => Math.abs(utilityBeforeNetting.households[address].meterDelta)).join(" ");
+    const deltasProducersBeforeNet = hhAddressesProducersBeforeNet.map(address => utilityBeforeNetting.households[address].meterDelta).join(" ");
+    const deltasConsumersBeforeNet = hhAddressesConsumersBeforeNet.map(address => Math.abs(utilityBeforeNetting.households[address].meterDelta)).join(" ");
 
-    const deltasWithEnergyAfter = hhAddressesWithEnergyBefore.map(address => utilityAfterNetting.households[address].meterDelta).join(" ");
-    const deltasNoEnergyAfter = hhAddressesNoEnergyBefore.map(address => Math.abs(utilityAfterNetting.households[address].meterDelta)).join(" ");
+    const deltasProducersAfterNet = hhAddressesProducersBeforeNet.map(address => utilityAfterNetting.households[address].meterDelta).join(" ");
+    const deltasConsumersAfterNet = hhAddressesConsumersBeforeNet.map(address => Math.abs(utilityAfterNetting.households[address].meterDelta)).join(" ");
 
     process.stdout.write("Computing witness...");
-    console.log(`zokrates compute-witness -a ${deltasWithEnergyBefore} ${deltasNoEnergyBefore} ${deltasWithEnergyAfter} ${deltasNoEnergyAfter} > /dev/null`);
+    console.log(`zokrates compute-witness -a ${deltasProducersBeforeNet} ${deltasConsumersBeforeNet} ${deltasProducersAfterNet} ${deltasConsumersAfterNet} > /dev/null`);
 
     cW_t0 = performance.now();
 
     const witnessShellStr = shell
       .exec(
-        `zokrates compute-witness -a ${deltasWithEnergyBefore} ${deltasNoEnergyBefore} ${deltasWithEnergyAfter} ${deltasNoEnergyAfter} > /dev/null`
+        `zokrates compute-witness -a ${deltasProducersBeforeNet} ${deltasConsumersBeforeNet} ${deltasProducersAfterNet} ${deltasConsumersAfterNet} > /dev/null`
       )
       .grep("--", "^~out_*", "witness");
 
