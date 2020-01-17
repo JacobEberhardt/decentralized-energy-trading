@@ -2,10 +2,9 @@ const fs = require("fs");
 const path = require("path");
 
 const chainSpec = require("../parity-authority/parity/config/chain.json");
-const utilityArtefact = require("../build/contracts/Utility.json");
 const dUtilityArtefact = require("../build/contracts/dUtility.json");
-const validatorSetArtefact = require("../build/contracts/OwnedSet.json");
 const verifierArtefact = require("../build/contracts/Verifier.json");
+const validatorSetArtefact = require("../build/contracts/OwnedSet.json");
 
 const {
   UTILITY_ADDRESS,
@@ -16,10 +15,6 @@ const {
 // TODO: Dynamically generate with web3
 const ENCODED_INITIAL_VALIDATOR_ADDRESSES =
   "0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000bd138abd70e2f00903268f3db08f2d25677c9e";
-
-if (!utilityArtefact) {
-  throw new Error("No contract artefact for Utility found.");
-}
 
 if (!dUtilityArtefact) {
   throw new Error("No contract artefact for dUtility found.");
