@@ -7,33 +7,33 @@ function generateHelperFuncs(wE, nE) {
 
 import "hashes/sha256/512bitPacked.code" as sha256packed
 
-// Aggregates the Energy of Energy producing HHS.
+// Aggregates the combined meterDelta of Energy producing HHS.
 // @param {field[n]} Energy producing HHs
-// @returns {field} energy of provided households
-def energyOfWE(field[${wE}] hh) -> (field):
-  field energy = 0
+// @returns {field} meterDelta of provided households
+def deltaProducers(field[${wE}] hh) -> (field):
+  field delta = 0
   for field i in 0..${wE} do
-    energy = energy + hh[i]
+    delta = delta + hh[i]
   endfor
-  return energy
+  return delta
 
-// Aggregates the Energy of Energy consuming HHS.
+// Aggregates the combined meterDelta of Energy consuming HHS.
 // @param {field[m]} Energy producing HHs
-// @returns {field} energy of provided households
-def energyOfNE(field[${nE}] hh) -> (field):
-  field energy = 0
+// @returns {field} meterDelta of provided households
+def deltaConsumers(field[${nE}] hh) -> (field):
+  field delta = 0
   for field i in 0..${nE} do
-    energy = energy + hh[i]
+    delta = delta + hh[i]
   endfor
-  return energy
+  return delta
 
 // Returns total energy balance of the system. Remember, this balance can be available or needed energy.
-// @param {field[n]} hhWithEnergy
-// @param {field[m]} hhNoEnergy
+// @param {field[n]} producersBeforeNet
+// @param {field[m]} consumersBeforeNet
 // @returns {field} totalEnergy
-def calculateTotalDelta(field[${wE}] hhWithEnergy, field[${nE}] hhNoEnergy) -> (field):
-  producerDelta = energyOfWE(hhWithEnergy)
-  consumerDelta = energyOfNE(hhNoEnergy)
+def calculateTotalDelta(field[${wE}] producersBeforeNet, field[${nE}] consumersBeforeNet) -> (field):
+  producerDelta = deltaProducers(producersBeforeNet)
+  consumerDelta = deltaConsumers(consumersBeforeNet)
   field totalDelta = if (producerDelta > consumerDelta) then (producerDelta - consumerDelta) else (consumerDelta - producerDelta) fi
   return totalDelta
 
@@ -41,7 +41,7 @@ def calculateTotalDelta(field[${wE}] hhWithEnergy, field[${nE}] hhNoEnergy) -> (
 // @param {field[n]} hh
 // @param {field[n]} hhNet
 // @returns {field} delta
-def deltaNetWE(field[${wE}] hh, field[${wE}] hhNet) -> (field):
+def deltaNetProducers(field[${wE}] hh, field[${wE}] hhNet) -> (field):
   field delta = 0
   for field i in 0..${wE - 1} do
     delta = delta + (hh[i] - hhNet[i])
@@ -52,7 +52,7 @@ def deltaNetWE(field[${wE}] hh, field[${wE}] hhNet) -> (field):
 // @param {field[m]} hh
 // @param {field[m]} hhNet
 // @returns {field} delta
-def deltaNetNE(field[${nE}] hh, field[${nE}] hhNet) -> (field):
+def deltaNetConsumers(field[${nE}] hh, field[${nE}] hhNet) -> (field):
   field delta = 0
   for field i in 0..${nE} do
     delta = delta + (hh[i] - hhNet[i])
@@ -63,7 +63,7 @@ def deltaNetNE(field[${nE}] hh, field[${nE}] hhNet) -> (field):
 // @param {field[n]} hh
 // @param {field[n]} hhNet
 // @returns {field} errorCounter
-def validateFairnessWE(field[${wE}] hh, field[${wE}] hhNet) -> (field):
+def validateFairnessProducers(field[${wE}] hh, field[${wE}] hhNet) -> (field):
   field errorCounter = 0
   for field i in 0..${wE - 1} do
     errorCounter = errorCounter + if hhNet[i] > hh[i] then 1 else 0 fi
@@ -74,7 +74,7 @@ def validateFairnessWE(field[${wE}] hh, field[${wE}] hhNet) -> (field):
 // @param {field[m]} hh
 // @param {field[m]} hhNet
 // @returns {field} errorCounter
-def validateFairnessNE(field[${nE}] hh, field[${nE}] hhNet) -> (field):
+def validateFairnessConsumers(field[${nE}] hh, field[${nE}] hhNet) -> (field):
   field errorCounter = 0
   for field i in 0..${nE} do
     errorCounter = errorCounter + if hhNet[i] > hh[i] then 1 else 0 fi
@@ -86,7 +86,7 @@ def validateFairnessNE(field[${nE}] hh, field[${nE}] hhNet) -> (field):
 // Is valid, only if returns 0.
 // @param (field[n]) household party having energy
 // @param epsilon the error tolerance value
-def validateZeroNetWE(field[${wE}] hh, field epsilon) -> (field):
+def validateZeroNetProducers(field[${wE}] hh, field epsilon) -> (field):
   field errorCounter = 0
   for field i in 0..${wE} do
     errorCounter = errorCounter + if hh[i] > epsilon then 1 else 0 fi
@@ -98,7 +98,7 @@ def validateZeroNetWE(field[${wE}] hh, field epsilon) -> (field):
 // Is valid, only if returns 0.
 // @param (field[m]) household party needing
 // @param epsilon the error tolerance value
-def validateZeroNetNE(field[${nE}] hh, field epsilon) -> (field):
+def validateZeroNetConsumers(field[${nE}] hh, field epsilon) -> (field):
   field errorCounter = 0
   for field i in 0..${nE} do
     errorCounter = errorCounter + if hh[i] > epsilon then 1 else 0 fi
@@ -108,7 +108,7 @@ def validateZeroNetNE(field[${nE}] hh, field epsilon) -> (field):
 // Simply return hh[0] + hh[1] for any array of households with energy.
 // @param (field[n]) hh
 // @returns (field) energy of provided households
-def sumWE(field[${wE}] hh) -> (field):
+def sumProducers(field[${wE}] hh) -> (field):
   field s = 0
   for field i in 0..${wE} do
     s = s + hh[i]
@@ -118,7 +118,7 @@ def sumWE(field[${wE}] hh) -> (field):
 // Simply return hh[0] + hh[1] for any array of households without energy.
 // @param (field[m]) hh
 // @returns (field) energy of provided households
-def sumNE(field[${nE}] hh) -> (field):
+def sumConsumers(field[${nE}] hh) -> (field):
   field s = 0
   for field i in 0..${nE} do
     s = s + hh[i]
@@ -129,8 +129,8 @@ def sumNE(field[${nE}] hh) -> (field):
   
   function generateCode(wE, nE) {
 
-    let energySumStringWE = "  field energySumWE = hhWithEnergy[0] + hhWithEnergyNet[0]";
-    let energySumStringNE = "  field energySumNE = hhNoEnergy[0] + hhNoEnergyNet[0]";
+    let energySumStringProducers = "  field energysumProducers = producersBeforeNet[0] + producersAfterNet[0]";
+    let energySumStringConsumers = "  field energysumConsumers = consumersBeforeNet[0] + consumersAfterNet[0]";
     let packedString = "";
     let returnSignatureString = Array(2 * (wE + nE))
       .fill("field[2]", 0, (wE + nE) * 2 + 1)
@@ -151,80 +151,74 @@ def sumNE(field[${nE}] hh) -> (field):
 
 
     for(let i = 1; i < wE; i++){
-      energySumStringWE += ` + hhWithEnergy[${i}] + hhWithEnergyNet[${i}]`;
+      energySumStringProducers += ` + producersBeforeNet[${i}] + producersAfterNet[${i}]`;
     }
     
     for(let i = 1; i < nE; i++){
-      energySumStringNE += ` + hhNoEnergy[${i}] + hhNoEnergyNet[${i}]`;
+      energySumStringConsumers += ` + consumersBeforeNet[${i}] + consumersAfterNet[${i}]`;
     }
    
   for (let i = 0; i < wE; i++) {    
     packedString += `  field[2] hh${i +
-      1}WithEnergyHash = if hhWithEnergy[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergy[${i}]]) fi\n`;
+      1}ProducersBeforeNetHash = if producersBeforeNet[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[${i}]]) fi\n`;
     packedString += `  field[2] hh${i +
-      1}WithEnergyHashNet = if hhWithEnergyNet[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, hhWithEnergyNet[${i}]]) fi\n`;
+      1}ProducersAfterNetHash = if producersAfterNet[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[${i}]]) fi\n`;
   }
 
   for(let i = 0; i < nE; i++){
     packedString += `  field[2] hh${i +
-      1}NoEnergyHash = if hhNoEnergy[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergy[${i}]]) fi\n`;
+      1}ConsumersBeforeNetHash = if consumersBeforeNet[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[${i}]]) fi\n`;
     packedString += `  field[2] hh${i +
-      1}NoEnergyHashNet = if hhNoEnergyNet[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, hhNoEnergyNet[${i}]]) fi\n`;
+      1}ConsumersAfterNetHash = if consumersAfterNet[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[${i}]]) fi\n`;
   }
 
     for(let i = 0; i < wE; i++){
-      returnString += ` hh${i + 1}WithEnergyHash,`;
+      returnString += ` hh${i + 1}ProducersBeforeNetHash,`;
     }
     for (let i = 0; i < nE; i++) {
-      returnString += ` hh${i + 1}NoEnergyHash,`;
+      returnString += ` hh${i + 1}ConsumersBeforeNetHash,`;
     }
     for (let i = 0; i < wE; i++) {
-      returnString += ` hh${i + 1}WithEnergyHashNet,`;
+      returnString += ` hh${i + 1}ProducersAfterNetHash,`;
     }
     for (let i = 0; i < nE; i++) {
-      returnString += ` hh${i + 1}NoEnergyHashNet,`;
+      returnString += ` hh${i + 1}ConsumersAfterNetHash,`;
     }
 
-    energySumStringNE += "\n";
+    energySumStringConsumers += "\n";
   
     const helperFuncs = generateHelperFuncs(wE, nE);
   
     return `
   ${helperFuncs}
 
-// Returns sha256packed hash if settlement result is consistent and proportional fair up to epsilon = 15
+// Returns sha256packed hash if settlement result is consistent and proportional fair up to epsilon = (number of households - 1)
 // Assume n = 4 households, where |householdListWithEnergy| = 2 and |householdListNoEnergy| = 2
 // Before settlement, households with produce-consume = 0 are not part of the settlement
-// @param (private field[2]) hhWithEnergy before settlement
-// Index represents household and hhWithEnergy[index] := produce-consume > 0 
-// @param (private field[2]) hhNoEnergy before settlement
-// Index represents household and hhNoEnergy[index] := produce-consume < 0 
-// @param (private field[2]) hhWithEnergyNet after settlement
-// Index represents household and hhWithEnergyNet[index] := produce-consume > 0 
-// @param (private field[2]) hhNoEnergyNet after settlement
-// Index represents household and hhNoEnergyNet[index] := produce-consume < 0
-// @param (private field[8]) hhWithEnergyPacked Packed inputs energy + nonce + address of hh with energy surplus
-// Index 0 to 3 are packed inputs of hh1 with energy surplus
-// Index 4 to 7 are packed inputs of hh2 with energy surplus
-// @param (private field[8]) hhNoEnergyPacked Packed inputs energy + nonce + address of hh with energy deficit
-// Index 0 to 3 are packed inputs of hh1 with energy deficit
-// Index 4 to 7 are packed inputs of hh2 with energy deficit
-// @returns (field[2], field[2], field[2], field[2], field[2],...) sha256packed hashes of hhWithEnergyPacked and hhNoEnergyPacked and sha256packed hash that depends on inputs
-def main(private field[${wE}] hhWithEnergy, private field[${nE}] hhNoEnergy, private field[${wE}] hhWithEnergyNet, private field[${nE}] hhNoEnergyNet) -> (${returnSignatureString}):
-  totalDelta = calculateTotalDelta(hhWithEnergy, hhNoEnergy)
-  totalDeltaNet = calculateTotalDelta(hhWithEnergyNet, hhNoEnergyNet)
+// @param (private field[2]) producersBeforeNet before settlement
+// Index represents household and producersBeforeNet[index] := produce-consume > 0 
+// @param (private field[2]) consumersBeforeNet before settlement
+// Index represents household and consumersBeforeNet[index] := produce-consume < 0 
+// @param (private field[2]) producersAfterNet after settlement
+// Index represents household and producersAfterNet[index] := produce-consume > 0 
+// @param (private field[2]) consumersAfterNet after settlement
+// Index represents household and consumersAfterNet[index] := produce-consume < 0
+// @returns (field[2], field[2], field[2], field[2], field[2],...) sha256packed hashes of producersBeforeNetPacked and consumersBeforeNetPacked and sha256packed hash that depends on inputs
+def main(private field[${wE}] producersBeforeNet, private field[${nE}] consumersBeforeNet, private field[${wE}] producersAfterNet, private field[${nE}] consumersAfterNet) -> (${returnSignatureString}):
+  totalDelta = calculateTotalDelta(producersBeforeNet, consumersBeforeNet)
+  totalDeltaNet = calculateTotalDelta(producersAfterNet, consumersAfterNet)
   totalDelta == totalDeltaNet
 
-  0 == validateFairnessWE(hhWithEnergy, hhWithEnergyNet)
-  0 == validateFairnessNE(hhNoEnergy, hhNoEnergyNet)
+  0 == validateFairnessProducers(producersBeforeNet, producersAfterNet)
+  0 == validateFairnessConsumers(consumersBeforeNet, consumersAfterNet)
 
-  field sumWithEnergy = sumWE(hhWithEnergyNet)
-  field sumNoEnergy = sumNE(hhNoEnergyNet)
+  field sumProducers = sumProducers(producersAfterNet)
+  field sumConsumers = sumConsumers(consumersAfterNet)
 
-  field[${wE}] zeroNetPartyWE = hhWithEnergyNet
-  field[${nE}] zeroNetPartyNE = hhNoEnergyNet
+  field[${wE}] zeroNetPartyProducers = producersAfterNet
+  field[${nE}] zeroNetPartyConsumers = consumersAfterNet
 
-  0 == if sumWithEnergy <= sumNoEnergy then validateZeroNetWE(zeroNetPartyWE, ${nE + wE - 1}) else validateZeroNetNE(zeroNetPartyNE, ${nE + wE - 1}) fi// Can make epsilon more accurate in the future
+  0 == if sumProducers <= sumConsumers then validateZeroNetProducers(zeroNetPartyProducers, ${nE + wE - 1}) else validateZeroNetConsumers(zeroNetPartyConsumers, ${nE + wE - 1}) fi// Can make epsilon more accurate in the future
 ${packedString} ${returnString.slice(0, -1)}
 `;
   }
