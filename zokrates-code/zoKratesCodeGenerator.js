@@ -313,9 +313,7 @@ contract IdUtility {
   /* Events */
   event NewHousehold(address indexed household);
 
-  event NettingSuccess();
-
-  event CheckHashesSuccess();
+  event NettingSuccess(uint256 billingPeriod);
 
   event RenewableEnergyChanged(uint256 billingPeriod, address indexed household, bytes32 newDeltaEnergy);
 
@@ -509,7 +507,6 @@ contract dUtility is Mortal, IdUtility {
   /**
    * @dev Validates the equality of the given households and their energy hashes against
    * dUtility's own recorded energy hashes (that the household server sent).
-   * Emits CheckHashesSuccess on successful validation.
    * Throws when _householdAddrs and _householdEnergyHashes length are not equal.
    * Throws when an energy change hash mismatch has been found.
    * @param _householdAddrs array of household addresses to be checked.
@@ -549,7 +546,7 @@ contract dUtility is Mortal, IdUtility {
     // To evaluate the _input hashes, we need to loop through the addresslist provided with the proof and check whether the SC hash registry has values
     require(_checkHashes(billingPeriod, _householdAddrs, _input) == true, "Hashes not matching!");
     require(_verifyNetting(_a, _b, _c, _input) == true, "Netting proof failed!");
-    emit NettingSuccess();
+    emit NettingSuccess(billingPeriod);
     return true;
   }
 

@@ -13,9 +13,7 @@ contract IdUtility {
   /* Events */
   event NewHousehold(address indexed household);
 
-  event NettingSuccess();
-
-  event CheckHashesSuccess();
+  event NettingSuccess(uint256 billingPeriod);
 
   event RenewableEnergyChanged(uint256 billingPeriod, address indexed household, bytes32 newDeltaEnergy);
 
