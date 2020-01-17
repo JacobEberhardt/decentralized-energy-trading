@@ -82,7 +82,7 @@ def validateFairnessConsumers(field[${nE}] hh, field[${nE}] hhNet) -> (field):
   return errorCounter
 
 // Validates the zero-net property (one set of household will be 0 (up to an epislon error) after netting)
-// for the case of sumWithEnergy <= sumNoEnergy
+// for the case of sumProducers <= sumConsumers
 // Is valid, only if returns 0.
 // @param (field[n]) household party having energy
 // @param epsilon the error tolerance value
@@ -94,7 +94,7 @@ def validateZeroNetProducers(field[${wE}] hh, field epsilon) -> (field):
   return errorCounter
 
 // Validates the zero-net property (one set of household will be 0 (up to an epislon error) after netting)
-// for the case of sumWithEnergy >= sumNoEnergy
+// for the case of sumProducers >= sumConsumers
 // Is valid, only if returns 0.
 // @param (field[m]) household party needing
 // @param epsilon the error tolerance value
@@ -193,7 +193,7 @@ def sumConsumers(field[${nE}] hh) -> (field):
   ${helperFuncs}
 
 // Returns sha256packed hash if settlement result is consistent and proportional fair up to epsilon = (number of households - 1)
-// Assume n = 4 households, where |householdListWithEnergy| = 2 and |householdListNoEnergy| = 2
+// Assume n = 4 households, where |householdListProducers| = 2 and |householdListConsumers| = 2
 // Before settlement, households with produce-consume = 0 are not part of the settlement
 // @param (private field[2]) producersBeforeNet before settlement
 // Index represents household and producersBeforeNet[index] := produce-consume > 0 
