@@ -116,18 +116,6 @@ module.exports = async (deployer, network, [authority]) => {
       await web3.eth.personal.unlockAccount(address, password, null);
       break;
     }
-    case "authority_docker": {
-      const otherAuthorityAddress = process.env.AUTHORITY_ADDRESS;
-      const web3 = web3Helper.initWeb3("authority_docker");
-      const ownedSetInstanceInAuthority = await OwnedSet.at(OWNED_SET_ADDRESS);
-      await addValidator(
-        otherAuthorityAddress,
-        ownedSetInstanceInAuthority,
-        web3
-      );
-      await finalizeChange(ownedSetInstanceInAuthority, web3);
-      break;
-    }
     case "benchmark": {
       const web3 = web3Helper.initWeb3("benchmark");
       await web3.eth.personal.unlockAccount(address, password, null);
