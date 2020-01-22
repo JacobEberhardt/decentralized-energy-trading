@@ -56,11 +56,6 @@ module.exports = async (deployer, network, [authority]) => {
       await deployer.deploy(Utility);
       const utilityInstance = await Utility.deployed();
       await utilityInstance.addHousehold(authority);
-      fs.writeFile('tmp/addresses.txt', JSON.stringify({ contract: utilityInstance.address}),
-        function (err) {
-          if (err) throw err;
-        }
-      );
       break;
     }
     case "authority": {
