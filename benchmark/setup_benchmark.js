@@ -5,7 +5,6 @@ const web3Helper = require("../helpers/web3");
 const zokratesHelper = require("../helpers/zokrates");
 const conversionHelper = require("../helpers/conversion")
 const web3 = web3Helper.initWeb3("benchmark");
-const web3Utils = require("web3-utils");
 const serverConfig = require("../household-server-config");
 const request = require("request-promise");
 const { address, password } = require("../household-server-config");

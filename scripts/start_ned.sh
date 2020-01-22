@@ -12,4 +12,4 @@ parity --config parity/authority.toml --engine-signer $(cat authority_address) &
 yarn migrate-contracts-authority
 
 echo "Staring Ned Server ..."
-yarn run-ned
+yarn run-netting-entity
