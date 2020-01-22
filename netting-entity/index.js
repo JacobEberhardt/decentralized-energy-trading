@@ -246,5 +246,5 @@ app.delete("/", function(req, res, next) {
  * Let the server listen to incoming requests on the given IP:Port
  */
 app.listen(config.port, () => {
-  console.log(`NED Server running at http://${config.host}:${config.port}/`);
+  console.log(`Netting Entity running at http://${config.host}:${config.port}/`);
 });
