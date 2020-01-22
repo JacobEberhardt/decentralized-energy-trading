@@ -1,14 +1,16 @@
 const express = require("express");
+const fs = require("fs");
 const cors = require("cors");
 const commander = require("commander");
 const db = require("./apis/db");
 const ned = require("./apis/ned");
+const blockchain = require("./apis/blockchain");
 const transferHandler = require("./transfer-handler");
 const energyHandler = require("./energy-handler");
-
+const request = require("request-promise");
 const web3Helper = require("../helpers/web3");
+const zokratesHelper = require("../helpers/zokrates");
 const contractHelper = require("../helpers/contract");
-
 const serverConfig = require("../household-server-config");
 
 // Specify cli options
@@ -73,15 +75,41 @@ async function init() {
         console.error(error.message);
         throw error;
       }
-      console.log("Netting Successful!");
-      latestBlockNumber = event.blockNumber;
-      nettingActive = false;
-      transferHandler.collectTransfers(config);
+      if (checkNetting()){
+        console.log("Netting Successful!");
+        latestBlockNumber = event.blockNumber;
+        nettingActive = false;
+        transferHandler.collectTransfers(config);
+      } else {
+        throw "Preimage doesn't Match stored hash. NETTING INVALID"
+      }
     }
   );
 }
 
 init();
+
+/**
+ * function for retrieving meterDelta from ned-server and checks if it's the correct preimage for meterDelta. Needed for households to validate netting
+ */
+async function checkNetting(){
+  const randomHash = zokratesHelper.packAndHash(Math.floor(Math.random() * Math.floor(999999999)));
+  const { data, signature } = await web3Helper.signData(web3, config.address, config.password, randomHash)
+
+  const options = {
+    uri: `${config.nedUrl}/meterdelta`,
+    json: true,
+    qs: {
+      hash: data,
+      signature: signature
+    }
+  }
+  return await request(options)
+    .then((res, err) => {
+      const meterDeltaHash = blockchain.getAfterNettingHash(config.network, config.address, config.password)
+      return zokratesHelper.packAndHash(res.meterDelta) != meterDeltaHash
+    })
+}
 
 /**
  * Creating the express server waiting for incoming requests

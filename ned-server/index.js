@@ -158,13 +158,12 @@ app.put("/energy/:householdAddress", async (req, res) => {
       throw new Error("Given address is not a validator");
     }
 
-    const validSignature = await web3Helper.verifySignature(
+    const recoveredAddress = await web3Helper.verifySignature(
       web3,
       hash,
-      signature,
-      householdAddress
+      signature
     );
-    if (!validSignature) {
+    if (recoveredAddress != householdAddress) {
       throw new Error("Invalid signature");
     }
 
@@ -197,6 +196,30 @@ app.get("/network", (req, res) => {
     });
   } catch (err) {
     console.error("GET /network", err.message);
+    res.status(400);
+    res.send(err);
+  }
+});
+
+/**
+ * GET endpoint returning the current meterDelta of a household that provides a valid signature for the account
+ */
+app.get("/meterdelta", async (req, res) => {
+  try {
+    const { signature, hash } = req.query;
+    const recoveredAddress = await web3Helper.verifySignature(web3, hash, signature)
+    const validHouseholdAddress = await hhHandler.isValidatorAddress(
+      ownedSetContract,
+      recoveredAddress
+    );
+    if (!validHouseholdAddress) {
+      throw new Error("Given address is not a validator");
+    }
+
+    res.status(200);
+    res.json({meterDelta: utility.households[recoveredAddress].meterDelta });
+  } catch (err) {
+    console.error("GET /meterdelta", err.message);
     res.status(400);
     res.send(err);
   }
