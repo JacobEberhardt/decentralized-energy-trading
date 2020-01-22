@@ -1,4 +1,3 @@
-const UtilityArtifact = require("../build/contracts/Utility.json");
 const dUtilityArtifact = require("../build/contracts/dUtility.json");
 const OwnedSet = require("../build/contracts/OwnedSet.json");
 const { UTILITY_ADDRESS, OWNED_SET_ADDRESS } = require("../helpers/constants");
@@ -7,10 +6,6 @@ const { UTILITY_ADDRESS, OWNED_SET_ADDRESS } = require("../helpers/constants");
  * Maps contract name to hard coded address in authority setup and truffle artifact.
  */
 const CONTRACTS_MAP = {
-  utility: {
-    addressInAuthority: UTILITY_ADDRESS,
-    artifact: UtilityArtifact
-  },
   dUtility: {
     addressInAuthority: UTILITY_ADDRESS,
     artifact: dUtilityArtifact
@@ -28,7 +23,7 @@ const CONTRACTS_MAP = {
 module.exports = {
   /**
    * Helper function to retrieve the deployed contract address of Utility.
-   * @param {string} contractName Name of contract. "utility" | "ownedSet"
+   * @param {string} contractName Name of contract. "dUtility" | "ownedSet"
    * @param {string} networkId Id of network where contract is deployed.
    * @returns {string} Contract address of deployed Utility contract.
    */

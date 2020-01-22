@@ -1,6 +1,6 @@
 # NED-Server
 Run NED-Server with
 ```
-yarn run-ned
+yarn run-netting-entity
 ```
 Config can be set in `root/ned-server-config.js`

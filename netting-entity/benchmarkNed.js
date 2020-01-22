@@ -1,11 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const commander = require("commander");
-const web3Utils = require("web3-utils");
 const shell = require("shelljs");
 const fs = require('fs');
-const Utility = require("../utility-js/Utility");
-const hhHandler = require("./household-handler");
+const Utility = require("./utility");
 const zkHandler = require("./zk-handler");
 const web3Helper = require("../helpers/web3");
 const { ZERO_ADDRESS } = require("../helpers/constants");
@@ -58,13 +56,9 @@ async function runZokrates() {
   utilityAfterNetting = { ...utility };
   Object.setPrototypeOf(utilityAfterNetting, Utility.prototype);
   utilityAfterNetting.settle();
-  const hhWithEnergy = serverConfig.hhProduce;
-  const hhNoEnergy = serverConfig.hhConsume
   let hhAddressToHash = zkHandler.generateProof(
     utilityBeforeNetting,
     utilityAfterNetting,
-    hhWithEnergy,
-    hhNoEnergy,
     "benchmark_mode"
   );
   delete hhAddressToHash[ZERO_ADDRESS];

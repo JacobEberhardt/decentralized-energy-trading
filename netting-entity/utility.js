@@ -118,28 +118,28 @@ class Utility {
    */
   _getProducersConsumers() {
     const entries = Object.entries(this.households);
-    const withEnergy = entries
+    const producers = entries
       .filter(hh => hh[1].meterDelta > 0)
       .map(hh => hh[0]);
-    const noEnergy = entries
+    const consumers = entries
       .filter(hh => hh[1].meterDelta < 0)
       .map(hh => hh[0]);
     let deltaProducers = 0;
-    for (let i = 0; i < withEnergy.length; i++) {
-      deltaProducers += Number(this.households[withEnergy[i]].meterDelta);
+    for (let i = 0; i < producers.length; i++) {
+      deltaProducers += Number(this.households[producers[i]].meterDelta);
     }
 
     let deltaConsumers = 0;
-    for (let i = 0; i < noEnergy.length; i++) {
-      deltaConsumers += Number(this.households[noEnergy[i]].meterDelta);
+    for (let i = 0; i < consumers.length; i++) {
+      deltaConsumers += Number(this.households[consumers[i]].meterDelta);
     }
 
     let isMoreAvailableThanDemanded = deltaProducers > Math.abs(deltaConsumers);
 
     if (isMoreAvailableThanDemanded) {
-      return { "hFrom": noEnergy, "eFrom": deltaConsumers, "hTo": withEnergy, "eTo": deltaProducers, "isMoreAvailableThanDemanded": isMoreAvailableThanDemanded };
+      return { "hFrom": consumers, "eFrom": deltaConsumers, "hTo": producers, "eTo": deltaProducers, "isMoreAvailableThanDemanded": isMoreAvailableThanDemanded };
     } else {
-      return { "hFrom": withEnergy, "eFrom": deltaProducers, "hTo": noEnergy, "eTo": deltaConsumers, "isMoreAvailableThanDemanded": isMoreAvailableThanDemanded }
+      return { "hFrom": producers, "eFrom": deltaProducers, "hTo": consumers, "eTo": deltaConsumers, "isMoreAvailableThanDemanded": isMoreAvailableThanDemanded }
     }
   }
 
@@ -147,7 +147,7 @@ class Utility {
    * Returns all households with positive renewable energy balance.
    * @returns {Array.<string>} Array of addresses of households with positive renewable energy balance
    */
-  getHouseholdAddressesWithEnergy() {
+  getHouseholdAddressesProducers() {
     delete this.households[ZERO_ADDRESS];
     const entries = Object.entries(this.households);
     return entries.filter(hh => hh[1].meterDelta >= 0).map(hh => hh[0]);
@@ -157,7 +157,7 @@ class Utility {
    * Returns all households with negative renewable energy balance.
    * @returns {Array.<string>} Array of addresses of households with negative renewable energy balance
    */
-  getHouseholdAddressesNoEnergy() {
+  getHouseholdAddressesConsumers() {
     const entries = Object.entries(this.households);
     return entries.filter(hh => hh[1].meterDelta < 0).map(hh => hh[0]);
   }

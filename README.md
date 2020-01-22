@@ -44,10 +44,10 @@ docker-compose up -d --build
 yarn migrate-contracts-authority
 ```
 
-**5.)** Start the NED server:
+**5.)** Start the Netting Entity:
 
 ```bash
-yarn run-ned -i 60000
+yarn run-netting-entity -i 60000
 ```
 
 **6.)** Create two databases for both household servers:

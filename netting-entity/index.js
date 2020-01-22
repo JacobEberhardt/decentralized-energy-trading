@@ -4,7 +4,7 @@ const commander = require("commander");
 const web3Utils = require("web3-utils");
 const shell = require("shelljs");
 const fs = require("fs");
-const Utility = require("../utility-js/Utility");
+const Utility = require("./utility");
 const hhHandler = require("./household-handler");
 const zkHandler = require("./zk-handler");
 const web3Helper = require("../helpers/web3");
@@ -79,14 +79,10 @@ async function init() {
     utilityAfterNetting.settle();
     console.log("Utility before Netting: ", utilityBeforeNetting)
     console.log("Utility after Netting: ", utilityAfterNetting)
-    const hhWithEnergy = serverConfig.hhProduce;
-    const hhNoEnergy = serverConfig.hhConsume;
     let hhAddresses = zkHandler.generateProof(
       utilityBeforeNetting,
       utilityAfterNetting,
-      hhWithEnergy,
-      hhNoEnergy,
-      "real_mode"
+      "production_mode"
     );
 
     let rawdata = fs.readFileSync("../zokrates-code/proof.json");
@@ -273,5 +269,5 @@ app.delete("/", function(req, res, next) {
  * Let the server listen to incoming requests on the given IP:Port
  */
 app.listen(config.port, () => {
-  console.log(`NED Server running at http://${config.host}:${config.port}/`);
+  console.log(`Netting Entity running at http://${config.host}:${config.port}/`);
 });

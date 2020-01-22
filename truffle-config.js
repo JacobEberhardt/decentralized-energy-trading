@@ -24,12 +24,6 @@ module.exports = {
       network_id: "8995",
       websockets: true
     },
-    authority_docker: {
-      host: "127.0.0.1",
-      port: 8046,
-      network_id: "8995",
-      websockets: true
-    },
     benchmark: {
       host: "127.0.0.1",
       port: 8546,

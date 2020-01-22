@@ -4,7 +4,7 @@ const fs = require('fs');
 const Utility = artifacts.require("dUtility");
 const OwnedSet = artifacts.require("OwnedSet");
 const dUtilityBenchmark = artifacts.require("dUtilityBenchmark");
-const verifier = artifacts.require("../zokrates-code/verifier.sol")
+const verifier = artifacts.require("verifier.sol")
 
 const web3Helper = require("../helpers/web3");
 const asyncUtils = require("../helpers/async-utils");
@@ -116,18 +116,6 @@ module.exports = async (deployer, network, [authority]) => {
       await web3.eth.personal.unlockAccount(address, password, null);
       break;
     }
-    case "authority_docker": {
-      const otherAuthorityAddress = process.env.AUTHORITY_ADDRESS;
-      const web3 = web3Helper.initWeb3("authority_docker");
-      const ownedSetInstanceInAuthority = await OwnedSet.at(OWNED_SET_ADDRESS);
-      await addValidator(
-        otherAuthorityAddress,
-        ownedSetInstanceInAuthority,
-        web3
-      );
-      await finalizeChange(ownedSetInstanceInAuthority, web3);
-      break;
-    }
     case "benchmark": {
       const web3 = web3Helper.initWeb3("benchmark");
       await web3.eth.personal.unlockAccount(address, password, null);
@@ -145,7 +133,8 @@ module.exports = async (deployer, network, [authority]) => {
       fs.writeFile('tmp/addresses.txt', JSON.stringify({contract: contractAddress, verifier: verifierAddress}),
         function (err) {
           if (err) throw err;
-        });
+        }
+      );
       break;
     }
     default: {
