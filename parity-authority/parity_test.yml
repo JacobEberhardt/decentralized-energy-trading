@@ -1,0 +1,148 @@
+
+version: '2.1'
+services:
+  authority0:
+    build:
+      context: .
+      dockerfile: docker_authority/Dockerfile
+      args:
+        PARITY_VERSION: ${PARITY_VERSION}
+        NETWORK_NAME: ${NETWORK_NAME}
+        ID: 0
+    volumes:
+      - data-volume:/home/parity/.local/share/io.parity.ethereum/chains/${NETWORK_NAME}/db
+    command:
+      --config parity/config/authority.toml
+      --engine-signer 0x00bd138abd70e2f00903268f3db08f2d25677c9e
+      --ws-interface 0.0.0.0
+      --unsafe-expose
+      --jsonrpc-cors all
+      --no-persistent-txqueue
+      --fast-unlock
+      --tracing on
+    ports:
+      - 8545:8545
+      - 8546:8546
+      - 8180:8180
+      - 30303:30303
+    networks:
+      app_net:
+        ipv4_address: 172.16.0.10
+
+
+  authority1:
+    build:
+      context: .
+      dockerfile: docker_authority/Dockerfile
+      args:
+        PARITY_VERSION: ${PARITY_VERSION}
+        NETWORK_NAME: ${NETWORK_NAME}
+        ID: 1
+    command:
+      --config parity/config/authority.toml
+      --engine-signer 0x00aa39d30f0d20ff03a22ccfc30b7efbfca597c2
+      --ws-interface 0.0.0.0
+      --unsafe-expose
+      --jsonrpc-cors all
+      --no-persistent-txqueue
+      --fast-unlock
+    ports:
+      - 8555:8545
+      - 8556:8546
+    networks:
+      app_net:
+        ipv4_address: 172.16.0.11
+
+
+  authority2:
+    build:
+      context: .
+      dockerfile: docker_authority/Dockerfile
+      args:
+        PARITY_VERSION: ${PARITY_VERSION}
+        NETWORK_NAME: ${NETWORK_NAME}
+        ID: 2
+    command:
+      --config parity/config/authority.toml
+      --engine-signer 0x002e28950558fbede1a9675cb113f0bd20912019
+      --no-persistent-txqueue
+      --fast-unlock
+    ports:
+      - 8565:8545
+      - 8566:8546
+    networks:
+      app_net:
+        ipv4_address: 172.16.0.12
+
+
+  authority3:
+    build:
+      context: .
+      dockerfile: docker_authority/Dockerfile
+      args:
+        PARITY_VERSION: ${PARITY_VERSION}
+        NETWORK_NAME: ${NETWORK_NAME}
+        ID: 3
+    command:
+      --config parity/config/authority.toml
+      --engine-signer 0x527113ea212bf6e03b2a00792dafddce734a745d
+      --no-persistent-txqueue
+      --fast-unlock
+    ports:
+      - 8575:8545
+      - 8576:8546
+    networks:
+      app_net:
+        ipv4_address: 172.16.0.13
+
+
+  authority4:
+    build:
+      context: .
+      dockerfile: docker_authority/Dockerfile
+      args:
+        PARITY_VERSION: ${PARITY_VERSION}
+        NETWORK_NAME: ${NETWORK_NAME}
+        ID: 4
+    command:
+      --config parity/config/authority.toml
+      --engine-signer 0x1c54805cfa720fb2fa52ca2b353b0b54172ef072
+      --no-persistent-txqueue
+      --fast-unlock
+    ports:
+      - 8585:8545
+      - 8586:8546
+    networks:
+      app_net:
+        ipv4_address: 172.16.0.14
+
+
+  monitor:
+    image: buythewhale/ethstats_monitor
+    volumes:
+      - ./monitor/app.json:/home/ethnetintel/eth-net-intelligence-api/app.json:ro
+    networks:
+      app_net:
+        ipv4_address: 172.16.0.100
+
+
+  dashboard:
+    image: buythewhale/ethstats
+    volumes:
+      - ./dashboard/ws_secret.json:/eth-netstats/ws_secret.json:ro
+    ports:
+      - 3001:3000
+    networks:
+      app_net:
+        ipv4_address: 172.16.0.200
+
+volumes:
+  data-volume:
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.16.0.1/24
+        gateway: 172.16.0.1

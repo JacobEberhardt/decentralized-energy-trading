@@ -27,7 +27,12 @@
     "update-contract-bytecodes": "yarn compile-contracts && node ./scripts/update-contract-bytecodes",
     "setup-zokrates": "./scripts/setup_zokrates.sh",
     "run-benchmark-node": "./benchmark/run-parity.sh",
-    "generate-prooving-files": "node zokrates-code/zoKratesCodeGenerator.js"
+    "generate-proving-files": "node zokrates-code/zoKratesCodeGenerator.js",
+    "generate-docker-parity": "node generateDockerChain.js",
+    "docker-parity-setup": "./parity-authority/parity_setup.sh",
+    "setup-system": "./scripts/setup_script.sh",
+    "generate-docker-files": "node setup_script.js"
+
   },
   "devDependencies": {
     "@gnosis.pm/mock-contract": "3.0.7",
@@ -62,7 +67,9 @@
     "express": "^4.16.4",
     "gaussian": "^1.1.0",
     "js-sha256": "0.9.0",
+    "keythereum": "^1.0.4",
     "mongodb": "3.3.2",
+    "portscanner": "^2.2.0",
     "request": "^2.88.0",
     "request-promise": "^4.2.4",
     "shelljs": "^0.8.3",

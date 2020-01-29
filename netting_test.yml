@@ -1,0 +1,159 @@
+
+version: '3.5'
+services:
+
+  netting-server:
+    build: './netting-entity/dockerized_setup'
+    command: yarn run-netting-entity -i 60000
+    volumes:
+      - /usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3005:3005"
+    restart: unless-stopped
+    networks:
+      - 02-docker_parity_net
+
+  
+  mongo-1:
+    image: mongo
+    ports:
+      - "27017:27017"
+    networks:
+      - 02-docker_parity_net
+        
+  mongo-2:
+    image: mongo
+    ports:
+      - "27018:27017"
+    networks:
+      - 02-docker_parity_net
+        
+  mongo-3:
+    image: mongo
+    ports:
+      - "27019:27017"
+    networks:
+      - 02-docker_parity_net
+        
+  mongo-4:
+    image: mongo
+    ports:
+      - "27020:27017"
+    networks:
+      - 02-docker_parity_net
+        
+  
+  household-server-1:
+    build: './household-server'
+    command: yarn run-server -p 3002 -a 0x00aa39d30f0d20ff03a22ccfc30b7efbfca597c2 -P node1 -n authority_1 -d mongodb://mongo-1:27017 -N http://netting-server:3005
+    volumes:
+      - /usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3002:3002"
+    restart: unless-stopped
+    depends_on:
+      - mongo-1
+      - netting-server
+    networks:
+      - 02-docker_parity_net
+        
+  household-server-2:
+    build: './household-server'
+    command: yarn run-server -p 3003 -a 0x002e28950558fbede1a9675cb113f0bd20912019 -P node2 -n authority_2 -d mongodb://mongo-2:27017 -N http://netting-server:3005
+    volumes:
+      - /usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3003:3003"
+    restart: unless-stopped
+    depends_on:
+      - mongo-2
+      - netting-server
+    networks:
+      - 02-docker_parity_net
+        
+  household-server-3:
+    build: './household-server'
+    command: yarn run-server -p 3004 -a 0x527113ea212bf6e03b2a00792dafddce734a745d -P node3 -n authority_3 -d mongodb://mongo-3:27017 -N http://netting-server:3005
+    volumes:
+      - /usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3004:3004"
+    restart: unless-stopped
+    depends_on:
+      - mongo-3
+      - netting-server
+    networks:
+      - 02-docker_parity_net
+        
+  household-server-4:
+    build: './household-server'
+    command: yarn run-server -p 3006 -a 0x1c54805cfa720fb2fa52ca2b353b0b54172ef072 -P node4 -n authority_4 -d mongodb://mongo-4:27017 -N http://netting-server:3005
+    volumes:
+      - /usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3006:3006"
+    restart: unless-stopped
+    depends_on:
+      - mongo-4
+      - netting-server
+    networks:
+      - 02-docker_parity_net
+        
+  
+  sensor-server-1:
+    build: './mock-sensor'
+    command: yarn run-sensor -h household-server-1 -p 3002 -e +
+    volumes:
+      - /usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+    depends_on:
+      - household-server-1
+    networks:
+      - 02-docker_parity_net
+        
+  sensor-server-2:
+    build: './mock-sensor'
+    command: yarn run-sensor -h household-server-2 -p 3003 -e +
+    volumes:
+      - /usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+    depends_on:
+      - household-server-2
+    networks:
+      - 02-docker_parity_net
+        
+  sensor-server-3:
+    build: './mock-sensor'
+    command: yarn run-sensor -h household-server-3 -p 3004 -e -
+    volumes:
+      - /usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+    depends_on:
+      - household-server-3
+    networks:
+      - 02-docker_parity_net
+        
+  sensor-server-4:
+    build: './mock-sensor'
+    command: yarn run-sensor -h household-server-4 -p 3006 -e -
+    volumes:
+      - /usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+    depends_on:
+      - household-server-4
+    networks:
+      - 02-docker_parity_net
+        
+
+networks:
+  02-docker_parity_net:
+    external: true

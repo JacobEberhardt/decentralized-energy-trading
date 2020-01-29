@@ -69,17 +69,21 @@ function generateServer(n){
 
     for(let i = 0; i < n; i++){
         if(pointer+i == 3005){
-            hhPorts[i] = pointer + i+1;
-            pointer++;
+            hhPorts[i] = pointer + i; //+1;
+            //pointer++;
         }
         else{
             hhPorts[i] = pointer + i;
         }
+
+        let key_json = JSON.parse(fs.readFileSync(`./parity-authority/parity/authorities/authority${i+1}.json`, 'utf8'));
+        
+        let address = "0x" + key_json.address;
         
         serverString += `
   household-server-${i+1}:
-    build: './03-household-server'
-    command: yarn run-server -p ${hhPorts[i]} -a 0x00aa39d30f0d20ff03a22ccfc30b7efbfca597c2 -P node1 -n authority_1 -d mongodb://mongo-${i+1}:27017 -N http://netting-server:3005
+    build: './household-server'
+    command: yarn run-server -p ${hhPorts[i]} -a ${address} -P node${i+1} -n authority_${i+1} -d mongodb://mongo-${i+1}:27017 -N http://netting-server:3000
     volumes:
       - /usr/src/app
       - /usr/src/app/node_modules
@@ -107,7 +111,7 @@ function generateSensor(wE, nE){
     for(i; i < wE; i++){
         sensorString += `
   sensor-server-${i+1}:
-    build: './04-sensor-server'
+    build: './mock-sensor'
     command: yarn run-sensor -h household-server-${i+1} -p ${hhPorts[i]} -e +
     volumes:
       - /usr/src/app
@@ -123,7 +127,7 @@ function generateSensor(wE, nE){
     for(i; i < (wE+nE); i++){
         sensorString += `
   sensor-server-${i+1}:
-    build: './04-sensor-server'
+    build: './mock-sensor'
     command: yarn run-sensor -h household-server-${i+1} -p ${hhPorts[i]} -e -
     volumes:
       - /usr/src/app
@@ -158,13 +162,13 @@ version: '3.5'
 services:
 
   netting-server:
-    build: './02-netting-server'
-    command: yarn run-ned -i 60000
+    build: './netting-entity/dockerized_setup'
+    command: yarn run-netting-entity -i 60000
     volumes:
       - /usr/src/app
       - /usr/src/app/node_modules
     ports:
-      - "3005:3005"
+      - "3000:3000"
     restart: unless-stopped
     networks:
       - 02-docker_parity_net
