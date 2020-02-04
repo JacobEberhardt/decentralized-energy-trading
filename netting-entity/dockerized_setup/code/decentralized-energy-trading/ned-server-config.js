@@ -13,7 +13,7 @@
       // Time Interval of the ned server triggering the netting in the ZoKrates execution environment
       nettingInterval: 10000,
       // Working directory of the file and the child process
-      workingDir: "./neting-entity",
+      workingDir: "./ned-server",
       // File name to execute
       fileName: "helloworld.sh",
       // Execution environment for the file
