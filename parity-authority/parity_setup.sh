@@ -2,12 +2,15 @@
 
 set -e
 
-if [[ $# -lt 1 ]] ; then
+if [[ $# -lt 2 ]] ; then
     echo 'ERROR! The number of input values is not sufficient!'
     exit 1
 fi
 
-HH=$1
+PROSUMER=$1
+CONSUMER=$2
+
+HH=$1+$2
 
 for ((i=3; i<=$HH; i++))
 do
@@ -20,3 +23,7 @@ yes "node$i" | ethkey generate parity/authorities/authority$i.json
 done
 
 yarn generate-docker-parity $HH
+
+#yarn migrate-contracts-authority
+
+yarn setup-system $PROSUMER $CONSUMER
