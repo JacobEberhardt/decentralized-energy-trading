@@ -163,7 +163,7 @@ services:
 
   netting-server:
     build: './netting-entity/dockerized_setup'
-    command: yarn run-netting-entity -i 60000
+    command: yarn run-netting-entity -p 3000 -i 60000
     volumes:
       - /usr/src/app
       - /usr/src/app/node_modules
