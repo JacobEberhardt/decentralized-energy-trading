@@ -1,0 +1,162 @@
+
+  
+//The Script generated the Code for 4 HHs
+//The comments and explanations are provided for an example with n households!
+
+import "hashes/sha256/512bitPacked.code" as sha256packed
+
+// Aggregates the combined meterDelta of Energy producing HHS.
+// @param {field[n]} Energy producing HHs
+// @returns {field} meterDelta of provided households
+def deltaProducers(field[2] hh) -> (field):
+  field delta = 0
+  for field i in 0..2 do
+    delta = delta + hh[i]
+  endfor
+  return delta
+
+// Aggregates the combined meterDelta of Energy consuming HHS.
+// @param {field[m]} Energy producing HHs
+// @returns {field} meterDelta of provided households
+def deltaConsumers(field[2] hh) -> (field):
+  field delta = 0
+  for field i in 0..2 do
+    delta = delta + hh[i]
+  endfor
+  return delta
+
+// Returns total energy balance of the system. Remember, this balance can be available or needed energy.
+// @param {field[n]} producersBeforeNet
+// @param {field[m]} consumersBeforeNet
+// @returns {field} totalEnergy
+def calculateTotalDelta(field[2] producersBeforeNet, field[2] consumersBeforeNet) -> (field):
+  producerDelta = deltaProducers(producersBeforeNet)
+  consumerDelta = deltaConsumers(consumersBeforeNet)
+  field totalDelta = if (producerDelta > consumerDelta) then (producerDelta - consumerDelta) else (consumerDelta - producerDelta) fi
+  return totalDelta
+
+// Returns sum of deltas between hh and hhNet with Energy
+// @param {field[n]} hh
+// @param {field[n]} hhNet
+// @returns {field} delta
+def deltaNetProducers(field[2] hh, field[2] hhNet) -> (field):
+  field delta = 0
+  for field i in 0..1 do
+    delta = delta + (hh[i] - hhNet[i])
+  endfor
+  return delta
+
+// Returns sum of deltas between hh and hhNet without Energy
+// @param {field[m]} hh
+// @param {field[m]} hhNet
+// @returns {field} delta
+def deltaNetConsumers(field[2] hh, field[2] hhNet) -> (field):
+  field delta = 0
+  for field i in 0..2 do
+    delta = delta + (hh[i] - hhNet[i])
+  endfor
+  return delta
+
+// Returns errorCounter. Implements weak fairness invariant for HHs with Energy
+// @param {field[n]} hh
+// @param {field[n]} hhNet
+// @returns {field} errorCounter
+def validateFairnessProducers(field[2] hh, field[2] hhNet) -> (field):
+  field errorCounter = 0
+  for field i in 0..1 do
+    errorCounter = errorCounter + if hhNet[i] > hh[i] then 1 else 0 fi
+  endfor
+  return errorCounter
+
+// Returns errorCounter. Implements weak fairness invariant for HHs without Energy
+// @param {field[m]} hh
+// @param {field[m]} hhNet
+// @returns {field} errorCounter
+def validateFairnessConsumers(field[2] hh, field[2] hhNet) -> (field):
+  field errorCounter = 0
+  for field i in 0..2 do
+    errorCounter = errorCounter + if hhNet[i] > hh[i] then 1 else 0 fi
+  endfor
+  return errorCounter
+
+// Validates the zero-net property (one set of household will be 0 (up to an epislon error) after netting)
+// for the case of sumProducers <= sumConsumers
+// Is valid, only if returns 0.
+// @param (field[n]) household party having energy
+// @param epsilon the error tolerance value
+def validateZeroNetProducers(field[2] hh, field epsilon) -> (field):
+  field errorCounter = 0
+  for field i in 0..2 do
+    errorCounter = errorCounter + if hh[i] > epsilon then 1 else 0 fi
+  endfor
+  return errorCounter
+
+// Validates the zero-net property (one set of household will be 0 (up to an epislon error) after netting)
+// for the case of sumProducers >= sumConsumers
+// Is valid, only if returns 0.
+// @param (field[m]) household party needing
+// @param epsilon the error tolerance value
+def validateZeroNetConsumers(field[2] hh, field epsilon) -> (field):
+  field errorCounter = 0
+  for field i in 0..2 do
+    errorCounter = errorCounter + if hh[i] > epsilon then 1 else 0 fi
+  endfor
+  return errorCounter
+
+// Simply return hh[0] + hh[1] for any array of households with energy.
+// @param (field[n]) hh
+// @returns (field) energy of provided households
+def sumProducers(field[2] hh) -> (field):
+  field s = 0
+  for field i in 0..2 do
+    s = s + hh[i]
+  endfor
+  return s
+
+// Simply return hh[0] + hh[1] for any array of households without energy.
+// @param (field[m]) hh
+// @returns (field) energy of provided households
+def sumConsumers(field[2] hh) -> (field):
+  field s = 0
+  for field i in 0..2 do
+    s = s + hh[i]
+  endfor
+  return s
+
+
+// Returns sha256packed hash if settlement result is consistent and proportional fair up to epsilon = (number of households - 1)
+// Assume n = 4 households, where |householdListProducers| = 2 and |householdListConsumers| = 2
+// Before settlement, households with produce-consume = 0 are not part of the settlement
+// @param (private field[2]) producersBeforeNet before settlement
+// Index represents household and producersBeforeNet[index] := produce-consume > 0 
+// @param (private field[2]) consumersBeforeNet before settlement
+// Index represents household and consumersBeforeNet[index] := produce-consume < 0 
+// @param (private field[2]) producersAfterNet after settlement
+// Index represents household and producersAfterNet[index] := produce-consume > 0 
+// @param (private field[2]) consumersAfterNet after settlement
+// Index represents household and consumersAfterNet[index] := produce-consume < 0
+// @returns (field[2], field[2], field[2], field[2], field[2],...) sha256packed hashes of producersBeforeNetPacked and consumersBeforeNetPacked and sha256packed hash that depends on inputs
+def main(private field[2] producersBeforeNet, private field[2] consumersBeforeNet, private field[2] producersAfterNet, private field[2] consumersAfterNet) -> (field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2]):
+  totalDelta = calculateTotalDelta(producersBeforeNet, consumersBeforeNet)
+  totalDeltaNet = calculateTotalDelta(producersAfterNet, consumersAfterNet)
+  totalDelta == totalDeltaNet
+
+  0 == validateFairnessProducers(producersBeforeNet, producersAfterNet)
+  0 == validateFairnessConsumers(consumersBeforeNet, consumersAfterNet)
+
+  field sumProducers = sumProducers(producersAfterNet)
+  field sumConsumers = sumConsumers(consumersAfterNet)
+
+  field[2] zeroNetPartyProducers = producersAfterNet
+  field[2] zeroNetPartyConsumers = consumersAfterNet
+
+  0 == if sumProducers <= sumConsumers then validateZeroNetProducers(zeroNetPartyProducers, 3) else validateZeroNetConsumers(zeroNetPartyConsumers, 3) fi// Can make epsilon more accurate in the future
+  field[2] hh1ProducersBeforeNetHash = if producersBeforeNet[0] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[0]]) fi
+  field[2] hh1ProducersAfterNetHash = if producersAfterNet[0] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[0]]) fi
+  field[2] hh2ProducersBeforeNetHash = if producersBeforeNet[1] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[1]]) fi
+  field[2] hh2ProducersAfterNetHash = if producersAfterNet[1] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[1]]) fi
+  field[2] hh1ConsumersBeforeNetHash = if consumersBeforeNet[0] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[0]]) fi
+  field[2] hh1ConsumersAfterNetHash = if consumersAfterNet[0] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[0]]) fi
+  field[2] hh2ConsumersBeforeNetHash = if consumersBeforeNet[1] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[1]]) fi
+  field[2] hh2ConsumersAfterNetHash = if consumersAfterNet[1] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[1]]) fi
+  return  hh1ProducersBeforeNetHash, hh2ProducersBeforeNetHash, hh1ConsumersBeforeNetHash, hh2ConsumersBeforeNetHash, hh1ProducersAfterNetHash, hh2ProducersAfterNetHash, hh1ConsumersAfterNetHash, hh2ConsumersAfterNetHash
