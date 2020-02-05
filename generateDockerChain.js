@@ -121,6 +121,40 @@ fs.writeFile('./parity-authority/monitor/app.json', standard_string, 'utf8',(err
 
 }
 
+function generateHelperConstants(hhNo){
+
+  let new_str = "";
+
+  for(let i = 3; i <= hhNo; i++){
+
+    let key_json = JSON.parse(fs.readFileSync(`./parity-authority/parity/authorities/authority${i}.json`, 'utf8'));
+    
+    let address = "0x" + key_json.address;
+
+    new_str += `,
+    "${address}"`
+    
+  }
+
+  let standard_str = `
+module.exports = {
+  UTILITY_ADDRESS: "0x0000000000000000000000000000000000000042",
+  OWNED_SET_ADDRESS: "0x0000000000000000000000000000000000000044",
+  VERIFIER_ADDRESS: "0x0000000000000000000000000000000000000045",
+  AUTHORITY_ADDRESS: "0x00bd138abd70e2f00903268f3db08f2d25677c9e",
+  TESTS_FAKE_ADDRESS: "0xFbc22a13295Dea4EfBb061ff162CD19B362d1F1D",
+  OTHER_AUTHORITY_ADDRESSES: [
+    "00aa39d30f0d20ff03a22ccfc30b7efbfca597c2",
+    "002e28950558fbede1a9675cb113f0bd20912019"${new_str}
+  ],
+  ZERO_ADDRESS: "0x0000000000000000000000000000000000000000"
+};`
+  fs.writeFile('./helpers/constants.js', standard_str, 'utf8',(err) => {   
+    if (err) throw err;
+  })
+
+}
+
 function generateYML(hhNo){
     let new_str = "";
 
@@ -282,6 +316,8 @@ if((args.length === 1) && args[0] >= 3){
   }
   
   generateMonitoringAppFile(hh);
+
+  generateHelperConstants(hh);
 
   
   parity_yml = generateYML(hh);

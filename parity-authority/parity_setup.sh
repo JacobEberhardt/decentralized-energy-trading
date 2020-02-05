@@ -10,7 +10,7 @@ fi
 PROSUMER=$1
 CONSUMER=$2
 
-HH=$1+$2
+HH=$(($1+$2))
 
 for ((i=3; i<=$HH; i++))
 do
