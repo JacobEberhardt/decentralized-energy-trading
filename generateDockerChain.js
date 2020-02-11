@@ -1,5 +1,68 @@
+const shell = require("shelljs")
 const keyth = require('keythereum')
 const fs = require('fs')
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function getEnodes(){
+  let new_string = "";
+  shell.exec("docker-compose -f parity-authority/parity_test.yml up --build -d");
+  await sleep(30000);
+  let enodes_str = shell.exec("docker-compose -f parity-authority/parity_test.yml logs | grep enode | awk {'print $9'}");
+  shell.exec("docker-compose -f parity-authority/parity_test.yml down -v");
+  //console.log("ENODES: ", enodes_strn.toString());
+  
+  let enodes_arr = enodes_str.trim().split("\n")
+  
+  for(let i = 0; i < enodes_arr.length; i++){
+    if((i+1) == enodes_arr.length){
+      new_string += `"` + enodes_arr[i] + `"`;
+    }
+    else{
+      new_string += `"` + enodes_arr[i] + `"` + ",\n";
+    }
+  }
+
+  let toml_string = `[parity]
+chain = "parity/config/chain.json"
+
+[rpc]
+interface = "0.0.0.0"
+cors = ["all"]
+hosts = ["all"]
+apis = ["web3", "eth", "net", "parity", "traces", "rpc", "personal", "parity_accounts", "signer", "parity_set"]
+port = 8545
+
+[network]
+bootnodes = [
+${new_string}
+]
+
+[account]
+password = ["parity/authority.pwd"]
+
+[mining]
+reseal_on_txs = "none"
+reseal_min_period = 1000
+reseal_max_period = 5000
+tx_queue_size = 16384
+tx_queue_mem_limit = 4096
+tx_queue_per_sender = 16384
+
+[websockets]
+disable = false
+port = 8546
+apis = ["pubsub","parity_pubsub","shh", "shh_pubsub", "web3", "eth", "net", "parity", "traces", "rpc", "personal", "parity_accounts", "signer", "parity_set"]
+interface = "0.0.0.0"
+hosts = ["all"]`
+
+  fs.writeFile(`./parity-authority/parity/config/authority.toml`, toml_string, 'utf8',(err) => {   
+    if (err) throw err;
+  })
+
+}
 
 function generatePrivateKeyFile(hhNo){
     
@@ -323,7 +386,12 @@ if((args.length === 1) && args[0] >= 3){
   parity_yml = generateYML(hh);
 
   fs.writeFile('parity-authority/parity_test.yml', parity_yml, 'utf8',(err) => {   
-    if (err) throw err;
+    if(err){
+      throw err;
+    }
+    else{
+      getEnodes();
+    }
   })
   console.log("DONE!");
 
