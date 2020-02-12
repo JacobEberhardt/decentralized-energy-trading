@@ -3,6 +3,7 @@ const fs = require('fs')
 function generateHelperFuncs(wE, nE) {
 
     return `
+//The Script generated the Code for ${wE + nE} HHs
 //The comments and explanations are provided for an example with n households!
 
 import "hashes/sha256/512bitPacked.code" as sha256packed
@@ -229,7 +230,7 @@ ${packedString} ${returnString.slice(0, -1)}
       // IP on which the ned server should run
       host: "127.0.0.1",
       // Port on which the ned server should listen
-      port: 3005,
+      port: 3000,
       // Ethereum address of NED node
       address: "0x00bd138abd70e2f00903268f3db08f2d25677c9e",
       // Password to unlock NED node
@@ -651,6 +652,14 @@ Edit the template there instead.
     generateContracts(wE, nE);
 
     fs.writeFile('ned-server-config.js', code2, 'utf8',(err)=> {
+      if (err) throw err;
+    })
+
+    fs.writeFile('netting-entity/dockerized_setup/code/decentralized-energy-trading/ned-server-config.js', code2, 'utf8',(err)=> {
+      if (err) throw err;
+    })
+
+    fs.writeFile('household-server/code/decentralized-energy-trading/ned-server-config.js', code2, 'utf8',(err)=> {
       if (err) throw err;
     })
 

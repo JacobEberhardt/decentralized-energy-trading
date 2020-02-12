@@ -9,7 +9,7 @@ function sleep(ms) {
 async function getEnodes(){
   let new_string = "";
   shell.exec("docker-compose -f parity-authority/parity_test.yml up --build -d");
-  await sleep(30000);
+  await sleep(25000);
   let enodes_str = shell.exec("docker-compose -f parity-authority/parity_test.yml logs | grep enode | awk {'print $9'}");
   shell.exec("docker-compose -f parity-authority/parity_test.yml down -v");
   //console.log("ENODES: ", enodes_strn.toString());
@@ -213,6 +213,14 @@ module.exports = {
   ZERO_ADDRESS: "0x0000000000000000000000000000000000000000"
 };`
   fs.writeFile('./helpers/constants.js', standard_str, 'utf8',(err) => {   
+    if (err) throw err;
+  })
+
+  fs.writeFile('household-server/code/decentralized-energy-trading/helpers/constants.js', standard_str, 'utf8',(err) => {   
+    if (err) throw err;
+  })
+
+  fs.writeFile('netting-entity/dockerized_setup/code/decentralized-energy-trading/helpers/constants.js', standard_str, 'utf8',(err) => {   
     if (err) throw err;
   })
 

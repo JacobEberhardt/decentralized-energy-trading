@@ -2,7 +2,7 @@ module.exports = {
   // URL of a running MongoDB instance
   dbUrl: "mongodb://127.0.0.1:27017",
   // URL of NED server
-  nedUrl: "http://127.0.0.1:3005",
+  nedUrl: "http://127.0.0.1:3000",
   // IP on which the household server should run
   host: "127.0.0.1",
   // Port on which the household server should listen
