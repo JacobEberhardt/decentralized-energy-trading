@@ -527,7 +527,7 @@ contract dUtility is Mortal, IdUtility {
       bytes32 energyHash = _concatNextHash(_inputs);
 
       require(householdsInPeriod[addr].renewableEnergy == energyHash, "Household energy hash mismatch.");
-      _updateAfterNettingDelta(addr, [_inputs[(lastInputIndex + numberOfInputHashes - 2)], _inputs[(lastInputIndex + numberOfInputHashes - 1)]]);
+      _updateAfterNettingDelta(billingPeriod, addr, [_inputs[(lastInputIndex + numberOfInputHashes - 2)], _inputs[(lastInputIndex + numberOfInputHashes - 1)]]);
     }
     require(_householdAddrs.length == nonZeroHashes, "Number of Household mismatch with nonZeorHashes");
     return true;
