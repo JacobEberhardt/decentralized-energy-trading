@@ -237,7 +237,7 @@ function generateYML(hhNo){
 
         new_str += `
 
-  authority${i}:
+  parity-authority-${i}:
     build:
       context: .
       dockerfile: docker_authority/Dockerfile
@@ -250,6 +250,7 @@ function generateYML(hhNo){
       --engine-signer ${address}
       --no-persistent-txqueue
       --fast-unlock
+    restart: unless-stopped
     ports:
       - ${8545 + i*10}:8545
       - ${8546 + i*10}:8546
@@ -260,9 +261,9 @@ function generateYML(hhNo){
     }
 
     let standard_str = `
-version: '2.1'
+version: '3.5'
 services:
-  authority0:
+  parity-authority-0:
     build:
       context: .
       dockerfile: docker_authority/Dockerfile
@@ -291,7 +292,7 @@ services:
         ipv4_address: 172.16.0.10
 
 
-  authority1:
+  parity-authority-1:
     build:
       context: .
       dockerfile: docker_authority/Dockerfile
@@ -315,7 +316,7 @@ services:
         ipv4_address: 172.16.0.11
 
 
-  authority2:
+  parity-authority-2:
     build:
       context: .
       dockerfile: docker_authority/Dockerfile
@@ -358,14 +359,12 @@ ${new_str}
 volumes:
   data-volume:
 networks:
-  app_net:
+  name: dockerized_network
     driver: bridge
     ipam:
       driver: default
       config:
-      - subnet: 172.16.0.1/24
-        gateway: 172.16.0.1
-`
+      - subnet: 172.16.0.1/24`
     return standard_str
 }
 

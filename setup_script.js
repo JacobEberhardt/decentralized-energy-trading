@@ -179,7 +179,8 @@ services:
 
 networks:
   02-docker_parity_net:
-    external: true
+    external:
+      name:dockerized_network
 `
 
 }
