@@ -5,7 +5,7 @@ WORKDIR /usr/src/app
 
 # Get Source
 #RUN git clone https://github.com/JacobEberhardt/decentralized-energy-trading.git
-COPY ./code/decentralized-energy-trading/ /usr/src/app
+COPY ./docker/decentralized-energy-trading/ /usr/src/app
 
 
 # Install app dependencies

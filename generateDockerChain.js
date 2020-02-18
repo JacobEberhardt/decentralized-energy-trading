@@ -192,7 +192,7 @@ function generateHelperConstants(hhNo){
 
     let key_json = JSON.parse(fs.readFileSync(`./parity-authority/parity/authorities/authority${i}.json`, 'utf8'));
     
-    let address = "0x" + key_json.address;
+    let address = key_json.address;
 
     new_str += `,
     "${address}"`
@@ -216,11 +216,11 @@ module.exports = {
     if (err) throw err;
   })
 
-  fs.writeFile('household-server/code/decentralized-energy-trading/helpers/constants.js', standard_str, 'utf8',(err) => {   
+  fs.writeFile('household-server/docker/decentralized-energy-trading/helpers/constants.js', standard_str, 'utf8',(err) => {   
     if (err) throw err;
   })
 
-  fs.writeFile('netting-entity/dockerized_setup/code/decentralized-energy-trading/helpers/constants.js', standard_str, 'utf8',(err) => {   
+  fs.writeFile('netting-entity/dockerized_setup/docker/decentralized-energy-trading/helpers/constants.js', standard_str, 'utf8',(err) => {   
     if (err) throw err;
   })
 

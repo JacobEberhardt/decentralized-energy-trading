@@ -16,6 +16,6 @@ yarn generate-proving-files $PROSUMER $CONSUMER
 
 yarn setup-zokrates
 
-cp -R -p $PROJECT_ROOT/zokrates-code/ $PROJECT_ROOT/netting-entity/dockerized_setup/code/decentralized-energy-trading/zokrates-code
+cp -R -p $PROJECT_ROOT/zokrates-code/ $PROJECT_ROOT/netting-entity/dockerized_setup/docker/decentralized-energy-trading/zokrates-code
 
 yarn generate-docker-files $PROSUMER $CONSUMER

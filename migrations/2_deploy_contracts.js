@@ -1,6 +1,8 @@
 const chalk = require("chalk");
+const shell = require("shelljs")
 const request = require("request-promise");
 const fs = require('fs');
+const ncp = require("ncp").ncp;
 const Utility = artifacts.require("dUtility");
 const OwnedSet = artifacts.require("OwnedSet");
 const dUtilityBenchmark = artifacts.require("dUtilityBenchmark");
@@ -59,6 +61,23 @@ module.exports = async (deployer, network, [authority]) => {
       break;
     }
     case "authority": {
+      //let root = shell.exec("git rev-parse --show-toplevel");
+
+      //shell.exec(`cp -R -p ../build/ ../netting-entity/dockerized_setup/docker/decentralized-energy-trading/`);
+
+      //shell.exec(`cp -R -p ../build/ ../household-server/docker/decentralized-energy-trading/`);
+      ncp("./build/", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/build", function (err) {
+        if (err) {
+          return console.error(err);
+        }
+       });
+
+       ncp("./build/", "./household-server/docker/decentralized-energy-trading/build", function (err) {
+        if (err) {
+          return console.error(err);
+        }
+       });
+
       const utilityInstanceInAuthority = await Utility.at(UTILITY_ADDRESS);
       const ownedSetInstanceInAuthority = await OwnedSet.at(OWNED_SET_ADDRESS);
       const web3 = web3Helper.initWeb3("authority");
