@@ -368,6 +368,79 @@ networks:
     return standard_str
 }
 
+function generateTruffleConfig(hhNo){
+
+  let new_str = "";
+
+  for(let i = 3; i <= hhNo; i++){
+    new_str += `
+    authority_${i}: {
+      host: "parity-authority-1",
+      port: 8546,
+      network_id: "8995",
+      websockets: true
+    },`
+  }
+
+  let standard_str = `
+module.exports = {
+  networks: {
+    ganache: {
+      host: "127.0.0.1",
+      port: 8545,
+      network_id: "1234"
+    },
+    authority: {
+      host: "parity-authority-0",
+      port: 8546,
+      network_id: "8995",
+      websockets: true
+    },
+    authority_1: {
+      host: "parity-authority-1",
+      port: 8546,
+      network_id: "8995",
+      websockets: true
+    },
+    authority_2: {
+      host: "parity-authority-2",
+      port: 8546,
+      network_id: "8995",
+      websockets: true
+    },${new_str}
+    authority_docker: {
+      host: "parity-authority-0",
+      port: 8046,
+      network_id: "8995",
+      websockets: true
+    },
+    benchmark: {
+      host: "127.0.0.1",
+      port: 7545,
+      network_id: "*"
+    }
+  },
+  compilers: {
+    solc: {
+      version: "0.5.2",
+      optimizer: {
+        enabled: true,
+        runs: 200
+      }
+    }
+  }
+};`;
+
+  fs.writeFile('household-server/docker/decentralized-energy-trading/truffle-config.js', standard_str, 'utf8',(err) => {   
+    if (err) throw err;
+  })
+
+  fs.writeFile('netting-entity/dockerized_setup/docker/decentralized-energy-trading/truffle-config.js', standard_str, 'utf8',(err) => {   
+    if (err) throw err;
+  })
+
+}
+
 let args = process.argv.slice(2);
 
 let parity_yml;
@@ -389,6 +462,7 @@ if((args.length === 1) && args[0] >= 3){
 
   generateHelperConstants(hh);
 
+  generateTruffleConfig(hh);
   
   parity_yml = generateYML(hh);
 

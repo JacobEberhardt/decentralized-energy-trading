@@ -180,7 +180,7 @@ services:
 networks:
   02-docker_parity_net:
     external:
-      name:dockerized_network
+      name: dockerized_network
 `
 
 }
