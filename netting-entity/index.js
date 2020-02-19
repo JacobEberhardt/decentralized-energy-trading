@@ -36,6 +36,7 @@ const config = {
 let web3;
 /** @type {{[householdAddress: number]: Utility}} */
 const utilities = {};
+let allTransfers = [];
 let ownedSetContract;
 let utilityContract;
 let latestBlockNumber;
@@ -100,6 +101,8 @@ async function init() {
     console.log("Utility before Netting: ", utilityBeforeNetting)
     console.log("Utility after Netting: ", utilityAfterNetting)
 
+    allTransfers = allTransfers.concat(utilityAfterNetting.transfers);
+
     let { hhAddresses, proofData: data } = await zkHandler.generateProof(
       utilityBeforeNetting,
       utilityAfterNetting,
@@ -159,6 +162,18 @@ function getOrCreateUtilityForBillingPeriod(billingPeriod) {
     utilities[billingPeriod] = utility;
   }
   return utility;
+}
+
+/**
+ * Retrieves all transfers from a given household and date.
+ * @param {string} hhAddress Household address to return its transfers
+ * @param {number} fromDate Date in the format of Date.now() of the first transfer to retrieve
+ * @returns {Object} returns an object of transfers
+ */
+function getTransfers(hhAddress, fromDate = 0) {
+  return allTransfers
+    .filter(transfer => transfer.date >= fromDate)
+    .filter(transfer => transfer.from === hhAddress || transfer.to === hhAddress);
 }
 
 init();
@@ -275,10 +290,7 @@ app.get("/transfers/:householdAddress", (req, res) => {
     const householdAddress = web3Utils.toChecksumAddress(
       req.params.householdAddress
     );
-    // TODO: /transfers API is broken for now; track transfers separately from billing period data
-    const utility = utilities[getBillingPeriod(config.nettingInterval)]; // return dummy data from current billing period only
-    if (!utility) throw new Error(`No billing period for time ${from}`);
-    const transfers = utility.getTransfers(householdAddress, from);
+    const transfers = getTransfers(householdAddress, from);
     res.status(200);
     res.json(transfers || []);
   } catch (err) {
