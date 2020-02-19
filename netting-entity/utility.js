@@ -48,20 +48,6 @@ class Utility {
   }
 
   /**
-   * Retrieves all transfers from a given household and date.
-   * @param {string} hhAddress Household address to return its transfers
-   * @param {number} fromDate Date in the format of Date.now() of the first transfer to retrieve
-   * @returns {Object} returns an object of transfers
-   */
-  getTransfers(hhAddress, fromDate = 0) {
-    return this._householdExists(hhAddress)
-      ? this.transfers
-          .filter(transfer => transfer.date >= fromDate)
-          .filter(transfer => transfer.from === hhAddress || transfer.to === hhAddress)
-      : [];
-  }
-
-  /**
    * Retrieves the energy balances of a given Household.
    * @param {String} hhAddress Household address to return its energy balances
    * @returns {Object} returns an object of {renewableEnergy, nonRenewableEnergy, meterReading, lastUpdate}
