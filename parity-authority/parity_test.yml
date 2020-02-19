@@ -1,7 +1,7 @@
 
-version: '2.1'
+version: '3.5'
 services:
-  authority0:
+  parity-authority-0:
     build:
       context: .
       dockerfile: docker_authority/Dockerfile
@@ -30,7 +30,7 @@ services:
         ipv4_address: 172.16.0.10
 
 
-  authority1:
+  parity-authority-1:
     build:
       context: .
       dockerfile: docker_authority/Dockerfile
@@ -54,7 +54,7 @@ services:
         ipv4_address: 172.16.0.11
 
 
-  authority2:
+  parity-authority-2:
     build:
       context: .
       dockerfile: docker_authority/Dockerfile
@@ -75,7 +75,7 @@ services:
         ipv4_address: 172.16.0.12
 
 
-  authority3:
+  parity-authority-3:
     build:
       context: .
       dockerfile: docker_authority/Dockerfile
@@ -85,9 +85,10 @@ services:
         ID: 3
     command:
       --config parity/config/authority.toml
-      --engine-signer 0xb6004e7dfe7392f06342d5da7c084871a25d77b4
+      --engine-signer 0x9ffe209ab8224106767d9be36ee9a7bd1e503a7f
       --no-persistent-txqueue
       --fast-unlock
+    restart: unless-stopped
     ports:
       - 8575:8545
       - 8576:8546
@@ -119,9 +120,9 @@ volumes:
   data-volume:
 networks:
   app_net:
+    name: dockerized_network
     driver: bridge
     ipam:
       driver: default
       config:
       - subnet: 172.16.0.1/24
-        gateway: 172.16.0.1

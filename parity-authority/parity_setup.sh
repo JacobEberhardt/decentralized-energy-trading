@@ -14,12 +14,12 @@ HH=$(($1+$2))
 
 for ((i=3; i<=$HH; i++))
 do
-FILE=parity/authorities/authority$i.json
+FILE=parity-authority/parity/authorities/authority$i.json
 if [[ -f "$FILE" ]]; then
     rm -f $FILE
     echo "Deleted existing file!"
 fi
-yes "node$i" | ethkey generate parity/authorities/authority$i.json
+yes "node$i" | ethkey generate parity-authority/parity/authorities/authority$i.json
 done
 
 yarn generate-docker-parity $HH

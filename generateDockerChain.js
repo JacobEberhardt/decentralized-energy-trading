@@ -359,7 +359,8 @@ ${new_str}
 volumes:
   data-volume:
 networks:
-  name: dockerized_network
+  app_net:
+    name: dockerized_network
     driver: bridge
     ipam:
       driver: default

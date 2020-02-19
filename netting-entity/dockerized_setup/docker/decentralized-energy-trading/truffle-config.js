@@ -1,3 +1,4 @@
+
 module.exports = {
   networks: {
     ganache: {
@@ -6,30 +7,39 @@ module.exports = {
       network_id: "1234"
     },
     authority: {
-      host: "127.0.0.1",
+      host: "parity-authority-0",
       port: 8546,
       network_id: "8995",
-      websockets: true,
-      from: "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e"
+      websockets: true
     },
     authority_1: {
-      host: "127.0.0.1",
-      port: 8556,
+      host: "parity-authority-1",
+      port: 8546,
       network_id: "8995",
       websockets: true
     },
     authority_2: {
-      host: "127.0.0.1",
-      port: 8566,
+      host: "parity-authority-2",
+      port: 8546,
+      network_id: "8995",
+      websockets: true
+    },
+    authority_3: {
+      host: "parity-authority-1",
+      port: 8546,
+      network_id: "8995",
+      websockets: true
+    },
+    authority_docker: {
+      host: "parity-authority-0",
+      port: 8046,
       network_id: "8995",
       websockets: true
     },
     benchmark: {
       host: "127.0.0.1",
-      port: 8546,
-      network_id: "8995",
-      websockets: true,
-      from: "0x00Bd138aBD70e2F00903268F3Db08f2D25677C9e"
+      port: 7545,
+      network_id: "*"
     }
   },
   compilers: {

@@ -69,7 +69,7 @@ services:
         
   household-server-3:
     build: './household-server'
-    command: yarn run-server -p 3004 -a 0xb6004e7dfe7392f06342d5da7c084871a25d77b4 -P node3 -n authority_3 -d mongodb://mongo-3:27017 -N http://netting-server:3000
+    command: yarn run-server -p 3004 -a 0x9ffe209ab8224106767d9be36ee9a7bd1e503a7f -P node3 -n authority_3 -d mongodb://mongo-3:27017 -N http://netting-server:3000
     volumes:
       - /usr/src/app
       - /usr/src/app/node_modules
@@ -122,4 +122,5 @@ services:
 
 networks:
   02-docker_parity_net:
-    external: true
+    external:
+      name: dockerized_network
