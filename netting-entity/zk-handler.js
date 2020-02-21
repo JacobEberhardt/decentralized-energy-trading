@@ -37,13 +37,16 @@ function tryStartWorking() {
  *
  * @returns {Promise<{ hhAddresses: any[], proofData: any }>}
  */
-async function generateProof(utilityBeforeNetting, utilityAfterNetting, mode) {
+async function generateProof(utilityBeforeNetting, utilityAfterNetting, billingPeriod, mode) {
   let resultHandler;
   const promise = new Promise((resolve, reject) => {
     resultHandler = { resolve, reject };
   });
   const workItem = {
-    utilityBeforeNetting, utilityAfterNetting, mode,
+    utilityBeforeNetting,
+    utilityAfterNetting,
+    billingPeriod,
+    mode,
     resultHandler
   };
   workQueue.push(workItem);
@@ -59,7 +62,7 @@ async function generateProof(utilityBeforeNetting, utilityAfterNetting, mode) {
  * @returns {Promise<{ hhAddresses: any[], proofData: any }>}
  */
 async function _generateProof(argsObj) {
-  const { utilityBeforeNetting, utilityAfterNetting, mode } = argsObj;
+  const { utilityBeforeNetting, utilityAfterNetting, billingPeriod, mode } = argsObj;
 
   let cW_t0 = 0;
   let cW_t1 = 0;

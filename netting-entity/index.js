@@ -106,6 +106,7 @@ async function init() {
     let { hhAddresses, proofData: data } = await zkHandler.generateProof(
       utilityBeforeNetting,
       utilityAfterNetting,
+      billingPeriod,
       "production_mode"
     );
 
