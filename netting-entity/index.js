@@ -59,11 +59,12 @@ async function init() {
       fromBlock: latestBlockNumber
     },
     async (error, event) => {
+      const billingPeriod = event.returnValues.billingPeriod;
       if (error) {
         console.error(error.msg);
         throw error;
       }
-      console.log("Netting Successful!");
+      console.log(`Netting ${billingPeriod} Successful!`);
       latestBlockNumber = event.blockNumber;
       // TODO: unlock corresponding receipts in HTTP API
     }
@@ -112,30 +113,28 @@ async function init() {
 
     if (hhAddresses.length <= 0) {
       console.log("No households to hash.");
-      return;
+    } else {
+      await web3.eth.personal.unlockAccount(
+        config.address,
+        config.password,
+        null
+      );
+      await utilityContract.methods
+        .checkNetting(
+          billingPeriod,
+          hhAddresses,
+          data.proof.a,
+          data.proof.b,
+          data.proof.c,
+          data.inputs
+        )
+        .send({ from: config.address, gas: 60000000 }, (error, txHash) => {
+          if (error) {
+            console.error(error.message);
+            throw error;
+          }
+        });
     }
-
-    await web3.eth.personal.unlockAccount(
-      config.address,
-      config.password,
-      null
-    );
-    utilityContract.methods
-      .checkNetting(
-        billingPeriod,
-        hhAddresses,
-        data.proof.a,
-        data.proof.b,
-        data.proof.c,
-        data.inputs
-      )
-      .send({ from: config.address, gas: 60000000 }, (error, txHash) => {
-        if (error) {
-          console.error(error.message);
-          throw error;
-        }
-      });
-
     // TODO: after some time (e.g., all clients fetched their receipts), remove utility for this billing period, to free up the used memory
   }
 
@@ -150,10 +149,6 @@ async function init() {
       prevBillingPeriod = billingPeriod;
     }
   }, config.nettingInterval);
-}
-
-function getOrCreateUtilityForTimestamp(timestampMs) {
-  return getOrCreateUtilityForBillingPeriod(getBillingPeriod(config.nettingInterval, timestampMs));
 }
 
 function getOrCreateUtilityForBillingPeriod(billingPeriod) {
@@ -215,7 +210,8 @@ app.put("/energy/:householdAddress", async (req, res) => {
       throw new Error("Invalid signature");
     }
 
-    const utility = getOrCreateUtilityForTimestamp(timestamp);
+    const billingPeriod = getBillingPeriod(config.nettingInterval, timestamp);
+    const utility = getOrCreateUtilityForBillingPeriod(billingPeriod);
 
     if (utility.addHousehold(householdAddress)) {
       console.log(`New household ${householdAddress} added`);
@@ -259,7 +255,7 @@ app.get("/network", (req, res) => {
  */
 app.get("/meterdelta", async (req, res) => {
   try {
-    const { signature, hash } = req.query;
+    const { billingPeriod, signature, hash } = req.query;
     const recoveredAddress = await web3Helper.verifySignature(web3, hash, signature)
     const validHouseholdAddress = await hhHandler.isValidatorAddress(
       ownedSetContract,
@@ -268,12 +264,13 @@ app.get("/meterdelta", async (req, res) => {
     if (!validHouseholdAddress) {
       throw new Error("Given address is not a validator");
     }
-    const nowMs = Date.now()
-    const utility = utilities[getBillingPeriod(config.nettingInterval, nowMs)];
-    if (!utility) throw new Error(`No billing period for time ${nowMs}`);
+    const utility = utilities[billingPeriod];
+    if (!utility) throw new Error(`No billing period ${billingPeriod}`);
+    if (!utility.households[recoveredAddress])
+      throw new Error(`No such household ${recoveredAddress} in billing period ${billingPeriod}`);
 
     res.status(200);
-    res.json({meterDelta: utility.households[recoveredAddress].meterDelta });
+    res.json({ meterDelta: utility.households[recoveredAddress].meterDelta });
   } catch (err) {
     console.error("GET /meterdelta", err.message);
     res.status(400);

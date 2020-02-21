@@ -67,15 +67,17 @@ async function init() {
       fromBlock: latestBlockNumber
     },
     (error, event) => {
+      const billingPeriod = event.returnValues.billingPeriod;
       if (error) {
         console.error(error.message);
         throw error;
       }
-      if (checkNetting()) {
-        console.log("Netting Successful:", event);
+      if (checkNetting(billingPeriod)) {
+        console.log(`Netting ${billingPeriod} Successful!`);
         latestBlockNumber = event.blockNumber;
         transferHandler.collectTransfers(config);
       } else {
+        console.error(event);
         throw new Error("Preimage doesn't Match stored hash. NETTING INVALID");
       }
     }
@@ -87,7 +89,7 @@ init();
 /**
  * function for retrieving meterDelta from ned-server and checks if it's the correct preimage for meterDelta. Needed for households to validate netting
  */
-async function checkNetting(){
+async function checkNetting(billingPeriod) {
   const randomHash = zokratesHelper.packAndHash(Math.floor(Math.random() * Math.floor(999999999)));
   const { data, signature } = await web3Helper.signData(web3, config.address, config.password, randomHash)
 
@@ -95,6 +97,7 @@ async function checkNetting(){
     uri: `${config.nedUrl}/meterdelta`,
     json: true,
     qs: {
+      billingPeriod,
       hash: data,
       signature: signature
     }
