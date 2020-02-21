@@ -103,12 +103,11 @@ async function checkNetting(){
       hash: data,
       signature: signature
     }
-  }
-  return await request(options)
-    .then((res, err) => {
-      const meterDeltaHash = blockchain.getAfterNettingHash(config.network, config.address, config.password)
-      return zokratesHelper.packAndHash(res.meterDelta) != meterDeltaHash
-    })
+  };
+  const response = await request(options);
+  const meterDeltaHash = await blockchain.getAfterNettingHash(config.network, config.address, config.password);
+  const result = zokratesHelper.packAndHash(response.meterDelta) !== meterDeltaHash;
+  return result;
 }
 
 /**
