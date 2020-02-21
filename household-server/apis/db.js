@@ -12,43 +12,27 @@ module.exports = {
    * @returns {boolean} if operation was successful
    */
   createDB: (dbUrl, dbName, collectionList) => {
-    return new Promise((resolve, reject) => {
-      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
-        if (err) reject(err);
-        console.log("Database created!");
-        const dbo = db.db(dbName);
-        collectionList.forEach(collection => {
+    MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
+      if (err) reject(err);
+      console.log("Database created!");
+      const dbo = db.db(dbName);
+      let createPromises = collectionList.map(collection => {
+        return new Promise((resolve, reject) => {
           dbo.createCollection(collection, (err, res) => {
             if (err) reject(err);
             console.log("Collection", collection, "created!");
-            db.close();
+            resolve(db.close());
           });
-        });
-        resolve(true);
+        })
+      }) 
+      return Promise.all(createPromises)
+      .then(() => {
+        initializeMeterReading(dbUrl, dbName, "sensor_data", "meter_reading")
+      })
+      .catch(err => {
+        console.log(err);
       });
     });
-  },
-
-  /**
-  *Initializes meterReading collection with data
-  * @param {string} dbUrl URL/URI of the DB
-  * @param {string} dbName Name of db
-  * @param {string} collection the used collection of the inserted data
-  */
-  initializeMeterReading: (dbUrl, dbName, collectionSensor, collectionMeter) => {
-    return new Promise((resolve, reject) => {
-      MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
-        if (err) reject(err);
-        const dbo = db.db(dbName);
-        dbo.collection(collectionSensor).mapReduce(
-            function(){ emit(null, this.produce - this.consume)},
-            function(key, value){ return Array.sum(value) },
-            {
-              out: collectionMeter
-            }
-          )
-      });
-    })
   },
 
   /**
@@ -289,3 +273,27 @@ module.exports = {
     });
   }
 };
+
+  /*Initializes meterReading collection with data. Checks if there is sensor_data stored in the db and calcs meter_reading with it
+  * @param {string} dbUrl URL/URI of the DB
+  * @param {string} dbName Name of db
+  * @param {string} collection the used collection of the inserted data
+  */
+function initializeMeterReading(dbUrl, dbName, collectionSensor, collectionMeter){
+  return new Promise((resolve, reject) => {
+    MongoClient.connect(dbUrl, { useNewUrlParser: true }, (err, db) => {
+      if (err) reject(err);
+      const dbo = db.db(dbName);
+      dbo.collection(collectionSensor).mapReduce(
+        function () { emit(null, this.produce - this.consume) },
+        function (key, value) { return Array.sum(value) },
+        {
+          out: collectionMeter
+        }
+      )
+        .catch(err => {
+          console.log(err)
+        })
+    });
+  })
+}
