@@ -59,6 +59,7 @@ async function runZokrates() {
   let hhAddressToHash = zkHandler.generateProof(
     utilityBeforeNetting,
     utilityAfterNetting,
+    0,
     "benchmark_mode"
   );
   delete hhAddressToHash[ZERO_ADDRESS];
