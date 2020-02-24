@@ -72,18 +72,15 @@ async function _generateProof(argsObj) {
   let gP_t1 = 0;
   let gP_time = 0;
 
-  const hhAddressesProducersBeforeNet = utilityBeforeNetting.getHouseholdAddressesProducers();
-  const hhAddressesConsumersBeforeNet = utilityBeforeNetting.getHouseholdAddressesConsumers();
+  const hhAddressesProducers = utilityBeforeNetting.getHouseholdAddressesProducers();
+  const hhAddressesConsumers = utilityBeforeNetting.getHouseholdAddressesConsumers();
+  const hhAddresses = [...hhAddressesProducers, ...hhAddressesConsumers];
 
-  const hhAddresses = [
-    ...hhAddressesProducersBeforeNet,
-    ...hhAddressesConsumersBeforeNet
-  ];
-  const deltasProducersBeforeNet = hhAddressesProducersBeforeNet.map(address => utilityBeforeNetting.households[address].meterDelta).join(" ");
-  const deltasConsumersBeforeNet = hhAddressesConsumersBeforeNet.map(address => Math.abs(utilityBeforeNetting.households[address].meterDelta)).join(" ");
+  const deltasProducersBeforeNet = hhAddressesProducers.map(address => utilityBeforeNetting.households[address].meterDelta).join(" ");
+  const deltasConsumersBeforeNet = hhAddressesConsumers.map(address => Math.abs(utilityBeforeNetting.households[address].meterDelta)).join(" ");
 
-  const deltasProducersAfterNet = hhAddressesProducersBeforeNet.map(address => utilityAfterNetting.households[address].meterDelta).join(" ");
-  const deltasConsumersAfterNet = hhAddressesConsumersBeforeNet.map(address => Math.abs(utilityAfterNetting.households[address].meterDelta)).join(" ");
+  const deltasProducersAfterNet = hhAddressesProducers.map(address => utilityAfterNetting.households[address].meterDelta).join(" ");
+  const deltasConsumersAfterNet = hhAddressesConsumers.map(address => Math.abs(utilityAfterNetting.households[address].meterDelta)).join(" ");
 
   process.stdout.write("Computing witness...");
 
