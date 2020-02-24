@@ -108,7 +108,7 @@ async function checkNetting(billingPeriod) {
     }
   };
   const response = await request(options);
-  const meterDeltaHash = await blockchain.getAfterNettingHash(config.network, config.address, config.password);
+  const meterDeltaHash = await blockchain.getAfterNettingHash(config.network, config.address, config.password, billingPeriod);
   const result = zokratesHelper.packAndHash(response.meterDelta) !== meterDeltaHash;
   return result;
 }
