@@ -3,15 +3,15 @@ const contractHelper = require('../../helpers/contract');
 
 module.exports = {
     /**
-    * retrieves meterDeltaHash after netting for specific household 
-    * @param {String} network Web3 instance.
-    * @param {String} address web3 contract instance.
-    * @param {string} password Current meter change in kWh.
-    */
-    getAfterNettingHash: async (network, address, password) => {
-        web3 = web3Helper.initWeb3(network);
-
-        utilityContract = new web3.eth.Contract(
+     * retrieves meterDeltaHash after netting for specific household
+     * @param {String} network Web3 instance.
+     * @param {String} address web3 contract instance.
+     * @param {string} password Current meter change in kWh.
+     * @param {number} billingPeriod
+     */
+    getAfterNettingHash: async (network, address, password, billingPeriod) => {
+        const web3 = web3Helper.initWeb3(network);
+        const utilityContract = new web3.eth.Contract(
             contractHelper.getAbi("dUtility"),
             contractHelper.getDeployedAddress("dUtility", await web3.eth.net.getId())
         );
@@ -22,12 +22,9 @@ module.exports = {
             null
         );
 
-        //TODO use msg.sender in smart contract instead of passing address as argument
+        // TODO use msg.sender in smart contract instead of passing address as argument
         return await utilityContract.methods
-            .getHouseholdAfterNettingHash(address)
-            .call({ from: address, gas: 60000000 })
-            .then(res => {
-                return res
-            });
+        .getHouseholdAfterNettingHash(billingPeriod, address)
+        .call({ from: address, gas: 60000000 });
     }
-}
+};
