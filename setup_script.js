@@ -1,9 +1,95 @@
 const fs = require('fs')
 const ps = require('portscanner')
+const ncp = require("ncp").ncp;
 
 let dbPorts;
 let hhPorts;
 
+function initialize(){
+  console.log("Initializing Project Directories for the Dockerized-Setup...")
+  ncp("./household-server/api", "./household-server/docker/decentralized-energy-trading/household-server/api", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+   ncp("./household-server/energy-handler.js", "./household-server/docker/decentralized-energy-trading/household-server/energy-handler.js", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./household-server/index.js", "./household-server/docker/decentralized-energy-trading/household-server/index.js", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./household-server/transfer-handler.js", "./household-server/docker/decentralized-energy-trading/household-server/transfer-handler.js", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./helpers", "./household-server/docker/decentralized-energy-trading/helpers", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./scripts", "./household-server/docker/decentralized-energy-trading/scripts", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./package.json", "./household-server/docker/decentralized-energy-trading/package.json", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./helpers", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/helpers", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./scripts", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/scripts", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./package.json", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/package.json", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./netting-entity/index.js", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/netting-entity/index.js", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./netting-entity/utility.js", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/netting-entity/utility.js", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./netting-entity/household-handler.js", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/netting-entity/household-handler.js", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./netting-entity/zk-handler.js", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/netting-entity/zk-handler.js", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+}
 
 function generateMongo(n){
     dbPorts = new Array(n);
@@ -196,7 +282,7 @@ if((args.length === 2) && args[0] >= 1 && args[1] >= 1){
   wE = Number(args[0]);
   nE = Number(args[1]);
 
-  
+  initialize();
 
   netting_yml = generateYML(wE, nE);
 
