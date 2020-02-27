@@ -4,7 +4,7 @@ const fs = require('fs');
 const dUtility = artifacts.require("dUtility");
 const OwnedSet = artifacts.require("OwnedSet");
 const dUtilityBenchmark = artifacts.require("dUtilityBenchmark");
-const verifier = artifacts.require("verifier.sol")
+const verifier = artifacts.require("Verifier.sol")
 
 const web3Helper = require("../helpers/web3");
 const asyncUtils = require("../helpers/async-utils");
