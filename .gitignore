@@ -93,5 +93,5 @@ zokrates-code/verification.key
 zokrates-code/witness
 zokrates-code/proof.json
 zokrates-code/verifier.sol
-contracts/verifier.sol
+contracts/Verifier.sol
 tmp/

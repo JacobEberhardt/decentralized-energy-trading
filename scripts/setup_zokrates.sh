@@ -11,4 +11,4 @@ zokrates compile -i settlement-check.zok --light
 zokrates setup --light
 zokrates export-verifier
 
-cp ./verifier.sol ../contracts/verifier.sol
+cp ./verifier.sol ../contracts/Verifier.sol
