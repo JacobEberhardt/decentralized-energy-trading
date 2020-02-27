@@ -63,7 +63,7 @@ const options = {
  * Periodically sends a HTTP request with the mock data to the Household Server.
  * The interval is defined in household-server-config.js
  */
-setInterval(() => {
+function execute() {
   const req = http.request(options, res => {
     console.log(`statusCode: ${res.statusCode}`);
 
@@ -152,4 +152,6 @@ setInterval(() => {
    */
   console.log(payload);
   req.end(JSON.stringify(payload));
-}, sensorInterval);
+}
+setInterval(execute, sensorInterval);
+execute();

@@ -140,7 +140,7 @@ async function init() {
 
   console.log(`Running with netting interval of ${config.nettingInterval}`);
   let prevBillingPeriod = 0;
-  setInterval(() => {
+  function executeBillingPeriod() {
     const billingPeriod = getBillingPeriod(config.nettingInterval);
     // Don't run a billing period twice if there's a timing issue.
     // Skipping periods is ok, the system model provides a safe fallback.
@@ -148,7 +148,9 @@ async function init() {
       runBillingPeriod(billingPeriod);
       prevBillingPeriod = billingPeriod;
     }
-  }, config.nettingInterval);
+  }
+  setInterval(executeBillingPeriod, config.nettingInterval);
+  executeBillingPeriod();
 }
 
 function getOrCreateUtilityForBillingPeriod(billingPeriod) {
