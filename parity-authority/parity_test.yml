@@ -25,8 +25,9 @@ services:
       - 8546:8546
       - 8180:8180
       - 30303:30303
+    restart: unless-stopped
     networks:
-      app_net:
+      parity_net:
         ipv4_address: 172.16.0.10
 
 
@@ -49,8 +50,9 @@ services:
     ports:
       - 8555:8545
       - 8556:8546
+    restart: unless-stopped
     networks:
-      app_net:
+      parity_net:
         ipv4_address: 172.16.0.11
 
 
@@ -70,8 +72,9 @@ services:
     ports:
       - 8565:8545
       - 8566:8546
+    restart: unless-stopped
     networks:
-      app_net:
+      parity_net:
         ipv4_address: 172.16.0.12
 
 
@@ -85,7 +88,7 @@ services:
         ID: 3
     command:
       --config parity/config/authority.toml
-      --engine-signer 0x9ffe209ab8224106767d9be36ee9a7bd1e503a7f
+      --engine-signer 0x00677cc4be98b5c53ecd2f49f7034fc4472a93eb
       --no-persistent-txqueue
       --fast-unlock
     restart: unless-stopped
@@ -93,16 +96,39 @@ services:
       - 8575:8545
       - 8576:8546
     networks:
-      app_net:
+      parity_net:
         ipv4_address: 172.16.0.13
+
+
+  parity-authority-4:
+    build:
+      context: .
+      dockerfile: docker_authority/Dockerfile
+      args:
+        PARITY_VERSION: ${PARITY_VERSION}
+        NETWORK_NAME: ${NETWORK_NAME}
+        ID: 4
+    command:
+      --config parity/config/authority.toml
+      --engine-signer 0x54c4b2171bb8112f2f33ddbf6fc38c55033c7d79
+      --no-persistent-txqueue
+      --fast-unlock
+    restart: unless-stopped
+    ports:
+      - 8585:8545
+      - 8586:8546
+    networks:
+      parity_net:
+        ipv4_address: 172.16.0.14
 
 
   monitor:
     image: buythewhale/ethstats_monitor
     volumes:
       - ./monitor/app.json:/home/ethnetintel/eth-net-intelligence-api/app.json:ro
+    restart: unless-stopped
     networks:
-      app_net:
+      parity_net:
         ipv4_address: 172.16.0.100
 
 
@@ -111,15 +137,16 @@ services:
     volumes:
       - ./dashboard/ws_secret.json:/eth-netstats/ws_secret.json:ro
     ports:
-      - 3001:3000
+      - 3001:3001
+    restart: unless-stopped
     networks:
-      app_net:
+      parity_net:
         ipv4_address: 172.16.0.200
 
 volumes:
   data-volume:
 networks:
-  app_net:
+  parity_net:
     name: dockerized_network
     driver: bridge
     ipam:

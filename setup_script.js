@@ -7,7 +7,7 @@ let hhPorts;
 
 function initialize(){
   console.log("Initializing Project Directories for the Dockerized-Setup...")
-  ncp("./household-server/api", "./household-server/docker/decentralized-energy-trading/household-server/api", function (err) {
+  ncp("./household-server/apis", "./household-server/docker/decentralized-energy-trading/household-server/apis", function (err) {
     if (err) {
       return console.error(err);
     }

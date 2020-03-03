@@ -36,6 +36,13 @@ services:
     networks:
       - 02-docker_parity_net
         
+  mongo-4:
+    image: mongo
+    ports:
+      - "27020:27017"
+    networks:
+      - 02-docker_parity_net
+        
   
   household-server-1:
     build: './household-server'
@@ -69,7 +76,7 @@ services:
         
   household-server-3:
     build: './household-server'
-    command: yarn run-server -p 3004 -a 0x9ffe209ab8224106767d9be36ee9a7bd1e503a7f -P node3 -n authority_3 -d mongodb://mongo-3:27017 -N http://netting-server:3000
+    command: yarn run-server -p 3004 -a 0x00677cc4be98b5c53ecd2f49f7034fc4472a93eb -P node3 -n authority_3 -d mongodb://mongo-3:27017 -N http://netting-server:3000
     volumes:
       - /usr/src/app
       - /usr/src/app/node_modules
@@ -78,6 +85,21 @@ services:
     restart: unless-stopped
     depends_on:
       - mongo-3
+      - netting-server
+    networks:
+      - 02-docker_parity_net
+        
+  household-server-4:
+    build: './household-server'
+    command: yarn run-server -p 3005 -a 0x54c4b2171bb8112f2f33ddbf6fc38c55033c7d79 -P node4 -n authority_4 -d mongodb://mongo-4:27017 -N http://netting-server:3000
+    volumes:
+      - /usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3005:3005"
+    restart: unless-stopped
+    depends_on:
+      - mongo-4
       - netting-server
     networks:
       - 02-docker_parity_net
@@ -97,7 +119,7 @@ services:
         
   sensor-server-2:
     build: './mock-sensor'
-    command: yarn run-sensor -h household-server-2 -p 3003 -e -
+    command: yarn run-sensor -h household-server-2 -p 3003 -e +
     volumes:
       - /usr/src/app
       - /usr/src/app/node_modules
@@ -116,6 +138,18 @@ services:
     restart: unless-stopped
     depends_on:
       - household-server-3
+    networks:
+      - 02-docker_parity_net
+        
+  sensor-server-4:
+    build: './mock-sensor'
+    command: yarn run-sensor -h household-server-4 -p 3005 -e -
+    volumes:
+      - /usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+    depends_on:
+      - household-server-4
     networks:
       - 02-docker_parity_net
         

@@ -255,7 +255,7 @@ function generateYML(hhNo){
       - ${8545 + i*10}:8545
       - ${8546 + i*10}:8546
     networks:
-      app_net:
+      parity_net:
         ipv4_address: 172.16.0.${10 + i}
 `
     }
@@ -287,8 +287,9 @@ services:
       - 8546:8546
       - 8180:8180
       - 30303:30303
+    restart: unless-stopped
     networks:
-      app_net:
+      parity_net:
         ipv4_address: 172.16.0.10
 
 
@@ -311,8 +312,9 @@ services:
     ports:
       - 8555:8545
       - 8556:8546
+    restart: unless-stopped
     networks:
-      app_net:
+      parity_net:
         ipv4_address: 172.16.0.11
 
 
@@ -332,8 +334,9 @@ services:
     ports:
       - 8565:8545
       - 8566:8546
+    restart: unless-stopped
     networks:
-      app_net:
+      parity_net:
         ipv4_address: 172.16.0.12
 ${new_str}
 
@@ -341,8 +344,9 @@ ${new_str}
     image: buythewhale/ethstats_monitor
     volumes:
       - ./monitor/app.json:/home/ethnetintel/eth-net-intelligence-api/app.json:ro
+    restart: unless-stopped
     networks:
-      app_net:
+      parity_net:
         ipv4_address: 172.16.0.100
 
 
@@ -351,15 +355,16 @@ ${new_str}
     volumes:
       - ./dashboard/ws_secret.json:/eth-netstats/ws_secret.json:ro
     ports:
-      - 3001:3000
+      - 3001:3001
+    restart: unless-stopped
     networks:
-      app_net:
+      parity_net:
         ipv4_address: 172.16.0.200
 
 volumes:
   data-volume:
 networks:
-  app_net:
+  parity_net:
     name: dockerized_network
     driver: bridge
     ipam:

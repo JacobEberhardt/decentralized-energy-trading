@@ -48,11 +48,6 @@ db.createDB(config.dbUrl, config.dbName, [
   config.utilityDataCollection,
   config.meterReadingCollection
 ])
-.then(() => {
-  return db.initializeMeterReading(config.dbUrl, config.dbName, config.sensorDataCollection, config.meterReadingCollection)
-}).catch(err => {
-  console.log("Error while creating DB", err);
-});
 
 let web3;
 let utilityContract;
