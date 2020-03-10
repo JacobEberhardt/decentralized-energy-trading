@@ -28,8 +28,8 @@
     "setup-zokrates": "./scripts/setup_zokrates.sh",
     "run-benchmark-node": "./benchmark/run-parity.sh",
     "generate-proving-files": "node zokrates-code/zoKratesCodeGenerator.js",
-    "generate-docker-parity": "node generateDockerChain.js",
     "docker-parity-setup": "./parity-authority/parity_setup.sh",
+    "generate-docker-parity": "node generateDockerChain.js",
     "setup-system": "./scripts/setup_script.sh",
     "generate-docker-files": "node setup_script.js"
   },

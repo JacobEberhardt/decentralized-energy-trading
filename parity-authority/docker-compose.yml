@@ -97,6 +97,7 @@ volumes:
   data-volume:
 networks:
   app_net:
+    name: dockerized_network
     driver: bridge
     ipam:
       driver: default

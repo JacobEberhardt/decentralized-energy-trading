@@ -13,15 +13,23 @@ async function getEnodes(){
   let enodes_str = shell.exec("docker-compose -f parity-authority/parity_test.yml logs | grep enode | awk {'print $9'}");
   shell.exec("docker-compose -f parity-authority/parity_test.yml down -v");
   //console.log("ENODES: ", enodes_strn.toString());
-  
+  let base_enodes = ["enode://147573f46fe9f5cc38fbe070089a31390baec5dd2827c8f2ef168833e4d0254fbee3969a02c5b9910ea5d5b23d86a6ed5eabcda17cc12007b7d9178b6c697aa5@172.16.0.10:30303",
+  "enode://1412ee9b9e23700e4a67a8fe3d8d02e10376b6e1cb748eaaf8aa60d4652b27872a8e1ad65bb31046438a5d3c1b71b00ec3ce0b4b42ac71464b28026a3d0b53af@172.16.0.11:30303",
+  "enode://9076c143a487aa163437a86f7d009f257f405c50bb2316800b9c9cc40e5a38fef5b414a47636ec38fdabc8a1872b563effa8574a7f8f85dc6bde465c368f1bf5@172.16.0.12:30303"]
+
   let enodes_arr = enodes_str.trim().split("\n")
   
-  for(let i = 0; i < enodes_arr.length; i++){
-    if((i+1) == enodes_arr.length){
-      new_string += `"` + enodes_arr[i] + `"`;
-    }
-    else{
-      new_string += `"` + enodes_arr[i] + `"` + ",\n";
+  if(enodes_arr.length > 3){
+    new_string += ",\n"
+    for(let i = 0; i < enodes_arr.length; i++){
+      if((enodes_arr[i] != base_enodes[0]) && (enodes_arr[i] != base_enodes[1]) && (enodes_arr[i] != base_enodes[2])){
+        if((i+1) == enodes_arr.length){
+          new_string += `  "` + enodes_arr[i] + `"`;
+        }
+        else{
+          new_string += `  "` + enodes_arr[i] + `"` + ",\n";
+        }
+      }
     }
   }
 
@@ -37,7 +45,9 @@ port = 8545
 
 [network]
 bootnodes = [
-${new_string}
+  "enode://147573f46fe9f5cc38fbe070089a31390baec5dd2827c8f2ef168833e4d0254fbee3969a02c5b9910ea5d5b23d86a6ed5eabcda17cc12007b7d9178b6c697aa5@172.16.0.10:30303",
+  "enode://1412ee9b9e23700e4a67a8fe3d8d02e10376b6e1cb748eaaf8aa60d4652b27872a8e1ad65bb31046438a5d3c1b71b00ec3ce0b4b42ac71464b28026a3d0b53af@172.16.0.11:30303",
+  "enode://9076c143a487aa163437a86f7d009f257f405c50bb2316800b9c9cc40e5a38fef5b414a47636ec38fdabc8a1872b563effa8574a7f8f85dc6bde465c368f1bf5@172.16.0.12:30303"${new_string}
 ]
 
 [account]
@@ -455,7 +465,7 @@ let parity_yml;
 
 let hh;
 
-if((args.length === 1) && args[0] >= 3){
+if((args.length === 1) && args[0] >= 2){
     
   hh = Number(args[0]);
 
