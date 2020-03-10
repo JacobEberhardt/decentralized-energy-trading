@@ -93,6 +93,7 @@ async function init() {
         config.password,
         null
       );
+      console.log("INPUTS:", data.inputs);
       utilityContract.methods
         .checkNetting(
           hhAddresses,

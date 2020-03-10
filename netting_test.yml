@@ -69,7 +69,7 @@ services:
         
   household-server-3:
     build: './household-server'
-    command: yarn run-server -p 3004 -a 0x84d90a96bb3ddfb79a1c10547e8cee23a8e03d12 -P node3 -n authority_3 -d mongodb://mongo-3:27017 -N http://netting-server:3000
+    command: yarn run-server -p 3004 -a 0x14f7d45ee6a42241f5bebfc91af3259278a58210 -P node3 -n authority_3 -d mongodb://mongo-3:27017 -N http://netting-server:3000
     volumes:
       - /usr/src/app
       - /usr/src/app/node_modules
