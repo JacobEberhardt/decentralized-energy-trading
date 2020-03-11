@@ -48,6 +48,24 @@ function initialize(){
     }
    });
 
+   ncp("./yarn.lock", "./household-server/docker/decentralized-energy-trading/yarn.lock", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./yarn.lock", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/yarn.lock", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./zokrates-code", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/zokrates-code", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
    ncp("./helpers", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/helpers", function (err) {
     if (err) {
       return console.error(err);

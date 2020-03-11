@@ -88,7 +88,7 @@ services:
         ID: 3
     command:
       --config parity/config/authority.toml
-      --engine-signer 0xe7c99d8aeb31c425d68617c9ad3aba755672da81
+      --engine-signer 0xd5589600dc5e671f4657afbe4cc4fb2f2cfe7e33
       --no-persistent-txqueue
       --fast-unlock
     restart: unless-stopped
@@ -98,6 +98,28 @@ services:
     networks:
       parity_net:
         ipv4_address: 172.16.0.13
+
+
+  parity-authority-4:
+    build:
+      context: .
+      dockerfile: docker_authority/Dockerfile
+      args:
+        PARITY_VERSION: ${PARITY_VERSION}
+        NETWORK_NAME: ${NETWORK_NAME}
+        ID: 4
+    command:
+      --config parity/config/authority.toml
+      --engine-signer 0x80647287b3f67e741a60bcde7c7c07874e83510f
+      --no-persistent-txqueue
+      --fast-unlock
+    restart: unless-stopped
+    ports:
+      - 8585:8545
+      - 8586:8546
+    networks:
+      parity_net:
+        ipv4_address: 172.16.0.14
 
 
   monitor:

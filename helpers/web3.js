@@ -3,7 +3,7 @@ const web3Utils = require("web3-utils");
 const truffleConfig = require("../truffle-config");
 
 module.exports = {
-  initWeb3: (network = "ganache") => {
+  initWeb3: (network = "authority") => {
     const { host, port } = truffleConfig.networks[network];
     return new Web3(`ws://${host}:${port}`, null, {});
   },

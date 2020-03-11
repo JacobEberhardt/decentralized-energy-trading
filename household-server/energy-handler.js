@@ -29,7 +29,8 @@ module.exports = {
   putMeterReading: async (config, web3, utilityContract, meterDelta) => {
     const { address, password } = config;
     const timestamp = Date.now();
-
+    console.log("Address: ", address)
+    console.log("PWD: ", password)
     const hash = zokratesHelper.packAndHash(meterDelta);
 
     await web3.eth.personal.unlockAccount(address, password, null);

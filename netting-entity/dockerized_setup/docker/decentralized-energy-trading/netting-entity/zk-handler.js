@@ -29,6 +29,12 @@ module.exports = {
     const deltasProducersAfterNet = hhAddressesProducersBeforeNet.map(address => utilityAfterNetting.households[address].meterDelta).join(" ");
     const deltasConsumersAfterNet = hhAddressesConsumersBeforeNet.map(address => Math.abs(utilityAfterNetting.households[address].meterDelta)).join(" ");
 
+    if(hhAddresses.length == 0){
+      console.log("Skipping zoKrates Witness Computation...")
+      return hhAddresses
+    }
+
+
     process.stdout.write("Computing witness...");
     console.log(`zokrates compute-witness -a ${deltasProducersBeforeNet} ${deltasConsumersBeforeNet} ${deltasProducersAfterNet} ${deltasConsumersAfterNet} > /dev/null`);
 

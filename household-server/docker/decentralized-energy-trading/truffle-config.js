@@ -30,6 +30,12 @@ module.exports = {
       network_id: "8995",
       websockets: true
     },
+    authority_4: {
+      host: "parity-authority-1",
+      port: 8546,
+      network_id: "8995",
+      websockets: true
+    },
     authority_docker: {
       host: "parity-authority-0",
       port: 8046,
