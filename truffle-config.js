@@ -24,6 +24,18 @@ module.exports = {
       network_id: "8995",
       websockets: true
     },
+    authority_3: {
+      host: "127.0.0.1",
+      port: 8576,
+      network_id: "8995",
+      websockets: true
+    },
+    authority_4: {
+      host: "127.0.0.1",
+      port: 8586,
+      network_id: "8995",
+      websockets: true
+    },
     benchmark: {
       host: "127.0.0.1",
       port: 8546,

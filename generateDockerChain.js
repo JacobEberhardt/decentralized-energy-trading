@@ -391,7 +391,7 @@ function generateTruffleConfig(hhNo){
   for(let i = 3; i <= hhNo; i++){
     new_str += `
     authority_${i}: {
-      host: "parity-authority-1",
+      host: "parity-authority-${i}",
       port: 8546,
       network_id: "8995",
       websockets: true

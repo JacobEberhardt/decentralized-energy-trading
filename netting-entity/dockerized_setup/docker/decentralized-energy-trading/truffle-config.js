@@ -25,13 +25,13 @@ module.exports = {
       websockets: true
     },
     authority_3: {
-      host: "parity-authority-1",
+      host: "parity-authority-3",
       port: 8546,
       network_id: "8995",
       websockets: true
     },
     authority_4: {
-      host: "parity-authority-1",
+      host: "parity-authority-4",
       port: 8546,
       network_id: "8995",
       websockets: true

@@ -5,6 +5,10 @@ const truffleConfig = require("../truffle-config");
 module.exports = {
   initWeb3: (network = "authority") => {
     const { host, port } = truffleConfig.networks[network];
+    console.log("WEB3 HOST: ", host)
+    console.log("WEB3 PORT: ", port)
+    let test = new Web3(`ws://${host}:${port}`, null, {})
+    //console.log("RETURNED WEB3 OBJECT: ", test)
     return new Web3(`ws://${host}:${port}`, null, {});
   },
   /**

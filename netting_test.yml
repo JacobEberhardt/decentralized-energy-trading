@@ -76,7 +76,7 @@ services:
         
   household-server-3:
     build: './household-server'
-    command: yarn run-server -p 3004 -a 0xd5589600dc5e671f4657afbe4cc4fb2f2cfe7e33 -P node3 -n authority_3 -d mongodb://mongo-3:27017 -N http://netting-server:3000
+    command: yarn run-server -p 3004 -a 0x8cd20d6853b6a03169180b924fa29d422050cf70 -P node3 -n authority_3 -d mongodb://mongo-3:27017 -N http://netting-server:3000
     volumes:
       - /usr/src/app
       - /usr/src/app/node_modules
@@ -91,7 +91,7 @@ services:
         
   household-server-4:
     build: './household-server'
-    command: yarn run-server -p 3005 -a 0x80647287b3f67e741a60bcde7c7c07874e83510f -P node4 -n authority_4 -d mongodb://mongo-4:27017 -N http://netting-server:3000
+    command: yarn run-server -p 3005 -a 0x9f68cfbe27533b5fc3e620bc3d88e8c158cbeaec -P node4 -n authority_4 -d mongodb://mongo-4:27017 -N http://netting-server:3000
     volumes:
       - /usr/src/app
       - /usr/src/app/node_modules

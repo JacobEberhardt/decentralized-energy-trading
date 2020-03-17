@@ -29,10 +29,10 @@ module.exports = {
   putMeterReading: async (config, web3, utilityContract, meterDelta) => {
     const { address, password } = config;
     const timestamp = Date.now();
-    console.log("Address: ", address)
-    console.log("PWD: ", password)
+    //console.log("Address: ", address)
+    //console.log("PWD: ", password)
     const hash = zokratesHelper.packAndHash(meterDelta);
-
+    //console.log("WEB3.ETH.PERSONAL", await web3.eth.personal.getAccounts())
     await web3.eth.personal.unlockAccount(address, password, null);
     utilityContract.methods
       .updateRenewableEnergy(address, web3Utils.hexToBytes(hash))
