@@ -482,7 +482,7 @@ if((args.length === 1) && args[0] >= 2){
   
   parity_yml = generateYML(hh);
 
-  fs.writeFile('parity-authority/parity_test.yml', parity_yml, 'utf8',(err) => {   
+  fs.writeFile('parity-authority/parity.yml', parity_yml, 'utf8',(err) => {   
     if(err){
       throw err;
     }

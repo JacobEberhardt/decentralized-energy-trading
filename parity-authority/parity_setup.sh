@@ -12,13 +12,21 @@ CONSUMER=$2
 
 HH=$(($1+$2))
 
-for ((i=3; i<=$HH; i++))
+for ((i=3; i<=100; i++))
 do
 FILE=parity-authority/parity/authorities/authority$i.json
+FILE2=parity-authority/parity/authorities/authority$i.pwd
+FILE3=parity-authority/parity/node$i.network.key
 if [[ -f "$FILE" ]]; then
     rm -f $FILE
+    rm -f $FILE2
+    rm -f $FILE3
     echo "Deleted existing file!"
 fi
+done
+
+for ((i=3; i<=$HH; i++))
+do
 yes "node$i" | ethkey generate parity-authority/parity/authorities/authority$i.json
 done
 

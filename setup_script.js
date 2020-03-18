@@ -304,7 +304,7 @@ if((args.length === 2) && args[0] >= 1 && args[1] >= 1){
 
   netting_yml = generateYML(wE, nE);
 
-  fs.writeFile('netting_test.yml', netting_yml, 'utf8',(err) => {   
+  fs.writeFile('netting.yml', netting_yml, 'utf8',(err) => {   
     if (err) throw err;
   })
 
