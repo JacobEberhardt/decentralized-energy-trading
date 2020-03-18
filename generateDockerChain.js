@@ -466,14 +466,14 @@ if((args.length === 1) && args[0] >= 2){
       generatePasswordFile(i);
   }
   
-  fs.mkdir('mock-sensor/docker/decentralized-energy-trading/', { recursive: true }, (err) => {
+  fs.mkdir('mock-sensor/docker/decentralized-energy-trading/mock-sensor', { recursive: true }, (err) => {
     if (err) throw err;
   });
-  fs.mkdir('household-server/docker/decentralized-energy-trading/', { recursive: true }, (err) => {
+  fs.mkdir('household-server/docker/decentralized-energy-trading/household-server', { recursive: true }, (err) => {
     if (err) throw err;
   });
 
-  fs.mkdir('netting-entity/dockerized_setup/docker/decentralized-energy-trading/', { recursive: true }, (err) => {
+  fs.mkdir('netting-entity/dockerized_setup/docker/decentralized-energy-trading/netting-entity', { recursive: true }, (err) => {
     generateTruffleConfig(hh);
     if (err) throw err;
   });
