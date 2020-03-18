@@ -50,16 +50,15 @@ function initialize(){
   RUN curl -LSfs get.zokrat.es | sh
   ENV PATH="/root/.zokrates/bin:\${PATH}"
   ENV ZOKRATES_HOME="/root/.zokrates/stdlib"`;
-
-  fs.writeFile('./mock-sensor/', mock_sensor_Dfile, 'utf8',(err) => {   
+  fs.writeFile('./mock-sensor/Dockerfile', mock_sensor_Dfile, 'utf8',(err) => {   
     if (err) throw err;
   })
 
-  fs.writeFile('./household-server/', hh_server_Dfile, 'utf8',(err) => {   
+  fs.writeFile('./household-server/Dockerfile', hh_server_Dfile, 'utf8',(err) => {   
     if (err) throw err;
   })
 
-  fs.writeFile('./netting-entity/dockerized_setup/', netting_entity_Dfile, 'utf8',(err) => {   
+  fs.writeFile('./netting-entity/dockerized_setup/Dockerfile', netting_entity_Dfile, 'utf8',(err) => {   
     if (err) throw err;
   })
 
