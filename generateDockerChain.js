@@ -8,10 +8,10 @@ function sleep(ms) {
 
 async function getEnodes(){
   let new_string = "";
-  shell.exec("docker-compose -f parity-authority/parity_test.yml up --build -d");
+  shell.exec("docker-compose -f parity-authority/parity.yml up --build -d");
   await sleep(25000);
-  let enodes_str = shell.exec("docker-compose -f parity-authority/parity_test.yml logs | grep enode | awk {'print $9'}");
-  shell.exec("docker-compose -f parity-authority/parity_test.yml down -v");
+  let enodes_str = shell.exec("docker-compose -f parity-authority/parity.yml logs | grep enode | awk {'print $9'}");
+  shell.exec("docker-compose -f parity-authority/parity.yml down -v");
   //console.log("ENODES: ", enodes_strn.toString());
   let base_enodes = ["enode://147573f46fe9f5cc38fbe070089a31390baec5dd2827c8f2ef168833e4d0254fbee3969a02c5b9910ea5d5b23d86a6ed5eabcda17cc12007b7d9178b6c697aa5@172.16.0.10:30303",
   "enode://1412ee9b9e23700e4a67a8fe3d8d02e10376b6e1cb748eaaf8aa60d4652b27872a8e1ad65bb31046438a5d3c1b71b00ec3ce0b4b42ac71464b28026a3d0b53af@172.16.0.11:30303",
