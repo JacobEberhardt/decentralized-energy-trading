@@ -7,6 +7,252 @@ let hhPorts;
 
 function initialize(){
   console.log("Initializing Project Directories for the Dockerized-Setup...")
+
+  let mock_sensor_Dfile = `FROM node:10
+
+  # Create app directory
+  WORKDIR /usr/src/app
+  
+  # Get Source
+  COPY ./docker/decentralized-energy-trading/ /usr/src/app
+  
+  # Install app dependencies
+  RUN yarn install`;
+
+  let hh_server_Dfile = `FROM node:10
+
+  # Create app directory
+  WORKDIR /usr/src/app
+  
+  # Get Source
+  #RUN git clone https://github.com/JacobEberhardt/decentralized-energy-trading.git
+  
+  COPY ./docker/decentralized-energy-trading/ /usr/src/app
+  
+  # Install app dependencies
+  
+  RUN yarn install`;
+
+  let netting_entity_Dfile = `FROM node:10
+
+  # Create app directory
+  WORKDIR /usr/src/app
+  
+  # Get Source
+  #RUN git clone https://github.com/JacobEberhardt/decentralized-energy-trading.git
+  COPY ./docker/decentralized-energy-trading/ /usr/src/app
+  
+  
+  # Install app dependencies
+  RUN yarn install
+  
+  # Install ZoKrates
+  RUN curl -LSfs get.zokrat.es | sh
+  ENV PATH="/root/.zokrates/bin:\${PATH}"
+  ENV ZOKRATES_HOME="/root/.zokrates/stdlib"`;
+
+  fs.writeFile('./mock-sensor/', mock_sensor_Dfile, 'utf8',(err) => {   
+    if (err) throw err;
+  })
+
+  fs.writeFile('./household-server/', hh_server_Dfile, 'utf8',(err) => {   
+    if (err) throw err;
+  })
+
+  fs.writeFile('./netting-entity/dockerized_setup/', netting_entity_Dfile, 'utf8',(err) => {   
+    if (err) throw err;
+  })
+
+  ncp("./.circleci", "./household-server/docker/decentralized-energy-trading/.circleci", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./.circleci", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/.circleci", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./helpers", "./mock-sensor/docker/decentralized-energy-trading/helpers", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+  ncp("./helpers", "./household-server/docker/decentralized-energy-trading/helpers", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./helpers", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/helpers", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./scripts", "./household-server/docker/decentralized-energy-trading/scripts", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./scripts", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/scripts", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./package.json", "./mock-sensor/docker/decentralized-energy-trading/package.json", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./package.json", "./household-server/docker/decentralized-energy-trading/package.json", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./package.json", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/package.json", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./yarn.lock", "./mock-sensor/docker/decentralized-energy-trading/yarn.lock", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./yarn.lock", "./household-server/docker/decentralized-energy-trading/yarn.lock", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./yarn.lock", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/yarn.lock", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./ned-server-config.js", "./household-server/docker/decentralized-energy-trading/ned-server-config.js", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./ned-server-config.js", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/ned-server-config.js", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./household-server-config.js", "./mock-sensor/docker/decentralized-energy-trading/household-server-config.js", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+   ncp("./household-server-config.js", "./household-server/docker/decentralized-energy-trading/household-server-config.js", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./household-server-config.js", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/household-server-config.js", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./LICENSE", "./mock-sensor/docker/decentralized-energy-trading/LICENSE", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./LICENSE", "./household-server/docker/decentralized-energy-trading/LICENSE", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./LICENSE", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/LICENSE", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./.env", "./household-server/docker/decentralized-energy-trading/.env", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./.env", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/.env", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./.soliumrc.json", "./household-server/docker/decentralized-energy-trading/.soliumrc.json", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./.soliumrc.json", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/.soliumrc.json", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./.soliumignore", "./household-server/docker/decentralized-energy-trading/.soliumignore", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./.soliumignore", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/.soliumignore", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./.eslintrc.json", "./household-server/docker/decentralized-energy-trading/.eslintrc.json", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+   ncp("./.eslintrc.json", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/.eslintrc.json", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+   });
+
+  ncp("./mock-sensor/sensor-config.js", "./mock-sensor/docker/decentralized-energy-trading/mock-sensor/sensor-config.js", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+  });
+
+  ncp("./mock-sensor/data-generator.js", "./mock-sensor/docker/decentralized-energy-trading/mock-sensor/data-generator.js", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+  });
+
+  ncp("./mock-sensor/index.js", "./mock-sensor/docker/decentralized-energy-trading/mock-sensor/index.js", function (err) {
+    if (err) {
+      return console.error(err);
+    }
+  });
+
   ncp("./household-server/apis", "./household-server/docker/decentralized-energy-trading/household-server/apis", function (err) {
     if (err) {
       return console.error(err);
@@ -30,55 +276,7 @@ function initialize(){
     }
    });
 
-   ncp("./helpers", "./household-server/docker/decentralized-energy-trading/helpers", function (err) {
-    if (err) {
-      return console.error(err);
-    }
-   });
-
-   ncp("./scripts", "./household-server/docker/decentralized-energy-trading/scripts", function (err) {
-    if (err) {
-      return console.error(err);
-    }
-   });
-
-   ncp("./package.json", "./household-server/docker/decentralized-energy-trading/package.json", function (err) {
-    if (err) {
-      return console.error(err);
-    }
-   });
-
-   ncp("./yarn.lock", "./household-server/docker/decentralized-energy-trading/yarn.lock", function (err) {
-    if (err) {
-      return console.error(err);
-    }
-   });
-
-   ncp("./yarn.lock", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/yarn.lock", function (err) {
-    if (err) {
-      return console.error(err);
-    }
-   });
-
    ncp("./zokrates-code", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/zokrates-code", function (err) {
-    if (err) {
-      return console.error(err);
-    }
-   });
-
-   ncp("./helpers", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/helpers", function (err) {
-    if (err) {
-      return console.error(err);
-    }
-   });
-
-   ncp("./scripts", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/scripts", function (err) {
-    if (err) {
-      return console.error(err);
-    }
-   });
-
-   ncp("./package.json", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/package.json", function (err) {
     if (err) {
       return console.error(err);
     }

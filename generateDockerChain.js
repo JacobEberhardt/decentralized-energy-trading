@@ -226,14 +226,6 @@ module.exports = {
     if (err) throw err;
   })
 
-  fs.writeFile('household-server/docker/decentralized-energy-trading/helpers/constants.js', standard_str, 'utf8',(err) => {   
-    if (err) throw err;
-  })
-
-  fs.writeFile('netting-entity/dockerized_setup/docker/decentralized-energy-trading/helpers/constants.js', standard_str, 'utf8',(err) => {   
-    if (err) throw err;
-  })
-
 }
 
 function generateYML(hhNo){
@@ -474,12 +466,22 @@ if((args.length === 1) && args[0] >= 2){
       generatePasswordFile(i);
   }
   
+  fs.mkdir('mock-sensor/docker/decentralized-energy-trading/', { recursive: true }, (err) => {
+    if (err) throw err;
+  });
+  fs.mkdir('household-server/docker/decentralized-energy-trading/', { recursive: true }, (err) => {
+    if (err) throw err;
+  });
+
+  fs.mkdir('netting-entity/dockerized_setup/docker/decentralized-energy-trading/', { recursive: true }, (err) => {
+    generateTruffleConfig(hh);
+    if (err) throw err;
+  });
+
   generateMonitoringAppFile(hh);
 
   generateHelperConstants(hh);
 
-  generateTruffleConfig(hh);
-  
   parity_yml = generateYML(hh);
 
   fs.writeFile('parity-authority/parity.yml', parity_yml, 'utf8',(err) => {   

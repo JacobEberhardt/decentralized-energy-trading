@@ -78,13 +78,13 @@ module.exports = async (deployer, network, [authority]) => {
         }
        });
 
-       ncp("./contracts/", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/build", function (err) {
+       ncp("./contracts/", "./netting-entity/dockerized_setup/docker/decentralized-energy-trading/contracts", function (err) {
         if (err) {
           return console.error(err);
         }
        });
 
-       ncp("./contracts/", "./household-server/docker/decentralized-energy-trading/build", function (err) {
+       ncp("./contracts/", "./household-server/docker/decentralized-energy-trading/contracts", function (err) {
         if (err) {
           return console.error(err);
         }
