@@ -5,7 +5,7 @@ function generateHelperFuncs(wE, nE) {
     return `
 //The comments and explanations are provided for an example with n households!
 
-import "hashes/sha256/512bitPacked.code" as sha256packed
+import "hashes/sha256/512bitPacked" as sha256packed
 
 // Aggregates the combined meterDelta of Energy producing HHS.
 // @param {field[n]} Energy producing HHs
