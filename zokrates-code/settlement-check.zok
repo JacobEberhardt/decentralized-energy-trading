@@ -79,7 +79,7 @@ def validateFairnessConsumers(field[1] hh, field[1] hhNet) -> (field):
   return errorCounter
 
 // Validates the zero-net property (one set of household will be 0 (up to an epislon error) after netting)
-// for the case of sumWithEnergy <= sumNoEnergy
+// for the case of sumProducers <= sumConsumers
 // Is valid, only if returns 0.
 // @param (field[n]) household party having energy
 // @param epsilon the error tolerance value
@@ -91,7 +91,7 @@ def validateZeroNetProducers(field[1] hh, field epsilon) -> (field):
   return errorCounter
 
 // Validates the zero-net property (one set of household will be 0 (up to an epislon error) after netting)
-// for the case of sumWithEnergy >= sumNoEnergy
+// for the case of sumProducers >= sumConsumers
 // Is valid, only if returns 0.
 // @param (field[m]) household party needing
 // @param epsilon the error tolerance value
@@ -124,15 +124,15 @@ def sumConsumers(field[1] hh) -> (field):
 
 
 // Returns sha256packed hash if settlement result is consistent and proportional fair up to epsilon = (number of households - 1)
-// Assume n = 4 households, where |householdListWithEnergy| = 2 and |householdListNoEnergy| = 2
+// Assume n = 4 households, where |householdListProducers| = 2 and |householdListConsumers| = 2
 // Before settlement, households with produce-consume = 0 are not part of the settlement
-// @param (private field[2]) producersBeforeNet before settlement
+// @param (private field[1]) producersBeforeNet before settlement
 // Index represents household and producersBeforeNet[index] := produce-consume > 0 
-// @param (private field[2]) consumersBeforeNet before settlement
+// @param (private field[1]) consumersBeforeNet before settlement
 // Index represents household and consumersBeforeNet[index] := produce-consume < 0 
-// @param (private field[2]) producersAfterNet after settlement
+// @param (private field[1]) producersAfterNet after settlement
 // Index represents household and producersAfterNet[index] := produce-consume > 0 
-// @param (private field[2]) consumersAfterNet after settlement
+// @param (private field[1]) consumersAfterNet after settlement
 // Index represents household and consumersAfterNet[index] := produce-consume < 0
 // @returns (field[2], field[2], field[2], field[2], field[2],...) sha256packed hashes of producersBeforeNetPacked and consumersBeforeNetPacked and sha256packed hash that depends on inputs
 def main(private field[1] producersBeforeNet, private field[1] consumersBeforeNet, private field[1] producersAfterNet, private field[1] consumersAfterNet) -> (field[2],field[2],field[2],field[2]):

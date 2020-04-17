@@ -195,13 +195,13 @@ def sumConsumers(field[${nE}] hh) -> (field):
 // Returns sha256packed hash if settlement result is consistent and proportional fair up to epsilon = (number of households - 1)
 // Assume n = 4 households, where |householdListProducers| = 2 and |householdListConsumers| = 2
 // Before settlement, households with produce-consume = 0 are not part of the settlement
-// @param (private field[2]) producersBeforeNet before settlement
+// @param (private field[${wE}]) producersBeforeNet before settlement
 // Index represents household and producersBeforeNet[index] := produce-consume > 0 
-// @param (private field[2]) consumersBeforeNet before settlement
+// @param (private field[${nE}]) consumersBeforeNet before settlement
 // Index represents household and consumersBeforeNet[index] := produce-consume < 0 
-// @param (private field[2]) producersAfterNet after settlement
+// @param (private field[${wE}]) producersAfterNet after settlement
 // Index represents household and producersAfterNet[index] := produce-consume > 0 
-// @param (private field[2]) consumersAfterNet after settlement
+// @param (private field[${nE}]) consumersAfterNet after settlement
 // Index represents household and consumersAfterNet[index] := produce-consume < 0
 // @returns (field[2], field[2], field[2], field[2], field[2],...) sha256packed hashes of producersBeforeNetPacked and consumersBeforeNetPacked and sha256packed hash that depends on inputs
 def main(private field[${wE}] producersBeforeNet, private field[${nE}] consumersBeforeNet, private field[${wE}] producersAfterNet, private field[${nE}] consumersAfterNet) -> (${returnSignatureString}):
