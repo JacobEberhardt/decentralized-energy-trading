@@ -88,7 +88,7 @@ services:
         ID: 3
     command:
       --config parity/config/authority.toml
-      --engine-signer 0xeaa84232ec13ec8a32d1e3e05822c53005d3af0b
+      --engine-signer 0xf28648af27a2952eeff90ce24117af8fc1912a2c
       --no-persistent-txqueue
       --fast-unlock
     restart: unless-stopped
@@ -110,7 +110,7 @@ services:
         ID: 4
     command:
       --config parity/config/authority.toml
-      --engine-signer 0x3ba24b030d43f1a40926f25c9a1f9fc50167817a
+      --engine-signer 0x3a1c10a9a49fd237b4feee55f654e2680c58e368
       --no-persistent-txqueue
       --fast-unlock
     restart: unless-stopped

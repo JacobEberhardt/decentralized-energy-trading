@@ -42,7 +42,7 @@ module.exports = {
 
     const witnessShellStr = shell
       .exec(
-        `zokrates compute-witness -a ${deltasProducersBeforeNet} ${deltasConsumersBeforeNet} ${deltasProducersAfterNet} ${deltasConsumersAfterNet} -i out -o witness`
+        `zokrates compute-witness -a ${deltasProducersBeforeNet} ${deltasConsumersBeforeNet} ${deltasProducersAfterNet} ${deltasConsumersAfterNet} > /dev/null`
       )
       .grep("--", "^~out_*", "witness");
 
