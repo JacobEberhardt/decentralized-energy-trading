@@ -12,6 +12,11 @@ CONSUMER=$2
 
 HH=$(($1+$2))
 
+if (($HH > 92)) ; then
+    echo 'ERROR! A Maximum Number of 92 Households can be configured currently!'
+    exit 1
+fi
+
 for ((i=3; i<=100; i++))
 do
 FILE=parity-authority/parity/authorities/authority$i.json
