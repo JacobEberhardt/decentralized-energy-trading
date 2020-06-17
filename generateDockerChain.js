@@ -6,6 +6,11 @@ function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
+/**
+ * This function retrieves the enodes of the addtionally created accounts, by launching the chain and 
+ * copying the enode addresses from the logs
+ * The array of all enodes is then included into the authority.toml file and saced in the parity-authority/parity/config directory
+ */
 async function getEnodes(){
   let new_string = "";
   shell.exec("docker-compose -f parity-authority/parity.yml up --build -d");
@@ -74,6 +79,12 @@ hosts = ["all"]`
 
 }
 
+/**
+ * Generates a Private Key file which includes the Private Key for an account/HH
+ * The "keyethereum" package is used to calculate the private key based on the key file
+ * Input Parameter: Household Number
+ */
+
 function generatePrivateKeyFile(hhNo){
     
     var keyobj = JSON.parse(fs.readFileSync(`./parity-authority/parity/authorities/authority${hhNo}.json`, 'utf8'));
@@ -87,12 +98,23 @@ function generatePrivateKeyFile(hhNo){
       })
 }
 
+/**
+ * Generates a Password file which includes the password for an ETH account in the following form:
+ * node[Household Number]
+ * Input Parameter: Household Number
+ */
+
 function generatePasswordFile(hhNo){
     fs.writeFile(`./parity-authority/parity/authorities/authority${hhNo}.pwd`, `node${hhNo}`, 'utf8',(err) => {   
         if (err) throw err;
       }) 
 }
 
+/**
+ * DEPRECATED: The current parity versions do not support this type of monitoring UI
+ * 
+ * Input Parameter: No. of Households
+ */
 function generateMonitoringAppFile(hhNo){
     let new_string = "";
 
@@ -194,6 +216,12 @@ fs.writeFile('./parity-authority/monitor/app.json', standard_string, 'utf8',(err
 
 }
 
+/**
+ * This function creates the helpers/constants.js file and adds the addresses of the newly created nodes to the
+ * authority addresses array
+ * Input Parameter: No. of Households
+ */
+
 function generateHelperConstants(hhNo){
 
   let new_str = "";
@@ -227,6 +255,11 @@ module.exports = {
   })
 
 }
+
+/**
+ * This function creates the parity.yml and includes the newly created parity nodes
+ * Input Parameter: No of Households 
+ */
 
 function generateYML(hhNo){
     let new_str = "";
@@ -376,6 +409,10 @@ networks:
     return standard_str
 }
 
+/**
+ * This function creates the truffle-config.js with the authority addresses
+ * Input Parameter: No. of HHs
+ */
 function generateTruffleConfig(hhNo){
 
   let new_str = "";
@@ -449,11 +486,13 @@ module.exports = {
 
 }
 
+/**
+ * The script is called with exactly 1 input argument => Number of HHs
+ */
+
 let args = process.argv.slice(2);
 
 let parity_yml;
-
-
 
 let hh;
 
@@ -461,11 +500,21 @@ if((args.length === 1) && args[0] >= 2){
     
   hh = Number(args[0]);
 
+  /**
+   * Depending on the no. of HHs, private key files and password files for the previously created ETH accounts are created
+   * Since 3 (authority0, 1, 2) ETH accounts with the corresponding Private Key and Password Files are implemented already 
+   * in the initial project Repo, the counter for the loop starts with the files for the 4th (authority3) authority node
+   */
+
   for(let i = 3; i <= hh; i++){
       generatePrivateKeyFile(i);
       generatePasswordFile(i);
   }
   
+  /**
+   * Creating the subdirectories for the Dockerized Setup, which will be referenced in the Dockerfiles
+   */
+
   fs.mkdir('mock-sensor/docker/decentralized-energy-trading/mock-sensor', { recursive: true }, (err) => {
     if (err) throw err;
   });
@@ -478,9 +527,22 @@ if((args.length === 1) && args[0] >= 2){
     if (err) throw err;
   });
 
+  /**
+   * Calling the function to initialize the Application File for the Monitoring UI (deprecated)
+   */
+  
   generateMonitoringAppFile(hh);
 
+  /**
+   * Calling the Function to include the newly created HH addresses to helpers/constants.js
+   */
+
   generateHelperConstants(hh);
+
+  /**
+   * Calling the Function to Generate the parity.yml file
+   * The file is then written into the parity-authority directory
+   */
 
   parity_yml = generateYML(hh);
 

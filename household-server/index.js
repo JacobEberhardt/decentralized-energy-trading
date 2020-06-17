@@ -1,4 +1,5 @@
 const express = require("express");
+const request = require('request');
 const fs = require("fs");
 const cors = require("cors");
 const commander = require("commander");
@@ -105,6 +106,66 @@ async function checkNetting(){
       return zokratesHelper.packAndHash(res.meterDelta) != meterDeltaHash
     })
 }
+
+/**
+ * Getting Meter Deltas from the BlogPV Middleware of the Dicovergy API  
+ */ 
+/*
+setInterval(() => {
+  let meterID = "a1b64ab07c3440bfb182f8bc815172bb";
+  let t_minus_15min = (Math.floor(new Date() / 1000) - (Math.floor(new Date() / 1000)%60) - 900) * 1000;
+  //let t_now = (Math.floor(new Date() / 1000) - (Math.floor(new Date() / 1000)%60)) * 1000;
+  
+  api_url = `https://portal.blogpv.net/api/discovergy/readings?meterId=${meterID}&from=${t_minus_15min}&resolution=fifteen_minutes`;
+
+  let options = {
+    json: true
+  };
+  request(api_url, options, (error, res, body) => {
+    if (error) {
+        return  console.log(error)
+    };
+
+    if (!error && res.statusCode == 200) {
+      const { meterDelta, produce, consume } = body;   
+
+    };
+  });
+
+  
+  try {
+    if (
+      typeof meterDelta !== "number"
+    ) {
+      throw new Error("Invalid payload");
+    }
+
+    if (!nettingActive) {
+      nettingActive = true;
+      await energyHandler.putMeterReading(
+        config,
+        web3,
+        utilityContract,
+        meterDelta
+      );
+    }
+
+    await db.writeToDB(
+      config.dbUrl,
+      config.dbName,
+      config.sensorDataCollection,
+      {
+        produce,
+        consume
+      }
+    )
+    .then(res => {
+      db.updateMeterReading(config.dbUrl, config.dbName, config.meterReadingCollection, res)
+    })
+  }
+}, sensorInterval);
+
+*/
 
 /**
  * Creating the express server waiting for incoming requests

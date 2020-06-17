@@ -17,7 +17,9 @@ if (($HH > 88)) ; then
     exit 1
 fi
 
-for ((i=3; i<=100; i++))
+# Delete any previously created ETH accounts and the corresponding files, except for the 3 initial accounts
+
+for ((i=3; i<=88; i++))
 do
 FILE=parity-authority/parity/authorities/authority$i.json
 FILE2=parity-authority/parity/authorities/authority$i.pwd
@@ -29,6 +31,8 @@ if [[ -f "$FILE" ]]; then
     echo "Deleted existing file!"
 fi
 done
+
+# Generate ETH accounts and the corresponding key files and save them in the authorities folder
 
 for ((i=3; i<=$HH; i++))
 do

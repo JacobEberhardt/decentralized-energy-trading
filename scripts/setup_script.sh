@@ -12,10 +12,14 @@ fi
 PROSUMER=$1
 CONSUMER=$2
 
-yarn generate-proving-files $PROSUMER $CONSUMER
+#yarn generate-proving-files $PROSUMER $CONSUMER
 
-yarn setup-zokrates
+#yarn setup-zokrates
+
+# Copy the zokrates-code fodler into the Directory referenced by the Dockerfile
 
 cp -R -p $PROJECT_ROOT/zokrates-code/ $PROJECT_ROOT/netting-entity/dockerized_setup/docker/decentralized-energy-trading/zokrates-code
+
+# Initiate the generation of the netting.yml via the setup_script.js
 
 yarn generate-docker-files $PROSUMER $CONSUMER

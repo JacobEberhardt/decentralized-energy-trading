@@ -1,10 +1,13 @@
 const fs = require('fs')
-const ps = require('portscanner')
 const ncp = require("ncp").ncp;
 
 let dbPorts;
 let hhPorts;
 
+/**
+ * This function initializes the relevant sub-directories for the dockerized setup, which are referenced by the Dockerfiles
+ * for the mock-sensor, the netting-entity and the household-server
+ */
 function initialize(){
   console.log("Initializing Project Directories for the Dockerized-Setup...")
 
@@ -306,6 +309,10 @@ function initialize(){
    });
 }
 
+/**
+ * This function generates the section of the YML which will launch n mongoDB containers 
+ * Input Parameter: n => Number of Households
+ */
 function generateMongo(n){
     dbPorts = new Array(n);
 
@@ -344,6 +351,10 @@ function generateMongo(n){
     return mongoString
 }
 
+/**
+ * This function generates the section of the YML which will launch n household-servers
+ * Input Parameter: n => Number of HHs
+ */
 function generateServer(n){
     hhPorts = new Array(n);
 
@@ -403,6 +414,10 @@ function generateServer(n){
 
 }
 
+/**
+ * This function generates the section of the YML which will launch n mock-sensors
+ * Input Parameter: n => Number of HHs
+ */
 function generateSensor(wE, nE){
 
     let sensorString = '';
@@ -445,6 +460,11 @@ function generateSensor(wE, nE){
 
 }
 
+/**
+ * This function generates the netting.yml file, which includes sections for launching mongoDB, hh-server and mock-sensor
+ * containers
+ * Input Parameter: Number of HHs with and without Energy generation
+ */
 
 function generateYML(wE, nE){
 
@@ -485,6 +505,11 @@ networks:
 `
 
 }
+
+/**
+ * At least two arguments have to provided to this script, No. of HH with and without energy
+ * 
+ */
 
 let args = process.argv.slice(2);
 

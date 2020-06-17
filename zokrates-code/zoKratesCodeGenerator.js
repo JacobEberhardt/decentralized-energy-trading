@@ -261,7 +261,7 @@ ${packedString} ${returnString.slice(0, -1)}
   let nE;
   let network;
 
-  if((args.length === 2 || args.length === 3) && args[0] >= 1 && args[1] >= 1){
+  if((args.length === 2 || args.length === 3) && (args[0] >= 1 && args[1] >= 1)){
       
     wE = Number(args[0]);
     nE = Number(args[1]);

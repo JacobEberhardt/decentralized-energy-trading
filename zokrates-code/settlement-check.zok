@@ -1,6 +1,6 @@
 
   
-//The Script generated the Code for 4 HHs
+//The Script generated the Code for 120 HHs
 //The comments and explanations are provided for an example with n households!
 
 import "hashes/sha256/512bitPacked.code" as sha256packed
@@ -8,9 +8,9 @@ import "hashes/sha256/512bitPacked.code" as sha256packed
 // Aggregates the combined meterDelta of Energy producing HHS.
 // @param {field[n]} Energy producing HHs
 // @returns {field} meterDelta of provided households
-def deltaProducers(field[2] hh) -> (field):
+def deltaProducers(field[60] hh) -> (field):
   field delta = 0
-  for field i in 0..2 do
+  for field i in 0..60 do
     delta = delta + hh[i]
   endfor
   return delta
@@ -18,9 +18,9 @@ def deltaProducers(field[2] hh) -> (field):
 // Aggregates the combined meterDelta of Energy consuming HHS.
 // @param {field[m]} Energy producing HHs
 // @returns {field} meterDelta of provided households
-def deltaConsumers(field[2] hh) -> (field):
+def deltaConsumers(field[60] hh) -> (field):
   field delta = 0
-  for field i in 0..2 do
+  for field i in 0..60 do
     delta = delta + hh[i]
   endfor
   return delta
@@ -29,7 +29,7 @@ def deltaConsumers(field[2] hh) -> (field):
 // @param {field[n]} producersBeforeNet
 // @param {field[m]} consumersBeforeNet
 // @returns {field} totalEnergy
-def calculateTotalDelta(field[2] producersBeforeNet, field[2] consumersBeforeNet) -> (field):
+def calculateTotalDelta(field[60] producersBeforeNet, field[60] consumersBeforeNet) -> (field):
   producerDelta = deltaProducers(producersBeforeNet)
   consumerDelta = deltaConsumers(consumersBeforeNet)
   field totalDelta = if (producerDelta > consumerDelta) then (producerDelta - consumerDelta) else (consumerDelta - producerDelta) fi
@@ -39,9 +39,9 @@ def calculateTotalDelta(field[2] producersBeforeNet, field[2] consumersBeforeNet
 // @param {field[n]} hh
 // @param {field[n]} hhNet
 // @returns {field} delta
-def deltaNetProducers(field[2] hh, field[2] hhNet) -> (field):
+def deltaNetProducers(field[60] hh, field[60] hhNet) -> (field):
   field delta = 0
-  for field i in 0..1 do
+  for field i in 0..59 do
     delta = delta + (hh[i] - hhNet[i])
   endfor
   return delta
@@ -50,9 +50,9 @@ def deltaNetProducers(field[2] hh, field[2] hhNet) -> (field):
 // @param {field[m]} hh
 // @param {field[m]} hhNet
 // @returns {field} delta
-def deltaNetConsumers(field[2] hh, field[2] hhNet) -> (field):
+def deltaNetConsumers(field[60] hh, field[60] hhNet) -> (field):
   field delta = 0
-  for field i in 0..2 do
+  for field i in 0..60 do
     delta = delta + (hh[i] - hhNet[i])
   endfor
   return delta
@@ -61,9 +61,9 @@ def deltaNetConsumers(field[2] hh, field[2] hhNet) -> (field):
 // @param {field[n]} hh
 // @param {field[n]} hhNet
 // @returns {field} errorCounter
-def validateFairnessProducers(field[2] hh, field[2] hhNet) -> (field):
+def validateFairnessProducers(field[60] hh, field[60] hhNet) -> (field):
   field errorCounter = 0
-  for field i in 0..1 do
+  for field i in 0..59 do
     errorCounter = errorCounter + if hhNet[i] > hh[i] then 1 else 0 fi
   endfor
   return errorCounter
@@ -72,9 +72,9 @@ def validateFairnessProducers(field[2] hh, field[2] hhNet) -> (field):
 // @param {field[m]} hh
 // @param {field[m]} hhNet
 // @returns {field} errorCounter
-def validateFairnessConsumers(field[2] hh, field[2] hhNet) -> (field):
+def validateFairnessConsumers(field[60] hh, field[60] hhNet) -> (field):
   field errorCounter = 0
-  for field i in 0..2 do
+  for field i in 0..60 do
     errorCounter = errorCounter + if hhNet[i] > hh[i] then 1 else 0 fi
   endfor
   return errorCounter
@@ -84,9 +84,9 @@ def validateFairnessConsumers(field[2] hh, field[2] hhNet) -> (field):
 // Is valid, only if returns 0.
 // @param (field[n]) household party having energy
 // @param epsilon the error tolerance value
-def validateZeroNetProducers(field[2] hh, field epsilon) -> (field):
+def validateZeroNetProducers(field[60] hh, field epsilon) -> (field):
   field errorCounter = 0
-  for field i in 0..2 do
+  for field i in 0..60 do
     errorCounter = errorCounter + if hh[i] > epsilon then 1 else 0 fi
   endfor
   return errorCounter
@@ -96,9 +96,9 @@ def validateZeroNetProducers(field[2] hh, field epsilon) -> (field):
 // Is valid, only if returns 0.
 // @param (field[m]) household party needing
 // @param epsilon the error tolerance value
-def validateZeroNetConsumers(field[2] hh, field epsilon) -> (field):
+def validateZeroNetConsumers(field[60] hh, field epsilon) -> (field):
   field errorCounter = 0
-  for field i in 0..2 do
+  for field i in 0..60 do
     errorCounter = errorCounter + if hh[i] > epsilon then 1 else 0 fi
   endfor
   return errorCounter
@@ -106,9 +106,9 @@ def validateZeroNetConsumers(field[2] hh, field epsilon) -> (field):
 // Simply return hh[0] + hh[1] for any array of households with energy.
 // @param (field[n]) hh
 // @returns (field) energy of provided households
-def sumProducers(field[2] hh) -> (field):
+def sumProducers(field[60] hh) -> (field):
   field s = 0
-  for field i in 0..2 do
+  for field i in 0..60 do
     s = s + hh[i]
   endfor
   return s
@@ -116,9 +116,9 @@ def sumProducers(field[2] hh) -> (field):
 // Simply return hh[0] + hh[1] for any array of households without energy.
 // @param (field[m]) hh
 // @returns (field) energy of provided households
-def sumConsumers(field[2] hh) -> (field):
+def sumConsumers(field[60] hh) -> (field):
   field s = 0
-  for field i in 0..2 do
+  for field i in 0..60 do
     s = s + hh[i]
   endfor
   return s
@@ -136,7 +136,7 @@ def sumConsumers(field[2] hh) -> (field):
 // @param (private field[2]) consumersAfterNet after settlement
 // Index represents household and consumersAfterNet[index] := produce-consume < 0
 // @returns (field[2], field[2], field[2], field[2], field[2],...) sha256packed hashes of producersBeforeNetPacked and consumersBeforeNetPacked and sha256packed hash that depends on inputs
-def main(private field[2] producersBeforeNet, private field[2] consumersBeforeNet, private field[2] producersAfterNet, private field[2] consumersAfterNet) -> (field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2]):
+def main(private field[60] producersBeforeNet, private field[60] consumersBeforeNet, private field[60] producersAfterNet, private field[60] consumersAfterNet) -> (field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2],field[2]):
   totalDelta = calculateTotalDelta(producersBeforeNet, consumersBeforeNet)
   totalDeltaNet = calculateTotalDelta(producersAfterNet, consumersAfterNet)
   totalDelta == totalDeltaNet
@@ -147,16 +147,248 @@ def main(private field[2] producersBeforeNet, private field[2] consumersBeforeNe
   field sumProducers = sumProducers(producersAfterNet)
   field sumConsumers = sumConsumers(consumersAfterNet)
 
-  field[2] zeroNetPartyProducers = producersAfterNet
-  field[2] zeroNetPartyConsumers = consumersAfterNet
+  field[60] zeroNetPartyProducers = producersAfterNet
+  field[60] zeroNetPartyConsumers = consumersAfterNet
 
-  0 == if sumProducers <= sumConsumers then validateZeroNetProducers(zeroNetPartyProducers, 3) else validateZeroNetConsumers(zeroNetPartyConsumers, 3) fi// Can make epsilon more accurate in the future
+  0 == if sumProducers <= sumConsumers then validateZeroNetProducers(zeroNetPartyProducers, 119) else validateZeroNetConsumers(zeroNetPartyConsumers, 119) fi// Can make epsilon more accurate in the future
   field[2] hh1ProducersBeforeNetHash = if producersBeforeNet[0] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[0]]) fi
   field[2] hh1ProducersAfterNetHash = if producersAfterNet[0] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[0]]) fi
   field[2] hh2ProducersBeforeNetHash = if producersBeforeNet[1] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[1]]) fi
   field[2] hh2ProducersAfterNetHash = if producersAfterNet[1] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[1]]) fi
+  field[2] hh3ProducersBeforeNetHash = if producersBeforeNet[2] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[2]]) fi
+  field[2] hh3ProducersAfterNetHash = if producersAfterNet[2] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[2]]) fi
+  field[2] hh4ProducersBeforeNetHash = if producersBeforeNet[3] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[3]]) fi
+  field[2] hh4ProducersAfterNetHash = if producersAfterNet[3] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[3]]) fi
+  field[2] hh5ProducersBeforeNetHash = if producersBeforeNet[4] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[4]]) fi
+  field[2] hh5ProducersAfterNetHash = if producersAfterNet[4] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[4]]) fi
+  field[2] hh6ProducersBeforeNetHash = if producersBeforeNet[5] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[5]]) fi
+  field[2] hh6ProducersAfterNetHash = if producersAfterNet[5] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[5]]) fi
+  field[2] hh7ProducersBeforeNetHash = if producersBeforeNet[6] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[6]]) fi
+  field[2] hh7ProducersAfterNetHash = if producersAfterNet[6] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[6]]) fi
+  field[2] hh8ProducersBeforeNetHash = if producersBeforeNet[7] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[7]]) fi
+  field[2] hh8ProducersAfterNetHash = if producersAfterNet[7] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[7]]) fi
+  field[2] hh9ProducersBeforeNetHash = if producersBeforeNet[8] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[8]]) fi
+  field[2] hh9ProducersAfterNetHash = if producersAfterNet[8] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[8]]) fi
+  field[2] hh10ProducersBeforeNetHash = if producersBeforeNet[9] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[9]]) fi
+  field[2] hh10ProducersAfterNetHash = if producersAfterNet[9] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[9]]) fi
+  field[2] hh11ProducersBeforeNetHash = if producersBeforeNet[10] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[10]]) fi
+  field[2] hh11ProducersAfterNetHash = if producersAfterNet[10] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[10]]) fi
+  field[2] hh12ProducersBeforeNetHash = if producersBeforeNet[11] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[11]]) fi
+  field[2] hh12ProducersAfterNetHash = if producersAfterNet[11] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[11]]) fi
+  field[2] hh13ProducersBeforeNetHash = if producersBeforeNet[12] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[12]]) fi
+  field[2] hh13ProducersAfterNetHash = if producersAfterNet[12] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[12]]) fi
+  field[2] hh14ProducersBeforeNetHash = if producersBeforeNet[13] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[13]]) fi
+  field[2] hh14ProducersAfterNetHash = if producersAfterNet[13] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[13]]) fi
+  field[2] hh15ProducersBeforeNetHash = if producersBeforeNet[14] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[14]]) fi
+  field[2] hh15ProducersAfterNetHash = if producersAfterNet[14] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[14]]) fi
+  field[2] hh16ProducersBeforeNetHash = if producersBeforeNet[15] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[15]]) fi
+  field[2] hh16ProducersAfterNetHash = if producersAfterNet[15] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[15]]) fi
+  field[2] hh17ProducersBeforeNetHash = if producersBeforeNet[16] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[16]]) fi
+  field[2] hh17ProducersAfterNetHash = if producersAfterNet[16] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[16]]) fi
+  field[2] hh18ProducersBeforeNetHash = if producersBeforeNet[17] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[17]]) fi
+  field[2] hh18ProducersAfterNetHash = if producersAfterNet[17] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[17]]) fi
+  field[2] hh19ProducersBeforeNetHash = if producersBeforeNet[18] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[18]]) fi
+  field[2] hh19ProducersAfterNetHash = if producersAfterNet[18] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[18]]) fi
+  field[2] hh20ProducersBeforeNetHash = if producersBeforeNet[19] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[19]]) fi
+  field[2] hh20ProducersAfterNetHash = if producersAfterNet[19] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[19]]) fi
+  field[2] hh21ProducersBeforeNetHash = if producersBeforeNet[20] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[20]]) fi
+  field[2] hh21ProducersAfterNetHash = if producersAfterNet[20] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[20]]) fi
+  field[2] hh22ProducersBeforeNetHash = if producersBeforeNet[21] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[21]]) fi
+  field[2] hh22ProducersAfterNetHash = if producersAfterNet[21] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[21]]) fi
+  field[2] hh23ProducersBeforeNetHash = if producersBeforeNet[22] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[22]]) fi
+  field[2] hh23ProducersAfterNetHash = if producersAfterNet[22] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[22]]) fi
+  field[2] hh24ProducersBeforeNetHash = if producersBeforeNet[23] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[23]]) fi
+  field[2] hh24ProducersAfterNetHash = if producersAfterNet[23] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[23]]) fi
+  field[2] hh25ProducersBeforeNetHash = if producersBeforeNet[24] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[24]]) fi
+  field[2] hh25ProducersAfterNetHash = if producersAfterNet[24] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[24]]) fi
+  field[2] hh26ProducersBeforeNetHash = if producersBeforeNet[25] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[25]]) fi
+  field[2] hh26ProducersAfterNetHash = if producersAfterNet[25] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[25]]) fi
+  field[2] hh27ProducersBeforeNetHash = if producersBeforeNet[26] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[26]]) fi
+  field[2] hh27ProducersAfterNetHash = if producersAfterNet[26] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[26]]) fi
+  field[2] hh28ProducersBeforeNetHash = if producersBeforeNet[27] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[27]]) fi
+  field[2] hh28ProducersAfterNetHash = if producersAfterNet[27] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[27]]) fi
+  field[2] hh29ProducersBeforeNetHash = if producersBeforeNet[28] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[28]]) fi
+  field[2] hh29ProducersAfterNetHash = if producersAfterNet[28] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[28]]) fi
+  field[2] hh30ProducersBeforeNetHash = if producersBeforeNet[29] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[29]]) fi
+  field[2] hh30ProducersAfterNetHash = if producersAfterNet[29] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[29]]) fi
+  field[2] hh31ProducersBeforeNetHash = if producersBeforeNet[30] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[30]]) fi
+  field[2] hh31ProducersAfterNetHash = if producersAfterNet[30] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[30]]) fi
+  field[2] hh32ProducersBeforeNetHash = if producersBeforeNet[31] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[31]]) fi
+  field[2] hh32ProducersAfterNetHash = if producersAfterNet[31] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[31]]) fi
+  field[2] hh33ProducersBeforeNetHash = if producersBeforeNet[32] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[32]]) fi
+  field[2] hh33ProducersAfterNetHash = if producersAfterNet[32] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[32]]) fi
+  field[2] hh34ProducersBeforeNetHash = if producersBeforeNet[33] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[33]]) fi
+  field[2] hh34ProducersAfterNetHash = if producersAfterNet[33] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[33]]) fi
+  field[2] hh35ProducersBeforeNetHash = if producersBeforeNet[34] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[34]]) fi
+  field[2] hh35ProducersAfterNetHash = if producersAfterNet[34] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[34]]) fi
+  field[2] hh36ProducersBeforeNetHash = if producersBeforeNet[35] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[35]]) fi
+  field[2] hh36ProducersAfterNetHash = if producersAfterNet[35] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[35]]) fi
+  field[2] hh37ProducersBeforeNetHash = if producersBeforeNet[36] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[36]]) fi
+  field[2] hh37ProducersAfterNetHash = if producersAfterNet[36] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[36]]) fi
+  field[2] hh38ProducersBeforeNetHash = if producersBeforeNet[37] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[37]]) fi
+  field[2] hh38ProducersAfterNetHash = if producersAfterNet[37] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[37]]) fi
+  field[2] hh39ProducersBeforeNetHash = if producersBeforeNet[38] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[38]]) fi
+  field[2] hh39ProducersAfterNetHash = if producersAfterNet[38] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[38]]) fi
+  field[2] hh40ProducersBeforeNetHash = if producersBeforeNet[39] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[39]]) fi
+  field[2] hh40ProducersAfterNetHash = if producersAfterNet[39] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[39]]) fi
+  field[2] hh41ProducersBeforeNetHash = if producersBeforeNet[40] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[40]]) fi
+  field[2] hh41ProducersAfterNetHash = if producersAfterNet[40] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[40]]) fi
+  field[2] hh42ProducersBeforeNetHash = if producersBeforeNet[41] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[41]]) fi
+  field[2] hh42ProducersAfterNetHash = if producersAfterNet[41] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[41]]) fi
+  field[2] hh43ProducersBeforeNetHash = if producersBeforeNet[42] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[42]]) fi
+  field[2] hh43ProducersAfterNetHash = if producersAfterNet[42] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[42]]) fi
+  field[2] hh44ProducersBeforeNetHash = if producersBeforeNet[43] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[43]]) fi
+  field[2] hh44ProducersAfterNetHash = if producersAfterNet[43] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[43]]) fi
+  field[2] hh45ProducersBeforeNetHash = if producersBeforeNet[44] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[44]]) fi
+  field[2] hh45ProducersAfterNetHash = if producersAfterNet[44] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[44]]) fi
+  field[2] hh46ProducersBeforeNetHash = if producersBeforeNet[45] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[45]]) fi
+  field[2] hh46ProducersAfterNetHash = if producersAfterNet[45] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[45]]) fi
+  field[2] hh47ProducersBeforeNetHash = if producersBeforeNet[46] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[46]]) fi
+  field[2] hh47ProducersAfterNetHash = if producersAfterNet[46] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[46]]) fi
+  field[2] hh48ProducersBeforeNetHash = if producersBeforeNet[47] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[47]]) fi
+  field[2] hh48ProducersAfterNetHash = if producersAfterNet[47] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[47]]) fi
+  field[2] hh49ProducersBeforeNetHash = if producersBeforeNet[48] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[48]]) fi
+  field[2] hh49ProducersAfterNetHash = if producersAfterNet[48] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[48]]) fi
+  field[2] hh50ProducersBeforeNetHash = if producersBeforeNet[49] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[49]]) fi
+  field[2] hh50ProducersAfterNetHash = if producersAfterNet[49] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[49]]) fi
+  field[2] hh51ProducersBeforeNetHash = if producersBeforeNet[50] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[50]]) fi
+  field[2] hh51ProducersAfterNetHash = if producersAfterNet[50] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[50]]) fi
+  field[2] hh52ProducersBeforeNetHash = if producersBeforeNet[51] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[51]]) fi
+  field[2] hh52ProducersAfterNetHash = if producersAfterNet[51] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[51]]) fi
+  field[2] hh53ProducersBeforeNetHash = if producersBeforeNet[52] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[52]]) fi
+  field[2] hh53ProducersAfterNetHash = if producersAfterNet[52] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[52]]) fi
+  field[2] hh54ProducersBeforeNetHash = if producersBeforeNet[53] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[53]]) fi
+  field[2] hh54ProducersAfterNetHash = if producersAfterNet[53] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[53]]) fi
+  field[2] hh55ProducersBeforeNetHash = if producersBeforeNet[54] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[54]]) fi
+  field[2] hh55ProducersAfterNetHash = if producersAfterNet[54] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[54]]) fi
+  field[2] hh56ProducersBeforeNetHash = if producersBeforeNet[55] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[55]]) fi
+  field[2] hh56ProducersAfterNetHash = if producersAfterNet[55] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[55]]) fi
+  field[2] hh57ProducersBeforeNetHash = if producersBeforeNet[56] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[56]]) fi
+  field[2] hh57ProducersAfterNetHash = if producersAfterNet[56] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[56]]) fi
+  field[2] hh58ProducersBeforeNetHash = if producersBeforeNet[57] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[57]]) fi
+  field[2] hh58ProducersAfterNetHash = if producersAfterNet[57] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[57]]) fi
+  field[2] hh59ProducersBeforeNetHash = if producersBeforeNet[58] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[58]]) fi
+  field[2] hh59ProducersAfterNetHash = if producersAfterNet[58] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[58]]) fi
+  field[2] hh60ProducersBeforeNetHash = if producersBeforeNet[59] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[59]]) fi
+  field[2] hh60ProducersAfterNetHash = if producersAfterNet[59] == 0 then [0, 0] else sha256packed([0, 0, 0, producersAfterNet[59]]) fi
   field[2] hh1ConsumersBeforeNetHash = if consumersBeforeNet[0] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[0]]) fi
   field[2] hh1ConsumersAfterNetHash = if consumersAfterNet[0] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[0]]) fi
   field[2] hh2ConsumersBeforeNetHash = if consumersBeforeNet[1] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[1]]) fi
   field[2] hh2ConsumersAfterNetHash = if consumersAfterNet[1] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[1]]) fi
-  return  hh1ProducersBeforeNetHash, hh2ProducersBeforeNetHash, hh1ConsumersBeforeNetHash, hh2ConsumersBeforeNetHash, hh1ProducersAfterNetHash, hh2ProducersAfterNetHash, hh1ConsumersAfterNetHash, hh2ConsumersAfterNetHash
+  field[2] hh3ConsumersBeforeNetHash = if consumersBeforeNet[2] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[2]]) fi
+  field[2] hh3ConsumersAfterNetHash = if consumersAfterNet[2] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[2]]) fi
+  field[2] hh4ConsumersBeforeNetHash = if consumersBeforeNet[3] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[3]]) fi
+  field[2] hh4ConsumersAfterNetHash = if consumersAfterNet[3] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[3]]) fi
+  field[2] hh5ConsumersBeforeNetHash = if consumersBeforeNet[4] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[4]]) fi
+  field[2] hh5ConsumersAfterNetHash = if consumersAfterNet[4] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[4]]) fi
+  field[2] hh6ConsumersBeforeNetHash = if consumersBeforeNet[5] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[5]]) fi
+  field[2] hh6ConsumersAfterNetHash = if consumersAfterNet[5] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[5]]) fi
+  field[2] hh7ConsumersBeforeNetHash = if consumersBeforeNet[6] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[6]]) fi
+  field[2] hh7ConsumersAfterNetHash = if consumersAfterNet[6] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[6]]) fi
+  field[2] hh8ConsumersBeforeNetHash = if consumersBeforeNet[7] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[7]]) fi
+  field[2] hh8ConsumersAfterNetHash = if consumersAfterNet[7] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[7]]) fi
+  field[2] hh9ConsumersBeforeNetHash = if consumersBeforeNet[8] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[8]]) fi
+  field[2] hh9ConsumersAfterNetHash = if consumersAfterNet[8] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[8]]) fi
+  field[2] hh10ConsumersBeforeNetHash = if consumersBeforeNet[9] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[9]]) fi
+  field[2] hh10ConsumersAfterNetHash = if consumersAfterNet[9] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[9]]) fi
+  field[2] hh11ConsumersBeforeNetHash = if consumersBeforeNet[10] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[10]]) fi
+  field[2] hh11ConsumersAfterNetHash = if consumersAfterNet[10] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[10]]) fi
+  field[2] hh12ConsumersBeforeNetHash = if consumersBeforeNet[11] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[11]]) fi
+  field[2] hh12ConsumersAfterNetHash = if consumersAfterNet[11] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[11]]) fi
+  field[2] hh13ConsumersBeforeNetHash = if consumersBeforeNet[12] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[12]]) fi
+  field[2] hh13ConsumersAfterNetHash = if consumersAfterNet[12] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[12]]) fi
+  field[2] hh14ConsumersBeforeNetHash = if consumersBeforeNet[13] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[13]]) fi
+  field[2] hh14ConsumersAfterNetHash = if consumersAfterNet[13] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[13]]) fi
+  field[2] hh15ConsumersBeforeNetHash = if consumersBeforeNet[14] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[14]]) fi
+  field[2] hh15ConsumersAfterNetHash = if consumersAfterNet[14] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[14]]) fi
+  field[2] hh16ConsumersBeforeNetHash = if consumersBeforeNet[15] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[15]]) fi
+  field[2] hh16ConsumersAfterNetHash = if consumersAfterNet[15] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[15]]) fi
+  field[2] hh17ConsumersBeforeNetHash = if consumersBeforeNet[16] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[16]]) fi
+  field[2] hh17ConsumersAfterNetHash = if consumersAfterNet[16] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[16]]) fi
+  field[2] hh18ConsumersBeforeNetHash = if consumersBeforeNet[17] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[17]]) fi
+  field[2] hh18ConsumersAfterNetHash = if consumersAfterNet[17] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[17]]) fi
+  field[2] hh19ConsumersBeforeNetHash = if consumersBeforeNet[18] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[18]]) fi
+  field[2] hh19ConsumersAfterNetHash = if consumersAfterNet[18] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[18]]) fi
+  field[2] hh20ConsumersBeforeNetHash = if consumersBeforeNet[19] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[19]]) fi
+  field[2] hh20ConsumersAfterNetHash = if consumersAfterNet[19] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[19]]) fi
+  field[2] hh21ConsumersBeforeNetHash = if consumersBeforeNet[20] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[20]]) fi
+  field[2] hh21ConsumersAfterNetHash = if consumersAfterNet[20] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[20]]) fi
+  field[2] hh22ConsumersBeforeNetHash = if consumersBeforeNet[21] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[21]]) fi
+  field[2] hh22ConsumersAfterNetHash = if consumersAfterNet[21] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[21]]) fi
+  field[2] hh23ConsumersBeforeNetHash = if consumersBeforeNet[22] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[22]]) fi
+  field[2] hh23ConsumersAfterNetHash = if consumersAfterNet[22] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[22]]) fi
+  field[2] hh24ConsumersBeforeNetHash = if consumersBeforeNet[23] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[23]]) fi
+  field[2] hh24ConsumersAfterNetHash = if consumersAfterNet[23] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[23]]) fi
+  field[2] hh25ConsumersBeforeNetHash = if consumersBeforeNet[24] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[24]]) fi
+  field[2] hh25ConsumersAfterNetHash = if consumersAfterNet[24] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[24]]) fi
+  field[2] hh26ConsumersBeforeNetHash = if consumersBeforeNet[25] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[25]]) fi
+  field[2] hh26ConsumersAfterNetHash = if consumersAfterNet[25] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[25]]) fi
+  field[2] hh27ConsumersBeforeNetHash = if consumersBeforeNet[26] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[26]]) fi
+  field[2] hh27ConsumersAfterNetHash = if consumersAfterNet[26] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[26]]) fi
+  field[2] hh28ConsumersBeforeNetHash = if consumersBeforeNet[27] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[27]]) fi
+  field[2] hh28ConsumersAfterNetHash = if consumersAfterNet[27] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[27]]) fi
+  field[2] hh29ConsumersBeforeNetHash = if consumersBeforeNet[28] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[28]]) fi
+  field[2] hh29ConsumersAfterNetHash = if consumersAfterNet[28] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[28]]) fi
+  field[2] hh30ConsumersBeforeNetHash = if consumersBeforeNet[29] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[29]]) fi
+  field[2] hh30ConsumersAfterNetHash = if consumersAfterNet[29] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[29]]) fi
+  field[2] hh31ConsumersBeforeNetHash = if consumersBeforeNet[30] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[30]]) fi
+  field[2] hh31ConsumersAfterNetHash = if consumersAfterNet[30] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[30]]) fi
+  field[2] hh32ConsumersBeforeNetHash = if consumersBeforeNet[31] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[31]]) fi
+  field[2] hh32ConsumersAfterNetHash = if consumersAfterNet[31] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[31]]) fi
+  field[2] hh33ConsumersBeforeNetHash = if consumersBeforeNet[32] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[32]]) fi
+  field[2] hh33ConsumersAfterNetHash = if consumersAfterNet[32] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[32]]) fi
+  field[2] hh34ConsumersBeforeNetHash = if consumersBeforeNet[33] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[33]]) fi
+  field[2] hh34ConsumersAfterNetHash = if consumersAfterNet[33] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[33]]) fi
+  field[2] hh35ConsumersBeforeNetHash = if consumersBeforeNet[34] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[34]]) fi
+  field[2] hh35ConsumersAfterNetHash = if consumersAfterNet[34] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[34]]) fi
+  field[2] hh36ConsumersBeforeNetHash = if consumersBeforeNet[35] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[35]]) fi
+  field[2] hh36ConsumersAfterNetHash = if consumersAfterNet[35] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[35]]) fi
+  field[2] hh37ConsumersBeforeNetHash = if consumersBeforeNet[36] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[36]]) fi
+  field[2] hh37ConsumersAfterNetHash = if consumersAfterNet[36] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[36]]) fi
+  field[2] hh38ConsumersBeforeNetHash = if consumersBeforeNet[37] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[37]]) fi
+  field[2] hh38ConsumersAfterNetHash = if consumersAfterNet[37] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[37]]) fi
+  field[2] hh39ConsumersBeforeNetHash = if consumersBeforeNet[38] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[38]]) fi
+  field[2] hh39ConsumersAfterNetHash = if consumersAfterNet[38] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[38]]) fi
+  field[2] hh40ConsumersBeforeNetHash = if consumersBeforeNet[39] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[39]]) fi
+  field[2] hh40ConsumersAfterNetHash = if consumersAfterNet[39] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[39]]) fi
+  field[2] hh41ConsumersBeforeNetHash = if consumersBeforeNet[40] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[40]]) fi
+  field[2] hh41ConsumersAfterNetHash = if consumersAfterNet[40] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[40]]) fi
+  field[2] hh42ConsumersBeforeNetHash = if consumersBeforeNet[41] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[41]]) fi
+  field[2] hh42ConsumersAfterNetHash = if consumersAfterNet[41] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[41]]) fi
+  field[2] hh43ConsumersBeforeNetHash = if consumersBeforeNet[42] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[42]]) fi
+  field[2] hh43ConsumersAfterNetHash = if consumersAfterNet[42] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[42]]) fi
+  field[2] hh44ConsumersBeforeNetHash = if consumersBeforeNet[43] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[43]]) fi
+  field[2] hh44ConsumersAfterNetHash = if consumersAfterNet[43] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[43]]) fi
+  field[2] hh45ConsumersBeforeNetHash = if consumersBeforeNet[44] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[44]]) fi
+  field[2] hh45ConsumersAfterNetHash = if consumersAfterNet[44] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[44]]) fi
+  field[2] hh46ConsumersBeforeNetHash = if consumersBeforeNet[45] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[45]]) fi
+  field[2] hh46ConsumersAfterNetHash = if consumersAfterNet[45] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[45]]) fi
+  field[2] hh47ConsumersBeforeNetHash = if consumersBeforeNet[46] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[46]]) fi
+  field[2] hh47ConsumersAfterNetHash = if consumersAfterNet[46] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[46]]) fi
+  field[2] hh48ConsumersBeforeNetHash = if consumersBeforeNet[47] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[47]]) fi
+  field[2] hh48ConsumersAfterNetHash = if consumersAfterNet[47] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[47]]) fi
+  field[2] hh49ConsumersBeforeNetHash = if consumersBeforeNet[48] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[48]]) fi
+  field[2] hh49ConsumersAfterNetHash = if consumersAfterNet[48] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[48]]) fi
+  field[2] hh50ConsumersBeforeNetHash = if consumersBeforeNet[49] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[49]]) fi
+  field[2] hh50ConsumersAfterNetHash = if consumersAfterNet[49] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[49]]) fi
+  field[2] hh51ConsumersBeforeNetHash = if consumersBeforeNet[50] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[50]]) fi
+  field[2] hh51ConsumersAfterNetHash = if consumersAfterNet[50] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[50]]) fi
+  field[2] hh52ConsumersBeforeNetHash = if consumersBeforeNet[51] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[51]]) fi
+  field[2] hh52ConsumersAfterNetHash = if consumersAfterNet[51] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[51]]) fi
+  field[2] hh53ConsumersBeforeNetHash = if consumersBeforeNet[52] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[52]]) fi
+  field[2] hh53ConsumersAfterNetHash = if consumersAfterNet[52] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[52]]) fi
+  field[2] hh54ConsumersBeforeNetHash = if consumersBeforeNet[53] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[53]]) fi
+  field[2] hh54ConsumersAfterNetHash = if consumersAfterNet[53] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[53]]) fi
+  field[2] hh55ConsumersBeforeNetHash = if consumersBeforeNet[54] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[54]]) fi
+  field[2] hh55ConsumersAfterNetHash = if consumersAfterNet[54] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[54]]) fi
+  field[2] hh56ConsumersBeforeNetHash = if consumersBeforeNet[55] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[55]]) fi
+  field[2] hh56ConsumersAfterNetHash = if consumersAfterNet[55] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[55]]) fi
+  field[2] hh57ConsumersBeforeNetHash = if consumersBeforeNet[56] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[56]]) fi
+  field[2] hh57ConsumersAfterNetHash = if consumersAfterNet[56] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[56]]) fi
+  field[2] hh58ConsumersBeforeNetHash = if consumersBeforeNet[57] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[57]]) fi
+  field[2] hh58ConsumersAfterNetHash = if consumersAfterNet[57] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[57]]) fi
+  field[2] hh59ConsumersBeforeNetHash = if consumersBeforeNet[58] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[58]]) fi
+  field[2] hh59ConsumersAfterNetHash = if consumersAfterNet[58] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[58]]) fi
+  field[2] hh60ConsumersBeforeNetHash = if consumersBeforeNet[59] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersBeforeNet[59]]) fi
+  field[2] hh60ConsumersAfterNetHash = if consumersAfterNet[59] == 0 then [0, 0] else sha256packed([0, 0, 0, consumersAfterNet[59]]) fi
+  return  hh1ProducersBeforeNetHash, hh2ProducersBeforeNetHash, hh3ProducersBeforeNetHash, hh4ProducersBeforeNetHash, hh5ProducersBeforeNetHash, hh6ProducersBeforeNetHash, hh7ProducersBeforeNetHash, hh8ProducersBeforeNetHash, hh9ProducersBeforeNetHash, hh10ProducersBeforeNetHash, hh11ProducersBeforeNetHash, hh12ProducersBeforeNetHash, hh13ProducersBeforeNetHash, hh14ProducersBeforeNetHash, hh15ProducersBeforeNetHash, hh16ProducersBeforeNetHash, hh17ProducersBeforeNetHash, hh18ProducersBeforeNetHash, hh19ProducersBeforeNetHash, hh20ProducersBeforeNetHash, hh21ProducersBeforeNetHash, hh22ProducersBeforeNetHash, hh23ProducersBeforeNetHash, hh24ProducersBeforeNetHash, hh25ProducersBeforeNetHash, hh26ProducersBeforeNetHash, hh27ProducersBeforeNetHash, hh28ProducersBeforeNetHash, hh29ProducersBeforeNetHash, hh30ProducersBeforeNetHash, hh31ProducersBeforeNetHash, hh32ProducersBeforeNetHash, hh33ProducersBeforeNetHash, hh34ProducersBeforeNetHash, hh35ProducersBeforeNetHash, hh36ProducersBeforeNetHash, hh37ProducersBeforeNetHash, hh38ProducersBeforeNetHash, hh39ProducersBeforeNetHash, hh40ProducersBeforeNetHash, hh41ProducersBeforeNetHash, hh42ProducersBeforeNetHash, hh43ProducersBeforeNetHash, hh44ProducersBeforeNetHash, hh45ProducersBeforeNetHash, hh46ProducersBeforeNetHash, hh47ProducersBeforeNetHash, hh48ProducersBeforeNetHash, hh49ProducersBeforeNetHash, hh50ProducersBeforeNetHash, hh51ProducersBeforeNetHash, hh52ProducersBeforeNetHash, hh53ProducersBeforeNetHash, hh54ProducersBeforeNetHash, hh55ProducersBeforeNetHash, hh56ProducersBeforeNetHash, hh57ProducersBeforeNetHash, hh58ProducersBeforeNetHash, hh59ProducersBeforeNetHash, hh60ProducersBeforeNetHash, hh1ConsumersBeforeNetHash, hh2ConsumersBeforeNetHash, hh3ConsumersBeforeNetHash, hh4ConsumersBeforeNetHash, hh5ConsumersBeforeNetHash, hh6ConsumersBeforeNetHash, hh7ConsumersBeforeNetHash, hh8ConsumersBeforeNetHash, hh9ConsumersBeforeNetHash, hh10ConsumersBeforeNetHash, hh11ConsumersBeforeNetHash, hh12ConsumersBeforeNetHash, hh13ConsumersBeforeNetHash, hh14ConsumersBeforeNetHash, hh15ConsumersBeforeNetHash, hh16ConsumersBeforeNetHash, hh17ConsumersBeforeNetHash, hh18ConsumersBeforeNetHash, hh19ConsumersBeforeNetHash, hh20ConsumersBeforeNetHash, hh21ConsumersBeforeNetHash, hh22ConsumersBeforeNetHash, hh23ConsumersBeforeNetHash, hh24ConsumersBeforeNetHash, hh25ConsumersBeforeNetHash, hh26ConsumersBeforeNetHash, hh27ConsumersBeforeNetHash, hh28ConsumersBeforeNetHash, hh29ConsumersBeforeNetHash, hh30ConsumersBeforeNetHash, hh31ConsumersBeforeNetHash, hh32ConsumersBeforeNetHash, hh33ConsumersBeforeNetHash, hh34ConsumersBeforeNetHash, hh35ConsumersBeforeNetHash, hh36ConsumersBeforeNetHash, hh37ConsumersBeforeNetHash, hh38ConsumersBeforeNetHash, hh39ConsumersBeforeNetHash, hh40ConsumersBeforeNetHash, hh41ConsumersBeforeNetHash, hh42ConsumersBeforeNetHash, hh43ConsumersBeforeNetHash, hh44ConsumersBeforeNetHash, hh45ConsumersBeforeNetHash, hh46ConsumersBeforeNetHash, hh47ConsumersBeforeNetHash, hh48ConsumersBeforeNetHash, hh49ConsumersBeforeNetHash, hh50ConsumersBeforeNetHash, hh51ConsumersBeforeNetHash, hh52ConsumersBeforeNetHash, hh53ConsumersBeforeNetHash, hh54ConsumersBeforeNetHash, hh55ConsumersBeforeNetHash, hh56ConsumersBeforeNetHash, hh57ConsumersBeforeNetHash, hh58ConsumersBeforeNetHash, hh59ConsumersBeforeNetHash, hh60ConsumersBeforeNetHash, hh1ProducersAfterNetHash, hh2ProducersAfterNetHash, hh3ProducersAfterNetHash, hh4ProducersAfterNetHash, hh5ProducersAfterNetHash, hh6ProducersAfterNetHash, hh7ProducersAfterNetHash, hh8ProducersAfterNetHash, hh9ProducersAfterNetHash, hh10ProducersAfterNetHash, hh11ProducersAfterNetHash, hh12ProducersAfterNetHash, hh13ProducersAfterNetHash, hh14ProducersAfterNetHash, hh15ProducersAfterNetHash, hh16ProducersAfterNetHash, hh17ProducersAfterNetHash, hh18ProducersAfterNetHash, hh19ProducersAfterNetHash, hh20ProducersAfterNetHash, hh21ProducersAfterNetHash, hh22ProducersAfterNetHash, hh23ProducersAfterNetHash, hh24ProducersAfterNetHash, hh25ProducersAfterNetHash, hh26ProducersAfterNetHash, hh27ProducersAfterNetHash, hh28ProducersAfterNetHash, hh29ProducersAfterNetHash, hh30ProducersAfterNetHash, hh31ProducersAfterNetHash, hh32ProducersAfterNetHash, hh33ProducersAfterNetHash, hh34ProducersAfterNetHash, hh35ProducersAfterNetHash, hh36ProducersAfterNetHash, hh37ProducersAfterNetHash, hh38ProducersAfterNetHash, hh39ProducersAfterNetHash, hh40ProducersAfterNetHash, hh41ProducersAfterNetHash, hh42ProducersAfterNetHash, hh43ProducersAfterNetHash, hh44ProducersAfterNetHash, hh45ProducersAfterNetHash, hh46ProducersAfterNetHash, hh47ProducersAfterNetHash, hh48ProducersAfterNetHash, hh49ProducersAfterNetHash, hh50ProducersAfterNetHash, hh51ProducersAfterNetHash, hh52ProducersAfterNetHash, hh53ProducersAfterNetHash, hh54ProducersAfterNetHash, hh55ProducersAfterNetHash, hh56ProducersAfterNetHash, hh57ProducersAfterNetHash, hh58ProducersAfterNetHash, hh59ProducersAfterNetHash, hh60ProducersAfterNetHash, hh1ConsumersAfterNetHash, hh2ConsumersAfterNetHash, hh3ConsumersAfterNetHash, hh4ConsumersAfterNetHash, hh5ConsumersAfterNetHash, hh6ConsumersAfterNetHash, hh7ConsumersAfterNetHash, hh8ConsumersAfterNetHash, hh9ConsumersAfterNetHash, hh10ConsumersAfterNetHash, hh11ConsumersAfterNetHash, hh12ConsumersAfterNetHash, hh13ConsumersAfterNetHash, hh14ConsumersAfterNetHash, hh15ConsumersAfterNetHash, hh16ConsumersAfterNetHash, hh17ConsumersAfterNetHash, hh18ConsumersAfterNetHash, hh19ConsumersAfterNetHash, hh20ConsumersAfterNetHash, hh21ConsumersAfterNetHash, hh22ConsumersAfterNetHash, hh23ConsumersAfterNetHash, hh24ConsumersAfterNetHash, hh25ConsumersAfterNetHash, hh26ConsumersAfterNetHash, hh27ConsumersAfterNetHash, hh28ConsumersAfterNetHash, hh29ConsumersAfterNetHash, hh30ConsumersAfterNetHash, hh31ConsumersAfterNetHash, hh32ConsumersAfterNetHash, hh33ConsumersAfterNetHash, hh34ConsumersAfterNetHash, hh35ConsumersAfterNetHash, hh36ConsumersAfterNetHash, hh37ConsumersAfterNetHash, hh38ConsumersAfterNetHash, hh39ConsumersAfterNetHash, hh40ConsumersAfterNetHash, hh41ConsumersAfterNetHash, hh42ConsumersAfterNetHash, hh43ConsumersAfterNetHash, hh44ConsumersAfterNetHash, hh45ConsumersAfterNetHash, hh46ConsumersAfterNetHash, hh47ConsumersAfterNetHash, hh48ConsumersAfterNetHash, hh49ConsumersAfterNetHash, hh50ConsumersAfterNetHash, hh51ConsumersAfterNetHash, hh52ConsumersAfterNetHash, hh53ConsumersAfterNetHash, hh54ConsumersAfterNetHash, hh55ConsumersAfterNetHash, hh56ConsumersAfterNetHash, hh57ConsumersAfterNetHash, hh58ConsumersAfterNetHash, hh59ConsumersAfterNetHash, hh60ConsumersAfterNetHash

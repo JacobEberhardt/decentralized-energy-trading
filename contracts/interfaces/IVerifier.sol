@@ -12,5 +12,5 @@ contract IVerifier {
     uint[2] memory a,
     uint[2][2] memory b,
     uint[2] memory c,
-    uint[16] memory input) public returns (bool);
+    uint[480] memory input) public returns (bool);
 }
