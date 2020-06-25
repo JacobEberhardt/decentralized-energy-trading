@@ -36,7 +36,7 @@ yarn setup-zokrates
 yarn update-contract-bytecodes
 ```
 
-For the old timers
+For the old timers:
 ```bash
 $ ./scripts/setup_zokrates.sh
 $ truffle compile,
