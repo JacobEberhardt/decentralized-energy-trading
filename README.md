@@ -69,6 +69,10 @@ $ truffle migrate --reset hard --network authority --f 2
 ```bash
 yarn run-netting-entity -i 60000
 ```
+For the old timers:
+```bash
+$ node ./netting-entity/index.js -i 60000
+```
 
 **6.)** Create two databases for both household servers:
 
