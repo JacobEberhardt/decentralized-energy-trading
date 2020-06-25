@@ -64,7 +64,7 @@ For the old timers:
 $ truffle migrate --reset hard --network authority --f 2
 ```
 
-**5.)** Start the Netting Entity:
+**5.)** Start the Netting Entity with netting interval i (default=1min):
 
 ```bash
 yarn run-netting-entity -i 60000
