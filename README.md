@@ -116,19 +116,31 @@ $ node ./household-server/index.js \
   -d mongodb://127.0.0.1:27012
 ```
 
-
 **Note:** Depending on your network settings an extra flag `-h 127.0.0.1` could be needed for both households.
 
 **8.)** Start a mocked sensor for each household:
 
 ```bash
-# Household 1 with positive energy balance
+# Meter of household 1 with positive energy balance
 yarn run-sensor -p 3002 -e +
 ```
 
 ```bash
-# Household 2 with negative energy balance
+# Meter of household 2 with negative energy balance
 yarn run-sensor -p 3003 -e -
+```
+
+For the old timers:
+```bash
+# Meter of household 1 with positive energy balance
+$ node ./mock-sensor/index.js \
+  -p 3002 \
+  -e +
+
+# Meter of household 2 with negative energy balance
+$ node ./household-server/index.js \
+  -p 3003
+  -e -
 ```
 
 **9.)** Start two household-ui applications:
