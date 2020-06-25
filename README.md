@@ -99,6 +99,24 @@ yarn run-server -p 3003 \
   -d mongodb://127.0.0.1:27012
 ```
 
+For the old timers:
+```bash
+# Household 1
+$ node ./household-server/index.js \
+  -a 0x00aa39d30f0d20ff03a22ccfc30b7efbfca597c2 \
+  -P node1 \
+  -n authority_1 \
+  -d mongodb://127.0.0.1:27011
+
+# Household 2
+$ node ./household-server/index.js \
+  -a 0x002e28950558fbede1a9675cb113f0bd20912019 \
+  -P node2 \
+  -n authority_2 \
+  -d mongodb://127.0.0.1:27012
+```
+
+
 **Note:** Depending on your network settings an extra flag `-h 127.0.0.1` could be needed for both households.
 
 **8.)** Start a mocked sensor for each household:
