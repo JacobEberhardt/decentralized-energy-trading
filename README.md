@@ -160,9 +160,12 @@ REACT_APP_HSS_PORT=3003 \
 For the old timers:
 ```bash
 # Household 1
-
+$ node ./household-ui/node_modules/react-scripts/scripts/start.js
 
 # Household 2
+$ node ./household-ui/node_modules/react-scripts/scripts/start.js \
+  REACT_APP_HSS_PORT=3003 \
+  PORT=3010
 ```
 
 
