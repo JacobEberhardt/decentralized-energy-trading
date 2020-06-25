@@ -32,11 +32,15 @@ yarn --cwd household-ui/ install
 **2.)** Setup ZoKrates contract
 
 ```bash
-# Execute Bash script: ./scripts/setup_zokrates.sh
 yarn setup-zokrates
-# Execute: truffle compile,
-# Start: node ./scripts/update-contract-bytecodes
 yarn update-contract-bytecodes
+```
+
+For the old timers
+```bash
+$ ./scripts/setup_zokrates.sh
+$ truffle compile,
+$ node ./scripts/update-contract-bytecodes
 ```
 
 **3.)** Start the ethereum parity chain:
