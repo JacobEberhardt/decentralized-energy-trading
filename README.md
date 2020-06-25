@@ -13,12 +13,17 @@ tags: []
 - [Yarn](https://yarnpkg.com/lang/en/docs/install) >= v1.16
 - [ZoKrates](https://github.com/Zokrates/ZoKrates) >= 0.5.0
 
+## Dependencies
+Dependencies are specified in two files:
+- package.json
+- household-ui/package.json
+
 ## Get started
 
 **1.)** Install dependencies
 
 ```bash
-# load dependencies in package.json to folder node/modules
+# load dependencies in package.json and install to folder node/modules
 yarn install
 yarn --cwd household-ui/ install
 ```
