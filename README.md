@@ -58,6 +58,11 @@ $ docker-compose up -d --build
 yarn migrate-contracts-authority
 ```
 
+For the old timers:
+```bash
+$ truffle migrate --reset hard --network authority --f 2
+```
+
 **5.)** Start the Netting Entity:
 
 ```bash
