@@ -23,8 +23,9 @@ Dependencies are specified in two files:
 **1.)** Install dependencies
 
 ```bash
-# load dependencies in package.json and install to folder node/modules
+# load and install dependencies from package.json
 yarn install
+# load and install dependencies from household-ui/pacakge.json
 yarn --cwd household-ui/ install
 ```
 
