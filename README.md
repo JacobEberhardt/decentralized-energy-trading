@@ -157,6 +157,15 @@ REACT_APP_HSS_PORT=3003 \
  yarn --cwd household-ui/ start
 ```
 
+For the old timers:
+```bash
+# Household 1
+
+
+# Household 2
+```
+
+
 ## Tests
 
 - `yarn test-contracts` to test contracts
