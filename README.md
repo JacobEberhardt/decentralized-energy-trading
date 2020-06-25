@@ -18,6 +18,7 @@ tags: []
 **1.)** Install dependencies
 
 ```bash
+# load dependencies in package.json to folder node/modules
 yarn install
 yarn --cwd household-ui/ install
 ```
