@@ -53,6 +53,7 @@ $ docker-compose up -d --build
 **ethstats** is available at: http://localhost:3001
 
 **4.)** Configure the contracts using truffle migrations:
+This will run all migrations located within the 'migrations' directory
 
 ```bash
 yarn migrate-contracts-authority
