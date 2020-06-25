@@ -24,9 +24,9 @@ Dependencies are specified in two files:
 
 ```bash
 # load and install dependencies from package.json
-yarn install
+$ yarn install
 # load and install dependencies from household-ui/pacakge.json
-yarn --cwd household-ui/ install
+$ yarn --cwd household-ui/ install
 ```
 
 **2.)** Setup ZoKrates contract
@@ -46,8 +46,8 @@ $ node ./scripts/update-contract-bytecodes
 **3.)** Start the ethereum parity chain:
 
 ```bash
-cd parity-authority
-docker-compose up -d --build
+$ cd parity-authority
+$ docker-compose up -d --build
 ```
 
 **ethstats** is available at: http://localhost:3001
