@@ -168,7 +168,6 @@ $ node ./household-ui/node_modules/react-scripts/scripts/start.js \
   PORT=3010
 ```
 
-
 ## Tests
 
 - `yarn test-contracts` to test contracts
@@ -188,3 +187,23 @@ $ node ./household-ui/node_modules/react-scripts/scripts/start.js \
 
 ## Smart contract and ZoKrates program generation:
 - `yarn generate-prooving-files [# Prod] [# Cons]` generates required files for given number of producers and consumers
+
+## UMARs dynamic Docker Creation
+
+#### Start Script
+
+```bash
+$ yarn docker-parity-setup $PROSUMERS $CONSUMERS
+```
+
+For the old timers:
+
+**1.)** ```bash $ ./parity-authority/parity_setup.sh $PROSUMERS $CONSUMERS ```
+Creates i (PROSUMER + CONSUMER) Parity Authority Files (ethkey generate) in Folder parity-authority/parity/authorities/ for necessary Parity ETH accounts (ethkey generate) and key-files
+TODO: possibly change
+**2.)** ```bash $ node project_root/generateDockerChain.js $HOUSEHOLDS ```
+Generates (I) Password and PrivateKey Files for beforehand created Accounts and (II) creates Docker Compose YML File for Parity Chain in folder (project_root/parity-authority)
+**3.)** ```bash $ ./scripts/setup_script.sh $PROSUMERS $CONSUMERS ```
+**3.1)** Copies the folder $PROJECT_ROOT/zokrates-code/ into the directory referenced by the Dockerfile
+**3.2)** ```bash $ node setup_script.js $PROSUMERS $CONSUMERS ```
+Creates the Docker Compose YML file for all Households, the Netting Server, the MongoDB instances and the Mock Sensors
