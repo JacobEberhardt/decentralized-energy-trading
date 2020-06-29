@@ -190,30 +190,58 @@ $ node ./household-ui/node_modules/react-scripts/scripts/start.js \
 
 ## UMARs dynamic Docker Creation
 
+## Requirements
+https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum
+- [GO](https://github.com/golang/go) >= 1.13
+- [Geth](https://github.com/ethereum/go-ethereum) >= v1.9.15
+
+Build "ethkey" and copy the binary into the folder "parity-authority/"
+
+```bash
+$ cd go-ethereum-master/cmd/ethkey/
+$ go build
+$ cp ethkey $PROJECT_ROOT/parity-authority/
+```
+
 #### Start Script
 
 ```bash
 $ yarn docker-parity-setup $PROSUMERS $CONSUMERS
 ```
 
-For the old timers:
+For the old timers (under the hood):
 
-**1.)** ```bash $ ./parity-authority/parity_setup.sh $PROSUMERS $CONSUMERS ```
+**1.)** parity_setup.sh
+```bash
+$ ./parity-authority/parity_setup.sh $PROSUMERS $CONSUMERS
+```
 
 * Creates i (PROSUMER + CONSUMER) Parity Authority Files (ethkey generate) in Folder parity-authority/parity/authorities/ for necessary Parity ETH accounts (ethkey generate) and key-files
 
-**2.)** ```bash $ node project_root/generateDockerChain.js $HOUSEHOLDS ```
+**2.)** generateDockerChain.js
+```bash
+$ node $PROJECT_ROOT/generateDockerChain.js $HOUSEHOLDS
+```
 
 * generates Password and PrivateKey Files for beforehand created Accounts and
 * creates Docker Compose YML File for Parity Chain in folder (project_root/parity-authority)
 
-**3.)** ```bash $ ./scripts/setup_script.sh $PROSUMERS $CONSUMERS ```
+**3.)** setup_script.sh
+```bash
+$ ./scripts/setup_script.sh $PROSUMERS $CONSUMERS
+```
 
-**3.1)** ```bash cp -R -p $PROJECT_ROOT/zokrates-code/ $PROJECT_ROOT/netting-entity/.../zokrates-code ```
+**3.1)** zokrates-code
+```bash
+cp -R -p $PROJECT_ROOT/zokrates-code/ $PROJECT_ROOT/netting-entity/.../zokrates-code
+```
 
 * Copies the folder $PROJECT_ROOT/zokrates-code/ into the directory referenced by the Dockerfile
 
-**3.2)** ```bash $ node setup_script.js $PROSUMERS $CONSUMERS ```
+**3.2)** setup_script.js
+```bash
+$ node setup_script.js $PROSUMERS $CONSUMERS
+```
 
 * creates the Docker Compose YML file ($PROJECT_ROOT/netting.yml) for all Households, the Netting Server, the MongoDB instances and the Mock Sensors and
 * creates and initializes all sub-directories required for the dockerized setup.
