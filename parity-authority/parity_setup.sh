@@ -33,10 +33,10 @@ fi
 done
 
 # Generate ETH accounts and the corresponding key files and save them in the authorities folder
-
+pwd
 for ((i=3; i<=$HH; i++))
 do
-yes "node$i" | ethkey generate parity-authority/parity/authorities/authority$i.json
+{ echo "node$i"; echo "node$i"; } | ./parity-authority/ethkey generate parity-authority/parity/authorities/authority$i.json
 done
 
 yarn generate-docker-parity $HH
