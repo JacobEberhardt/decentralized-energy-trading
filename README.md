@@ -191,16 +191,27 @@ $ node ./household-ui/node_modules/react-scripts/scripts/start.js \
 ## UMARs dynamic Docker Creation
 
 ## Requirements
-https://github.com/ethereum/go-ethereum/wiki/Building-Ethereum
+
+You will need the above stated requirements (Docker, NodeJS, Yarn, ZoKrates) and additionally:
+
 - [GO](https://github.com/golang/go) >= 1.13
 - [Geth](https://github.com/ethereum/go-ethereum) >= v1.9.15
 
-Build "ethkey" and copy the binary into the folder "parity-authority/"
+https://geth.ethereum.org/docs/install-and-build/installing-geth#build-go-ethereum-from-source-code
+
+For the Script to work, we need [ethkey](https://github.com/ethereum/go-ethereum/tree/master/cmd/ethkey). Therefore you need to build "ethkey" and copy the binary into the folder "parity-authority/"
 
 ```bash
 $ cd go-ethereum-master/cmd/ethkey/
 $ go build
 $ cp ethkey $PROJECT_ROOT/parity-authority/
+```
+
+Install dependencies
+
+```bash
+# load and install dependencies from package.json
+$ yarn install
 ```
 
 #### Start Script
