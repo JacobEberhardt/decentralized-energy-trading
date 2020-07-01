@@ -211,6 +211,7 @@ Install dependencies
 
 ```bash
 # load and install dependencies from package.json
+# Assumes project root directory
 $ yarn install
 ```
 
