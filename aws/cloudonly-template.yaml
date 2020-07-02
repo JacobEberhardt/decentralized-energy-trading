@@ -1,0 +1,44 @@
+---
+    AWSTemplateFormatVersion: "2010-09-09"
+    
+    Description: "AWS CloudFormation template for deploying the cloudonly scenario for BloGPV.BLOSSOM."
+    
+    Metadata:
+    
+    Parameters:
+        InstanceTypeParameter: 
+            Type: String
+            Default: t2.micro
+            AllowedValues: 
+            - t2.micro
+            - m1.small
+            - m1.large
+            Description: Enter t2.micro, m1.small, or m1.large. Default is t2.micro.
+    
+    Mappings:
+      set of mappings
+    
+    Conditions:
+      set of conditions
+    
+    Transform:
+      set of transforms
+    
+    Resources:
+        Household: #An inline comment
+            Type: "AWS::EC2::Instance"
+            Properties: 
+            ImageId: "ami-0ff8a91507f77f867" #Linux AMI
+            InstanceType: t2.micro
+            KeyName: testkey
+            BlockDeviceMappings:
+                -
+                DeviceName: /dev/sdm
+                Ebs:
+                    VolumeType: io1
+                    Iops: 200
+                    DeleteOnTermination: false
+                    VolumeSize: 20
+    
+    Outputs:
+      set of outputs
