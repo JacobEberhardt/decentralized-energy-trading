@@ -3,42 +3,61 @@
     
     Description: "AWS CloudFormation template for deploying the cloudonly scenario for BloGPV.BLOSSOM."
     
-    Metadata:
+    #Metadata:
     
-    Parameters:
-        InstanceTypeParameter: 
-            Type: String
-            Default: t2.micro
-            AllowedValues: 
-            - t2.micro
-            - m1.small
-            - m1.large
-            Description: Enter t2.micro, m1.small, or m1.large. Default is t2.micro.
+    #Parameters:
+    #    InstanceTypeParameter: 
+    #        Type: String
+    #        Default: t2.micro
+    #        AllowedValues: 
+    #        - t2.micro
+    #        - m1.small
+    #        - m1.large
+    #        Description: Enter t2.micro, m1.small, or m1.large. Default is t2.micro.
     
-    Mappings:
-      set of mappings
+    #Mappings:
+    #  set of mappings
     
-    Conditions:
-      set of conditions
+    #Conditions:
+    #  set of conditions
     
-    Transform:
-      set of transforms
+    #Transform:
+    #  set of transforms
     
     Resources:
-        Household: #An inline comment
+        Household1:
             Type: "AWS::EC2::Instance"
-            Properties: 
-            ImageId: "ami-0ff8a91507f77f867" #Linux AMI
-            InstanceType: t2.micro
-            KeyName: testkey
-            BlockDeviceMappings:
-                -
-                DeviceName: /dev/sdm
-                Ebs:
-                    VolumeType: io1
-                    Iops: 200
-                    DeleteOnTermination: false
-                    VolumeSize: 20
-    
-    Outputs:
-      set of outputs
+            Properties:
+                SecurityGroupIds:
+                  - sg-cbcd9484
+                # ImageId: ami-0d359437d1756caa8 # Ubuntu Server 18.04 LTS
+                ImageId: ami-031a03cb800ecb0d5 # Amazon Linux AMI 2018.03.0 including Docker
+                InstanceType: t2.micro
+                KeyName: blogpv-jk-ireland
+                Tags:
+                  - Key: project
+                    Value: blogpv
+                  - Key: Name
+                    Value: HouseholdVM
+                  - Key: Is_Houshold_Server
+                    Value: True
+        Netting1:
+            Type: "AWS::EC2::Instance"
+            Properties:
+                SubnetId: 
+                SecurityGroupIds:
+                    - sg-cbcd9484
+                # ImageId: ami-0d359437d1756caa8 # Ubuntu Server 18.04 LTS
+                ImageId: ami-031a03cb800ecb0d5 # Amazon Linux AMI 2018.03.0 including Docker
+                InstanceType: t2.micro
+                KeyName: blogpv-jk-ireland
+                Tags:
+                    - Key: project
+                      Value: blogpv
+                    - Key: Name
+                      Value: NettingVM
+                    - Key: Is_Netting_Server
+                      Value: True
+
+    #Outputs:
+    #  set of outputs
