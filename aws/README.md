@@ -27,8 +27,31 @@ Your target AWS region requires the following ressources:
 - EC2 Security Group - Example: sg-cbcd9484
 - EC2 Key Pair - Example: blogpv-jk-ireland
 
-We will provide support for configurable parameters soon.
-@BloGPV.BLOSSOMers: The corresponding resources exist for AWS region: eu-west-1 (Ireland)
+##### EC2 AMI
+Currently, we use the default AMI provided by AWS.
+
+##### EC2 Security Group
+We assume an existing security group that allows all incoming traffic from all sources and all outgoing traffic to all destinations.
+
+We assume region eu-central-1. You can create a new security group via the [AWS Console](https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#SecurityGroups:)
+
+CAUTION: The security group must be registered with appropriate subnets and mapping tables. This is the case for default security groups.
+
+We will include network configurations via cloud formation soon.
+
+##### Create an EC2 Key-Pair
+We assume region eu-central-1. You can create a new key pair via the [AWS Console](https://eu-central-1.console.aws.amazon.com/ec2/v2/home?region=eu-central-1#KeyPairs:). We assume a Mac-OS and a keyfile mykey.pem. This will download the mykey.pem file of the keypair to $HOME/Downloads.
+
+```bash
+# Copy key file to .ssh
+$ cp $HOME/Downloads/mykey.pem /Users/joernkuhlenkamp/.ssh/
+
+# Change access
+$ chmod 400 $HOME/.ssh/mykey.pem
+```
+
+We will provide support for configurable parameters via the AWS CLI soon.
+# @BloGPV.BLOSSOMers: The corresponding resources exist for AWS region: eu-west-1 (Ireland)
 
 ### User Guider
 
