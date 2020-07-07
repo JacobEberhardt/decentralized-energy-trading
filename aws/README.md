@@ -48,10 +48,12 @@ $ cp $HOME/Downloads/mykey.pem /Users/joernkuhlenkamp/.ssh/
 
 # Change access
 $ chmod 400 $HOME/.ssh/mykey.pem
+
+# (optional) test ssh into an instance
+$ ssh -i $HOME/.ssh/mykey.pem ec2-user@myip
 ```
 
 We will provide support for configurable parameters via the AWS CLI soon.
-# @BloGPV.BLOSSOMers: The corresponding resources exist for AWS region: eu-west-1 (Ireland)
 
 ### User Guider
 
@@ -72,6 +74,22 @@ $ aws cloudformation delete-stack --stack-name blogpvstack
 Check results in the AWS console:
 - [CloudFormation](https://eu-central-1.console.aws.amazon.com/cloudformation/home)
 - [EC2](https://eu-central-1.console.aws.amazon.com/ec2/v2/home)
+
+##### Parameters
+Users can configure cloud resources via [parameters](https://docs.aws.amazon.com/de_de/AWSCloudFormation/latest/UserGuide/parameters-section-structure.html) in the "create-stack" command. A parameter has a *Name* and takes values in a *Domain*. If omitted, each parameter results to its *Default*. We support the following list of parameters:
+
+| Name | Domain | Default |
+|---|--:|--:|
+| ImageId  | [AWS::EC2::Image::Id](https://docs.aws.amazon.com/de_de/AWSEC2/latest/UserGuide/ComponentsAMIs.html) | ami-05ca073a83ad2f28c |
+| Ec2InstanceType | [EC2 Instance Type](https://aws.amazon.com/de/ec2/instance-types/) | t2.micro |
+| Ec2KeyPair | [AWS::EC2::KeyPair::KeyName](https://docs.aws.amazon.com/de_de/AWSEC2/latest/UserGuide/ec2-key-pairs.html) | blogpv-frankfurt-key|
+| Ec2SecurityGroupId | [AWS::EC2::SecurityGroup::Id](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-security-groups.html) | sg-0b12b2191bf3951cf |
+
+Example:
+```bash
+# setting the EC2 instance type to 't2.small'
+$ aws cloudformation create-stack --stack-name blogpvstack --template-body file://cloudonly-template.yaml --capabilities CAPABILITY_AUTO_EXPAND --parameters ParameterKey=Ec2InstanceType,ParameterValue=t2.small
+```
 
 ### Developer Guider
 
