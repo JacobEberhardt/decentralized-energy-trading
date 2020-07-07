@@ -29,7 +29,7 @@
             Type: "AWS::EC2::Instance"
             Properties:
                 SecurityGroupIds:
-                  - sg-cbcd9484
+                  - sg-0b12b2191bf3951cf
                 # ImageId: ami-0d359437d1756caa8 # Ubuntu Server 18.04 LTS
                 ImageId: ami-031a03cb800ecb0d5 # Amazon Linux AMI 2018.03.0 including Docker
                 InstanceType: t2.micro
@@ -44,9 +44,8 @@
         Netting1:
             Type: "AWS::EC2::Instance"
             Properties:
-                SubnetId: 
                 SecurityGroupIds:
-                    - sg-cbcd9484
+                    - sg-0b12b2191bf3951cf
                 # ImageId: ami-0d359437d1756caa8 # Ubuntu Server 18.04 LTS
                 ImageId: ami-031a03cb800ecb0d5 # Amazon Linux AMI 2018.03.0 including Docker
                 InstanceType: t2.micro
@@ -58,6 +57,10 @@
                       Value: NettingVM
                     - Key: Is_Netting_Server
                       Value: True
+                UserData:
+                    Fn::Base64: !Sub |
+                        #!/bin/bash -xe
+                        yum install docker -y
 
     #Outputs:
     #  set of outputs
