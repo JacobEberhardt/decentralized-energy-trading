@@ -98,3 +98,16 @@ Developers will change the [template](https://docs.aws.amazon.com/AWSCloudFormat
 # Validate template
 $ aws cloudformation validate-template --template-body file://cloudonly-template.yaml
 ```
+
+
+##### Docker Registry
+
+We use a image registry *blogpvblossom* provided by [Docker Hub](https://hub.docker.com/) to persist Docker images. Docker images allow to launch containers that expose app services on EC2 instances.
+
+The registry provides the following images:
+| Image Name | Description | GitHub |
+|---|--:|--:|
+| [household-db](https://hub.docker.com/repository/docker/blogpvblossom/household-db)  | Launches a Mongo DB for storing meter data at households. | [mongo](https://github.com/JacobEberhardt/decentralized-energy-trading/tree/dynamic_dockerized_setup/mongo) |
+| [household-ws]() | Launches a Node.js server that realizes the business logic for a household. | [household-server](https://github.com/JacobEberhardt/decentralized-energy-trading/tree/dynamic_dockerized_setup/household-server) |
+| [household-ui](https://hub.docker.com/repository/docker/blogpvblossom/household-ui) | Launches a React Frontend that realizes the UI of a household. | [household-ui](https://github.com/JacobEberhardt/decentralized-energy-trading/tree/dynamic_dockerized_setup/household-ui) |
+| [netting-ws]() | | |

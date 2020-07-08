@@ -71,6 +71,8 @@
                     Fn::Base64: !Sub |
                         #!/bin/bash -xe
                         yum install docker -y
+                        sudo service docker start
+                        sudo docker pull blogpvblossom/household-db:latest
 
     #Outputs:
     #  set of outputs
