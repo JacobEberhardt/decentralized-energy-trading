@@ -4,13 +4,15 @@ const cors = require("cors");
 const commander = require("commander");
 const db = require("./apis/db");
 const ned = require("./apis/ned");
-const blockchain = require("./apis/blockchain");
+//TODO: uncomment for production
+//const blockchain = require("./apis/blockchain");
 const transferHandler = require("./transfer-handler");
 const energyHandler = require("./energy-handler");
-const request = require("request-promise");
-const web3Helper = require("../helpers/web3");
-const zokratesHelper = require("../helpers/zokrates");
-const contractHelper = require("../helpers/contract");
+//TODO: uncomment for production
+//const request = require("request-promise");
+//const web3Helper = require("../helpers/web3");
+//const zokratesHelper = require("../helpers/zokrates");
+//const contractHelper = require("../helpers/contract");
 const serverConfig = require("../household-server-config");
 
 // Specify cli options
@@ -82,6 +84,8 @@ async function init() {
   );
 }
 
+//TODO: uncomment for production
+//to prevent checking if connection to parity-chain is there
 init();
 
 /**
@@ -116,8 +120,45 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+//This module allows to serve auto-generated swagger-ui generated API docs from express.
+const expressSwagger = require('express-swagger-generator')(app);
+
+let options = {
+    swaggerDefinition: {
+        info: {
+            description: 'This is the description of the Household Server API',
+            title: 'Household Server API',
+            version: '1.0.0',
+        },
+        host: 'localhost:3002',
+        basePath: '/',
+        produces: [
+            "application/json",
+            "application/xml"
+        ],
+        schemes: ['http', 'https'],
+        securityDefinitions: {
+            JWT: {
+                type: 'apiKey',
+                in: 'header',
+                name: 'Authorization',
+                description: "",
+            }
+        }
+    },
+    basedir: __dirname, //app absolute path
+    files: ['./index.js'] //Path to the API handle folder
+};
+expressSwagger(options)
+
 /**
- * GET /sensor-stats?from=<fromDate>&to=<toDate>
+ * This function comment is parsed by doctrine
+ * @route GET /sensor-stats
+ * @group sensor stats - get sensor data between parameter "from" and "to"
+ * @param {number} from.query.required - Milliseconds since 1970 (Unix Epoch) for "from date" which user data should be searched - eg: 1590678379000 for "28. May 2020 15:06:19"
+ * @param {number} to.query.required - Milliseconds since 1970 (Unix Epoch) for "to date" which user data should be searched - eg: 1590851179000 for "30. May 2020 15:06:19"
+ * @returns {object} 200 - An array of sensor data within the specified time period
+ * @returns {Error}  default - Unexpected error
  */
 app.get("/sensor-stats", async (req, res) => {
   try {
@@ -146,6 +187,16 @@ app.get("/sensor-stats", async (req, res) => {
 /**
  * GET /transfers?from=<fromDate>&to=<toDate>
  */
+
+/**
+* This function comment is parsed by doctrine
+* @route GET /transfers
+* @group transfers - get already transfered energy amounts between parameter "from" and "to"
+* @param {number} from.query.required - Milliseconds since 1970 (Unix Epoch) for "from date" which user data should be searched - eg: 1590678379000 for "28. May 2020 15:06:19"
+* @param {number} to.query.required - Milliseconds since 1970 (Unix Epoch) for "to date" which user data should be searched - eg: 1590851179000 for "30. May 2020 15:06:19"
+* @returns {object} 200 - An array of transfered energy amounts within the specified time period
+* @returns {Error}  default - Unexpected error
+*/
 app.get("/transfers", async (req, res) => {
   try {
     const { from, to } = req.query;
@@ -173,6 +224,13 @@ app.get("/transfers", async (req, res) => {
 /**
  * GET /household-stats
  */
+/**
+* This function comment is parsed by doctrine
+* @route GET /household-stats
+* @group household stats - get information for this household server
+* @returns {object} 200 - Any information stored within the local DB about this Household Server
+* @returns {Error}  default - Unexpected error
+*/
 app.get("/household-stats", async (req, res, next) => {
   try {
     const data = await db.getMeterReading(config.dbUrl, config.dbName, config.meterReadingCollection);
@@ -190,6 +248,13 @@ app.get("/household-stats", async (req, res, next) => {
 /**
  * GET /network-stats
  */
+/**
+* This function comment is parsed by doctrine
+* @route GET /network-stats
+* @group network stats - get information for the current network
+* @returns {object} 200 - Any information stored within the local DB about the current network
+* @returns {Error}  default - Unexpected error
+*/
 app.get("/network-stats", async (req, res, next) => {
   try {
     const data = await ned.getNetwork(config.nedUrl, config.address);
@@ -206,8 +271,23 @@ app.get("/network-stats", async (req, res, next) => {
 /**
  * PUT /sensor-stats
  */
+ /**
+  * @typedef SensorData
+  * @property {integer} meterDelta.body.required - Delta in Watt (10^-6) of sensor data for 15 Minutes that should be stored. For example: -549119 (=-0.549119 Watt) - eg: -549119
+  * @property {integer} produce.body.required - Production in Watt of sensor data for 15 Minutes that should be stored. For example: 2400881 (=2.400881 Watt) - eg: 2400881
+  * @property {integer} consume.body.required - Consumption in Watt of sensor data that should be stored. For example: 2950000 (=2.95 Watt) - eg: 2950000
+  * @property {integer} time.body.required - interval to return readings for, as a UNIX millisecond timestamp. For example: 1594136827000 (=Tuesday, 7. July 2020 15:47:07) - eg: 1594136827000
+  */
+/**
+* This function comment is parsed by doctrine
+* @route PUT /sensor-stats
+* @group sensor stats - store current sensor data for this Household
+* @param {SensorData.model} sensordata.body.required - testing
+* @returns {object} 200 - Successful persisted sensor data
+* @returns {Error}  default - Unexpected error
+*/
 app.put("/sensor-stats", async (req, res) => {
-  const { meterDelta, produce, consume } = req.body;
+  const { meterDelta, produce, consume, time } = req.body;
   try {
     if (
       typeof meterDelta !== "number"
@@ -217,12 +297,18 @@ app.put("/sensor-stats", async (req, res) => {
 
     if (!nettingActive) {
       nettingActive = true;
-      await energyHandler.putMeterReading(
+      //TODO: uncomment for production
+      //to prevent sending the hash to the parity-chain
+      /**await energyHandler.putMeterReading(
         config,
         web3,
         utilityContract,
         meterDelta
+      );**/
+      console.log(
+        'Meter Data stored: meterDelta: '+ meterDelta + ', produce: '+ produce + ', consume: '+ consume + ', time: '+ time
       );
+
     }
 
     await db.writeToDB(

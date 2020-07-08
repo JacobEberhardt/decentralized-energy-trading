@@ -1,0 +1,20 @@
+
+version: '3.5'
+services:
+
+  mongo-1:
+    image: mongo
+    ports:
+      - "27017:27017"
+
+  household-server-1:
+    build: './household-server'
+    command: yarn run-server -p 3002 -a 0x00aa39d30f0d20ff03a22ccfc30b7efbfca597c2 -P node1 -n authority_1 -d mongodb://mongo-1:27017 -N http://netting-server:3000
+    volumes:
+      - /usr/src/app
+      - /usr/src/app/node_modules
+    ports:
+      - "3002:3002"
+    restart: unless-stopped
+    depends_on:
+      - mongo-1
