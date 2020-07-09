@@ -111,3 +111,22 @@ The registry provides the following images:
 | [household-ws]() | Launches a Node.js server that realizes the business logic for a household. | [household-server](https://github.com/JacobEberhardt/decentralized-energy-trading/tree/dynamic_dockerized_setup/household-server) |
 | [household-ui](https://hub.docker.com/repository/docker/blogpvblossom/household-ui) | Launches a React Frontend that realizes the UI of a household. | [household-ui](https://github.com/JacobEberhardt/decentralized-energy-trading/tree/dynamic_dockerized_setup/household-ui) |
 | [netting-ws](https://hub.docker.com/repository/docker/blogpvblossom/netting-ws) | | [netting-entity](https://github.com/JacobEberhardt/decentralized-energy-trading/tree/dynamic_dockerized_setup/netting-entity) |
+| [parity-ws](https://hub.docker.com/repository/docker/blogpvblossom/parity-ws) | | [parity-authority](https://github.com/JacobEberhardt/decentralized-energy-trading/tree/dynamic_dockerized_setup/parity-authority) |
+
+
+##### Parity Network Component
+
+- [Source](https://github.com/JacobEberhardt/decentralized-energy-trading/tree/dynamic_dockerized_setup/parity-authority)
+- [Docker File](https://github.com/JacobEberhardt/decentralized-energy-trading/tree/dynamic_dockerized_setup/parity-authority/docker_authority) 
+- [Image](https://hub.docker.com/repository/docker/blogpvblossom/parity-ws)
+- Dependencies: None
+
+```bash
+# Start container
+$ 
+```
+
+```bash
+# Stop container
+$ 
+```
