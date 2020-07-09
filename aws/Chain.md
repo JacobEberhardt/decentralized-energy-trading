@@ -18,6 +18,8 @@ Important Links:
 
 What does it do?
 
+Configures a private network using a PoA consensus algorithm and setting up default accounts for ETH mainnet behaviour.
+
 What default configurations are used in the project?
 
 ##### name
