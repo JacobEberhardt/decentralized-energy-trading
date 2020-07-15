@@ -126,7 +126,7 @@ def sumConsumers(field[${nE}] hh) -> (field):
   return s
 `;
   }
-  
+
   function generateCode(wE, nE) {
 
     let energySumStringProducers = "  field energysumProducers = producersBeforeNet[0] + producersAfterNet[0]";
@@ -153,12 +153,12 @@ def sumConsumers(field[${nE}] hh) -> (field):
     for(let i = 1; i < wE; i++){
       energySumStringProducers += ` + producersBeforeNet[${i}] + producersAfterNet[${i}]`;
     }
-    
+
     for(let i = 1; i < nE; i++){
       energySumStringConsumers += ` + consumersBeforeNet[${i}] + consumersAfterNet[${i}]`;
     }
-   
-  for (let i = 0; i < wE; i++) {    
+
+  for (let i = 0; i < wE; i++) {
     packedString += `  field[2] hh${i +
       1}ProducersBeforeNetHash = if producersBeforeNet[${i}] == 0 then [0, 0] else sha256packed([0, 0, 0, producersBeforeNet[${i}]]) fi\n`;
     packedString += `  field[2] hh${i +
@@ -186,9 +186,9 @@ def sumConsumers(field[${nE}] hh) -> (field):
     }
 
     energySumStringConsumers += "\n";
-  
+
     const helperFuncs = generateHelperFuncs(wE, nE);
-  
+
     return `
   ${helperFuncs}
 
@@ -196,11 +196,11 @@ def sumConsumers(field[${nE}] hh) -> (field):
 // Assume n = 4 households, where |householdListProducers| = 2 and |householdListConsumers| = 2
 // Before settlement, households with produce-consume = 0 are not part of the settlement
 // @param (private field[${wE}]) producersBeforeNet before settlement
-// Index represents household and producersBeforeNet[index] := produce-consume > 0 
+// Index represents household and producersBeforeNet[index] := produce-consume > 0
 // @param (private field[${nE}]) consumersBeforeNet before settlement
-// Index represents household and consumersBeforeNet[index] := produce-consume < 0 
+// Index represents household and consumersBeforeNet[index] := produce-consume < 0
 // @param (private field[${wE}]) producersAfterNet after settlement
-// Index represents household and producersAfterNet[index] := produce-consume > 0 
+// Index represents household and producersAfterNet[index] := produce-consume > 0
 // @param (private field[${nE}]) consumersAfterNet after settlement
 // Index represents household and consumersAfterNet[index] := produce-consume < 0
 // @returns (field[2], field[2], field[2], field[2], field[2],...) sha256packed hashes of producersBeforeNetPacked and consumersBeforeNetPacked and sha256packed hash that depends on inputs
@@ -261,7 +261,7 @@ ${packedString} ${returnString.slice(0, -1)}
   let network;
 
   if((args.length === 2 || args.length === 3) && args[0] >= 1 && args[1] >= 1){
-      
+
     wE = Number(args[0]);
     nE = Number(args[1]);
     network = String(args[2]);
@@ -275,8 +275,8 @@ ${packedString} ${returnString.slice(0, -1)}
     }
 
     code = generateCode(wE, nE);
-    
-    fs.writeFile('zokrates-code/settlement-check.zok', code, 'utf8',(err) => {   
+
+    fs.writeFile('zokrates-code/settlement-check.zok', code, 'utf8',(err) => {
       if (err) throw err;
     })
 
@@ -290,25 +290,25 @@ ${packedString} ${returnString.slice(0, -1)}
       let len = (wE+nE) * 4;
 
       const iVerifier = `
-pragma solidity >=0.5.0 <0.6.0;
+pragma solidity ^0.6.1;
 /**
 * @title Verifier contract interface
 */
-contract IVerifier {
+interface IVerifier {
   function verifyTx(
-    uint[2] memory a,
-    uint[2][2] memory b,
-    uint[2] memory c,
-    uint[${len}] memory input) public returns (bool);
+    uint[2] calldata a,
+    uint[2][2] calldata b,
+    uint[2] calldata c,
+    uint[${len}] calldata input) external returns (bool);
 }`;
 
       const idUtility = `
-pragma solidity >=0.5.0 <0.6.0;
+pragma solidity ^0.6.1;
 
 /**
  * @title dUtility interface
  */
-contract IdUtility {
+interface IdUtility {
 
   /* Events */
   event NewHousehold(address indexed household);
@@ -327,21 +327,9 @@ contract IdUtility {
   function getHousehold(address _household) external view returns (bool, bytes32, bytes32);
 
   function removeHousehold(address _household) external returns (bool);
-  function _concatNextHash(uint256[${len}] memory hashes) private returns (bytes32);
 
   /* Settlement verification related methods */
   function setVerifier(address _verifier) external returns (bool);
-
-  function _verifyNetting(
-    uint256[2] memory _a,
-    uint256[2][2] memory _b,
-    uint256[2] memory _c,
-    uint256[${len}] memory _input) private returns (bool success);
-
-  function _checkHashes(
-    address[] memory _households,
-    uint256[${len}] memory _inputs
-    ) private returns (bool);
 
   function checkNetting(
     address[] calldata _households,
