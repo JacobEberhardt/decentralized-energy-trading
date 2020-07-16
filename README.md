@@ -122,6 +122,3 @@ REACT_APP_HSS_PORT=3003 \
 
 ## Smart contract and ZoKrates program generation:
 - `yarn generate-prooving-files [# Prod] [# Cons]` generates required files for given number of producers and consumers
-
-## Smart Contract Migration Issues
-**Note:** Collection of issues regarding the migration of the contracts to `solidity ^0.6.1`. 
