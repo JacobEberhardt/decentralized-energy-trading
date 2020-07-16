@@ -2,9 +2,11 @@ pragma solidity ^0.6.1;
 /**
  * for local installations of OpenZeppelin contracts use:
  * import "@openzeppelin/contracts/math/SignedSafeMath.sol";
+ * for remote installations use:
+ * import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/SignedSafeMath.sol";
  */
 
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/SignedSafeMath.sol";
+import "./SignedSafeMath.sol";
 
 /**
  * @title SignedMath
