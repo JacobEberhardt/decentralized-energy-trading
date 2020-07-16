@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.1;
 
 import "./BaseOwnedSet.sol";
 
@@ -11,7 +11,7 @@ contract OwnedSet is BaseOwnedSet {
 
   // Called when an initiated change reaches finality and is activated.
   function finalizeChange()
-    external
+    external override
     onlyOwner
   {
     baseFinalizeChange();
@@ -20,13 +20,13 @@ contract OwnedSet is BaseOwnedSet {
   // MISBEHAVIOUR HANDLING
 
   function reportBenign(address _validator, uint256 _blockNumber)
-    external
+    external override
   {
     baseReportBenign(msg.sender, _validator, _blockNumber);
   }
 
   function reportMalicious(address _validator, uint256 _blockNumber, bytes calldata _proof)
-    external
+    external override
   {
     baseReportMalicious(
       msg.sender,
