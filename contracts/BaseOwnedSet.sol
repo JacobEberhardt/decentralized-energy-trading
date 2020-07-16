@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity ^0.6.1;
 
 import "./Ownable.sol";
 import "./interfaces/IdUtility.sol";
@@ -13,7 +13,7 @@ import "./interfaces/IValidatorSet.sol";
 // currently active validator set. The base implementation of `finalizeChange`
 // validates that there are existing unfinalized changes.
 
-contract BaseOwnedSet is Ownable, IValidatorSet {
+abstract contract BaseOwnedSet is Ownable, IValidatorSet {
   // EVENTS
   event ChangeFinalized(address[] currentSet);
 
@@ -129,7 +129,7 @@ contract BaseOwnedSet is Ownable, IValidatorSet {
     pending[index] = pending[pending.length - 1];
     status[pending[index]].index = index;
     delete pending[pending.length - 1];
-    pending.length--;
+    pending.pop();
 
     // Reset address status
     delete status[_validator];
@@ -152,7 +152,7 @@ contract BaseOwnedSet is Ownable, IValidatorSet {
   function getValidators()
     external
     view
-    returns (address[] memory)
+    override returns (address[] memory)
   {
     return validators;
   }
