@@ -1,4 +1,6 @@
-pragma solidity >=0.5.0 <0.6.0;
+//SPDX-Licence-Identifier: MIT
+
+pragma solidity ^0.6.1;
 
 import "./Ownable.sol";
 
