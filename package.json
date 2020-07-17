@@ -51,7 +51,7 @@
     "prettier": "^1.17.0",
     "run-script-os": "^1.0.5",
     "solium": "^1.2.4",
-    "truffle": "^5.1.0"
+    "truffle": "^5.1.34"
   },
   "dependencies": {
     "bn.js": "4.11.8",
