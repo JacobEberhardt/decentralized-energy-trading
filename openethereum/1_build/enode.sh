@@ -13,3 +13,7 @@
 # curl enode
 response=$(curl --data '{"method":"parity_enode","params":[],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST localhost:8545)
 echo "r: $response"
+
+# filter json response
+enode=$(jq ".result" <<< $response)
+echo "enode=$enode"
