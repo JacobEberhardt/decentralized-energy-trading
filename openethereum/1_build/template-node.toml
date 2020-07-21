@@ -1,0 +1,135 @@
+[parity]
+base_path             = "/home/blogpv"
+chain                 = "/home/blogpv/chain.json"
+db_path               = "/home/blogpv/chains"
+identity              = "{ NODE_NAME }"
+keys_path             = "/home/blogpv/keys"
+# mode                  = "last"
+# mode_timeout          = 300
+# mode_alarm            = 3600
+# public_node           = false
+# no_download           = false
+# no_consensus          = false
+# no_persistent_txqueue = false
+
+[account]
+# enable_signing_queue  = false
+# keys_iterations       = 10240
+password              = ["/home/blogpv/node_account.pwd"]
+# unlock                = ["{ ENGINE_SIGNER }"]
+
+[network]
+# allow_ips             = "all"
+bootnodes             = ["{ BOOTNODES }"]
+# discovery             = true
+# id                    = 1
+port                  = 30303
+# nat                   = "any"
+# max_peers             = 50
+# max_pending_peers     = 64
+# min_peers             = 25
+# reserved_only         = false
+# reserved_peers        = "./path_to_file"
+# snapshot_peers        = 0
+# warp                  = true
+
+[rpc]
+apis                  = ["all"]
+cors                  = ["all"]
+disable               = false
+hosts                 = ["all"]
+# interface             = "0.0.0.0"
+port                  = 8545
+
+[dapps]
+# disable           = false
+# path              = "$HOME/.local/share/openethereum/dapps"
+
+[footprint]
+# cache_size_blocks = 8
+# cache_size_db     = 128
+# cache_size_queue  = 40
+# cache_size_state  = 25
+# cache_size        = 128 # Overrides above caches with total size
+# db_compaction     = "ssd"
+# fast_and_loose    = false
+# fat_db            = "auto"
+# num_verifiers     = 6
+# pruning           = "auto"
+# pruning_history   = 64
+# pruning_memory    = 32
+# scale_verifiers   = true
+# tracing           = "on"
+
+[ipc]
+# chmod             = "775"
+# disable           = false
+# path              = "$HOME/.local/share/openethereum/jsonrpc.ipc"
+# apis              = ["web3", "eth", "pubsub", "net", "parity", "parity_pubsub", "parity_accounts", "traces", "rpc"]
+
+# [ipfs]
+# cors              = []
+# enable            = false
+# hosts             = ["none"]
+# interface         = "local"
+# port              = 5001
+
+[mining]
+# author             = "0xdeadbeefcafe0000000000000000000000000001"
+engine_signer        = "{ ENGINE_SIGNER }"
+# extra_data         = "OpenEthereum"
+# force_sealing      = true
+# gas_cap            = "6283184"
+# gas_floor_target   = "4700000"
+# notify_work        = ["http://localhost:3001"]
+# price_update_period = "hourly"
+# refuse_service_transactions = false
+# relay_set          = "cheap"
+# remove_solved      = false
+reseal_on_txs      = "none"
+# reseal_min_period  = 4000
+# reseal_max_period  = 60000
+# tx_queue_size      = 8192
+# tx_queue_gas       = "off"
+# tx_queue_strategy  = "gas_factor"
+# tx_queue_ban_count = 1
+# tx_queue_ban_time  = 180 #s
+# tx_gas_limit       = "6283184"
+# tx_time_limit      = 100 #ms
+# usd_per_eth        = "auto"
+usd_per_tx         = "0"
+# work_queue_size    = 20
+
+[misc]
+logging  = "info"                          # "own_tx=trace"
+log_file = "/home/blogpv/blogpv.log"       # "/var/log/openethereum.log"
+# color    = true
+
+# [secretstore]
+# disable        = false
+# http_interface = "local"
+# http_port      = 8082
+# interface      = "local"
+# nodes          = []
+# port           = 8083
+# path           = "$HOME/.local/share/openethereum/secretstore"
+
+# [snapshots]
+# disable_periodic = false
+
+# [stratum]
+# disable   = false
+# interface = "local"
+# port      = 8008
+# secret    = "p4ssw0rd"
+
+# [vm] # DEPRECATED?
+# jit = false
+
+[websockets]
+apis      = ["web3", "eth", "pubsub", "net", "parity", "parity_pubsub", "traces", "rpc"]
+# disable   = false
+# hosts     = ["none"]
+# interface = "local"
+# origins   = ["none"]
+port      = 8546
