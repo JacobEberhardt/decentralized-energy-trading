@@ -12,12 +12,12 @@
 
 if [ -z $BOOTNODE_IP ]; then
   BOOTNODE_IP="localhost"
-  echo "Using default BOOTNODE_IP=$BOOTNODE_IP"
+  # echo "Using default BOOTNODE_IP=$BOOTNODE_IP"
 fi
 
 if [ -z $BOOTNODE_PORT ]; then
   BOOTNODE_PORT="8545"
-  echo "Using default BOOTNODE_PORT=$BOOTNODE_PORT"
+  # echo "Using default BOOTNODE_PORT=$BOOTNODE_PORT"
 fi
 
 max_tries=100
@@ -29,14 +29,13 @@ while [[ $counter -lt $max_tries ]]; do
 
   # filter json response
   result=$(jq ".result" <<< $response)
-  echo "  filtered = $result"
 
   if [ -z $result ] || [ "$result" == "null" ]; then
     sleep 1
     continue
   fi
 
-  echo "  enode = $result"
+  echo "Sucess! ENODE = $result"
   break
 
 done
