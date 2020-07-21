@@ -11,6 +11,11 @@ Idea: We use the `Dockerfile` to copy `template-chain.json`, `template-node.toml
 
 The `init.sh` script is a pure hook. Thus, it executes the old `entrypoint` of the parent image as last command. In addition it appends all argumends provided via `command` to the old `entrypoint`.
 
+### Templates
+The source files include two templates. The `init.sh`script use both templates to create the chain config and node config at container start time. The two templates are `template-chain.json` and `template-node.toml`.
+
+The `init.sh` script replaces `{ VARIABLE_NAME }` in the template with the content of the environment variable `VARIABLE_NAME`.
+
 ### Usage
 
 Build Docker container image:
