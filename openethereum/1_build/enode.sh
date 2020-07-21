@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 #######################################
 # Get enode from a given ip
@@ -20,10 +20,23 @@ if [ -z $BOOTNODE_PORT ]; then
   echo "Using default BOOTNODE_PORT=$BOOTNODE_PORT"
 fi
 
+max_tries=100
+counter=0
+while [[ $counter -lt $max_tries ]]; do
 # curl enode
-response=$(curl --silent --data '{"method":"parity_enode","params":[],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST ${BOOTNODE_IP}:$BOOTNODE_PORT)
-echo "  response: $response"
+  response=$(curl --silent --data '{"method":"parity_enode","params":[],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST ${BOOTNODE_IP}:$BOOTNODE_PORT)
+  ((counter++))
 
-# filter json response
-enode=$(jq ".result" <<< $response)
-echo "  enode=$enode"
+  # filter json response
+  result=$(jq ".result" <<< $response)
+  echo "  filtered = $result"
+
+  if [ -z $result ] || [ "$result" == "null" ]; then
+    sleep 1
+    continue
+  fi
+
+  echo "  enode = $result"
+  break
+
+done
