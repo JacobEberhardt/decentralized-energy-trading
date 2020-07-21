@@ -1,8 +1,45 @@
-#!/bin/sh
+#!/bin/bash
 
 # This script serves as an entry point replacement for a docker container. It allows to hook custom code while preserving additional configs given bei command.
 
-#!/bin/sh
+#######################################
+# Get enode from a given ip
+# Globals:
+#   BOOTNODE_IP
+# Arguments:
+#   None
+# Outputs:
+#   ENODE
+#######################################
+function get_enode {
+  if [ -z $BOOTNODE_IP ]; then
+    BOOTNODE_IP="localhost"
+  fi
+
+  if [ -z $BOOTNODE_PORT ]; then
+    BOOTNODE_PORT="8545"
+  fi
+
+  max_tries=100
+  counter=0
+  while [[ $counter -lt $max_tries ]]; do
+    # curl bootnode
+    response=$(curl --silent --data '{"method":"parity_enode","params":[],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST ${BOOTNODE_IP}:$BOOTNODE_PORT)
+    ((counter++))
+
+    # filter json response
+    result=$(jq ".result" <<< $response)
+
+    if [ -z $result ] || [ "$result" == "null" ]; then
+      sleep 1
+      continue
+      else
+        ENODE=$result
+        break
+    fi
+
+  done
+}
 
 # run various pieces of initialization code here
 # ...
@@ -12,10 +49,10 @@ echo "Running init.sh"
 # ACCOUNT_PASSWORD
 # CHAIN_NAME
 # NODE_NAME
-
+# BOOTNODE_IP
 
 # Node password file
-echo "Setting ACCOUNT_PASSWORD=$ACCOUNT_PASSWORD in file /home/blogpv/bootnode_account.pwd ..."
+# echo "Setting ACCOUNT_PASSWORD=$ACCOUNT_PASSWORD in file /home/blogpv/bootnode_account.pwd ..."
 echo "${ACCOUNT_PASSWORD}" > /home/blogpv/node_account.pwd
 
 # echo "/home/blogpv/node_account.pwd contains: $(cat /home/blogpv/node_account.pwd)"
@@ -41,10 +78,11 @@ sed \
 /home/blogpv/template-chain.json > /home/blogpv/chain.json
 
 # Getting BOOTNODE
-# TODO Check for bootnode_ip
-# IF Bootnode_ip:
-# curl until bootnode
-# Add bootnode to BOOTNODE_ENODE
+if [ $BOOTNODE_IP ]; then
+  get_enode
+  BOOTNODE=$ENODE
+fi
+
 
 # Node config
 echo "Setting ENGINE_SIGNER=$ACCOUNT_ADDRESS from /home/blogpv/template-node.toml ..."
@@ -87,7 +125,8 @@ echo "NODE_NAME            = $NODE_NAME"
 echo "ACCOUNT_PASSWORD     = $ACCOUNT_PASSWORD"
 echo "ACCOUNT_ADDRESS      = $ACCOUNT_ADDRESS"
 echo "ACCOUNT_KEYFILE_NAME = $ACCOUNT_KEYFILE_NAME"
-echo "ACCOUNT_KEYFILE      = /home/blogpv/keys/$CHAIN_NAME/$ACCOUNT_KEYFILE_NAME" 
+echo "ACCOUNT_KEYFILE      = /home/blogpv/keys/$CHAIN_NAME/$ACCOUNT_KEYFILE_NAME"
+echo "BOOTNODE             = $BOOTNODE"
 
 # Execute the upstream command:
 exec /home/openethereum/openethereum "$@"
