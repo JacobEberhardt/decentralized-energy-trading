@@ -10,8 +10,12 @@
 #   ENODE
 #######################################
 
+if [ -z BOOTNODE_IP ]; then
+  BOOTNODE_IP="localhost"
+fi
+
 # curl enode
-response=$(curl --data '{"method":"parity_enode","params":[],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST localhost:8545)
+response=$(curl --data '{"method":"parity_enode","params":[],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST $BOOTNODE_IP:8545)
 echo "r: $response"
 
 # filter json response
