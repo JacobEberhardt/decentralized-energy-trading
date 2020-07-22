@@ -52,21 +52,9 @@ function get_enode {
   done
 }
 
-# run various pieces of initialization code here
-# ...
 echo "Running init.sh"
 
-# Requires environment variables:
-# ACCOUNT_PASSWORD
-# CHAIN_NAME
-# NODE_NAME
-# BOOTNODE_IP
-
-# Node password file
-# echo "Setting ACCOUNT_PASSWORD=$ACCOUNT_PASSWORD in file /home/blogpv/bootnode_account.pwd ..."
 echo "${ACCOUNT_PASSWORD}" > /home/blogpv/node_account.pwd
-
-# echo "/home/blogpv/node_account.pwd contains: $(cat /home/blogpv/node_account.pwd)"
 # TODO SET ACCESS RIGHT!
 # TODO DELETE PASSWORD FROM MEMORY!
 
