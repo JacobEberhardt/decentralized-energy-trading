@@ -2,15 +2,14 @@
 
 # This script serves as an entry point replacement for a docker container. It allows to hook custom code while preserving additional configs given bei command.
 
-#######################################
-# Get enode from a given ip
+##################################################
+# Get enode from a remote ethereum node. 
+# 
 # Globals:
-#   BOOTNODE_IP
-# Arguments:
-#   None
-# Outputs:
-#   ENODE
-#######################################
+#   BOOTNODE_IP     IP address of ethereum node
+#   BOOTNODE_PORT   Port for RPC interface ethereum node
+#   ENODE           Enode of ethereum node
+##################################################
 function get_enode {
   if [ -z $BOOTNODE_IP ]; then
     BOOTNODE_IP="localhost"
@@ -20,8 +19,8 @@ function get_enode {
     BOOTNODE_PORT="8545"
   fi
 
-  max_tries=100
-  counter=0
+  local max_tries=100
+  local counter=0
   while [[ $counter -lt $max_tries ]]; do
     # curl bootnode
     response=$(curl --silent --data '{"method":"parity_enode","params":[],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST ${BOOTNODE_IP}:$BOOTNODE_PORT)
