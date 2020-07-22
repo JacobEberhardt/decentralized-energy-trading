@@ -1,14 +1,26 @@
 #!/bin/bash
+##################################################
+# This script is a hook for the container entry point. A 
+# hook executes custom code but preserves the original 
+# entrypoint with command. 
+# 
+# Globals:
+#  ACCOUNT_PASSWORD Password of the engine signer acc
+#  ACCOUNT_ADDRESS  The address of the signer acc
+#  BOOTNODE_IP      IP4 add of a bootnode
+#  BOOTNODE_PORT    RPC port of of a bootnode
+#  CHAIN_NAME       Name of the chain
+#  ENODE            Enode of node
+##################################################
 
-# This script serves as an entry point replacement for a docker container. It allows to hook custom code while preserving additional configs given bei command.
 
 ##################################################
 # Get enode from a remote ethereum node. 
 # 
 # Globals:
-#   BOOTNODE_IP     IP address of ethereum node
-#   BOOTNODE_PORT   Port for RPC interface ethereum node
-#   ENODE           Enode of ethereum node
+#  BOOTNODE_IP     IP4 add of a bootnode
+#  BOOTNODE_PORT   RPC port of of a bootnode
+#  ENODE           Enode of ethereum node
 ##################################################
 function get_enode {
   if [ -z $BOOTNODE_IP ]; then
