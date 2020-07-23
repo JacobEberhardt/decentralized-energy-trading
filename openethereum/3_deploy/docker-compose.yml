@@ -1,0 +1,56 @@
+version: '3.8'
+x-bootnode:
+  &BOOTNODE_IP "172.16.0.10"
+
+services:
+  bootnode:
+    image: blogpvblossom/openethereum
+    entrypoint: /home/blogpv/init.sh
+    environment:
+      BOOTNODE: ""
+      ACCOUNT_PASSWORD: paSSword
+      CHAIN_NAME: blogpv
+      NODE_NAME: node0
+    command:
+      --unsafe-expose
+      --jsonrpc-cors all
+      --fast-unlock
+    ports:
+      - 8545:8545
+      - 8546:8546
+      - 8180:8180
+      - 30303:30303
+    networks:
+      app_net:
+        ipv4_address: *BOOTNODE_IP
+
+  joinnode:
+    depends_on:
+      - bootnode
+    image: blogpvblossom/openethereum
+    entrypoint: /home/blogpv/init.sh
+    environment:
+      BOOTNODE_IP: *BOOTNODE_IP
+      ACCOUNT_PASSWORD: paSSword
+      CHAIN_NAME: blogpv
+      NODE_NAME: node1
+    command:
+      --unsafe-expose
+      --jsonrpc-cors all
+      --fast-unlock
+    ports:
+      - 8555:8545
+      - 8556:8546
+      - 8190:8180
+      - 30313:30303
+    networks:
+      app_net:
+        ipv4_address: 172.16.0.11
+
+networks:
+  app_net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.16.0.1/24
