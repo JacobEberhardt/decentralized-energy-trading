@@ -7,7 +7,7 @@ services:
     image: blogpvblossom/openethereum
     entrypoint: /home/blogpv/init.sh
     environment:
-      BOOTNODE:
+      BOOTNODE_IP:
       ACCOUNT_PASSWORD: paSSword
       CHAIN_NAME: blogpv
       NODE_NAME: node0

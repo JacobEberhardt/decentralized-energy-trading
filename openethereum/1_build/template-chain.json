@@ -8,7 +8,7 @@
         "maximumUncleCountTransition": 0,
         "maximumUncleCount": 0,
         "validators" : {
-          "list": ["{ ACCOUNT_ADDRESS }"]
+          "list": ["{ VALIDATOR_ACC_ADDRESS }"]
         }
       }
     }
@@ -128,9 +128,6 @@
           }
         }
       }
-    },
-    "{ ACCOUNT_ADDRESS }": {
-      "balance": "10000000000000000000000000000"
     }
   }
 }

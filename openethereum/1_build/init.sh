@@ -93,16 +93,24 @@ cat /home/openethereum/.local/share/io.parity.ethereum/keys/ethereum/$ACCOUNT_KE
 # Node key
 mkdir -p /home/blogpv/network
 
+
+echo "BOOTNODE_IP=$BOOTNODE_IP"
+if [ -z $BOOTNODE_IP ]; then
+  VALIDATOR_ACC_ADDRESS=$ACCOUNT_ADDRESS
+fi
+
 # Chain config
 echo "Creating node config from /home/blogpv/template-chain.json ..."
+
 # echo "Setting ACCOUNT_ADDRESS=$ACCOUNT_ADDRESS in file /home/blogpv/chain.json ..."
 sed \
 -e "s/{ ACCOUNT_ADDRESS }/$ACCOUNT_ADDRESS/" \
 -e "s/{ CHAIN_NAME }/$CHAIN_NAME/" \
+-e "s/{ VALIDATOR_ACC_ADDRESS }/$VALIDATOR_ACC_ADDRESS/" \
 /home/blogpv/template-chain.json > /home/blogpv/chain.json
 
-# echo "Chain config - /home/blogpv/chain.json:"
-# echo "$(cat /home/blogpv/chain.json)"
+echo "Chain config - /home/blogpv/chain.json:"
+echo "$(cat /home/blogpv/chain.json)"
 
 # Getting BOOTNODE
 if [ $BOOTNODE_IP ]; then

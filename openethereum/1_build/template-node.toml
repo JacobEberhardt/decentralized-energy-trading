@@ -101,7 +101,7 @@ usd_per_tx         = "0"
 # work_queue_size    = 20
 
 [misc]
-logging  = "info"                          # "own_tx=trace"
+logging  = "debug"                          # error, warn, info, debug or trace
 log_file = "/home/blogpv/blogpv.log"       # "/var/log/openethereum.log"
 # color    = true
 
