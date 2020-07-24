@@ -20,7 +20,7 @@ password              = ["/home/blogpv/node_account.pwd"]
 
 [network]
 # allow_ips             = "all"
-bootnodes             = ["{ BOOTNODES }"]
+bootnodes             = [{ BOOTNODE }]
 # discovery             = true
 # id                    = 1
 port                  = 30303

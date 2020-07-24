@@ -1,4 +1,12 @@
-# Build Images
+# Building Contain Images
+
+### Base Image
+We build on the base image `openethereum/openethereum:latest`. This is an alpine distribution.
+
+We install additional packages on the image. We use the package manager `apk`.
+Additional packages are:
+- `js`: parsing json
+- `bash`: advanced shell
 
 ### Source Files
 Building a container image requires source files. This folder contains all source files. The source files are:
