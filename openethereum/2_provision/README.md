@@ -121,46 +121,12 @@ The registry provides the following images:
 - [Image](https://hub.docker.com/repository/docker/blogpvblossom/parity-ws)
 - Dependencies: None
 
-Trying to understand what is happening here:
+# OpenEthereum
 
 ```bash
-# load and install dependencies from package.json
-$ yarn install
+$ aws cloudformation create-stack --stack-name bootnode --template-body file://cloudonly.yaml --capabilities CAPABILITY_AUTO_EXPAND
 ```
 
 ```bash
-# load and install dependencies from household-ui/package.json
-$ yarn --cwd household-ui/ install
-```
-
-```bash
-$ ./scripts/setup_zokrates.sh
-```
-
-```bash
-$ truffle compile
-```
-
-```bash
-$ node ./scripts/update-contract-bytecodes
-```
-
-```bash
-$ cd parity-authority
-$ docker-compose up -d --build
-```
-
-```bash
-$ truffle migrate --reset hard --network authority --f 2
-```
-
-
-```bash
-# Start container
-$ 
-```
-
-```bash
-# Stop container
-$ 
+$ aws cloudformation create-stack --stack-name joinnode --template-body file://cloudonly.yaml --capabilities CAPABILITY_AUTO_EXPAND
 ```
