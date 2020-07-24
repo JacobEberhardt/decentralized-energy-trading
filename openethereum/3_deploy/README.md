@@ -20,6 +20,14 @@ $ docker-compose up
 $ docker-compose down
 ```
 
+Attach session to container:
+```bash
+# From anywhere
+$ docker attach --sig-proxy=false $CONTAINER_ID
+```
+
+Detach active session: `CTRL`+ `C`
+
 ### Environment Settings
 You can change configurations for a single container. To configure a single container, use [OpenEthereum CLI options](https://openethereum.github.io/wiki/Configuring-OpenEthereum) in the docker `--command`. A few configurations must not be changed by `--command`:
 - `-c`, `--config`: File containing the node config. 
