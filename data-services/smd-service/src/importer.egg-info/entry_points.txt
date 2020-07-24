@@ -1,0 +1,3 @@
+[console_scripts]
+importer = importer.discovergy:download
+
