@@ -1,9 +1,0 @@
-setup.py
-importer/__init__.py
-importer/__main__.py
-importer/discovergy.py
-importer.egg-info/PKG-INFO
-importer.egg-info/SOURCES.txt
-importer.egg-info/dependency_links.txt
-importer.egg-info/entry_points.txt
-importer.egg-info/top_level.txt

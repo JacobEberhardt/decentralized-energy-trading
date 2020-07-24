@@ -9,7 +9,7 @@ setup(
     ),
     entry_points = {
         'console_scripts': [
-            'importer = importer.discovergy:download'
+            'glueservice = glueservice.__main__:main'
         ]
     },
     author = 'Marco Peise',
