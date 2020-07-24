@@ -15,4 +15,6 @@ COPY --chown=openethereum init.sh /home/blogpv/init.sh
 RUN ["chmod", "+x", "/home/blogpv/init.sh"]
 ENTRYPOINT [ "/home/blogpv/init.sh" ]
 
+# Create folder structure
+
 USER openethereum
