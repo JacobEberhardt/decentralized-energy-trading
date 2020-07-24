@@ -49,10 +49,10 @@ function get_enode {
       sleep 1
       continue
       else
-        echo "result=$result"
-        ENODE="${result:1:-1}"
-        echo "$ENODE=ENODE"
-        # ENODE=$result
+        # echo "result=$result"
+        #ENODE="${result:1:-1}"
+        # echo "$ENODE=ENODE"
+        ENODE=$result
         break
     fi
 
