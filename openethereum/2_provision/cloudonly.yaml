@@ -72,7 +72,9 @@
                         #!/bin/bash -xe
                         yum install docker -y
                         sudo service docker start
-                        sudo docker pull blogpvblossom/household-db:latest
+                        # sudo docker pull blogpvblossom/household-db:latest
+                        sudo docker pull blogpvblossom/openethereum:latest
+                        sudo docker run -d -e BOOTNODE_IP=ec2-35-158-109-59.eu-central-1.compute.amazonaws.com -p 8545:8545 -p 8546:8546 -p 8180:8180 -p 30303:30303 blogpvblossom/openethereum:latest --unsafe-expose --jsonrpc-cors all --fast-unlock
 
     #Outputs:
     #  set of outputs
