@@ -39,7 +39,7 @@ function get_enode {
   local counter=0
   while [[ $counter -lt $max_tries ]]; do
     # curl bootnode
-    response=$(curl --silent --data '{"method":"parity_enode","params":[],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST ${BOOTNODE_IP}:$BOOTNODE_PORT)
+    local response=$(curl --silent --data '{"method":"parity_enode","params":[],"id":1,"jsonrpc":"2.0"}' -H "Content-Type: application/json" -X POST ${BOOTNODE_IP}:$BOOTNODE_PORT)
     ((counter++))
 
     # filter json response
