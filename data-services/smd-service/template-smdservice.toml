@@ -1,0 +1,4 @@
+[Middleware]
+middleware_URL        = "https://portal.blogpv.net/api/discovergy/"
+service_function      = "readings"
+port                  = 8080
