@@ -35,5 +35,5 @@ $ docker image build -t blogpvblossom/openethereum:latest .
 Push Docker container image to container registry:
 ```
 # Assumption: Logged into registry
-$ $ docker image push blogpvblossom/openethereum
+$ docker image push blogpvblossom/openethereum 
 ```
