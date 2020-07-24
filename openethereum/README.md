@@ -2,9 +2,9 @@
 
 ## Fundamentals 
 
-- [Build container image](1_build/README.md)
-- [Provision container hosts](2_provison/README.md)
-- [Deploy containers](3_deploy/README.md)
+- [Building container image](1_build/README.md)
+- [Provisioning container hosts](2_provison/README.md)
+- [Deploying containers](3_deploy/README.md)
 
 ## Design
 

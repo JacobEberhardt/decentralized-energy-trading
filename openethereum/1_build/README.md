@@ -1,4 +1,4 @@
-# Build Images
+# Building Contain Images
 
 ### Base Image
 We build on the base image `openethereum/openethereum:latest`. This is an alpine distribution.
