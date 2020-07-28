@@ -1,12 +1,15 @@
 import argparse
 import json
+import datetime
+import time
 
 # Downloader for meter values from remote api: Middleware
 from .importer import blogpvmiddleware as meter_api
 
 # Parser for downloaded meter values
-#from .parser import json_to_memory as json_parser
+from .parser import jsonExtract as json_parser
 
+# TODO: change to crontab like: https://stackoverflow.com/questions/57434641/how-to-loop-a-function-to-perform-a-task-every-15-minutes-on-the-0-15-30-45-min
 def main():
     parser = argparse.ArgumentParser(description='run glue service')
     parser.add_argument("-meterID",
@@ -33,15 +36,30 @@ def main():
     householdServerURL  = args.endpointHPU
     interval            = args.interval
 
-    print('Input meterID is ', meterID)
-    print('Input middleware URL is ', middlewareURL)
-    print('Input household server URL is ', householdServerURL)
-    print('Input interval is ', interval)
+    # INPUTS
+    print('====================')
+    print('Glue-Service Inputs:')
+    print('Input meterID:                   ',meterID)
+    print('Input middleware URL:            ',middlewareURL)
+    print('Input household server URL:      ',householdServerURL)
+    print('Input interval:                  ',interval, 'seconds')
+    print('====================')
 
-    middlewareResponse = meter_api.download(meterID,middlewareURL,householdServerURL,interval)
-    print('Printing middlewareResponse: ', middlewareResponse)
-    #households = json_parser.parse(json_from, json_to)
-    #netting_result = net_algo.run(households)
+    # get Smart Meter Date from BloGPV Middleware
+    middlewareResponseJSON = meter_api.download(meterID,middlewareURL,householdServerURL,interval)
+    print('Printing middlewareResponse:     ',middlewareResponseJSON)
+
+    # parsing JSON
+    deltaObject = json_parser.parse(middlewareResponseJSON)
+
+    # OUTPUTS
+    print('=====================')
+    print('Glue-Service Outputs:')
+    print('timestamp smart meter:           ',datetime.datetime.fromtimestamp(deltaObject['time']/1000).strftime('%Y-%m-%d %H:%M:%S'))
+    print('delta energy:                    ',deltaObject['delta'], ' Watt')
+    print('consumption:                     ',deltaObject['consumption'], ' Watt')
+    print('production:                      ',deltaObject['production'], ' Watt')
+    print('=====================')
 
 if __name__ == "__main__":
     # Define inputs
