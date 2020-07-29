@@ -12,19 +12,24 @@ For a given specific household, smart meter data should be retrieved and forewar
 - [NUMBER] meterDelta - Delta in Watt (10^-6) of sensor data
 - [NUMBER] production - Production in Watt of sensor data
 - [NUMBER] consumption - Consumption in Watt of sensor data
+- [NUMBER] time - timestamp the smart meter data was retrieved
 
 (II) Call endpoint B with a HTTP PUT and the aforementioned values
 
 ### Usage
 
-Build Docker container image:
+Python only:
+
+#### Install
+
+Get CLI command:
+```bash
+data-services/smd-service/src$ pipenv install
 ```
-# Assumption: Current folder .../smd-service/
-$ docker image build -t blogpvblossom/openethereum:latest .
+**1.)** Download BloGPV Smart Meter Data from Middleware API and foreward the data to a local household server instance.
+
+```bash
+data-services/smd-service/src$ pipenv run glueservice
 ```
 
-Push Docker container image to container registry:
-```
-# Assumption: Logged into registry
-$ $ docker image push blogpvblossom/openethereum
-```
+TODO: Build Docker container image:
