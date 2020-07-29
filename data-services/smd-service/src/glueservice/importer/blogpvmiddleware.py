@@ -5,10 +5,10 @@ import datetime
 import os.path
 import time
 
-# api-endpoint
-URL = "https://portal.blogpv.net/api/discovergy/readings"
+# middleware api-endpoint default
+middlewareURL = "https://portal.blogpv.net/api/discovergy/readings"
 
-def download(meterID, middlewareURL, householdServerURL, interval):
+def download(meterID, middlewareURL, interval):
 
     # current time in epoch
     current_time = datetime.datetime.now()
@@ -33,8 +33,8 @@ def download(meterID, middlewareURL, householdServerURL, interval):
     print('')
 
     # sending get request and saving the response as response object
-    print('Requesting Data from {}'.format(URL))
-    middlewareResponse = requests.get(url = URL, params = PARAMS)
+    print('Requesting Data from {}'.format(middlewareURL))
+    middlewareResponse = requests.get(url = middlewareURL, params = PARAMS)
 
     # extracting data in json format
     print('Extracting data')

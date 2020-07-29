@@ -5,46 +5,80 @@ import datetime
 import os.path
 import time
 
-# TODO: 
-# api-endpoint
-URL = "https://portal.blogpv.net/api/discovergy/readings"
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
-def download(meterID, middlewareURL, householdServerURL, interval):
+# default api-endpoint of Household Server
+householdServerURL = "http://household-server-1:3002/sensor-stats"
 
-    # current time in epoch
-    current_time = datetime.datetime.now()
-    current_time_mili = int(current_time.timestamp() * 1000)
-    interval_ago = current_time - datetime.timedelta(seconds=interval * 2)
-    interval_ago_epoch_ts = int(interval_ago.timestamp() * 1000)
-    print('current time: ' + current_time.strftime("%d.%m.%y %H:%M:%S") + ' in Millis since epoch: ', current_time_mili)
-    print('interval ago time: ', interval_ago.strftime("%d.%m.%y %H:%M:%S"))
-    print('current Millis minus Interval Millis since epoch: ', interval_ago_epoch_ts)
+def requests_retry_session(
+    retries=3,
+    backoff_factor=0.3,
+    status_forcelist=(500, 502, 504),
+    session=None,
+):
+    session = session or requests.Session()
+    retry = Retry(
+        total=retries,
+        read=retries,
+        connect=retries,
+        backoff_factor=backoff_factor,
+        status_forcelist=status_forcelist,
+    )
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    return session
 
-    PARAMS = {
-            'meterId'    : meterID,
-            'from'       : interval_ago_epoch_ts,
-            'resolution' : 'fifteen_minutes'
+def upload(householdServerURL, deltaObject):
+
+    # INPUTS
+    print('====================')
+    print('UPLOAD Inputs:')
+    print('Input household server URL:      ',householdServerURL)
+    print('Input object:                    ',deltaObject)
+    print('====================')
+
+    # TODO: round float to integer because of Household interface
+    DATA = {
+            "meterDelta"    : int(round(deltaObject['delta'])),
+            "produce"       : int(round(deltaObject['production'])),
+            "consume"       : int(round(deltaObject['consumption'])),
+            "time"          : deltaObject['time']
     }
 
+    HEADER = {'Content-type': 'application/json'}
+
     print('')
-    print('Request for Meter Data:')
-    print('=======================')
-    print('  URL:          h   = {}'.format(middlewareURL))
-    print('  Parameter:    h_s = {}'.format(PARAMS))
+    print('HTTP PUT Request for Household API:')
+    print('===================================')
+    print('  URL:           h   = {}'.format(householdServerURL))
+    print('  DATA:          h_s = {}'.format(DATA))
     print('')
 
-    # sending get request and saving the response as response object
-    print('Requesting Data from {}'.format(URL))
-    middlewareResponse = requests.get(url = URL, params = PARAMS)
+    # sending put request and saving the response as response object
+    print('Uploading Data to {} '.format(householdServerURL))
+    print('DATA:                ', DATA)
+
+    t0 = time.time()
+    try:
+        householdServerResponse = requests_retry_session().put(url = householdServerURL, data = json.dumps(DATA), headers = HEADER)
+    except requests.exceptions.RequestException as e:
+        print("ERROR: While trying to send a PUT Request towards the Household Server: ", e)
+        raise SystemExit(e)
+    else:
+        print('It eventually worked', householdServerResponse.status_code)
+    finally:
+        t1 = time.time()
+        print('Took', t1 - t0, 'seconds')
 
     # extracting data in json format
-    print('Extracting data')
-    middlewareJSONResponse = middlewareResponse.json()
+    #print('Extracting data')
+    #householdServerJSONResponse = householdServerResponse.json()
 
     # print data
-    #print('Printing data in blogpvmiddleware: ', middlewareJSONResponse)
-    #t = datetime.datetime.now()
-    return middlewareJSONResponse
+    print('Printing response from household server: ', householdServerResponse)
+    return householdServerResponse
 
 if __name__ == "__main__":
     download()

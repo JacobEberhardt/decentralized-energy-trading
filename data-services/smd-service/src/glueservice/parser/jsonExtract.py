@@ -55,7 +55,8 @@ def parse(middlewareResponseJSON):
 
     else:
         print("Wrong size of JSON-ReturnArray from Middleware")
-
+        raise SystemExit(e)
+        
     return returnObject
 
 if __name__ == "__main__":
