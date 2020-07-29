@@ -54,9 +54,9 @@ def parse(middlewareResponseJSON):
                 print("ERROR: 'values' doesn't exist in middlewareResponse JSON data")
 
     else:
-        print("Wrong size of JSON-ReturnArray from Middleware")
-        raise SystemExit(e)
-        
+        print("ERROR: Wrong size of JSON-ReturnArray from Middleware. Please try again.")
+        raise SystemExit()
+
     return returnObject
 
 if __name__ == "__main__":

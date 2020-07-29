@@ -5,30 +5,11 @@ import datetime
 import os.path
 import time
 
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.util.retry import Retry
+# Helper for Request Session handling
+from ..helper import helper as helper
 
 # default api-endpoint of Household Server
 householdServerURL = "http://household-server-1:3002/sensor-stats"
-
-def requests_retry_session(
-    retries=3,
-    backoff_factor=0.3,
-    status_forcelist=(500, 502, 504),
-    session=None,
-):
-    session = session or requests.Session()
-    retry = Retry(
-        total=retries,
-        read=retries,
-        connect=retries,
-        backoff_factor=backoff_factor,
-        status_forcelist=status_forcelist,
-    )
-    adapter = HTTPAdapter(max_retries=retry)
-    session.mount('http://', adapter)
-    session.mount('https://', adapter)
-    return session
 
 def upload(householdServerURL, deltaObject):
 
@@ -62,7 +43,7 @@ def upload(householdServerURL, deltaObject):
 
     t0 = time.time()
     try:
-        householdServerResponse = requests_retry_session().put(url = householdServerURL, data = json.dumps(DATA), headers = HEADER)
+        householdServerResponse = helper.requests_retry_session().put(url = householdServerURL, data = json.dumps(DATA), headers = HEADER)
     except requests.exceptions.RequestException as e:
         print("ERROR: While trying to send a PUT Request towards the Household Server: ", e)
         raise SystemExit(e)
