@@ -9,10 +9,10 @@ For a given specific household, smart meter data should be retrieved and forewar
 
 ### Process
 (I) Call endpoint A with the given meterID and retrieve:
-- [NUMBER] meterDelta - Delta in Watt (10^-6) of sensor data
-- [NUMBER] production - Production in Watt of sensor data
-- [NUMBER] consumption - Consumption in Watt of sensor data
-- [NUMBER] time - timestamp the smart meter data was retrieved
+- [NUMBER] meterDelta - Delta in Watt (10^-3) of sensor data
+- [NUMBER] production - Production in Watt (10^-5) of sensor data
+- [NUMBER] consumption - Consumption in Watt (10^-5) of sensor data
+- [NUMBER] time - timestamp (epoch in milliseconds) the smart meter data was retrieved
 
 (II) Call endpoint B with a HTTP PUT and the aforementioned values
 
