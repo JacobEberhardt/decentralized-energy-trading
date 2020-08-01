@@ -1,0 +1,3 @@
+[console_scripts]
+glueservice = glueservice.__main__:main
+
