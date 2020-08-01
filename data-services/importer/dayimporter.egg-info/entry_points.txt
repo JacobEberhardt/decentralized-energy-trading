@@ -1,0 +1,3 @@
+[console_scripts]
+dayimporter = dayimporter.__main__:main
+

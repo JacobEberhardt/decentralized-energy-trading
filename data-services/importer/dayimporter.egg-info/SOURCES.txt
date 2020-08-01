@@ -1,0 +1,8 @@
+setup.py
+dayimporter/__init__.py
+dayimporter/__main__.py
+dayimporter.egg-info/PKG-INFO
+dayimporter.egg-info/SOURCES.txt
+dayimporter.egg-info/dependency_links.txt
+dayimporter.egg-info/entry_points.txt
+dayimporter.egg-info/top_level.txt
