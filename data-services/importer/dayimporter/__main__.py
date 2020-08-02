@@ -25,7 +25,7 @@ def main():
                         type=str,
                         help="endpoint of Middleware Service to retrieve smart meter data. like: https://abc.blogpv.net/api/discovergy/readings")
     parser.add_argument("-time",
-                        default='28.07.2020',
+                        default='26.07.2020',
                         type=str,
                         help="a specific day to retrieve from all smart meters. like: 28.07.2020")
 
@@ -64,14 +64,9 @@ def main():
     # OUTPUTS
     print('=====================')
     print('Day-Importer-Service Outputs:')
-    #print('timestamp smart meter:           ',datetime.datetime.fromtimestamp(deltaObject['time']/1000).strftime('%Y-%m-%d %H:%M:%S'))
-    #print('delta energy:                    ',deltaObject['delta'], ' Watt')
-    #print('consumption:                     ',deltaObject['consumption'], ' Watt')
-    #print('production:                      ',deltaObject['production'], ' Watt')
+    print('Day-Importer Results:           ',filename)
+    print('Day-Importer analyzed Results:  ',analyzedfilename)
     print('=====================')
-
-    # HTTP POST to household Server
-    #household_api.upload(householdServerURL, deltaObject)
 
 if __name__ == "__main__":
     # Define inputs
