@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import json
 import math
+import datetime
 
 def extractMeterIDs(middlewareAssetListResponseJSON):
     h   = []                    # List of all households meterIDs
@@ -54,8 +55,16 @@ def analyzeMiddlewareResults(filename):
                     #print('to add:',outputTime)
                     timeList.append(outputTime)
 
+        # convert to normal time slices
+        for time in timeList:
+            #print('time: ', time['time'])
+            date = datetime.datetime.fromtimestamp(time['time']/1000)
+            #print(date.strftime('%Y-%m-%d %H:%M:%S'))
+            time['time'] = date.strftime('%H:%M')
+
         timeList.append({'consumptionOverall': consumptionOverall, 'productionOverall': productionOverall})
         #print('Printing timeList:       ',timeList)
+
         print('length of timelist:      ',len(timeList))
         print('Consumption overall: ', consumptionOverall,' W')
         print('Production overall: ', productionOverall,' W')
