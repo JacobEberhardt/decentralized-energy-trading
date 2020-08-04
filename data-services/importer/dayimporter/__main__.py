@@ -25,7 +25,7 @@ def main():
                         type=str,
                         help="endpoint of Middleware Service to retrieve smart meter data. like: https://abc.blogpv.net/api/discovergy/readings")
     parser.add_argument("-time",
-                        default='26.07.2020',
+                        default='02.08.2020',
                         type=str,
                         help="a specific day to retrieve from all smart meters. like: 28.07.2020")
 
@@ -58,14 +58,14 @@ def main():
     #filename = 'dayimporter/results/Discovergy_2020-07-28.json'
 
     # Analyze and Save Result from Middleware
-    analyzedList = json_parser.analyzeMiddlewareResults(filename)
-    analyzedfilename = export_JSON.saveMiddlewareResponseJSON(analyzedList, retrievalday, True)
+    #analyzedList = json_parser.analyzeMiddlewareResults(filename)
+    #analyzedfilename = export_JSON.saveMiddlewareResponseJSON(analyzedList, retrievalday, True)
 
     # OUTPUTS
     print('=====================')
     print('Day-Importer-Service Outputs:')
     print('Day-Importer Results:           ',filename)
-    print('Day-Importer analyzed Results:  ',analyzedfilename)
+    #print('Day-Importer analyzed Results:  ',analyzedfilename)
     print('=====================')
 
 if __name__ == "__main__":
