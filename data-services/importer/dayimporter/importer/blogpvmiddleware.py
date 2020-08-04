@@ -18,9 +18,9 @@ from ..helper import helper as helper
 def download(meterIDList, middlewareURL, retrievalday):
 
     # get retrievalday
-    from_date = datetime.datetime.strptime(retrievalday, '%d.%m.%Y')
+    from_date = datetime.datetime.strptime(retrievalday, '%d.%m.%Y') - timedelta(minutes=15)
     from_date_milli = int(from_date.timestamp() * 1000)
-    to_date = from_date + timedelta(days=1) -  timedelta(minutes=15)
+    to_date = from_date + timedelta(days=1)
     to_date_milli = int(to_date.timestamp() * 1000)
     print('from date: ' + from_date.strftime("%d.%m.%y %H:%M:%S") + ' in Millis since epoch: ', from_date_milli)
     print('to date: ' + to_date.strftime("%d.%m.%y %H:%M:%S") + ' in Millis since epoch: ', to_date_milli)
@@ -47,7 +47,10 @@ def download(meterIDList, middlewareURL, retrievalday):
         print('  Parameter:    h_s = {}'.format(PARAMS))
         print('')
 
-        meterIDObject = {"meterId": meterID}
+        meterIDObject = {
+            "MId":      meterID,
+            "IDur":     15
+        }
         meterIDValueList = []
         t0 = time.time()
         try:
@@ -64,21 +67,26 @@ def download(meterIDList, middlewareURL, retrievalday):
                 meterItem = {}
                 if meterResponse['values']['power']:
                     # delta in W (Power) * * 10^-3
-                    power = meterResponse['values']['power'] / 1000
+                    power = meterResponse['values']['power'] / 1000 / 4
                     #print('Printing delta power: ', power ,' W')
-                    if power >= 0:
-                        meterItem['consumption'] = int(round(power))
-                        meterItem['production'] = 0
-                    else:
-                        meterItem['consumption'] = 0
-                        meterItem['production'] = int(round(power))
+                    meterItem['PAvg'] = power
                 else:
                     print("ERROR: 'power' doesn't exist in middlewareResponse JSON data")
 
                 if meterResponse['time']:
-                    meterItem['time'] = meterResponse['time']
+                    meterItem['IEnd'] = meterResponse['time']
                 else:
                     print("ERROR: 'time' doesn't exist in middlewareResponse JSON data")
+
+                if meterResponse['values']['energy']:
+                    meterItem['EIn'] = meterResponse['values']['energy'] / 100000
+                else:
+                    print("ERROR: 'energy' doesn't exist in middlewareResponse JSON data")
+
+                if meterResponse['values']['energyOut']:
+                    meterItem['EOut'] = meterResponse['values']['energyOut'] / 100000
+                else:
+                    print("ERROR: 'energyOut' doesn't exist in middlewareResponse JSON data")
 
                 #print("meterItem: ", meterItem)
                 meterIDValueList.append(meterItem)
