@@ -1,0 +1,1038 @@
+{
+  "data": [
+    {
+      "type": "consumer",
+      "meterId": "a1b64ab07c3440bfb182f8bc815172bb",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "31319",
+        "city": "Sehnde",
+        "lat": "52.341845",
+        "lng": "9.939930"
+      }
+    },
+    {
+      "type": "prosumer",
+      "meterId": "f8fd972060b848438d927d59919bdc49",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30827",
+        "city": "Garbsen",
+        "lat": "52.440990",
+        "lng": "9.601102"
+      },
+      "edgeId": "fems1608",
+      "pv": {
+        "peak": "9.735"
+      },
+      "storage": {
+        "maxPower": "10",
+        "minSoc": "5",
+        "capacity": "10"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "562058edb9f1428a951c3b3f8a187082",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "31832",
+        "city": "Springe",
+        "lat": "52.203305",
+        "lng": "9.543207"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "396f3023c3654d18b50955631ded465c",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30916",
+        "city": "Isernhagen",
+        "lat": "52.464714",
+        "lng": "9.886250"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "230c9f4775444fac8fb1337998a9ae1b",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30855",
+        "city": "Langenhagen Kaltenweide",
+        "lat": "52.481799",
+        "lng": "9.727901"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "45756509bb7341a194ed36df825deedb",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30855",
+        "city": "Langenhagen",
+        "lat": "52.443903",
+        "lng": "9.672852"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "db229884cbaa447fa2a868ec07cb3d70",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30519",
+        "city": "Hannover",
+        "lat": "52.338679",
+        "lng": "9.764371"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "f374561509f7411bbe0ef0849cb62741",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30453",
+        "city": "Hannover",
+        "lat": "52.371634",
+        "lng": "9.692663"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "a4ccd579ac6f43b1b8a1e151e0b9b7d4",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30455",
+        "city": "Hannover",
+        "lat": "52.358639",
+        "lng": "9.680834"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "280ab04c87794634b493d64a54c6fc83",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30559",
+        "city": "Hannover",
+        "lat": "52.365675",
+        "lng": "9.852531"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "781ffa307e434529be9f747eece1b8dc",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "69256",
+        "city": "Mauer",
+        "lat": "49.342258",
+        "lng": "8.800113"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "ad6c1e29a3eb4f418e7322bd92f0e2fd",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30853",
+        "city": "Langenhagen",
+        "lat": "52.448679",
+        "lng": "9.737844"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "21af8d67cf39421babf949ec5ae92433",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "38159",
+        "city": "Vechelde",
+        "lat": "52.260844",
+        "lng": "10.362417"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "b5d753c86aad44b6bf04a88340521f97",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30455",
+        "city": "Hannover",
+        "lat": "52.355816",
+        "lng": "9.678929"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "88154021c9e14cfc97969de3a2d8871d",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30880",
+        "city": "Laatzen",
+        "lat": "52.284024",
+        "lng": "9.823010"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "129fe385623d4116a9bce7fe5fe89300",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30853",
+        "city": "Langenhagen",
+        "lat": "52.448653",
+        "lng": "9.737844"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "348890223bf148a69bc7c2683f238cb1",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30163",
+        "city": "Hannover",
+        "lat": "52.391191",
+        "lng": "9.752829"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "65ed033755d94709a4d87d4c83a184b6",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30559",
+        "city": "Hannover",
+        "lat": "52.352712",
+        "lng": "9.824967"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "159d3ae35fc0420aa438bf3e0e4fa4b0",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30900",
+        "city": "Wedemark",
+        "lat": "52.570306",
+        "lng": "9.615192"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "c20dec45923d4c679e6cd5e19a89b595",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30966",
+        "city": "Hemmingen",
+        "lat": "52.317858",
+        "lng": "9.726000"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "bb790223f89a4d3685dd4d4095a17a7c",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30926",
+        "city": "Seelze",
+        "lat": "52.403075",
+        "lng": "9.637388"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "76d4135bc43a47739f2c61e4ae70f58b",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "31249",
+        "city": "Hohenhameln",
+        "lat": "52.260495",
+        "lng": "10.076759"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "7aec596afe8f4de6a5317307a110fe53",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30851",
+        "city": "Langenhagen",
+        "lat": "52.437498",
+        "lng": "9.730215"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "c8d2f7d292b14ed4906c9a2271ff56e4",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30629",
+        "city": "Hannover",
+        "lat": "52.393119",
+        "lng": "9.832071"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "a4ca23c3a2d54848bafbfd1331accd82",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30163",
+        "city": "Hannover",
+        "lat": "52.396323",
+        "lng": "9.752532"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "2533b5ea4bb8455c967f4db9954eb470",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30539",
+        "city": "Hannover",
+        "lat": "52.342282",
+        "lng": "9.815850"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "fb33e83292f446eab85d6aebb8f220ec",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "31515",
+        "city": "Wunstorf",
+        "lat": "52.423554",
+        "lng": "9.466116"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "4bb1be4aa3594ed3be1f0221e7b8fb66",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30419",
+        "city": "Hannover",
+        "lat": "52.425244",
+        "lng": "9.698921"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "d050f67a856e4f8991043dbe49a643c8",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "31303",
+        "city": "Burgdorf",
+        "lat": "52.439937",
+        "lng": "10.020801"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "3b821b181cda41889deb55e7e0627ea3",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30966",
+        "city": "Hemmingen",
+        "lat": "52.303977",
+        "lng": "9.735839"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "b0836e51eae14f35b7fc4564bcd63982",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "31867",
+        "city": "Lauenau",
+        "lat": "52.277395",
+        "lng": "9.375451"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "7607d95589e34a1fb1365bafddc8cca0",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30173",
+        "city": "Hannover",
+        "lat": "52.359811",
+        "lng": "9.754942"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "de433e86495c4964a0a38675e78fda87",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30952",
+        "city": "Ronnenberg",
+        "lat": "52.314247",
+        "lng": "9.657753"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "4813ac5cbd01464dbf2e23654e9f41e1",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30826",
+        "city": "Garbsen",
+        "lat": "52.431396",
+        "lng": "9.499566"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "a2d1df7c48d5471488c12086126402cf",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30926",
+        "city": "Seelze",
+        "lat": "52.397991",
+        "lng": "9.636189"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "27e7041c8ce746e19de0800bb5629752",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "31622",
+        "city": "Heemsen",
+        "lat": "52.740896",
+        "lng": "9.322198"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "0fa311c7cf44434e98aac205e8962a65",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "31582",
+        "city": "Nienburg",
+        "lat": "52.629667",
+        "lng": "9.236320"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "da805e8b372842db8a9dc4437c942091",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30457",
+        "city": "Hannover",
+        "lat": "52.328384",
+        "lng": "9.707078"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "3434ef7f266b45cc98c6b6cebc3d7cd0",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30926",
+        "city": "Seelze",
+        "lat": "52.385309",
+        "lng": "9.595669"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "aae22c699743441d9c9d4cd8188662dd",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "94474",
+        "city": "Vilshofen",
+        "lat": "48.631050",
+        "lng": "13.189087"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "bf4eefb2748b4a9a88a42e9e978afbc3",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30890",
+        "city": "Barsinghausen",
+        "lat": "52.299685",
+        "lng": "9.473959"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "720dd4e716b34ff78af786cb071d6626",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30457",
+        "city": "Hannover",
+        "lat": "52.326752",
+        "lng": "9.691829"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "5cc1c2eeba204e989bd98387f4394a06",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30519",
+        "city": "Hannover",
+        "lat": "52.333054",
+        "lng": "9.763295"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "d3a36db2a378437e886190d0bf2a81d5",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30457",
+        "city": "Hannover",
+        "lat": "52.334449",
+        "lng": "9.686742"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "e04a658a0db34143969b96d12dfc02e6",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30880",
+        "city": "Laatzen",
+        "lat": "52.310023",
+        "lng": "9.806829"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "99deb39d9aab494f9c1e7791ddf2171a",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30926",
+        "city": "Seelze",
+        "lat": "52.408091",
+        "lng": "9.529040"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "6f1f84f1f36c4c669ab706174e712722",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30451",
+        "city": "Hannover",
+        "lat": "52.375818",
+        "lng": "9.702606"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "e4ee4ef5a79c4090ac72621820496b2d",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30982",
+        "city": "Pattensen",
+        "lat": "52.271109",
+        "lng": "9.748404"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "3e426f5e38a949c880e38d7cb8f52d73",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "31020",
+        "city": "Salzhemmendorf",
+        "lat": "52.062847",
+        "lng": "9.593284"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "fe87025b9a4e41e583eb53bc2a57d573",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30966",
+        "city": "Hemmingen",
+        "lat": "52.300101",
+        "lng": "9.730099"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "4012035a964e45cc9a997f125590e832",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30451",
+        "city": "Hannover",
+        "lat": "52.374413",
+        "lng": "9.701401"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "2b4b1b7cdcee4310ba86319c0d8aec4a",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30966",
+        "city": "Hemmingen",
+        "lat": "52.303415",
+        "lng": "9.745929"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "aa7eff0365dd47e7a858404dc8d522f4",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30455",
+        "city": "Hannover",
+        "lat": "52.355035",
+        "lng": "9.678269"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "520b9b0fd84c47799bf1272ae5da3c02",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30982",
+        "city": "Pattensen",
+        "lat": "52.273537",
+        "lng": "9.753229"
+      }
+    },
+    {
+      "type": "prosumer",
+      "meterId": "9084bf04f4704917a23fd61da1845379",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "31180",
+        "city": "Giesen",
+        "lat": "52.196898",
+        "lng": "9.900971"
+      },
+      "edgeId": "fems1607",
+      "pv": {
+        "peak": "3.6"
+      },
+      "storage": {
+        "maxPower": "5",
+        "minSoc": "5",
+        "capacity": "5"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "ccf745a8a29043dbb79a37e539a95478",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30453",
+        "city": "Hannover",
+        "lat": "52.377982",
+        "lng": "9.669886"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "34f6af5d2a94425b94c132f7f04097f3",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30455",
+        "city": "Hannover",
+        "lat": "52.367397",
+        "lng": "9.680190"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "065c1107c6424e66a09acc89c564a7b0",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30165",
+        "city": "Hannover",
+        "lat": "52.401448",
+        "lng": "9.733851"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "fc767fe7609e44ffa42fd651e1f4debd",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30539",
+        "city": "Hannover",
+        "lat": "52.334733",
+        "lng": "9.836720"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "2c432b1f169c4eaabee80b1498b3de52",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30855",
+        "city": "Langenhagen",
+        "lat": "52.480656",
+        "lng": "9.730461"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "141f320e90e242659b46abbee3064ea1",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30982",
+        "city": "Jeinsen",
+        "lat": "52.212798",
+        "lng": "9.791700"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "b2792fb9b24a4ffaa779cc83bf21236e",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30900",
+        "city": "Wedemark",
+        "lat": "52.520914",
+        "lng": "9.740432"
+      }
+    },
+    {
+      "type": "producer",
+      "meterId": "NO_METER_AVAILABLE",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30419",
+        "city": "Hannover",
+        "lat": "52.398978",
+        "lng": "9.680710"
+      },
+      "edgeId": "KOMMT_NOCH",
+      "pv": {
+        "peak": "271"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "31e1e04e44714e3ab05361403694f9f7",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30169",
+        "city": "Hannover",
+        "lat": "52.370177",
+        "lng": "9.728690"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "c3d28c61bbec43d3a62661545180457d",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30539",
+        "city": "Hannover",
+        "lat": "52.333811",
+        "lng": "9.835059"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "385fe06766254b9e8cc24d0c71b4c1f6",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30926",
+        "city": "Seelze",
+        "lat": "52.399075",
+        "lng": "9.638203"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "b6225b9e42644d46a3586f9630223ee9",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30938",
+        "city": "Burgwedel",
+        "lat": "52.565158",
+        "lng": "9.840091"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "f2788306495748888b67328e59940c03",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30459",
+        "city": "Hannover",
+        "lat": "52.343983",
+        "lng": "9.731313"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "fc8fa608010b40efaf5ccb4b0886010b",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30459",
+        "city": "Hannover",
+        "lat": "52.336275",
+        "lng": "9.700670"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "dd1c7274a5da45199c50f7abb4f8fa5d",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "94550",
+        "city": "Künzing",
+        "lat": "48.666604",
+        "lng": "13.079714"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "bb522c16a04b4fa49e1bb4e8eb0bf97c",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30926",
+        "city": "Seelze",
+        "lat": "52.399667",
+        "lng": "9.516021"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "1484babde2b94bc393d7d489a7134114",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30952",
+        "city": "Ronnenberg",
+        "lat": "52.339883",
+        "lng": "9.625864"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "930a0685341a4075a5ceb7e8c0df6ea5",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30559",
+        "city": "Hannover",
+        "lat": "52.361249",
+        "lng": "9.847031"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "3fcdc2da78a74c0fbbef1b437024001c",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30982",
+        "city": "Pattensen",
+        "lat": "52.193708",
+        "lng": "9.766694"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "c9a5aab8d1c34e60b459237caf3dc4a2",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30890",
+        "city": "Barsinghausen",
+        "lat": "52.297055",
+        "lng": "9.480312"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "952efcc7fd8c4d45a80b917c62a1b761",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30989",
+        "city": "Gehrden",
+        "lat": "52.347569",
+        "lng": "9.606920"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "a4d9e3e6ba3f4ba986e3459b6810b30d",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30459",
+        "city": "Hannover",
+        "lat": "52.335356",
+        "lng": "9.706172"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "235838ce7cd94f87b1beca2906a5e620",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "31139",
+        "city": "Hildesheim",
+        "lat": "52.129898",
+        "lng": "9.946696"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "1b88caab436e45ff9dcda9a77b326ed3",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30966",
+        "city": "Hemmingen",
+        "lat": "52.309188",
+        "lng": "9.730009"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "374b3d16fb4f4837993b7ec9a2cf1c30",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30989",
+        "city": "Gehrden",
+        "lat": "52.311091",
+        "lng": "9.615138"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "a819be9349344b16b15a68f2549cf798",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30655",
+        "city": "Hannover",
+        "lat": "52.401567",
+        "lng": "9.818083"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "afffe224b6044b0fa3a1ecd8a3807261",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30177",
+        "city": "Hannover",
+        "lat": "52.397395",
+        "lng": "9.772826"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "1da9bfccfd4246ecbce51a7c3f773eba",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30655",
+        "city": "Hannover",
+        "lat": "52.397022",
+        "lng": "9.808470"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "6eb9e3a382cb4f19aabbd1a2e591b5db",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30453",
+        "city": "Hannover",
+        "lat": "52.377969",
+        "lng": "9.669876"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "37fb69bf3e4e40a2af01bb055dc46c9a",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30982",
+        "city": "Pattensen",
+        "lat": "52.257856",
+        "lng": "9.768610"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "42abbcad71304c0ab3a2067947527953",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30974",
+        "city": "Wennigsen",
+        "lat": "52.254242",
+        "lng": "9.619238"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "ec50cc12fec74110b7ff3d8125661be0",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30459",
+        "city": "Hannover",
+        "lat": "52.345893",
+        "lng": "9.726958"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "95c1e970a93245c48e73b4be40a6ff68",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30966",
+        "city": "Hemmingen",
+        "lat": "52.298165",
+        "lng": "9.749219"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "d8e4c258335c46aa91ed7e25482719da",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30519",
+        "city": "Hannover",
+        "lat": "52.328563",
+        "lng": "9.774666"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "aa46732391c0471499637fb0b7a27996",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "29223",
+        "city": "Celle",
+        "lat": "52.627941",
+        "lng": "10.059860"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "7b7bffb94a974bfda386bfa023c9f4a1",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "13086",
+        "city": "Berlin",
+        "lat": "52.552430",
+        "lng": "13.453564"
+      }
+    },
+    {
+      "type": "consumer",
+      "meterId": "213a5e075c6a4b35b541bb759496bc53",
+      "enetId": "Placeholder ID des Netzes",
+      "location": {
+        "zip": "30966",
+        "city": "Hemmingen",
+        "lat": "52.301859",
+        "lng": "9.740920"
+      }
+    }
+  ]
+}
