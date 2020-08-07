@@ -15,7 +15,7 @@ middlewareURL = "https://portal.blogpv.net/api/discovergy/readings"
 from ..helper import helper as helper
 
 @retry(Exception, delay=1*60, tries=-1)
-def download(meterIDList, middlewareURL, retrievalday):
+def downloadMeterData(meterIDList, middlewareURL, retrievalday):
 
     # get retrievalday
     from_date = datetime.datetime.strptime(retrievalday, '%d.%m.%Y') - timedelta(minutes=15)
@@ -94,7 +94,7 @@ def download(meterIDList, middlewareURL, retrievalday):
             #print("meterIDValueList: ", meterIDValueList)
 
         except requests.exceptions.RequestException as e:
-            print("ERROR: While sending a GET Request towards the BloGPV Middleware: ", e)
+            print("ERROR: While sending a GET Request: ", e)
             raise SystemExit(e)
         else:
             print('It eventually worked', middlewareResponse.status_code)
@@ -103,6 +103,38 @@ def download(meterIDList, middlewareURL, retrievalday):
             print('Took', t1 - t0, 'seconds')
             middlewareResponseList.append(meterIDObject)
     return middlewareResponseList
+
+@retry(Exception, delay=1*60, tries=-1)
+def retrieveMeterIDs(middlewareURL):
+
+    print('')
+    print('Request for Smart Meter IDs:')
+    print('=======================')
+    print('  URL:          h   = {}'.format(middlewareURL))
+    print('')
+
+    t0 = time.time()
+    middlewareJSONResponse = {}
+    try:
+        middlewareResponse = helper.requests_retry_session().get(url = middlewareURL)
+
+        # extracting data in json format
+        print('Extracting data')
+        middlewareJSONResponse = middlewareResponse.json()
+        #print("middlewareResponse: ", middlewareJSONResponse)
+
+    except requests.exceptions.RequestException as e:
+        print("ERROR: While sending a GET Request: ", e)
+        raise SystemExit(e)
+    else:
+        print('It eventually worked', middlewareResponse.status_code)
+    finally:
+        t1 = time.time()
+        print('Took', t1 - t0, 'seconds')
+        if 'data' in middlewareJSONResponse:
+            return middlewareJSONResponse
+        else:
+            raise SystemExit("No Data in Return JSON in given data")
 
 if __name__ == "__main__":
     download()

@@ -95,3 +95,5 @@ zokrates-code/proof.json
 zokrates-code/verifier.sol
 contracts/verifier.sol
 tmp/
+.env
+Discovergy_2020-07-30.json

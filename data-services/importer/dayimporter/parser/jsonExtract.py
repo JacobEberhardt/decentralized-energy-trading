@@ -3,11 +3,8 @@ import json
 import math
 import datetime
 
-def extractMeterIDs(middlewareAssetListResponseJSON):
+def extractMeterIDs(json_assetList):
     h   = []                    # List of all households meterIDs
-
-    with open(middlewareAssetListResponseJSON) as assetListJSON:
-        json_assetList = json.load(assetListJSON)
 
     for user in json_assetList["data"]:
         # ignore undefined users with meterID='NO_METER_AVAILABLE'
