@@ -16,6 +16,7 @@ plotly = "*"
 requests = ">=2.23.0"
 importer = {editable = true, path = "."}
 retry = "*"
+python-dotenv = "*"
 
 [requires]
 python_version = "3.8.3"

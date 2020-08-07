@@ -42,6 +42,7 @@ def download(meterID, middlewareURL, interval):
     print('Requesting Data from {}'.format(middlewareURL))
 
     t0 = time.time()
+    middlewareJSONResponse = {}
     try:
         middlewareResponse = helper.requests_retry_session().get(url = middlewareURL, params = PARAMS)
 
@@ -61,7 +62,6 @@ def download(meterID, middlewareURL, interval):
         t1 = time.time()
         print('Took', t1 - t0, 'seconds')
         return middlewareJSONResponse
-
 
 if __name__ == "__main__":
     download()
