@@ -47,10 +47,8 @@ def downloadMeterData(meterIDList, middlewareURL, retrievalday):
         print('  Parameter:    h_s = {}'.format(PARAMS))
         print('')
 
-        meterIDObject = {
-            "MId":      meterID,
-            "IDur":     15
-        }
+        loopMeterID = meterID
+        meterIDObject = {}
         meterIDValueList = []
         t0 = time.time()
         try:
@@ -65,6 +63,14 @@ def downloadMeterData(meterIDList, middlewareURL, retrievalday):
             for meterResponse in middlewareJSONResponse:
                 #print("meter: ", meterResponse)
                 meterItem = {}
+                meterItem['MId'] = loopMeterID
+                meterItem['IDur'] = PARAMS['resolution']
+
+                if meterResponse['time']:
+                    meterItem['IEnd'] = meterResponse['time']
+                else:
+                    print("ERROR: 'time' doesn't exist in middlewareResponse JSON data")
+
                 if meterResponse['values']['power']:
                     # delta in W (Power) * * 10^-3
                     power = meterResponse['values']['power'] / 1000 / 4
@@ -72,11 +78,6 @@ def downloadMeterData(meterIDList, middlewareURL, retrievalday):
                     meterItem['PAvg'] = power
                 else:
                     print("ERROR: 'power' doesn't exist in middlewareResponse JSON data")
-
-                if meterResponse['time']:
-                    meterItem['IEnd'] = meterResponse['time']
-                else:
-                    print("ERROR: 'time' doesn't exist in middlewareResponse JSON data")
 
                 if meterResponse['values']['energy']:
                     meterItem['EIn'] = meterResponse['values']['energy'] / 100000
@@ -89,8 +90,8 @@ def downloadMeterData(meterIDList, middlewareURL, retrievalday):
                     print("ERROR: 'energyOut' doesn't exist in middlewareResponse JSON data")
 
                 #print("meterItem: ", meterItem)
-                meterIDValueList.append(meterItem)
-            meterIDObject['values'] = meterIDValueList
+                middlewareResponseList.append(meterItem)
+            meterIDObject = meterIDValueList
             #print("meterIDValueList: ", meterIDValueList)
 
         except requests.exceptions.RequestException as e:
@@ -101,7 +102,7 @@ def downloadMeterData(meterIDList, middlewareURL, retrievalday):
         finally:
             t1 = time.time()
             print('Took', t1 - t0, 'seconds')
-            middlewareResponseList.append(meterIDObject)
+            #middlewareResponseList.append(meterIDObject)
     return middlewareResponseList
 
 @retry(Exception, delay=1*60, tries=-1)
