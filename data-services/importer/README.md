@@ -46,7 +46,18 @@ METERID='<INSERT_HERE_THE_SMART_METER_ID_YOU_WANT_TO_RETRIEVE_AND_SEND>'
 
 ### Usage
 
-Python only:
+CLI command:
+```bash
+$pipenv run glueservice
+```
+
+Parameters:
+
+| Parameter Name  | Type   | Description     |
+| :------------- | :-------------| :------------- |
+| endpointRetrieveMeterIDs    | string   | endpoint of Middleware Service to retrieve smart meter ids. like: https://abc.companyurl.com/api/       |
+| endpointSMD    | string   | endpoint of Middleware Service to retrieve smart meter data. like: https://abc.companyurl.com/api/      |
+| time    | string   | a specific day to retrieve from all smart meters. like: 28.07.2020     |
 
 **1.)** Download BloGPV Smart Meter Data from Middleware API and foreward the data to a local household server instance.
 
