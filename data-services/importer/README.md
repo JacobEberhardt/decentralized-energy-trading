@@ -70,5 +70,3 @@ data-services/smd-service/src$ pipenv run glueservice
 ```bash
 data-services/smd-service/src$ pipenv run glueservice -meterID 123456789123456789 -endpointSMD https://abc.companyurl.com/api/ -endpointHPU https://abc.companyurl.com/api/ -interval 900
 ```
-
-TODO: Build Docker container image:
