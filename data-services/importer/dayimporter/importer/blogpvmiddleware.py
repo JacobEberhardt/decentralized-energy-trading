@@ -18,7 +18,7 @@ from ..helper import helper as helper
 def downloadMeterData(meterIDList, middlewareURL, retrievalday):
 
     # get retrievalday
-    from_date = datetime.datetime.strptime(retrievalday, '%d.%m.%Y') - timedelta(minutes=15)
+    from_date = datetime.datetime.strptime(retrievalday, '%Y-%m-%d') - timedelta(minutes=15)
     from_date_milli = int(from_date.timestamp() * 1000)
     to_date = from_date + timedelta(days=1)
     to_date_milli = int(to_date.timestamp() * 1000)
@@ -122,7 +122,7 @@ def retrieveMeterIDs(middlewareURL):
         # extracting data in json format
         print('Extracting data')
         middlewareJSONResponse = middlewareResponse.json()
-        #print("middlewareResponse: ", middlewareJSONResponse)
+        print("middlewareResponse: ", middlewareJSONResponse)
 
     except requests.exceptions.RequestException as e:
         print("ERROR: While sending a GET Request: ", e)

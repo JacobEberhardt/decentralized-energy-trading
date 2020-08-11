@@ -12,7 +12,7 @@ def saveMiddlewareResponseJSON(middlewareResponseJSON, retrievalday, analyzed):
 
     # file name format
     t = datetime.datetime.now()
-    retrieveday = datetime.datetime.strptime(retrievalday, '%d.%m.%Y')
+    retrieveday = datetime.datetime.strptime(retrievalday, '%Y-%m-%d')
     fileNameEnding = '.json'
     if analyzed:
         fileNameEnding = '_analyzed.json'
@@ -41,7 +41,7 @@ def saveAnalyzedMiddlewareResponseJSON(analyzedJSON, retrievalday):
 
     # file name format
     t = datetime.datetime.now()
-    retrieveday = datetime.datetime.strptime(retrievalday, '%d.%m.%Y')
+    retrieveday = datetime.datetime.strptime(retrievalday, '%Y-%m-%d')
     filename = '{}{:%Y-%m-%d}{}'.format('Discovergy_', retrieveday, '.json')
 
     # join filename and folder

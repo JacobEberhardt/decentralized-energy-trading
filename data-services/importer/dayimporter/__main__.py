@@ -29,7 +29,7 @@ def main():
                         type=str,
                         help="endpoint of Middleware Service to retrieve smart meter data. like: https://abc.companyurl.com/api/")
     parser.add_argument("-time",
-                        default='30.07.2020',
+                        default='09.08.2020',
                         type=str,
                         help="a specific day to retrieve from all smart meters. like: 28.07.2020")
 
