@@ -122,7 +122,7 @@ def retrieveMeterIDs(middlewareURL):
         # extracting data in json format
         print('Extracting data')
         middlewareJSONResponse = middlewareResponse.json()
-        print("middlewareResponse: ", middlewareJSONResponse)
+        #print("middlewareResponse: ", middlewareJSONResponse)
 
     except requests.exceptions.RequestException as e:
         print("ERROR: While sending a GET Request: ", e)
