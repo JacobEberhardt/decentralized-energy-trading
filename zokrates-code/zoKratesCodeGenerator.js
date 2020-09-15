@@ -342,6 +342,8 @@ contract IdUtility {
     uint256[${len}] memory _inputs
     ) private returns (bool);
 
+  function configureSubmissionDeadline(uint _submissionDeadlineBillingEpoch, uint _billingPeriodLen) external returns (bool);
+
   function checkNetting(
     uint256 billingPeriod,
     address[] calldata _households,
@@ -407,6 +409,34 @@ contract dUtility is Mortal, IdUtility {
   uint256[] public transfers;
 
   IVerifier private verifier;
+
+  /** Timestamp of submission deadline of billing period 0. */
+  uint submissionDeadlineBillingEpoch;
+  /** Duration of one billing period, in seconds. */
+  uint billingInterval;
+
+  /**
+   * Check that the deadline for meter reading submissions
+   * of the given billing period has not passed yet.
+   */
+  modifier beforeSubmissionDeadline(uint256 billingPeriod) {
+    uint256 deadline = submissionDeadlineBillingEpoch + billingInterval * billingPeriod;
+    require(now <= deadline, "Meter reading submission deadline already passed for that billing period.");
+    _;
+  }
+
+  /**
+   * Check that the deadline for meter reading submissions
+   * of the given billing period has not passed yet.
+   */
+  function configureSubmissionDeadline(
+    uint _submissionDeadlineBillingEpoch,
+    uint _billingInterval
+  ) external onlyOwner() override returns (bool) {
+    submissionDeadlineBillingEpoch = _submissionDeadlineBillingEpoch;
+    billingInterval = _billingInterval;
+    return true;
+  }
 
   /**
    * @dev Create a household with address _household to track energy production and consumption.
@@ -623,6 +653,7 @@ contract dUtility is Mortal, IdUtility {
   function _updateAfterNettingDelta(uint256 billingPeriod, address _household, uint256[2] memory _afterNettingDelta)
   internal
   householdExists(_household)
+  beforeSubmissionDeadline(billingPeriod)
   {
     Household storage hh = households[billingPeriod][_household];
     hh.afterNettingDelta = bytes32(uint256(_afterNettingDelta[0] << 128 | _afterNettingDelta[1]));

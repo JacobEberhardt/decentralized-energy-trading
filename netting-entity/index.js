@@ -7,7 +7,7 @@ const fs = require("fs");
 const Utility = require("./utility");
 const hhHandler = require("./household-handler");
 const zkHandler = require("./zk-handler");
-const { getBillingPeriod } = require("../helpers/billing-cycles");
+const { getBillingPeriod, isTimestampBeforeSubmissionDeadline } = require("../helpers/billing-cycles");
 const web3Helper = require("../helpers/web3");
 const contractHelper = require("../helpers/contract");
 
@@ -17,7 +17,8 @@ const serverConfig = require("../ned-server-config");
 commander
   .option("-h, --host <type>", "ip of ned server")
   .option("-p, --port <type>", "port of ned server")
-  .option("-i, --interval <type>", "interval of the netting")
+  .option("-i, --interval <type>", "interval of the netting, in milliseconds")
+  .option("-d, --submissionDeadlineBillingEpoch <type>", "Timestamp of submission deadline of billing period 0, in seconds")
   .option(
     "-n, --network <type>",
     "network name specified in truffle-config.js"
@@ -26,6 +27,7 @@ commander.parse(process.argv);
 
 const config = {
   nettingInterval: commander.interval || serverConfig.nettingInterval,
+  submissionDeadlineBillingEpoch: commander.submissionDeadlineBillingEpoch || serverConfig.submissionDeadlineBillingEpoch,
   host: commander.host || serverConfig.host,
   port: commander.port || serverConfig.port,
   network: commander.network || serverConfig.network,
@@ -213,8 +215,11 @@ app.put("/energy/:householdAddress", async (req, res) => {
     }
 
     const billingPeriod = getBillingPeriod(config.nettingInterval, timestamp);
-    const utility = getOrCreateUtilityForBillingPeriod(billingPeriod);
+    if (!isTimestampBeforeSubmissionDeadline(timestamp, billingPeriod, config.nettingInterval, config.submissionDeadlineBillingEpoch)) {
+      throw new Error("Reading submission deadline already ended");
+    }
 
+    const utility = getOrCreateUtilityForBillingPeriod(billingPeriod);
     if (utility.addHousehold(householdAddress)) {
       console.log(`New household ${householdAddress} added`);
     }

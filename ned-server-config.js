@@ -10,7 +10,9 @@
       password: "node0",
       // Name of JSON RPC interface specified in truffle-config.js
       network: "authority",
-      // Time Interval of the ned server triggering the netting in the ZoKrates execution environment
+      // Timestamp of submission deadline of billing period 0, in seconds
+      submissionDeadlineBillingEpoch: 15 + 15 * 60, // 15s (nettingInterval; see below) plus 15min after end of billing period
+      // Time Interval of the ned server triggering the netting in the ZoKrates execution environment, in milliseconds
       nettingInterval: 15000,
       // Working directory of the file and the child process
       workingDir: "./ned-server",

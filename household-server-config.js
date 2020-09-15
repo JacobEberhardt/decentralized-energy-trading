@@ -21,6 +21,8 @@ module.exports = {
   password: "node0",
   // Name of JSON RPC interface specified in `truffle-config.js`
   network: "authority",
+  // Timestamp of submission deadline of billing period 0, in seconds
+  submissionDeadlineBillingEpoch: 15 + 15 * 60, // 15s (sensorInterval; see below) plus 15min after end of billing period
   // Time Interval of the Mock-Sensor sending Data to the Household Server in ms
   sensorInterval: 15000
 };

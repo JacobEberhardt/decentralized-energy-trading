@@ -42,6 +42,8 @@ contract IdUtility {
     uint256[8] memory _inputs
     ) private returns (bool);
 
+  function configureSubmissionDeadline(uint _submissionDeadlineBillingEpoch, uint _billingPeriodLen) external returns (bool);
+
   function checkNetting(
     uint256 billingPeriod,
     address[] calldata _households,

@@ -8,7 +8,7 @@ const verifier = artifacts.require("Verifier.sol")
 
 const web3Helper = require("../helpers/web3");
 const asyncUtils = require("../helpers/async-utils");
-const { address, password } = require("../household-server-config");
+const { address, password, submissionDeadlineBillingEpoch, sensorInterval } = require("../household-server-config");
 const {
   UTILITY_ADDRESS,
   AUTHORITY_ADDRESS,
@@ -56,6 +56,9 @@ module.exports = async (deployer, network, [authority]) => {
       await deployer.deploy(dUtility);
       const utilityInstance = await dUtility.deployed();
       await utilityInstance.addHousehold(authority);
+      await utilityInstance.configureSubmissionDeadline(
+        submissionDeadlineBillingEpoch,
+        sensorInterval);
       break;
     }
     case "authority": {
@@ -75,6 +78,10 @@ module.exports = async (deployer, network, [authority]) => {
       await utilityInstanceInAuthority.addHousehold(AUTHORITY_ADDRESS, {
         from: AUTHORITY_ADDRESS
       });
+      await utilityInstanceInAuthority.configureSubmissionDeadline(
+        submissionDeadlineBillingEpoch,
+        sensorInterval,
+        { from: AUTHORITY_ADDRESS });
       process.stdout.write(chalk.green("done\n"));
 
       process.stdout.write("  Transfer ownership of dUtility contract ... ");

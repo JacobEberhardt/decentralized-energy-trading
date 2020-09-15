@@ -46,6 +46,34 @@ contract dUtility is Mortal, IdUtility {
 
   IVerifier private verifier;
 
+  /** Timestamp of submission deadline of billing period 0. */
+  uint submissionDeadlineBillingEpoch;
+  /** Duration of one billing period, in seconds. */
+  uint billingInterval;
+
+  /**
+   * Check that the deadline for meter reading submissions
+   * of the given billing period has not passed yet.
+   */
+  modifier beforeSubmissionDeadline(uint256 billingPeriod) {
+    uint256 deadline = submissionDeadlineBillingEpoch + billingInterval * billingPeriod;
+    require(now <= deadline, "Meter reading submission deadline already passed for that billing period.");
+    _;
+  }
+
+  /**
+   * Check that the deadline for meter reading submissions
+   * of the given billing period has not passed yet.
+   */
+  function configureSubmissionDeadline(
+    uint _submissionDeadlineBillingEpoch,
+    uint _billingInterval
+  ) external onlyOwner() override returns (bool) {
+    submissionDeadlineBillingEpoch = _submissionDeadlineBillingEpoch;
+    billingInterval = _billingInterval;
+    return true;
+  }
+
   /**
    * @dev Create a household with address _household to track energy production and consumption.
    * Emits NewHousehold when household was added successfully.
@@ -226,7 +254,7 @@ contract dUtility is Mortal, IdUtility {
     _updateEnergy(billingPeriod, _household, _deltaEnergy, false);
   }
 
-    /**
+  /**
    * @dev Updates a household's energy state
    * @param _household address of the household
    * @param _deltaEnergy bytes32 hash of (delta+nonce+senderAddr)
@@ -240,6 +268,7 @@ contract dUtility is Mortal, IdUtility {
     bool _isRenewable)
   internal
   householdExists(_household)
+  beforeSubmissionDeadline(billingPeriod)
   returns (bool) {
     Household storage hh = households[billingPeriod][_household];
     if (_isRenewable) {
