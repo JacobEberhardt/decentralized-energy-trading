@@ -75,6 +75,7 @@
                         # sudo docker pull blogpvblossom/household-db:latest
                         sudo docker pull blogpvblossom/openethereum:latest
                         sudo docker run -d -p 8545:8545 -p 8546:8546 -p 8180:8180 -p 30303:30303 blogpvblossom/openethereum:latest --unsafe-expose --jsonrpc-cors all --fast-unlock
+                        # TODO Pull netting image and run container with netting image
                         # sudo docker run -d -e BOOTNODE_IP=172.31.11.12 -p 8545:8545 -p 8546:8546 -p 8180:8180 -p 30303:30303 blogpvblossom/openethereum:latest --unsafe-expose --jsonrpc-cors all --fast-unlock
 
     #Outputs:
